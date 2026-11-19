@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T19:48:10.788Z",
+  "generatedAt": "2026-11-19T19:52:23.761Z",
   "zips": [
     {
       "name": "01-especificacion.zip",
@@ -48,7 +48,7 @@
     },
     {
       "name": "08-portal-especificacion.zip",
-      "bytes": 5658,
+      "bytes": 5737,
       "package": "portal-spec"
     },
     {
