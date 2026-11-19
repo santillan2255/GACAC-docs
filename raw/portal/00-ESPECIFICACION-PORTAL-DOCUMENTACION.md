@@ -267,6 +267,7 @@ Ver `portal/README.md` para detalle de scripts, visor de anexos y despliegue con
 - `docs/entregables-analisis-diseno/00-INDICE.md` — mapa de entregables formal  
 - `procoop-relevamiento/README.md` — política de capturas y datos personales  
 - `docs/brand/coopapps/` — identidad visual para el tema del portal  
+- [`01-pasos-vibe-coding-claude-prompts.md`](01-pasos-vibe-coding-claude-prompts.md) — pasos y prompts `PORTAL-GEN-*` / catálogo `PRO-O*` y `*PROMPT-CLAUDE*`  
 
 ---
 
