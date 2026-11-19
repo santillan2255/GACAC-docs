@@ -1,4 +1,4 @@
-/* Guardia de acceso portal GACAC */
+/* Guardia de acceso portal CoopApps */
 (function () {
   var K = "gacac-docs-auth-v1";
   if (sessionStorage.getItem(K) === 'ok') return;
