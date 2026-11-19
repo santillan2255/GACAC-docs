@@ -96,7 +96,7 @@ Ver **`14-diferencias-vs-OLD-2026-11-19.md`** (backup DIR-02 del 19-11-2026).
 1. ~~Cosmética 172 / PRO Connectia~~ — **Hecho** (barrido plan + `04` §15, 19-11-2026).
 2. Portal: entrada de navegación a `03-norma` y `13-coherencia` (pendiente menú).
 3. ~~Banner §5 anexos~~ — **Hecho** (`barrido_anexos_sec56_banner.py`, 34 archivos).
-4. Regenerar ENTREGABLES PRO-O muy específicos (CNX §4.1) si molestan en export — bajo prioridad.
+4. ~~T08 columna verificación~~ — **Hecho** (`barrido_t08_verificacion_goodapps.py`, 19-11-2026); columnas *Requisito/Métrica* con histórico Connectia + banner.
 
 ---
 

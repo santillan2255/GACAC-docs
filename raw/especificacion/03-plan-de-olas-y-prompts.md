@@ -1,13 +1,13 @@
 # 03 — Plan de construcción por olas y prompts para Cursor IA
 
-> **Estado (DEC-118).** Este plan es **referencia histórica** del mapa funcional por olas **O0–O11** y de los requisitos asociados. La **construcción y el export a GoodApps** siguen el pipeline acordado (`06-impacto-adaptacion-stack-goodapps.md`). Las olas siguen siendo útiles para **alcance y priorización de contenido**, no como guía operativa de implementación.
+> **Estado (DEC-118).** Mapa funcional **O0–O11**, **4.213 RF**, **174** bloques `PRO-O*` (**barrido GoodApps 19-11-2026** en cuerpos + §2.3–§2.5) y **4 PRO-GEN** en [`03-norma`](03-norma-ejecucion-goodapps.md). Residuos puntuales Connectia solo en notas históricas. Build: **PRO-GEN-01 → §5 + PRO-Ox-NN → PRO-GEN-04 → PR**; cierre: integración + **PRO-GEN-02**. Script: `_trabajo/barrido_plan_connectia_goodapps.py`.
 
 | Campo | Valor |
 |---|---|
 | Versión | 1.2 (10-11-2026: incorpora los 9 RF y el RNF nuevos de DEC-093 a DEC-108, del contraste del documento externo `NucleoTransversal-Modelo`, y menciona esas decisiones en los prompts que cambian; ver §22). *Reemplazado (v1.1):* 1.1 (reemplaza la 1.0 del 04-11-2026: incorpora los 83 RF nuevos de las fases 1 a 3 de huecos, DEC-082 a DEC-087 y los cambios de ola de los anexos; ver §21). Corregida el 05-11-2026 con las inconsistencias detectadas por los entregables de análisis y diseño (ver §21.5) |
 | Fecha | 10-11-2026 (antes 05-11-2026) |
 | Estado | Archivo histórico (DEC-118). Deriva del maestro, del registro de decisiones y de la columna de ola de los RF de cada anexo. |
-| Alcance | Olas O0 a O11 del sistema CoopApps, con 172 prompts listos para pegar en Cursor IA |
+| Alcance | Olas O0 a O11 del sistema CoopApps, con **174** prompts `PRO-O*` (+ **4** `PRO-GEN` en `03-norma`) listos para pegar en Cursor IA (norma técnica: `03-norma-ejecucion-goodapps.md`) |
 | Cobertura | 4.213 RF (antes 4.204; 9 RF nuevos de DEC-093 a DEC-108, §22; antes 4.203, RF-POR-180 nuevo en O2, cierre de la corrección de inconsistencias del 05-11-2026, §21.6) de 29 anexos con RF (T01–T04, T06–T11, M01–M19) asignados a una ola y a un prompt; 293 RNF asignados (antes 292; RNF-NFR-260, §22). Cero faltantes (§17). Recuento hecho leyendo las tablas de RF de los anexos el 10-11-2026 (antes 05-11-2026). *Reemplazado: "4.120 RF" de la versión 1.0.* |
 | Documentos rectores | `00-ESPECIFICACION-MAESTRA.md` (prevalece), `01-registro-decisiones.md` (las DEC prevalecen sobre los anexos), `_GUIA-REDACCION-ANEXOS.md`, `02-preguntas-abiertas.md`, `05-registro-huecos.md`, `anexos/*` |
 | Documentos en elaboración referenciados | `anexos/T05-DAT-modelo-datos.md` (modelo canónico de colecciones) y `04-matriz-trazabilidad.md` (fuente → anexo/ID y estado de implementación) |
@@ -57,7 +57,7 @@
 
 | Ola | Contenido | Hito de salida (demostrable) | Depende de | Prompts | RF (inicio en la ola) | RNF |
 |---|---|---|---|---|---|---|
-| O0 | Fundaciones: monorepo, CI, tenancy, IAM base, outbox/BullMQ, bóveda, auditoría, S3, PDF, design system, diccionario base, notificaciones base, `legalEntities` | Tenant demo con login, menú vacío filtrado por capability y suite de aislamiento verde en CI | — | 21 | 305 | 144 |
+| O0 | Fundaciones: solución .NET+React, CI, tenancy, IAM base, outbox/colas Azure, bóveda, auditoría, Blob, PDF, design system, diccionario base, notificaciones base, `legalEntities` | Tenant demo con login, menú vacío filtrado por capability y suite de aislamiento verde en CI | — | 21 | 305 | 144 |
 | O1 | Plataforma SaaS e IAM completos, configuración versionada, maestros, geografía, conexiones de integración, workflow de aprobaciones, expediente, reportes base, herramienta de migración base | Alta asistida de una cooperativa con usuarios, roles y configuración publicada | O0 | 20 | 459 (antes 458) | 73 (antes 72) |
 | O2 | Personas y cuentas, catálogo de servicios, asociados mínimos, CRM de solicitudes, comunidad, landing, registro y portal base | Un socio se registra en la landing y solicita Internet; el contrato queda `requested` | O0, O1 | 19 | 617 (antes 614 y 613) | 15 |
 | O3 | Técnica del piloto: factibilidad, agenda, OT, instalación, comodato, stock serializado, app de campo offline, aprovisionamiento, reclamos | El servicio queda instalado, con ONT en comodato y aprovisionamiento confirmado | O2 | 13 | 319 | 9 |
@@ -69,13 +69,13 @@
 | O9 | Personal y sueldos | Liquidación mensual con F.931 y LSD, en paralelo dos períodos (DEC-058) | O8 | 9 | 163 | 0 |
 | O10 | Institucional, servicios sociales, flota, telefonía, TV, fabricación, turnero, agente local, actividades | Asamblea y servicios sociales operativos | O8 (O9 para honorarios y legajos) | 14 | 383 | 6 |
 | O11 | BI, generador de reportes, API de terceros, pasarelas restantes, migración repetible con históricos y corte administrativo (DEC-068; el paralelo, el by-pass y el corte comercial pasan a O7, DEC-089) | Corte administrativo y apagado de ProCoop en una cooperativa (DEC-089; antes "Corte comercial y luego corte administrativo de ProCoop en una cooperativa") | O0–O10 | 8 | 65 | 6 |
-| **Total** | | | | **172** | **4.213** (antes 4.204 y 4.203) | **293** (antes 292) |
+| **Total** | | | | **174** (*tabla histórica decía 172; DEC-089 O7/O11*) | **4.213** (antes 4.204 y 4.203) | **293** (antes 292) |
 
 Además hay 3 prompts generales reutilizables (§3): arranque de sesión, cierre de ola y corrección.
 
 *Reemplazado (versión 1.0): RF por ola O0 299, O1 457, O2 607, O3 315, O4 419, O5 463, O6 241, O7 256, O8 454, O9 161, O10 360, O11 88; total 4.120. Los 83 RF nuevos y los cambios de ola están en §21.*
 
-*Reemplazado (DEC-089, 05-11-2026): O7 10 prompts, 274 RF y 0 RNF; O11 10 prompts, 89 RF y 7 RNF. El corte comercial de electricidad, gas y prepago de la piloto ocurre al cerrar O7, así que pasan a O7 las herramientas de paralelo y corte y la migración de datos vigentes comerciales (24 RF y RNF-NFR-154, en los prompts nuevos PRO-O7-11 y PRO-O7-12, que reemplazan a PRO-O11-07 y PRO-O11-08). Los totales generales no cambian (172 prompts, 4.204 RF, 292 RNF). Detalle en §21.7.*
+*Reemplazado (DEC-089, 05-11-2026): O7 10 prompts, 274 RF y 0 RNF; O11 10 prompts, 89 RF y 7 RNF. El corte comercial de electricidad, gas y prepago de la piloto ocurre al cerrar O7, así que pasan a O7 las herramientas de paralelo y corte y la migración de datos vigentes comerciales (24 RF y RNF-NFR-154, en los prompts nuevos PRO-O7-11 y PRO-O7-12, que reemplazan a PRO-O11-07 y PRO-O11-08). Los totales generales no cambian (174 bloques PRO-O, 4.213 RF, 293 RNF; recuento 19-11-2026). Detalle en §21.7.*
 
 *Reemplazado (corrección 05-11-2026): O5 468 y O11 90 RF. RF-CON-160 (celda del anexo `O11 (O5 para saldos de apertura)`) empieza en O5 por la regla §0.1 y queda como extensión en O11. Las demás olas no cambian. Recuento por script (`_trabajo/plan_recuento.py`) leyendo las tablas de RF y RNF de los anexos y la línea `IMPLEMENTAR` de cada prompt (las líneas `EXTENSIONES` no cuentan): 4.203 RF y 292 RNF, cada uno en exactamente un prompt. Ver §21.5.*
 
@@ -113,12 +113,12 @@ Todo prompt de este plan exige cumplir estas reglas. Cada prompt las invoca por 
 
 | Regla | Contenido |
 |---|---|
-| R11 | **Convenciones obligatorias** (maestro §13 y guía §5): inglés camelCase en código y datos; UI con `dict:<clave>`; documento base con `tenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`; `legalEntityId` en todo documento económico (DEC-064; obligatorio por RF-CFG-136 y resuelto contra `legalEntities`, con `branchId` contra `branches` y `workstationId` contra `workstations`, nombres de T05); dinero en `Decimal128` + `decimal.js` (prohibido `Number`); fechas en UTC y zona del tenant; capabilities `modulo.recurso.accion` con alcance; errores RFC 9457 con `requestId`; `Idempotency-Key` en toda operación económica o de integración; eventos por outbox en la misma transacción; procesos masivos solo en jobs. |
-| R12 | **Arquitectura** (ARQ-01..08): un módulo solo escribe sus colecciones; usa servicios públicos o eventos de otros módulos; integraciones solo por conectores de T06 con secretos en la bóveda; la IA solo propone. |
+| R11 | **Convenciones obligatorias** (maestro §13, guía §5, **DEC-111**): inglés camelCase en código y datos; UI con `dict:<clave>`; entidades con `TenantId`, auditoría y versión optimista; `LegalEntityId` en documentos económicos (DEC-064); dinero en **SQL DECIMAL(19,4)** y `decimal` en .NET (prohibido `double` para importes); fechas UTC y zona del tenant; capabilities `modulo.recurso.accion`; errores **ProblemDetails** RFC 9457 con `requestId`; `Idempotency-Key` en operaciones económicas e integraciones; eventos por **outbox SQL** en la misma transacción; procesos masivos en **worker** y colas Azure. |
+| R12 | **Arquitectura** (ARQ-01..08): un módulo solo escribe sus **tablas** del esquema dueño; usa servicios públicos o eventos de otros módulos; integraciones solo por conectores T06 con secretos en la bóveda; la IA solo propone. |
 | R13 | **Seguridad de datos.** Nunca pedir, escribir ni commitear credenciales reales, certificados reales, tokens ni datos personales reales. `.env.example` con nombres y valores ficticios. Conectores en modo `test` con el simulador de RF-INT-031; ARCA solo en homologación con certificado generado por la plataforma para pruebas (DEC-053). Datos demo con `isDemo: true`, DNI y CUIT ficticios (por ejemplo DNI 00000001, CUIT 30-99999991-0) y correos `@example.com`. |
 | R14 | **Datos demo canónicos.** TEN-001 `coop-ejemplo-a` "Cooperativa Ejemplo A" y TEN-002 `coop-ejemplo-b` "Cooperativa Ejemplo B" (T01 §18 y RNF-NFR-161), más el tenant `PLATFORM`. Cada prompt agrega la precarga ficticia de la sección 18 del anexo que construye. Donde un anexo usa otros nombres para los mismos tenants (M02 §18 y T12: "Cooperativa Demo Norte/Sur"), se usan los de T01 y se conservan los códigos de datos (INT-100, ONT-DEMO-0001, Ana Demo). |
-| R15 | **Pruebas mínimas por prompt**: unitarias de lógica pura (`node --test` en backend, Vitest en front y packages); integración con Mongo y Redis reales en contenedor (Supertest); permisos negativos (403) por cada capability nueva; aislamiento de tenant (404 sin revelar existencia) por cada ruta y colección nueva; idempotencia (repetir la misma `Idempotency-Key` no duplica efectos); reintento y reanudación de jobs; e2e Playwright de los recorridos del prompt. Cada prueba cita el ID que verifica en su nombre (`RF-PER-001 crea persona física...`, `ESC-SRV-INT-01 ...`). |
-| R16 | **Definición de terminado común (DoD).** (1) Todos los RF del prompt cumplen su criterio de aceptación con prueba automatizada que cita el ID. (2) Pruebas de permisos negativos y aislamiento verdes. (3) Sin textos fijos en UI. (4) Auditoría y eventos emitidos en cada cambio persistente. (5) Esquemas Zod y OpenAPI actualizados. (6) Seeds idempotentes; seeds demo bloqueados en producción. (7) `npm run lint`, `npm run check:structure`, `npm test`, `npm run test:isolation` y el e2e del prompt en verde. (8) Matriz de trazabilidad actualizada (R19). (9) PR con la plantilla de R18. |
+| R15 | **Pruebas mínimas por prompt**: unitarias (xUnit); integración con **Azure SQL** de diseño o Testcontainers (WebApplicationFactory); permisos 403 por capability; aislamiento tenant (403/404); idempotencia; reintentos de jobs; e2e Playwright en React. Cada prueba cita el ID en el nombre. |
+| R16 | **DoD común (GoodApps).** (1) RF con prueba automatizada citando ID. (2) Permisos y aislamiento verdes. (3) Sin textos fijos en UI. (4) Auditoría y eventos en cambios persistentes. (5) Contratos/OpenAPI y validación actualizados. (6) Seeds idempotentes; demo bloqueado en prod. (7) `dotnet build`, `dotnet test`, aislamiento y e2e del prompt en verde. (8) Matriz (R19). (9) PR plantilla R18 + **PRO-GEN-04**. |
 
 ### 2.4 Commits, PR y trazabilidad
 
@@ -126,21 +126,24 @@ Todo prompt de este plan exige cumplir estas reglas. Cada prompt las invoca por 
 |---|---|
 | R17 | **Rama y commits.** Una rama por prompt: `ola-Ox/PRO-Ox-NN-<slug>`. Commits Conventional Commits con el módulo y los IDs: `feat(per): personas y verificación fiscal [PRO-O2-03] RF-PER-001..015, 017..019, 021..028`. Nada de commits mezclando dos prompts. |
 | R18 | **Un PR por prompt.** Título `PRO-Ox-NN <título>`. Cuerpo: RF implementados (completos o `Parcial (Ox)`); PAN, API, EVT y JOB construidos; colecciones creadas; parámetros declarados; PA asumidas (R8); huecos aplicados (R9); PA nuevas (R6); pruebas agregadas y resultado; capturas de pantalla con datos ficticios; riesgos pendientes. El PR no se fusiona si falla la suite de aislamiento (T08). |
-| R19 | **Matriz de trazabilidad.** Al cerrar cada prompt, Cursor actualiza `docs/especificacion/04-matriz-trazabilidad.md`, sección "Estado de implementación" (si no existe, la crea al final del documento sin tocar el resto), con una fila por RF: `RF | Anexo | Ola | Prompt | Estado (Implementado / Parcial (Ox) / Bloqueado PA-xxx) | PR | Pruebas (archivos) | Fecha`. Además corre `npm run trace:check` (creado en PRO-O0-02), que falla si un RF del prompt no tiene prueba que lo cite o si una prueba cita un ID inexistente en la especificación. |
+| R19 | **Matriz de trazabilidad.** Al cerrar cada prompt, Cursor actualiza `docs/especificacion/04-matriz-trazabilidad.md`, sección "Estado de implementación" (si no existe, la crea al final del documento sin tocar el resto), con una fila por RF: `RF | Anexo | Ola | Prompt | Estado (Implementado / Parcial (Ox) / Bloqueado PA-xxx) | PR | Pruebas (archivos) | Fecha`. Además corre `python docs/especificacion/_trabajo/plan_recuento.py` (creado en PRO-O0-02), que falla si un RF del prompt no tiene prueba que lo cite o si una prueba cita un ID inexistente en la especificación. |
 | R20 | **Cierre de ola.** El último prompt de cada ola (integración) corre el e2e completo de la ola y verifica que todos los RF de la ola estén `Implementado` o `Parcial` con la parte de la ola cumplida. Luego se ejecuta PRO-GEN-02. |
 
-### 2.5 Scripts estándar del monorepo (los crea O0)
+### 2.5 Scripts y comandos estándar (GoodApps; detalle en `03-norma-ejecucion-goodapps.md` §4)
 
-| Script | Qué hace |
+| Objetivo | Comando / artefacto |
 |---|---|
-| `npm run check:structure` | Valida la plantilla de carpetas y manifiestos de módulos (RF-PLA-003, RF-PLA-005) |
-| `npm run lint` | ESLint + Prettier + reglas propias (prohibido `Number` para importes, prohibido texto fijo en templates Vue, prohibido acceso a colecciones de otro módulo) |
-| `npm test` | Unitarias e integración (Mongo replica set y Redis en contenedor) |
-| `npm run test:isolation` | Suite de aislamiento multitenant que recorre todas las rutas y colecciones registradas (RF-PLA-034) |
-| `npm run test:e2e -- --grep @Ox` | Playwright de la ola |
-| `npm run seed:demo` | Precarga ficticia idempotente; se niega a correr en producción (RF-PLA-110) |
-| `npm run trace:check` | Control de trazabilidad de IDs en pruebas y PR (R19) |
-| `docker compose -f infra/docker/compose.yml up -d` | Entorno local completo (api, worker, admin, pwa, landing, mongo replica set, redis, almacenamiento S3 compatible, renderer PDF) |
+| Compilar | `dotnet build` |
+| Unitarias | `dotnet test --filter Category=Unit` |
+| Integración API + SQL | `dotnet test --filter Category=Integration` |
+| Aislamiento multitenant | `dotnet test --filter Category=Isolation` |
+| E2E ola | `playwright test --grep @Ox` |
+| Trazabilidad RF ↔ pruebas | `python docs/especificacion/_trabajo/plan_recuento.py` (+ script CI acordado, PRO-O0-02) |
+| Seeds demo | Herramienta `SeedDemo` idempotente; bloqueada en producción |
+| Migración esquema | EF Core migrations + paridad con `07-ddl` en CI |
+| Entorno local | `deploy/docker-compose.dev.yml` (API, Worker, SQL, storage emulado, React) |
+
+*Reemplaza (Connectia 04-11-2026): scripts `npm run *` del monorepo Node — conservados solo como histórico en prompts no barridos.*
 
 ---
 
@@ -148,9 +151,13 @@ Todo prompt de este plan exige cumplir estas reglas. Cada prompt las invoca por 
 
 ### PRO-GEN-01 — Arranque de sesión de Cursor
 
+
+> **Build GoodApps:** [`03-norma-ejecucion-goodapps.md`](03-norma-ejecucion-goodapps.md) §6 PRO-GEN-01. Bloque ```text Connectia **histórico** (barrido 19-11-2026).
+
 ```text
 PRO-GEN-01 — Arranque de sesión
-Sos el equipo de desarrollo de CoopApps (SaaS multitenant para cooperativas de servicios argentinas que reemplaza ProCoop). Trabajás en el monorepo goodapps-coop.
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
+Sos el equipo de desarrollo de CoopApps (SaaS multitenant para cooperativas de servicios argentinas que reemplaza ProCoop). Trabajás en el monorepo solución CoopApps (.NET 10 + React 19).
 1. Leé completos: docs/especificacion/00-ESPECIFICACION-MAESTRA.md §3, §5, §6, §7.1, §12, §13, §16; docs/especificacion/_GUIA-REDACCION-ANEXOS.md §5; docs/especificacion/01-registro-decisiones.md; docs/especificacion/03-plan-de-olas-y-prompts.md §2 (reglas R1–R20) y la sección de la ola en curso.
 2. Confirmá en una lista breve: ola en curso, último prompt cerrado (según 04-matriz-trazabilidad.md "Estado de implementación"), próximo prompt a ejecutar, y si el criterio de salida de la ola anterior está verde.
 3. No escribas código en esta respuesta. Esperá el prompt PRO-Ox-NN siguiente.
@@ -158,10 +165,14 @@ Sos el equipo de desarrollo de CoopApps (SaaS multitenant para cooperativas de s
 
 ### PRO-GEN-02 — Cierre de ola
 
+
+> **Build GoodApps:** [`03-norma-ejecucion-goodapps.md`](03-norma-ejecucion-goodapps.md) §6 PRO-GEN-02. Bloque ```text Connectia **histórico** (barrido 19-11-2026).
+
 ```text
 PRO-GEN-02 — Cierre de la ola Ox
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
-1. Corré: npm ci, npm run lint, npm run check:structure, npm test, npm run test:isolation, npm run test:e2e -- --grep @Ox, npm run trace:check.
+1. Corré: dotnet restore, dotnet build, dotnet test, dotnet test --filter Category=Isolation, playwright test -- --grep @Ox, python docs/especificacion/_trabajo/plan_recuento.py.
 2. Compará la lista de RF de la ola (sección de la ola, tabla "Alcance por anexo") con 04-matriz-trazabilidad.md "Estado de implementación". Informá: RF Implementado, RF Parcial (con la parte pendiente y la ola que la completa), RF faltantes. Si hay faltantes, no cierres la ola: generá la lista de tareas y detenete.
 3. Verificá el criterio de salida de la ola con el escenario demostrable indicado y dejá evidencia (capturas con datos ficticios y salida de pruebas) en docs/evidencias/Ox/.
 4. Revisá 05-registro-huecos.md: todo hueco de la ola debe quedar "Implementado según propuesta (PRO-...)" o con motivo de por qué sigue abierto.
@@ -171,8 +182,12 @@ No agregues funcionalidad nueva en este prompt.
 
 ### PRO-GEN-03 — Corrección dirigida
 
+
+> **Build GoodApps:** [`03-norma-ejecucion-goodapps.md`](03-norma-ejecucion-goodapps.md) §6 PRO-GEN-03. Bloque ```text Connectia **histórico** (barrido 19-11-2026).
+
 ```text
 PRO-GEN-03 — Corrección dirigida
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 Falla detectada: <pegar salida de la prueba o descripción del defecto con IDs RF/RN/ESC afectados>.
 1. Leé el RF, la RN y el escenario citados en su anexo y el prompt PRO-Ox-NN que los construyó.
@@ -180,6 +195,10 @@ Falla detectada: <pegar salida de la prueba o descripción del defecto con IDs R
 3. No amplíes alcance. Si la corrección exige cambiar la especificación, registrá una PA nueva (R6) y detenete.
 4. Actualizá la matriz (R19) y abrí PR "fix(<mod>): <resumen> [PRO-Ox-NN] <IDs>".
 ```
+
+### PRO-GEN-04 — Control pre-PR (GoodApps)
+
+> **Texto vigente** en [`03-norma-ejecucion-goodapps.md`](03-norma-ejecucion-goodapps.md) §4.1 (checklist C1–C12) y §6 (prompt pegable). Ejecutar **antes de abrir o mergear** el PR de cada `PRO-Ox-NN` y revalidar en **PRO-GEN-02** (muestreo de la ola). No sustituye **PRO-O0-02** ni `trace:check` / `plan_recuento.py`.
 
 ---
 
@@ -191,10 +210,10 @@ Dejar el esqueleto técnico sobre el que se construyen todos los módulos: monor
 
 ### 4.2 Criterio de salida (demostrable)
 
-1. `docker compose up` levanta api, worker, admin, pwa, landing, Mongo replica set, Redis, almacenamiento S3 compatible y renderer PDF.
+1. `docker compose` (o entorno local acordado) levanta API .NET, worker, shells React (admin/PWA/landing), Azure SQL (o contenedor), cola Azure emulada y almacenamiento Blob emulado + renderer PDF.
 2. En TEN-001 un usuario staff ficticio entra por pre-login (`coop-ejemplo-a`), ve el AdminShell oscuro con menú vacío filtrado por capability y cierra sesión; el refresh rota.
 3. Un usuario de TEN-002 recibe 404 al pedir un recurso de TEN-001; el plugin de tenancy lanza error si se consulta sin contexto.
-4. Un cambio de prueba genera auditoría encadenada, evento en `outboxEvents` y job procesado una sola vez aunque se reintente.
+4. Un cambio de prueba genera auditoría encadenada, evento en `pla.OutboxEvents` y job procesado una sola vez aunque se reintente.
 5. Un PDF de prueba se genera desde plantilla HTML y se descarga por URL firmada; un secreto de prueba se guarda cifrado en la bóveda y nunca aparece en logs.
 6. CI verde con lint, estructura, unitarias, integración, aislamiento, escaneo de secretos y humo e2e.
 
@@ -251,7 +270,7 @@ ESC-01..05 de T01 §17 y T08 §17 en lo que aplica a fundaciones; ESC-UXD-01..25
 | PRO-O0-05 | Observabilidad, salud y continuidad base | 6 |
 | PRO-O0-06 | Seguridad HTTP, cifrado y cargas seguras | 3 |
 | PRO-O0-07 | Outbox y bus de eventos de dominio | 13 |
-| PRO-O0-08 | Jobs BullMQ, programación por tenant y patrón de operaciones | 10 |
+| PRO-O0-08 | Jobs (colas Azure), programación por tenant y patrón de operaciones | 10 |
 | PRO-O0-09 | Almacenamiento privado S3 y repositorio documental base | 8 |
 | PRO-O0-10 | Bóveda de secretos (DEC-074) y marco de integraciones | 26 |
 | PRO-O0-11 | IAM base: identidades, pertenencias, login staff, sesión y capabilities | 21 |
@@ -270,81 +289,87 @@ ESC-01..05 de T01 §17 y T08 §17 en lo que aplica a fundaciones; ESC-UXD-01..25
 
 ```text
 PRO-O0-01 — Monorepo, monolito modular, Docker y ambientes
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
-OBJETIVO: crear el monorepo goodapps-coop con apps (api, worker, admin, pwa, landing), packages (shared, ui, dictionary, connectors) e infra, como monolito modular con manifiestos y fronteras verificables, contenerizado y con ambientes separados.
+OBJETIVO: crear el monorepo solución CoopApps (.NET 10 + React 19) con apps (api, worker, admin, pwa, landing), packages (shared, ui, dictionary, connectors) e infra, como monolito modular con manifiestos y fronteras verificables, contenerizado y con ambientes separados.
 LEER: 00-ESPECIFICACION-MAESTRA.md §5 (stack, monorepo, ARQ-01..08); anexos/T01-PLA-plataforma-saas.md §5.A, §5.J, §5.N, §5.P, §5.Q, §7.1, §7.2, §7.3 (árbol), §7.4 (módulos y manifiesto), §7.5, §7.10; anexos/T04-CFG-configuracion-parametros-maestros.md §5.14.
 IMPLEMENTAR: RF-PLA-001..008, 013, 109, 110, 146, 147, 154, 155, 161, 163; RF-CFG-122, 123; RNF-PLA-001..010, 015.
-ENTREGABLES: npm workspaces; árbol exacto de T01 §7.3; apps/api/src/modules/<cod>/ con manifest.js e index.js vacíos para los 26 códigos del maestro §5.2; apps/api/src/core/; script check:structure (falla si un módulo no respeta la plantilla o importa internals de otro módulo); grafo de dependencias acíclico verificado; Dockerfiles por app (imagen mínima, usuario no root, SBOM); infra/docker/compose.yml con mongo replica set, redis, minio, renderer; ambientes local, ci, dev, staging, sandbox, demo, prod con .env.example ficticio; migraciones de esquema y catálogos idempotentes ejecutadas por el pipeline; bloqueo de seeds demo en prod; scripts npm de §2.5 (esqueleto).
+ENTREGABLES: solución .NET monolito modular + frontend React (Vite); árbol exacto de T01 §7.3; src/Api/Modules/<cod>/ con registro DI + endpoints (minimal API o controllers) vacíos para los 26 códigos del maestro §5.2; src/Api/Core/; script check:structure (falla si un módulo no respeta la plantilla o importa internals de otro módulo); grafo de dependencias acíclico verificado; Dockerfiles por app (imagen mínima, usuario no root, SBOM); docker compose local (API, Worker, SQL, Azurite, frontends), renderer; ambientes local, ci, dev, staging, sandbox, demo, prod con .env.example ficticio; migraciones de esquema y catálogos idempotentes ejecutadas por el pipeline; bloqueo de seeds demo en prod; comandos de §2.5 GoodApps (esqueleto).
 NO CONSTRUIR TODAVÍA: lógica de negocio de ningún módulo; CI (PRO-O0-02); tenancy (PRO-O0-04).
 PRUEBAS: check:structure detecta un import prohibido entre módulos; seed demo en NODE_ENV=production termina con error; compose levanta y /health/live responde (stub).
 TERMINADO CUANDO: el repositorio compila, check:structure pasa, compose levanta los contenedores y el README explica cómo correr todo con datos ficticios.
-VERIFICAR: npm ci && npm run check:structure && docker compose -f infra/docker/compose.yml up -d && curl localhost:<puerto-api>/health/live
+VERIFICAR: dotnet restore && dotnet run --project tools/CheckStructure && docker compose -f deploy/docker-compose.dev.yml up -d && curl https://localhost:<puerto>/health/live
 ```
 
 #### PRO-O0-02 — CI/CD, estrategia de pruebas y trazabilidad
 
 ```text
 PRO-O0-02 — CI/CD, estrategia de pruebas y trazabilidad
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: pipeline de integración y entrega que bloquea el merge ante fallas de calidad, seguridad o aislamiento, con evidencia por versión y control de trazabilidad de IDs.
 LEER: anexos/T08-NFR-no-funcionales-seguridad.md §5.1, §9.11, §12.1, §12.2, §12.3, §15.9; anexos/T01-PLA-plataforma-saas.md §5.J; anexos/T06-INT-integraciones.md §5.10.
 IMPLEMENTAR: RF-PLA-113, 114; RF-NFR-022; RF-INT-083; RNF-NFR-092..094, 140..145, 147..149, 151, 152, 155, 158, 160..171, 174, 178, 240..245, 249.
-ENTREGABLES: workflow de CI con etapas lint, check:structure, unitarias (node --test + c8; Vitest), integración con Mongo y Redis reales en contenedor, test:isolation (stub que crece con cada módulo), SAST, SCA, escaneo de secretos que bloquea, build de imágenes con SBOM, e2e humo Playwright (Chromium, Firefox, WebKit y emulación móvil); juego canónico de datos de prueba de dos tenants (RF-PLA-113, RNF-NFR-161 como fixture); matriz de verificación por entrega; script trace:check que lee los IDs citados en nombres de pruebas y los valida contra docs/especificacion (regex RF-|RN-|RNF-|ESC-|CA-|TST-) y produce reporte; plantilla de PR con las secciones de R18; evidencias de liberación por versión.
+ENTREGABLES: workflow de CI con etapas lint, check:structure, unitarias (dotnet test --filter Category=Unit + c8; Vitest/Playwright (React)/Playwright (React)/Playwright (React)/Playwright (React)), integración con Azure SQL y Azure Queue reales en contenedor, test:isolation (stub que crece con cada módulo), SAST, SCA, escaneo de secretos que bloquea, build de imágenes con SBOM, e2e humo Playwright (Chromium, Firefox, WebKit y emulación móvil); juego canónico de datos de prueba de dos tenants (RF-PLA-113, RNF-NFR-161 como fixture); matriz de verificación por entrega; script trace:check que lee los IDs citados en nombres de pruebas y los valida contra docs/especificacion (regex RF-|RN-|RNF-|ESC-|CA-|TST-) y produce reporte; plantilla de PR con las secciones de R18; evidencias de liberación por versión.
 NO CONSTRUIR TODAVÍA: pruebas de dominio; pruebas de carga k6 de módulos (cada ola agrega las suyas).
 PRUEBAS: un commit de prueba con un secreto falso bloquea el pipeline; una prueba que cita RF-XXX-999 inexistente hace fallar trace:check.
 TERMINADO CUANDO: el pipeline corre completo en cada PR y la rama principal está protegida por él.
-VERIFICAR: npm run lint && npm test && npm run test:isolation && npm run trace:check && npm run test:e2e -- --grep @O0
+VERIFICAR: dotnet build && dotnet test && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py && playwright test --grep @O0
 ```
 
 #### PRO-O0-03 — Núcleo compartido: Zod, errores RFC 9457, paginación, dinero, fechas, control optimista e idempotencia
 
 ```text
-PRO-O0-03 — Núcleo compartido (packages/shared y apps/api/src/core)
+PRO-O0-03 — Núcleo compartido (packages/shared y src/Api/src/core)
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
-OBJETIVO: librerías transversales que todos los módulos usan: validación Zod compartida, errores application/problem+json con requestId, paginación {items,total,page,size}, dinero decimal, fechas con zona del tenant, control optimista por version e idempotencia HTTP.
+OBJETIVO: librerías transversales que todos los módulos usan: validación FluentValidation y contratos Shared compartida, errores application/problem+json con requestId, paginación {items,total,page,size}, dinero decimal, fechas con zona del tenant, control optimista por version e idempotencia HTTP.
 LEER: 00-ESPECIFICACION-MAESTRA.md §13; _GUIA-REDACCION-ANEXOS.md §5; anexos/T01-PLA-plataforma-saas.md §5.A, §7.5; anexos/T02-IAM-identidad-roles-auditoria.md §5.2 (RF-IAM-046), §5.6 (RF-IAM-139); anexos/T08-NFR-no-funcionales-seguridad.md §9.9, §9.10, §13.4, §14.1, §14.2.
 IMPLEMENTAR: RF-PLA-014, 015; RF-IAM-046, 139; RNF-NFR-082..087, 090, 091, 192..194, 200, 201, 206, 210..215, 226..228.
-ENTREGABLES: packages/shared/schemas (base Zod de documento con tenantId, legalEntityId opcional por tipo, createdAt, updatedAt, createdBy, updatedBy, version); packages/shared/money (decimal.js, Decimal128 adapters, redondeo por concepto, prohibición de Number vía regla ESLint); packages/shared/dates (UTC, zona America/Argentina/Cordoba por defecto, formato dd-mm-yyyy); middleware de errores RFC 9457 (5xx sin detalle técnico); middleware Idempotency-Key con almacenamiento de respuesta por tenant y clave, y 409 ante cuerpo distinto; plugin Mongoose de versión optimista (409 ante version vieja); hora del servidor para auditoría; middleware de paginación.
+ENTREGABLES: src/Contracts (Shared) (base FluentValidation y contratos Shared de documento con tenantId, legalEntityId opcional por tipo, createdAt, updatedAt, createdBy, updatedBy, version); src/Shared/money (decimal .NET y SQL DECIMAL(19,4) adapters, redondeo por concepto, prohibición de Number vía regla analyzers .NET + analyzers .NET + analyzers .NET + analyzers .NET + ESLint frontend frontend frontend frontend); src/Shared/dates (UTC, zona America/Argentina/Cordoba por defecto, formato dd-mm-yyyy); middleware de errores RFC 9457 (5xx sin detalle técnico); middleware Idempotency-Key con almacenamiento de respuesta por tenant y clave, y 409 ante cuerpo distinto; filtros globales EF Core y interceptores de versión optimista (409 ante version vieja); hora del servidor para auditoría; middleware de paginación.
 NO CONSTRUIR TODAVÍA: endpoints de negocio.
 PRUEBAS: suma y redondeo de importes al centavo sin Number; misma Idempotency-Key devuelve la misma respuesta sin repetir efectos; version desfasada responde 409 con problem+json; entrada inválida responde 400 con detalle por campo.
 TERMINADO CUANDO: los packages están publicados en el workspace con cobertura alta y documentación de uso.
-VERIFICAR: npm test -w packages/shared && npm run lint
+VERIFICAR: dotnet test --filter FullyQualifiedName~shared && dotnet build
 ```
 
 #### PRO-O0-04 — Multitenancy forzada y aislamiento
 
 ```text
 PRO-O0-04 — Multitenancy forzada y aislamiento
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: base única compartida con tenantId obligatorio y aislamiento verificable en consultas, jobs, archivos, caché, exportaciones, búsquedas, logs y referencias; tenant especial PLATFORM.
 LEER: 00-ESPECIFICACION-MAESTRA.md §6; anexos/T01-PLA-plataforma-saas.md §5.B, §5.C, §5.L, §7.8, §7.9, §7.11.1; anexos/T08-NFR-no-funcionales-seguridad.md §7.4.
 IMPLEMENTAR: RF-PLA-016..028, 030, 032..034, 036, 037, 130, 133; RNF-NFR-020, 021, 023, 025..027.
-ENTREGABLES: plugin Mongoose de tenancy (inyecta filtro en find*, count*, update*, delete*, replaceOne, distinct, aggregate primer $match, bulkWrite; asigna tenantId en save/insertMany; lanza error sin contexto); contexto AsyncLocalStorage (tenantId, userId, actorType, requestId); runAsPlatform(fn,{reason}) auditado; lista blanca de colecciones globales; índices compuestos que empiezan por tenantId (validados en arranque); prefijos t:<tenantId>: en Redis y tenants/<tenantId>/<modulo>/ en almacenamiento; colección tenants y tenant PLATFORM por migración idempotente; /api/platform/* y rutas meta.platformOnly solo para PLATFORM; rate limiting por IP y por tenant; separación de colas batch e interactivas; suite test:isolation genérica que recorre rutas y colecciones registradas.
+ENTREGABLES: filtros globales EF Core y interceptores de tenancy (inyecta filtro en find*, count*, update*, delete*, replaceOne, distinct, aggregate primer $match, bulkWrite; asigna tenantId en save/insertMany; lanza error sin contexto); contexto AsyncLocalStorage (tenantId, userId, actorType, requestId); runAsPlatform(fn,{reason}) auditado; lista blanca de tablas SQL globales; índices compuestos que empiezan por tenantId (validados en arranque); prefijos t:<tenantId>: en Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Redis en Azure si aplica en Azure si aplica en Azure si aplica en Azure si aplica y tenants/{tenantId}/<modulo>/ en almacenamiento; tabla tenants y tenant PLATFORM por migración idempotente; /api/platform/* y rutas meta.platformOnly solo para PLATFORM; rate limiting por IP y por tenant; separación de colas batch e interactivas; suite test:isolation genérica que recorre rutas y tablas SQL registradas.
 NO CONSTRUIR TODAVÍA: ciclo de vida del tenant y licencias (O1).
 PRUEBAS: consulta sin contexto lanza error; token de TEN-002 recibe 404 sobre un ID de TEN-001; un índice sin tenantId inicial hace fallar el arranque en ci; un job sin tenantId en el payload es rechazado; un admin de TEN-001 recibe 403 en /api/platform.
 TERMINADO CUANDO: test:isolation corre en CI y falla al agregar a propósito una ruta sin filtro.
-VERIFICAR: npm run test:isolation && npm test -w apps/api
+VERIFICAR: dotnet test --filter Category=Isolation && dotnet test --filter FullyQualifiedName~Api
 ```
 
 #### PRO-O0-05 — Observabilidad, salud y continuidad base
 
 ```text
 PRO-O0-05 — Observabilidad, salud y continuidad base
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: logs estructurados, métricas, trazas, salud, errores controlados, estados explícitos de operaciones externas y bases de backup y recuperación.
 LEER: anexos/T01-PLA-plataforma-saas.md §5.M; anexos/T06-INT-integraciones.md §5.9; anexos/T08-NFR-no-funcionales-seguridad.md §7.2, §7.3, §8, §11.2, §11.3, §11.4; 01-registro-decisiones.md DEC-063.
 IMPLEMENTAR: RF-PLA-136, 137, 139, 142, 143; RF-INT-073; RNF-NFR-001, 002, 004, 008, 009, 013, 014, 030, 033, 035, 038..041, 048, 120..124, 126..128, 130, 138, 139.
-ENTREGABLES: logger pino JSON con requestId, tenantId, userId seudonimizado y module; OpenTelemetry (trazas y métricas por ruta, tenant y cola); /health/live y /health/ready (Mongo, Redis, almacenamiento); captura de errores no controlados sin datos sensibles; enum de estados Pendiente, Confirmado, Fallido y Resultado incierto en packages/shared; backups lógicos programados por ambiente y procedimiento de restauración documentado (RPO ≤ 15 min, RTO ≤ 4 h por tenant, DEC-063) como base para O1; tablero técnico inicial y alertas de jobs.
+ENTREGABLES: logger pino JSON con requestId, tenantId, userId seudonimizado y module; OpenTelemetry (trazas y métricas por ruta, tenant y cola); /health/live y /health/ready (Azure SQL, Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Redis en Azure si aplica en Azure si aplica en Azure si aplica en Azure si aplica, almacenamiento); captura de errores no controlados sin datos sensibles; enum de estados Pendiente, Confirmado, Fallido y Resultado incierto en packages/shared; backups lógicos programados por ambiente y procedimiento de restauración documentado (RPO ≤ 15 min, RTO ≤ 4 h por tenant, DEC-063) como base para O1; tablero técnico inicial y alertas de jobs.
 NO CONSTRUIR TODAVÍA: restauración selectiva por tenant y tableros de plataforma (O1).
-PRUEBAS: un log de request contiene requestId y tenantId y nunca el header Authorization; /health/ready falla si Redis cae; una excepción no controlada devuelve 500 problem+json sin stack.
+PRUEBAS: un log de request contiene requestId y tenantId y nunca el header Authorization; /health/ready falla si Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Redis en Azure si aplica en Azure si aplica en Azure si aplica en Azure si aplica cae; una excepción no controlada devuelve 500 problem+json sin stack.
 TERMINADO CUANDO: las métricas se ven en el entorno local y hay alerta de cola atascada.
-VERIFICAR: npm test && docker compose up -d && curl /health/ready
+VERIFICAR: dotnet test && docker compose up -d && curl /health/ready
 ```
 
 #### PRO-O0-06 — Seguridad HTTP, cifrado y cargas seguras
 
 ```text
 PRO-O0-06 — Seguridad HTTP, cifrado y cargas seguras
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: controles OWASP ASVS nivel 2 transversales: cifrado en tránsito y reposo, cifrado de campos sensibles, headers, CSP, CORS, rate limit, cargas seguras, reportes CSP, security.txt y control de exportaciones con datos personales.
 LEER: anexos/T08-NFR-no-funcionales-seguridad.md §5.1 (RF-NFR-020, 021, 024), §9.1, §9.2, §9.3, §9.6, §9.7, §9.8, §9.12, §9.14, §10.2.
@@ -353,134 +378,143 @@ ENTREGABLES: middleware de headers (HSTS, CSP estricta con nonce, sin unsafe-inl
 NO CONSTRUIR TODAVÍA: EIPD por funcionalidad (cada ola) ni consentimientos (O2).
 PRUEBAS: respuesta sin CSP falla la prueba; upload con extensión cambiada es rechazado; exportación que supera el tope exige motivo; campo marcado sensible se guarda cifrado y se lee descifrado solo con permiso.
 TERMINADO CUANDO: el escaneo DAST de humo no reporta hallazgos altos.
-VERIFICAR: npm test && npm run test:e2e -- --grep @O0-security
+VERIFICAR: dotnet test && playwright test --grep @O0-security
 ```
 
 #### PRO-O0-07 — Outbox y bus de eventos de dominio
 
 ```text
 PRO-O0-07 — Outbox y bus de eventos de dominio
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: publicar eventos de dominio en la misma transacción del cambio y entregarlos al menos una vez, en orden por agregado, a consumidores idempotentes declarados por manifiesto.
 LEER: 00-ESPECIFICACION-MAESTRA.md §5.1 (eventos), §13; anexos/T01-PLA-plataforma-saas.md §5.A (RF-PLA-009), §7.6; anexos/T11-WFL-workflow-eventos-documentos.md §5.1, §5.17, §12.1 (sobre), §12.3 y §12.4 (catálogo y alias).
 IMPLEMENTAR: RF-PLA-009; RF-WFL-001..009, 015..017; RNF-WFL-001, 004, 005.
-ENTREGABLES: servicio publish() transaccional sobre outboxEvents; relay a BullMQ con reintentos; sobre estándar (eventId UUIDv7, type, schemaVersion, tenantId, occurredAt, aggregate, actor, correlationId, piiLevel); packages/shared/events con esquemas Zod por tipo y generador del catálogo eventTypes; versionado compatible; suscripciones declaradas en manifest; registro de consumo idempotente (consumer, eventId); orden por aggregateId; alias de nombres no canónicos (RF-WFL-015, HUECO-TRV-02, HUE-SRV-01, IDs provisionales EVT-CAT-01..25 de T11 §12.3).
+ENTREGABLES: servicio publish() transaccional sobre pla.OutboxEvents (SQL); relay a Azure Queue Storage con reintentos; sobre estándar (eventId UUIDv7, type, schemaVersion, tenantId, occurredAt, aggregate, actor, correlationId, piiLevel); src/Shared/events con esquemas FluentValidation y contratos Shared por tipo y generador del catálogo eventTypes; versionado compatible; suscripciones declaradas en manifest; registro de consumo idempotente (consumer, eventId); orden por aggregateId; alias de nombres no canónicos (RF-WFL-015, HUECO-TRV-02, HUE-SRV-01, IDs provisionales EVT-CAT-01..25 de T11 §12.3).
 NO CONSTRUIR TODAVÍA: replay (O11, RF-WFL-012) ni eventos públicos a terceros (O11, RF-WFL-014).
 PRUEBAS: transacción abortada no deja evento; relay caído y luego levantado entrega igual; evento entregado dos veces se procesa una vez; eventos del mismo agregado llegan en orden.
 TERMINADO CUANDO: un módulo de ejemplo publica y otro consume con pruebas de integración verdes.
-VERIFICAR: npm test -w apps/api -- --grep outbox && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep outbox && dotnet test --filter FullyQualifiedName~Worker
 ```
 
-#### PRO-O0-08 — Jobs BullMQ, programación por tenant y patrón de operaciones
+#### PRO-O0-08 — Jobs (colas Azure), programación por tenant y patrón de operaciones
 
 ```text
-PRO-O0-08 — Jobs BullMQ, programación por tenant y patrón de operaciones
+PRO-O0-08 — Jobs Azure Queue Storage, programación por tenant y patrón de operaciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: ejecutar todo proceso masivo como job idempotente, reanudable y con progreso, programado en la zona del tenant y con equidad entre tenants; modelar las acciones sensibles como operaciones numeradas e idempotentes.
 LEER: anexos/T01-PLA-plataforma-saas.md §5.A (RF-PLA-010, 011), §7.6; anexos/T11-WFL-workflow-eventos-documentos.md §5.2, §5.3, §12.6, §12.7.
 IMPLEMENTAR: RF-PLA-010, 011; RF-WFL-020..022, 024..026, 040, 043.
-ENTREGABLES: apps/worker con colas por clase (interactive, batch, export, integration); catálogo jobDefinitions `<mod>:<proceso>`; jobRuns con progreso y checkpoint por chunk; ID determinista <modulo>:<proceso>:<tenantId>:<loteId>:<chunk>; jobSchedules con cron evaluado en la zona del tenant y fan-out por tenant activo; semáforo de concurrencia por tenant; bulkRuns con universo congelado; API 202 con bulkRunId; operaciones OPE-AAAA-NNNNNN con handler idempotente por operationId.
+ENTREGABLES: src/Worker con colas por clase (interactive, batch, export, integration); catálogo jobDefinitions `<mod>:<proceso>`; jobRuns con progreso y checkpoint por chunk; ID determinista <modulo>:<proceso>:<tenantId>:<loteId>:<chunk>; jobSchedules con cron evaluado en la zona del tenant y fan-out por tenant activo; semáforo de concurrencia por tenant; bulkRuns con universo congelado; API 202 con bulkRunId; operaciones OPE-AAAA-NNNNNN con handler idempotente por operationId.
 NO CONSTRUIR TODAVÍA: jobs de dominio; aprobaciones de operaciones (O1, RF-WFL-041..051).
 PRUEBAS: matar el worker a mitad de un bulkRun y reanudar no duplica ítems; dos tenants con lotes grandes avanzan en paralelo sin inanición; un cron a las 02:00 de la zona del tenant se dispara a la hora local correcta.
 TERMINADO CUANDO: un job de ejemplo procesa 10.000 ítems ficticios con progreso visible y reanudación probada.
-VERIFICAR: npm test -w apps/worker && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Worker && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O0-09 — Almacenamiento privado S3 y repositorio documental base
 
 ```text
 PRO-O0-09 — Almacenamiento privado S3 y repositorio documental base
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: almacenamiento de objetos privado S3-compatible con URL firmadas de vida corta y repositorio documental por tenant con tipos, versiones inmutables, vínculos y borrado lógico.
 LEER: anexos/T01-PLA-plataforma-saas.md §5.A (RF-PLA-012), §7.7; anexos/T11-WFL-workflow-eventos-documentos.md §5.11, §7 (documents, documentTypes, documentLinks).
 IMPLEMENTAR: RF-PLA-012; RF-WFL-150..154, 157, 159.
-ENTREGABLES: adaptador de almacenamiento (S3 y MinIO local) con claves tenants/<tenantId>/<modulo>/...; subida en dos pasos con URL prefirmada, verificación de tipo real, tamaño y antivirus por job; documents con versiones inmutables y hash; documentTypes con sujetos admitidos; documentLinks a múltiples sujetos; descarga por URL firmada tras verificar permiso del objeto dueño, con registro; borrado lógico con motivo; componente FileUploader privado (en packages/ui, lo usa T03).
+ENTREGABLES: adaptador de almacenamiento (Azure Blob; Azurite en dev) con claves tenants/{tenantId}/<modulo>/...; subida en dos pasos con URL prefirmada, verificación de tipo real, tamaño y antivirus por job; documents con versiones inmutables y hash; documentTypes con sujetos admitidos; documentLinks a múltiples sujetos; descarga por URL firmada tras verificar permiso del objeto dueño, con registro; borrado lógico con motivo; componente FileUploader privado (en frontend/packages/ui (React), lo usa T03).
 NO CONSTRUIR TODAVÍA: retención y purga por política (O1, RF-WFL-160, 161); expediente digital (O1/O2).
 PRUEBAS: URL firmada vence; usuario de TEN-002 no descarga un documento de TEN-001 ni con la URL; un reemplazo crea versión nueva y conserva la anterior.
 TERMINADO CUANDO: el admin sube y descarga un adjunto de prueba con auditoría.
-VERIFICAR: npm test -w apps/api -- --grep documents && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep documents && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O0-10 — Bóveda de secretos (DEC-074) y marco de integraciones
 
 ```text
 PRO-O0-10 — Bóveda de secretos (DEC-074) y marco de integraciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: bóveda por tenant con cifrado por sobre (clave de datos por tenant cifrada por clave maestra en AWS KMS detrás de una interfaz agnóstica) y marco de conectores con ejecución confiable, bitácora saneada, seguridad de salida y simulador.
 LEER: 01-registro-decisiones.md DEC-074; anexos/T06-INT-integraciones.md §5.1, §5.2, §5.4, §5.5, §5.6, §5.9, §5.10, §7 (integrationProviders, vaultSecrets, integrationOperations, integrationLogs, externalReferences); anexos/T08-NFR-no-funcionales-seguridad.md §9.5.
 IMPLEMENTAR: RF-INT-001, 005, 015, 021, 030..037, 039..041, 044, 046..049, 052, 078..080, 082, 085; RNF-NFR-067, 070.
-ENTREGABLES: packages/connectors (SDK: capacidades declaradas, timeouts, taxonomía de errores, reintentos con backoff y jitter, circuit breaker, límite de tasa saliente con token bucket en Redis, prioridad interactiva sobre batch, correlationId, idempotencia tenantId+operationType+businessKey, efectos solo por eventos al módulo dueño); vault service (envelope encryption, adaptador KMS y adaptador local para dev/ci, claves maestras distintas por ambiente, nunca registrar valores); integrationProviders de plataforma; bitácora con saneamiento y cuerpos grandes en almacenamiento privado; externalReferences; egress allowlist; TLS siempre validado; simulador determinista por conector (fallas y demoras); conectores de mensajería como adaptadores del marco (T09 decide qué enviar).
+ENTREGABLES: src/Infrastructure/Connectors (SDK: capacidades declaradas, timeouts, taxonomía de errores, reintentos con backoff y jitter, circuit breaker, límite de tasa saliente con token bucket en Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Azure Queue Storage o Redis en Azure si aplica en Azure si aplica en Azure si aplica en Azure si aplica, prioridad interactiva sobre batch, correlationId, idempotencia tenantId+operationType+businessKey, efectos solo por eventos al módulo dueño); vault service (envelope encryption, adaptador KMS y adaptador local para dev/ci, claves maestras distintas por ambiente, nunca registrar valores); integrationProviders de plataforma; bitácora con saneamiento y cuerpos grandes en almacenamiento privado; externalReferences; egress allowlist; TLS siempre validado; simulador determinista por conector (fallas y demoras); conectores de mensajería como adaptadores del marco (T09 decide qué enviar).
 NO CONSTRUIR TODAVÍA: pantallas de conexiones y certificados (O1); conectores concretos (ARCA O4, pasarelas O5, aprovisionamiento O3).
 PRUEBAS: el valor de un secreto nunca aparece en logs ni en la bitácora; una operación ya exitosa no se reenvía; el circuit breaker abre y se recupera; un destino fuera de la allowlist es bloqueado; ambientes no productivos no pueden usar conexiones production.
 TERMINADO CUANDO: un conector de ejemplo contra el simulador cumple reintentos, idempotencia y bitácora.
-VERIFICAR: npm test -w packages/connectors && npm test -w apps/api -- --grep vault
+VERIFICAR: dotnet test --filter FullyQualifiedName~connectors && dotnet test --filter FullyQualifiedName~Api -- --grep vault
 ```
 
 #### PRO-O0-11 — IAM base: identidades, pertenencias, login staff, sesión y capabilities
 
 ```text
 PRO-O0-11 — IAM base
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: identidad común por persona con pertenencias privadas por tenant, pre-login por tenant, login de staff con contraseña, sesión JWT con refresh rotativo, recuperación anti-enumeración, bloqueo y rate limit, catálogo de capabilities y denegación por defecto, usuarios de plataforma y cuentas técnicas.
 LEER: 00-ESPECIFICACION-MAESTRA.md §7; anexos/T02-IAM-identidad-roles-auditoria.md §4, §5.1, §5.2, §5.3 (RF-IAM-060, 061), §5.5 (RF-IAM-110, 115), §7, §8, §10 (pantallas de login), §11; anexos/T08-NFR-no-funcionales-seguridad.md §9.4.
 IMPLEMENTAR: RF-IAM-001..003, 006..008, 020, 021 (sin 2FA; 2FA en O1), 030, 032..036, 040, 041, 045, 060, 061, 110 (MFA de plataforma obligatorio con TOTP, parte O0), 115; RNF-NFR-060.
-ENTREGABLES: colecciones identities, memberships, users, sessions; hash de contraseña fuerte (argon2id); pre-login por subdominio o código; login staff; access JWT 15 min con claim tid + refresh opaco 30 días rotativo con detección de reutilización; cookies __Host- HttpOnly Secure SameSite; recuperación con respuesta genérica; bloqueo 5 fallos en 15 min; rate limit; invitación en lugar de contraseñas por defecto; packages/shared/capabilities con metadatos; middleware requireCapability y denegación por defecto (endpoint sin capability declarada no arranca); selección de ámbito tenant+contexto; usuarios de plataforma en PLATFORM; cuentas técnicas S-SYS, S-BOT, S-KSK, S-AGT.
+ENTREGABLES: tablas iam.* (identities, memberships, users, sessions), memberships, users, sessions; hash de contraseña fuerte (argon2id); pre-login por subdominio o código; login staff; access JWT 15 min con claim tid + refresh opaco 30 días rotativo con detección de reutilización; cookies __Host- HttpOnly Secure SameSite; recuperación con respuesta genérica; bloqueo 5 fallos en 15 min; rate limit; invitación en lugar de contraseñas por defecto; src/Shared/capabilities con metadatos; middleware requireCapability y denegación por defecto (endpoint sin capability declarada no arranca); selección de ámbito tenant+contexto; usuarios de plataforma en PLATFORM; cuentas técnicas S-SYS, S-BOT, S-KSK, S-AGT.
 NO CONSTRUIR TODAVÍA: 2FA de staff, Google, CiDi, OTP de socio, roles y perfiles editables, alcance de datos, separación de funciones (O1).
 PRUEBAS: credencial incorrecta devuelve error genérico; reutilizar un refresh revoca la familia; sexto intento bloquea; endpoint sin capability devuelve 403; identidad con pertenencias en TEN-001 y TEN-002 elige ámbito y no ve datos del otro.
 TERMINADO CUANDO: USR-ADM-A entra a TEN-001 por invitación ficticia y ve el AdminShell (PRO-O0-15 lo completa).
-VERIFICAR: npm test -w apps/api -- --grep iam && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep iam && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O0-12 — Auditoría inmutable
 
 ```text
 PRO-O0-12 — Auditoría inmutable
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: auditoría genérica de cambios, accesos, intentos fallidos y mensajes, append-only, sin secretos, con base para la cadena de hash.
 LEER: anexos/T02-IAM-identidad-roles-auditoria.md §5.6, §7 (auditLogs); anexos/T01-PLA-plataforma-saas.md §5.H (RF-PLA-095); anexos/T08-NFR-no-funcionales-seguridad.md §11.1.
 IMPLEMENTAR: RF-IAM-130..132, 133 (parte O0: append-only; la cadena de hash y su verificación son O1), 134, 136; RF-PLA-095; RNF-NFR-110..112, 118, 119.
 DECISIONES v1.2 (10-11-2026): DEC-096 (`auditLogs` y `auditReads` llevan `legalEntityId` cuando el recurso pertenece a una entidad jurídica, RF-IAM-130; el filtro de auditoría por entidad es RF-BIA-104 en PRO-O1-17); DEC-107 (cada número fiscal asignado, liberado y reasignado queda auditado con su motivo; los hechos los emite M05 en PRO-O4-10).
-ENTREGABLES: plugin de auditoría Mongoose (valores previos y posteriores, actor, tenant, requestId, motivo) que excluye campos secretos declarados; auditoría de accesos (pre-login, login, logout, refresh reutilizado, denegaciones); auditoría de mensajes con destinatario enmascarado y hash; colección auditLogs sin update ni delete (índices y permisos de base); componente AuditTimeline (packages/ui).
+ENTREGABLES: plugin de auditoría EF Core (valores previos y posteriores, actor, tenant, requestId, motivo) que excluye campos secretos declarados; auditoría de accesos (pre-login, login, logout, refresh reutilizado, denegaciones); auditoría de mensajes con destinatario enmascarado y hash; tabla pla.AuditLogs sin update ni delete (índices y permisos de base); componente AuditTimeline (frontend/packages/ui (React)).
 NO CONSTRUIR TODAVÍA: encadenamiento de hash y job de verificación (O1, RF-IAM-133 resto), auditoría de IA y de plataforma (O1, O11).
 PRUEBAS: un cambio genera auditoría con antes y después; una contraseña nunca aparece; un intento de update sobre auditLogs falla.
 TERMINADO CUANDO: el AuditTimeline muestra los cambios de una entidad de prueba.
-VERIFICAR: npm test -w apps/api -- --grep audit
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep audit
 ```
 
 #### PRO-O0-13 — Registro de parámetros tipados y `legalEntities` (DEC-064)
 
 ```text
 PRO-O0-13 — Registro de parámetros tipados y legalEntities
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: librería de parámetros declarados en código, tipados y validados, sincronizados al desplegar; y entidades jurídicas del tenant desde O0 para que todo documento económico lleve legalEntityId.
 LEER: anexos/T04-CFG-configuracion-parametros-maestros.md §5.1, §7 (parameterDefinitions), §14.2 (convención de claves); 01-registro-decisiones.md DEC-064; anexos/T01-PLA-plataforma-saas.md §19.1 (EMPRESAS); anexos/T05-DAT-modelo-datos.md §7.1 y COL-CFG-41 a 43 (legalEntities, branches, workstations; lista de colecciones con legalEntityId obligatorio); anexos/T04-CFG-configuracion-parametros-maestros.md §7.14 y §7.15 y RF-CFG-134 a 140.
 IMPLEMENTAR: RF-CFG-001..005, 007..009; REQ-DEC-064 (requisito derivado de la DEC, sin RF en los anexos; ver §19 C-01 del plan); además (v1.1): RF-CFG-134..138, 140 (cubren REQ-DEC-064 con los nombres de T05: `legalEntities` con datos legales en `fiscal.*`, entidad por defecto, `branches`, servicio `legalEntities.resolve` API-CFG-58 y `legalEntityId` obligatorio en el esquema base por RF-CFG-136; el perfil fiscal completo es `fiscalProfiles` de M06 en O4, RF-CFG-138).
-ENTREGABLES: API de declaración de parámetros por módulo (clave semántica, tipo, validación, ámbitos, default, clase de cambio, vigencia, dependencias, visibilidad, sensibilidad, equivalencias legacy); job de sincronización a parameterDefinitions en cada despliegue; lector tipado que lanza error ante clave inexistente; prueba de CI que falla si una clave usada no está declarada; colección legalEntities según T05 COL-CFG-41 y T04 §7.14 (tenantId, code, legalName, tradeName, legalForm, inaesRegistration, fiscal{cuit, ivaConditionCode, iibbRegime, iibbNumber, activityStartDate}, address, brandingVariantKey, isDefault, status, validFrom, validTo, changeHistory[]; CUIT único por tenant; reemplaza la lista v1.0 "cuit, ivaCondition, iibbRegime, activityStartDate" en la raíz) con una entidad por defecto creada en la misma unidad idempotente al consumir pla.tenant.created (RF-CFG-135); colección branches según COL-CFG-42 (code, name, legalEntityId, localityId, address, uses[], isHeadquarters, openingHours[], calendarCode, status) con la sucursal "Casa central" creada con el tenant (RF-CFG-140); servicio interno legalEntities.resolve({ branchId, serviceId, at }) con el orden de RF-CFG-137 (API-CFG-58); campo legalEntityId obligatorio en el esquema base de documento económico de packages/shared para las colecciones de T05 §7.1 (RF-CFG-136), validado contra una entidad activa del mismo tenant; PAN-CFG-33 y capability cfg.entidadesJuridicas.ver/editar.
+ENTREGABLES: API de declaración de parámetros por módulo (clave semántica, tipo, validación, ámbitos, default, clase de cambio, vigencia, dependencias, visibilidad, sensibilidad, equivalencias legacy); job de sincronización a parameterDefinitions en cada despliegue; lector tipado que lanza error ante clave inexistente; prueba de CI que falla si una clave usada no está declarada; tabla cfg.LegalEntities según T05 COL-CFG-41 y T04 §7.14 (tenantId, code, legalName, tradeName, legalForm, inaesRegistration, fiscal{cuit, ivaConditionCode, iibbRegime, iibbNumber, activityStartDate}, address, brandingVariantKey, isDefault, status, validFrom, validTo, changeHistory[]; CUIT único por tenant; reemplaza la lista v1.0 "cuit, ivaCondition, iibbRegime, activityStartDate" en la raíz) con una entidad por defecto creada en la misma unidad idempotente al consumir pla.tenant.created (RF-CFG-135); tabla cfg.Branches según COL-CFG-42 (code, name, legalEntityId, localityId, address, uses[], isHeadquarters, openingHours[], calendarCode, status) con la sucursal "Casa central" creada con el tenant (RF-CFG-140); servicio interno legalEntities.resolve({ branchId, serviceId, at }) con el orden de RF-CFG-137 (API-CFG-58); campo legalEntityId obligatorio en el esquema base de documento económico de packages/shared para las tablas SQL de T05 §7.1 (RF-CFG-136), validado contra una entidad activa del mismo tenant; PAN-CFG-33 y capability cfg.entidadesJuridicas.ver/editar.
 NO CONSTRUIR TODAVÍA: publicación versionada, ámbitos y editor (O1); workstations (O1, PRO-O1-11, RF-CFG-141); datos fiscales completos de cada entidad en fiscalProfiles (M06 en O4, RF-CFG-138 y RF-FIS-167); subdocumento employer (O9, RF-CFG-139); migración de EMPRESAS y de las sucursales (O7, PRO-O7-11, RF-CFG-142; DEC-089 y DEC-098: las sucursales se derivan de `PTOVENTA.SUC_COM` y las confirma la cooperativa; antes "O11").
 PRUEBAS: leer una clave no declarada lanza error; un documento económico sin legalEntityId no valida; TEN-001 tiene su entidad por defecto y no ve las de TEN-002; reprocesar pla.tenant.created no crea una segunda entidad por defecto; un segundo alta con el mismo CUIT ficticio en TEN-001 se rechaza y en TEN-002 se acepta; una sucursal no puede apuntar a una entidad inactiva.
 TERMINADO CUANDO: el registro sincroniza y legalEntities tiene API admin mínima con pruebas.
-VERIFICAR: npm test -w apps/api -- --grep cfg && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cfg && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O0-14 — Design system admin y PWA, tokens y branding runtime base
 
 ```text
 PRO-O0-14 — Design system y branding runtime base
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: tokens y temas del admin (oscuro por defecto) y de la PWA (.pwa-mod), tipografías y branding runtime por tenant con variables CSS.
 LEER: 00-ESPECIFICACION-MAESTRA.md §10, §11; anexos/T03-UXD-experiencia-marca-diccionario.md §5.1, §5.2, §5.3, §7 (branding), §10, §18.
 IMPLEMENTAR: RF-UXD-001..007, 009..019, 021, 025..027, 029, 035, 036, 040.
-ENTREGABLES: packages/ui con tokens CNX §4.1 (admin) y §3.1 (PWA), tema oscuro y claro por data-theme con persistencia en userUiPreferences, tipografías Space Grotesk, IBM Plex Sans, IBM Plex Mono y Sora, estados ok/warn/bad; applyBrandingCssVars y applyTenantPwaIdentity; manifest dinámico y theme-color; logos jerárquicos con fallback de plataforma.
+ENTREGABLES: frontend/packages/ui (React) con tokens T03 §4.1 (admin) y §3.1 (PWA), tema oscuro y claro por data-theme con persistencia en userUiPreferences, tipografías Space Grotesk, IBM Plex Sans, IBM Plex Mono y Sora, estados ok/warn/bad; applyBrandingCssVars y applyTenantPwaIdentity; manifest dinámico y theme-color; logos jerárquicos con fallback de plataforma.
 NO CONSTRUIR TODAVÍA: editor de marca y validación de contraste en el editor (O1).
 PRUEBAS: el admin abre en oscuro y cambia a claro sin recargar; la PWA de TEN-001 muestra su color de marca y la de TEN-002 el suyo; snapshot visual de tokens.
 TERMINADO CUANDO: Storybook o página de muestra con todos los tokens y ambos temas.
-VERIFICAR: npm test -w packages/ui && npm run test:e2e -- --grep @O0-ux
+VERIFICAR: dotnet test --filter FullyQualifiedName~ui && playwright test --grep @O0-ux
 ```
 
 #### PRO-O0-15 — Layouts: AdminShell, AppShell, landing, plataforma, login UX y mapa del sitio
 
 ```text
 PRO-O0-15 — Layouts y mapa del sitio
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: shells de todas las apps y la declaración única siteMapGroups que alimenta menú, mapa del sitio y editor de roles.
 LEER: 00-ESPECIFICACION-MAESTRA.md §8, §9, §10; anexos/T03-UXD-experiencia-marca-diccionario.md §5.4, §5.5, §5.6, §5.9, §5.12, §10 (PAN-UXD), §11; anexos/T08-NFR-no-funcionales-seguridad.md §13.3.
@@ -489,13 +523,14 @@ ENTREGABLES: AdminShell (topbar con logo producto y tenant, selector de contexto
 NO CONSTRUIR TODAVÍA: botones SSO y CiDi (O1); ítems de menú de módulos.
 PRUEBAS: un usuario sin capabilities ve el menú vacío; un ítem sin capability no aparece en menú ni en mapa; la PWA se centra a 430 px en escritorio; navegación por teclado del menú.
 TERMINADO CUANDO: login de USR-ADM-A lleva al AdminShell y la PWA muestra el AppShell con marca de TEN-001.
-VERIFICAR: npm run test:e2e -- --grep @O0-shell
+VERIFICAR: playwright test --grep @O0-shell
 ```
 
 #### PRO-O0-16 — Componentes genéricos, reglas UX y accesibilidad
 
 ```text
 PRO-O0-16 — Componentes genéricos, reglas UX y accesibilidad
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: componentes molde reutilizables y reglas UX obligatorias con accesibilidad WCAG 2.2 AA.
 LEER: anexos/T03-UXD-experiencia-marca-diccionario.md §5.7, §5.8, §5.10; anexos/T08-NFR-no-funcionales-seguridad.md §13.1, §13.2.
@@ -504,43 +539,46 @@ ENTREGABLES: DataTable genérico (columnas configurables, orden, filtros, pagina
 NO CONSTRUIR TODAVÍA: AddressPicker con mapa (O1, geografía) y AudiencePicker (O2).
 PRUEBAS: axe sin violaciones serias en cada componente; DataTable pagina contra API mock; MoneyInput no usa Number.
 TERMINADO CUANDO: página de muestra con todos los componentes y pruebas verdes en los tres navegadores.
-VERIFICAR: npm test -w packages/ui && npm run test:e2e -- --grep @O0-components
+VERIFICAR: dotnet test --filter FullyQualifiedName~ui && playwright test --grep @O0-components
 ```
 
 #### PRO-O0-17 — Diccionario de términos base
 
 ```text
 PRO-O0-17 — Diccionario de términos base
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: ninguna etiqueta fija: claves dict:<clave> con fallback de plataforma, variables, pluralización y variantes por canal.
 LEER: 00-ESPECIFICACION-MAESTRA.md §11, §20; anexos/T03-UXD-experiencia-marca-diccionario.md §5.11, §7 (dictionaryEntries), §18.
 IMPLEMENTAR: RF-UXD-140..142, 144..147, 149..151, 155..160, 166, 168, 169.
-ENTREGABLES: packages/dictionary (resolutor con fallback tenant → plataforma, variables, pluralización, variantes por canal admin/pwa/landing/email/sms); claves base del glosario del maestro §20 y de T03 §18; plugin Vue t() y regla ESLint que prohíbe texto fijo en templates; API de lectura de diccionario publicado.
+ENTREGABLES: packages/dictionary (resolutor con fallback tenant → plataforma, variables, pluralización, variantes por canal admin/pwa/landing/email/sms); claves base del glosario del maestro §20 y de T03 §18; plugin React t() y regla analyzers .NET + analyzers .NET + analyzers .NET + analyzers .NET + ESLint frontend frontend frontend frontend que prohíbe texto fijo en templates; API de lectura de diccionario publicado.
 NO CONSTRUIR TODAVÍA: editor y publicación versionada por tenant (O1).
 PRUEBAS: una clave inexistente en el tenant cae a la de plataforma; un template con texto fijo hace fallar lint; pluralización correcta de "socio/socios".
 TERMINADO CUANDO: todos los shells y componentes de O0 usan solo claves.
-VERIFICAR: npm test -w packages/dictionary && npm run lint
+VERIFICAR: dotnet test --filter FullyQualifiedName~dictionary && dotnet build
 ```
 
 #### PRO-O0-18 — Plantillas, motor PDF (DEC-080) y numeración de documentos
 
 ```text
 PRO-O0-18 — Plantillas, motor PDF y numeración
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: plantillas HTML versionadas con lenguaje sin lógica arbitraria, render HTML+CSS a PDF con Chromium sin interfaz en workers dedicados y validación PDF/A, y secuencias de numeración atómicas con políticas de huecos.
 LEER: 01-registro-decisiones.md DEC-080; anexos/T11-WFL-workflow-eventos-documentos.md §5.12, §5.13, §7 (documentTemplates, templateVersions, numberingSequences), §18.4.
 IMPLEMENTAR: RF-WFL-170..172, 175, 179, 185..188.
-ENTREGABLES: documentTemplates y templateVersions; Handlebars restringido con ayudantes formatMoney, formatDate, dict, qr, barcode; contratos de datos Zod por tipo documental; worker renderer (Chromium headless) con colas interactive y batch, fuentes embebidas y validación PDF/A posterior; resultado guardado como document; 46 plantillas semilla de T11 §18.4 como plantillas de plataforma; numberingSequences con alcance, incremento atómico en la transacción del llamador, políticas gapless/allowGaps y anulación trazable.
+ENTREGABLES: documentTemplates y templateVersions; Handlebars restringido con ayudantes formatMoney, formatDate, dict, qr, barcode; contratos de datos FluentValidation y contratos Shared por tipo documental; worker renderer (Chromium headless) con colas interactive y batch, fuentes embebidas y validación PDF/A posterior; resultado guardado como document; 46 plantillas semilla de T11 §18.4 como plantillas de plataforma; numberingSequences con alcance, incremento atómico en la transacción del llamador, políticas gapless/allowGaps y anulación trazable.
 NO CONSTRUIR TODAVÍA: editor de plantillas del tenant (O1, RF-WFL-173) y plantillas fiscales concretas (O4).
 PRUEBAS: dos emisiones concurrentes nunca toman el mismo número; transacción abortada no consume número gapless; PDF generado pasa validación PDF/A; una plantilla con helper no permitido no compila.
 TERMINADO CUANDO: un comprobante de prueba ficticio se numera, renderiza y descarga por URL firmada.
-VERIFICAR: npm test -w apps/worker -- --grep pdf && npm test -w apps/api -- --grep numbering
+VERIFICAR: dotnet test --filter FullyQualifiedName~Worker -- --grep pdf && dotnet test --filter FullyQualifiedName~Api -- --grep numbering
 ```
 
 #### PRO-O0-19 — Notificaciones base y bandeja in-app
 
 ```text
 PRO-O0-19 — Notificaciones base y bandeja in-app
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: base técnica de notificaciones: bandeja in-app, mapa notifKinds, estados de entrega e idempotencia; los módulos emiten eventos y COM los consume.
 LEER: anexos/T09-COM-comunidad-comunicaciones.md §5.8 (RF-COM-138, 141, 145), §5.11 (RF-COM-181), §5.13, §7 (appNotifications), §12; nota: hay IDs JOB-COM duplicados (HUE-SRV-06), usar la tabla del catálogo transaccional.
@@ -549,28 +587,30 @@ ENTREGABLES: appNotifications por usuario; estados created→queued→sent_to_pr
 NO CONSTRUIR TODAVÍA: plantillas multicanal, audiencias, preferencias y campañas (O2).
 PRUEBAS: el mismo evento no genera dos avisos; un aviso vencido se purga; el usuario de TEN-002 no ve avisos de TEN-001.
 TERMINADO CUANDO: un evento de prueba genera un aviso visible en admin y en PWA.
-VERIFICAR: npm test -w apps/api -- --grep notifications && npm run test:e2e -- --grep @O0-notif
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep notifications && playwright test --grep @O0-notif
 ```
 
 #### PRO-O0-20 — Convenciones de migración `legacy`
 
 ```text
 PRO-O0-20 — Convenciones de migración legacy
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
-OBJETIVO: dejar las convenciones que toda colección necesita para recibir datos migrados de ProCoop: snapshots inmutables, mapa de IDs, sello legacy y conversiones de importes y fechas.
+OBJETIVO: dejar las convenciones que toda tabla necesita para recibir datos migrados de ProCoop: snapshots inmutables, mapa de IDs, sello legacy y conversiones de importes y fechas.
 LEER: anexos/T07-MIG-migracion-procoop.md §5.2, §5.4, §5.5, §5.10, §7.
 IMPLEMENTAR: RF-MIG-011, 016, 036, 037, 041, 042, 098.
-ENTREGABLES: subesquema legacy {system, table, key, runId, hash} en packages/shared; colección legacyIdMap; almacenamiento de snapshots cifrados (JSON Lines) con fecha de corte y zona del origen; utilidades de conversión a Decimal128 sin redondeo y de fechas a UTC (1900-01-01 como ausente); regla de que la documentación y los ejemplos usan datos ficticios.
+ENTREGABLES: subesquema legacy {system, table, key, runId, hash} en packages/shared; tabla legacyIdMap; almacenamiento de snapshots cifrados (JSON Lines) con fecha de corte y zona del origen; utilidades de conversión a DECIMAL(19,4) sin redondeo y de fechas a UTC (1900-01-01 como ausente); regla de que la documentación y los ejemplos usan datos ficticios.
 NO CONSTRUIR TODAVÍA: proyectos, corridas, perfilado ni carga (O1).
 PRUEBAS: un importe con 4 decimales se conserva exacto; una fecha 1900-01-01 queda null; legacyIdMap es único por tenant, tabla y clave.
 TERMINADO CUANDO: las utilidades están en packages/shared con pruebas.
-VERIFICAR: npm test -w packages/shared -- --grep legacy
+VERIFICAR: dotnet test --filter FullyQualifiedName~shared -- --grep legacy
 ```
 
 #### PRO-O0-21 — Integración de O0: demo y suite de aislamiento
 
 ```text
 PRO-O0-21 — Integración de O0
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O0 (sección 4.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §4; anexos/T01-PLA-plataforma-saas.md §17, §18; anexos/T08-NFR-no-funcionales-seguridad.md §17; anexos/T03-UXD-experiencia-marca-diccionario.md §17.
@@ -579,7 +619,7 @@ ENTREGABLES: seed demo O0 (PLATFORM, TEN-001, TEN-002, usuarios por invitación,
 NO CONSTRUIR TODAVÍA: nada de O1.
 PRUEBAS: e2e @O0 en los tres navegadores; test:isolation; carga k6 de login (RNF-NFR-001).
 TERMINADO CUANDO: criterio de salida 4.2 demostrado con evidencias en docs/evidencias/O0/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O0 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O0 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -666,6 +706,7 @@ CU-MT-01 (alta asistida, T01); CU-IAM-03 y CU-IAM-07, TST-IAM de 2FA, roles, alc
 
 ```text
 PRO-O1-01 — Ciclo de vida del tenant
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: tenants con estados Preparación → Prueba → Listo para habilitar → Operativo → Suspendido administrativo → Cierre/salida, checklists por capacidad, y reglas del tenant PLATFORM.
 LEER: 00-ESPECIFICACION-MAESTRA.md §6; anexos/T01-PLA-plataforma-saas.md §5.B (RF-PLA-029, 031, 035), §5.C, §5.D, §7.11.1, §7.11.6, §8 (estados del tenant), §9, §10, §11, §12, §17, §18.
@@ -674,13 +715,14 @@ ENTREGABLES: API /api/platform/tenants (alta, edición de identidad, contactos, 
 NO CONSTRUIR TODAVÍA: licencias (PRO-O1-02), alta asistida con IA (PRO-O1-04), salida y portabilidad (PRO-O1-07).
 PRUEBAS: USR-PLAT-001 sin grant recibe 403 en /api/admin/per/persons (RF-PLA-038); un tenant suspendido devuelve 403 tenant-suspended; una transición inválida responde 409; un rol de cooperativa no obtiene capabilities de plataforma.
 TERMINADO CUANDO: TEN-001 pasa de Preparación a Prueba con su checklist y todo queda auditado.
-VERIFICAR: npm test -w apps/api -- --grep pla && npm run test:isolation && npm run test:e2e -- --grep @O1-tenants
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep pla && dotnet test --filter Category=Isolation && playwright test --grep @O1-tenants
 ```
 
 #### PRO-O1-02 — Licenciamiento en capas y catálogo de módulos
 
 ```text
 PRO-O1-02 — Licenciamiento en capas
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: licencia de módulos por la plataforma, activación por el tenant, RBAC y alcance como cuatro filtros cuya intersección define el acceso; catálogo de módulos vendibles y mapa de soluciones.
 LEER: 00-ESPECIFICACION-MAESTRA.md §6, §7.1; anexos/T01-PLA-plataforma-saas.md §5.F, §5.P (RF-PLA-162), §7.11.2..7.11.5; 01-registro-decisiones.md DEC-021, DEC-065.
@@ -689,13 +731,14 @@ ENTREGABLES: moduleCatalog (global) con capacidades y dependencias; platformPlan
 NO CONSTRUIR TODAVÍA: contrato comercial y medición (PRO-O1-03).
 PRUEBAS: con fac en test y mor off, un endpoint de mor responde 403 module-not-active; quitar la licencia oculta el menú y corta la API; activar un módulo sin su dependencia es rechazado.
 TERMINADO CUANDO: TEN-001 queda con las activaciones de T01 §18.
-VERIFICAR: npm test -w apps/api -- --grep licen && npm run test:e2e -- --grep @O1-licenses
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep licen && playwright test --grep @O1-licenses
 ```
 
 #### PRO-O1-03 — Contrato SaaS, medición de uso y prefactura (DEC-065)
 
 ```text
 PRO-O1-03 — Contrato SaaS y medición de uso
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: contratos SaaS por packs y complementos con cupos por contratos activos, medición de uso y prefactura exportable (la facturación real con M05 llega en O5).
 LEER: 01-registro-decisiones.md DEC-065, DEC-077; anexos/T01-PLA-plataforma-saas.md §5.G, §7.11.8, §7.11.9.
@@ -704,13 +747,14 @@ ENTREGABLES: saasContracts con planes, complementos, cupos (contratos activos, u
 NO CONSTRUIR TODAVÍA: emisión de factura del SaaS (O5, RF-PLA-040, 082); medición de API de terceros (O11, RF-PLA-083).
 PRUEBAS: TEN-001 con 4.150 contratos activos sobre 5.000 dispara la alerta blanda de 83 %; la prefactura no tiene datos de otro tenant.
 TERMINADO CUANDO: SAAS-2026-0001 muestra uso y prefactura ficticia.
-VERIFICAR: npm test -w apps/api -- --grep saas
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep saas
 ```
 
 #### PRO-O1-04 — Alta asistida con IA y ambientes por tenant
 
 ```text
 PRO-O1-04 — Alta asistida y ambientes por tenant
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: asistente de alta de cooperativa con IA que propone y no ejecuta sin confirmación, y ambientes de prueba por tenant con datos anonimizados.
 LEER: 00-ESPECIFICACION-MAESTRA.md ARQ-08; anexos/T01-PLA-plataforma-saas.md §5.E, §5.J (RF-PLA-111, 112, 115, 116), §7.11.7; 01-registro-decisiones.md DEC-020.
@@ -719,13 +763,14 @@ ENTREGABLES: onboardingDrafts paso a paso (identidad, fiscales base, servicios, 
 NO CONSTRUIR TODAVÍA: copias de servicios entre tenants (O2, M02).
 PRUEBAS: la IA nunca persiste sin confirmación humana; la copia a sandbox no contiene datos personales en claro; el sandbox no puede usar conexiones production.
 TERMINADO CUANDO: TEN-001 se crea con el asistente usando solo datos ficticios.
-VERIFICAR: npm test -w apps/api -- --grep onboarding && npm run test:e2e -- --grep @O1-onboarding
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep onboarding && playwright test --grep @O1-onboarding
 ```
 
 #### PRO-O1-05 — Soporte de plataforma con acceso temporal auditado
 
 ```text
 PRO-O1-05 — Soporte con acceso temporal
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: casos de soporte y acceso temporal, consentido, con alcance y auditado a un tenant (AGR-034); usuarios y API de plataforma.
 LEER: anexos/T01-PLA-plataforma-saas.md §5.I, §7.11.10..7.11.12; anexos/T02-IAM-identidad-roles-auditoria.md §5.5.
@@ -734,13 +779,14 @@ ENTREGABLES: supportCases y mensajes; supportAccessGrants con modos (observe sin
 NO CONSTRUIR TODAVÍA: auditoría de plataforma completa (O11, RF-IAM-144).
 PRUEBAS: grant vencido niega acceso; modo observe no devuelve campos con PII; cada acción en sesión de soporte queda auditada con el grant.
 TERMINADO CUANDO: SUP-DEMO-001 y GRT-DEMO-001 de T01 §18 funcionan de punta a punta.
-VERIFICAR: npm test -w apps/api -- --grep support && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep support && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O1-06 — Tableros, alertas, operación, capacidad y actualizaciones
 
 ```text
 PRO-O1-06 — Tableros, alertas y operación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: tableros y alertas de plataforma, salud de jobs, capacidad y aislamiento de carga, y gestión de versiones y despliegues por anillos.
 LEER: anexos/T01-PLA-plataforma-saas.md §5.H, §5.L, §5.M, §5.N, §5.Q (RNF-PLA-011, 012, 014), §7.11.13..7.11.15; anexos/T08-NFR-no-funcionales-seguridad.md §7.2..7.4, §11.3, §11.4, §12.2; 01-registro-decisiones.md DEC-063, DEC-075.
@@ -750,13 +796,14 @@ ENTREGABLES: dashboards de plataforma (tenants, uso, salud, colas, integraciones
 NO CONSTRUIR TODAVÍA: tableros de negocio de los módulos.
 PRUEBAS: certificado a 12 días dispara PLA-ALR-02 (ficticio); un tenant ruidoso no degrada a otro en la prueba de carga; flag fac.nuevoPdf solo encendido en anillo pilot.
 TERMINADO CUANDO: ALT-DEMO-001 e INC-DEMO-001 de T01 §18 se ven en el tablero.
-VERIFICAR: npm test -w apps/api -- --grep alerts && k6 run infra/k6/tenant-noise.js
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep alerts && k6 run infra/k6/tenant-noise.js
 ```
 
 #### PRO-O1-07 — Backups, restauración por tenant y salida de datos
 
 ```text
 PRO-O1-07 — Backups, restauración y salida
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: backups verificados, restauración selectiva de un tenant sin retroceder a otros ni duplicar efectos externos, y salida/portabilidad con residencia de datos (DEC-062, DEC-076).
 LEER: anexos/T01-PLA-plataforma-saas.md §5.K, §5.O; anexos/T08-NFR-no-funcionales-seguridad.md §8 (RN-NFR-016, RNF-NFR-044); 01-registro-decisiones.md DEC-062, DEC-063, DEC-076.
@@ -765,13 +812,14 @@ ENTREGABLES: backupRuns lógicos por tenant con verificación; restauración a s
 NO CONSTRUIR TODAVÍA: hooks concretos de ARCA y pasarelas (O4, O5 los registran).
 PRUEBAS: restaurar TEN-001 no altera TEN-002; una restauración registra el RTO real; la exportación de salida no incluye datos de otro tenant.
 TERMINADO CUANDO: RST-DEMO-001 y el ensayo passed de T01 §18 se reproducen.
-VERIFICAR: npm test -w apps/api -- --grep backup && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep backup && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O1-08 — Autenticación completa: 2FA, Google, federado (CiDi), OTP del socio
 
 ```text
 PRO-O1-08 — Autenticación completa
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: 2FA del personal, login de socio con contraseña u OTP de 6 dígitos (DEC-066, sin enlace mágico), Google OIDC con vínculo explícito, mecanismo genérico de proveedor federado con CiDi Córdoba habilitable por tenant (DEC-067), dispositivos y sesiones.
 LEER: 01-registro-decisiones.md DEC-066, DEC-067; anexos/T02-IAM-identidad-roles-auditoria.md §5.1 (RF-IAM-004, 005, 009, 010), §5.2, §7, §10, §11; anexos/T03-UXD-experiencia-marca-diccionario.md §5.9 (RF-UXD-118, 119, 121, 122); anexos/T08-NFR-no-funcionales-seguridad.md §9.4, §9.7.
@@ -781,13 +829,14 @@ ENTREGABLES: TOTP y códigos de respaldo para staff; OTP por correo/SMS para soc
 NO CONSTRUIR TODAVÍA: vinculación de cuentas del socio (O2, M19 y M01, DEC-043); publicación del portal (O2).
 PRUEBAS: OTP vencido o reutilizado falla; Google con correo coincidente no fusiona identidades; CiDi deshabilitado no muestra botón; staff sin 2FA no entra cuando el tenant lo exige.
 TERMINADO CUANDO: USR-ADM-A entra con 2FA y un socio ficticio con OTP en el entorno de prueba.
-VERIFICAR: npm test -w apps/api -- --grep auth && npm run test:e2e -- --grep @O1-auth
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep auth && playwright test --grep @O1-auth
 ```
 
 #### PRO-O1-09 — Roles, perfiles, alcance, separación de funciones y auditoría avanzada
 
 ```text
 PRO-O1-09 — Roles, perfiles, alcance y auditoría avanzada
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: roles funcionales editables, perfiles de pantallas, alcance de datos (tenant, sucursales, puntos de venta, zonas, servicios, cuadrillas, depósitos, propios), regla de combinación, separación de funciones, autorizaciones de supervisor, franja horaria, permisos de IA y auditoría con cadena de hash.
 LEER: 00-ESPECIFICACION-MAESTRA.md §7; anexos/T02-IAM-identidad-roles-auditoria.md §4, §5.3, §5.4, §5.6, §5.7, §7, §8, §10, §11, §17; anexos/T08-NFR-no-funcionales-seguridad.md §11.1, §9.14.
@@ -798,13 +847,14 @@ ENTREGABLES: roles y perfiles plantilla de plataforma copiables al tenant; edito
 NO CONSTRUIR TODAVÍA: alcance por cuadrilla o depósito con datos reales (llegan con O3).
 PRUEBAS: un cajero con alcance sucursal A no ve sucursal B; el mismo usuario no puede crear y aprobar lo que la matriz separa; modificar un registro de auditoría rompe la cadena y el job alerta.
 TERMINADO CUANDO: TEN-001 tiene roles del maestro §7.2 configurados con datos ficticios.
-VERIFICAR: npm test -w apps/api -- --grep rbac && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep rbac && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O1-10 — Configuración versionada, ámbitos y publicación
 
 ```text
 PRO-O1-10 — Configuración versionada y publicación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: valores de parámetros por ámbito (plataforma, tenant, servicio, categoría y otros) con versiones de configuración en borrador, revisión, publicación con aprobación y vigencia, historia y comparación.
 LEER: 00-ESPECIFICACION-MAESTRA.md ARQ-05; anexos/T04-CFG-configuracion-parametros-maestros.md §5.1 (RF-CFG-006, 010..016), §5.2, §5.3, §5.14 (RF-CFG-120, 121), §5.15 (RF-CFG-124, 128), §5.17, §7, §8, §10, §11, §14, §17; anexos/T04b-CFG-catalogo-parametros-procoop-parte1.md a parte4.md solo como catálogo de claves de referencia.
@@ -814,13 +864,14 @@ ENTREGABLES: parameterValues por ámbito con resolución de precedencia; configV
 NO CONSTRUIR TODAVÍA: campos extra y personalización de formularios (O2); parámetros de dominio de módulos (cada módulo declara los suyos en su ola).
 PRUEBAS: un valor de servicio pisa el de tenant; publicar sin aprobación falla; una versión programada rige desde su fecha en la zona del tenant; dos tenants no comparten caché.
 TERMINADO CUANDO: TEN-001 publica una versión de configuración aprobada por un segundo usuario.
-VERIFICAR: npm test -w apps/api -- --grep config && npm run test:e2e -- --grep @O1-config
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep config && playwright test --grep @O1-config
 ```
 
 #### PRO-O1-11 — Tablas maestras, enumeraciones, importaciones y reemplazo del motor de pantallas
 
 ```text
 PRO-O1-11 — Tablas maestras e importaciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: editor uniforme de tablas maestras, enumeraciones configurables, importación de padrones y maestros con ExcelImportWizard, tablas fiscales comunes de plataforma (estructura), reemplazo del motor de pantallas configurable de ProCoop y equivalencias de migración.
 LEER: anexos/T04-CFG-configuracion-parametros-maestros.md §5.4, §5.5 (RF-CFG-054, 055, 057, 058), §5.10 (RF-CFG-100), §5.11, §5.13 (RF-CFG-114..117), §5.16, §7, §10, §11; anexos/T08-NFR-no-funcionales-seguridad.md §9.9.
@@ -829,28 +880,30 @@ ENTREGABLES: masterTables genérico con alta, edición, baja lógica, vigencias 
 NO CONSTRUIR TODAVÍA: padrones fiscales ARCA e IIBB (O4, RF-CFG-056, 098, 099, 101, 102).
 PRUEBAS: una importación con errores no confirma nada hasta aceptar; una enumeración en uso no se elimina; equivalencias resuelven un código legacy ficticio.
 TERMINADO CUANDO: el editor gestiona al menos tres tablas maestras de ejemplo de T04 §18.
-VERIFICAR: npm test -w apps/api -- --grep master && npm run test:e2e -- --grep @O1-master
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep master && playwright test --grep @O1-master
 ```
 
 #### PRO-O1-12 — Geografía, calles, mapas (DEC-046) y calendarios
 
 ```text
 PRO-O1-12 — Geografía, calles, mapas y calendarios
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: provincias, localidades, barrios, calles y numeración con normalización y geocodificación Georef y mapa y autocompletado Google Maps (DEC-046, claves de plataforma con opción propia DEC-020); calendarios, feriados y días hábiles por tenant.
 LEER: 01-registro-decisiones.md DEC-020, DEC-046; anexos/T04-CFG-configuracion-parametros-maestros.md §5.7, §5.8, §7, §10, §11, §13; anexos/T06-INT-integraciones.md (fichas de Georef y Google Maps).
 IMPLEMENTAR: RF-CFG-065..089.
-ENTREGABLES: colecciones geográficas (plataforma y tenant); calles con alias y rangos; conectores Georef y Google Maps en modo test con simulador; componente AddressPicker con mapa (packages/ui); calendars y holidays con cálculo de días hábiles en la zona del tenant; importación de calles.
+ENTREGABLES: tablas SQL geográficas (plataforma y tenant); calles con alias y rangos; conectores Georef y Google Maps en modo test con simulador; componente AddressPicker con mapa (frontend/packages/ui (React)); calendars y holidays con cálculo de días hábiles en la zona del tenant; importación de calles.
 NO CONSTRUIR TODAVÍA: domicilios de personas (O2, M01).
 PRUEBAS: una dirección ficticia se normaliza y geocodifica con el simulador; el cálculo de vencimiento a 10 días hábiles salta feriados de TEN-001; las calles de TEN-001 no aparecen en TEN-002.
 TERMINADO CUANDO: AddressPicker funciona en una pantalla de prueba con calles ficticias.
-VERIFICAR: npm test -w apps/api -- --grep geo && npm run test:e2e -- --grep @O1-geo
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep geo && playwright test --grep @O1-geo
 ```
 
 #### PRO-O1-13 — Editor de marca, diccionario versionado y preferencias
 
 ```text
 PRO-O1-13 — Marca, diccionario y preferencias
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: editor de marca por tenant con validación de contraste y previews, editor y publicación versionada del diccionario, layouts restantes, accesibilidad del editor, mapa del sitio con accesos fijados y preferencias de usuario.
 LEER: anexos/T03-UXD-experiencia-marca-diccionario.md §5.1 (RF-UXD-008), §5.2 (020), §5.3, §5.4 (046, 051, 057), §5.6 (080), §5.7 (096), §5.8 (107), §5.10 (136), §5.11, §5.12, §7, §10, §11; anexos/T08-NFR-no-funcionales-seguridad.md §13.1, §13.4.
@@ -860,13 +913,14 @@ ENTREGABLES: editor de marca (logos jerárquicos, colores con contraste AA, spla
 NO CONSTRUIR TODAVÍA: salas BI (O11, extensión de RF-UXD-096).
 PRUEBAS: un color sin contraste suficiente no se publica; una clave editada en TEN-001 no cambia en TEN-002; la versión anterior del diccionario se restaura.
 TERMINADO CUANDO: TEN-001 publica marca y vocabulario propio ("asociado" en lugar de "socio") y se refleja en admin y PWA.
-VERIFICAR: npm test -w apps/api -- --grep branding && npm run test:e2e -- --grep @O1-brand
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep branding && playwright test --grep @O1-brand
 ```
 
 #### PRO-O1-14 — Conexiones de integración, credenciales, certificados y monitoreo
 
 ```text
 PRO-O1-14 — Conexiones de integración
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: conexiones por tenant sobre el catálogo de proveedores, credenciales en la bóveda con rotación, modo prueba y producción con aprobación, prueba de conexión y monitoreo.
 LEER: anexos/T06-INT-integraciones.md §5.1, §5.2, §5.4, §5.5 (042, 043), §5.6 (050, 051), §5.9, §7, §10 (PAN-INT-01..20), §11, §17; anexos/T08-NFR-no-funcionales-seguridad.md §9.5.
@@ -875,29 +929,31 @@ ENTREGABLES: integrationConnections (configuración no secreta y referencias a s
 NO CONSTRUIR TODAVÍA: certificados ARCA y caché de tokens (O4, RF-INT-022..027); webhooks entrantes de pasarelas (O5).
 PRUEBAS: un secreto rotado nunca se muestra; pasar a production sin prueba exitosa falla; un usuario sin int.conexiones.configurar recibe 403.
 TERMINADO CUANDO: TEN-001 tiene conexiones de ejemplo en test contra el simulador y el monitoreo las muestra.
-VERIFICAR: npm test -w apps/api -- --grep connections && npm run test:e2e -- --grep @O1-int
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep connections && playwright test --grep @O1-int
 ```
 
 #### PRO-O1-15 — Eventos y jobs avanzados, operaciones aprobables y máquinas de estado
 
 ```text
 PRO-O1-15 — Eventos, jobs, operaciones y estados
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: completar el bus (cola de no entregados, monitoreo), jobs (cancelación, pausa, prioridades), operaciones sensibles con aprobación, vencimiento y revalidación, y el motor de máquinas de estado canónicas.
 LEER: anexos/T11-WFL-workflow-eventos-documentos.md §5.1 (010, 011, 013), §5.2 (023, 029, 030), §5.3, §5.4 (060..062, 064, 065), §5.5 (079), §8, §12; anexos/T08-NFR-no-funcionales-seguridad.md §14.2.
 IMPLEMENTAR: RF-WFL-010, 011, 013, 023, 029, 030, 041, 042, 044, 045, 048..051, 060..062, 064, 065, 079; RNF-NFR-222. Además (v1.2): RNF-NFR-260 (verificador nocturno de integridad referencial por tenant, job `nfr:verificar-referencias` JOB-NFR-25: recorre las referencias declaradas en T05 e informa sin corregir en la bandeja de integridad de la bandeja operativa, tipo `referentialIntegrity`, con alerta a operaciones; DEC-100).
-DECISIONES v1.2 (10-11-2026): DEC-100 (la integridad entre colecciones no usa claves foráneas, incompatibles con DEC-001: se garantiza con módulo dueño, `ObjectId` y foto en lo emitido, `$jsonSchema`, control optimista y el verificador nocturno de RNF-NFR-260, que lee el registro de referencias generado desde los esquemas, T05 §7.1.16, corre en la cola de baja prioridad con la cuota del tenant y no escribe en colecciones de negocio; la alerta se construye en PRO-O1-06). Leer además 01-registro-decisiones.md DEC-100 y anexos/T05-DAT-modelo-datos.md §7.1.16. PRUEBAS adicionales: una referencia rota inyectada en TEN-001 aparece en la bandeja de integridad; la corrida no hace ninguna escritura en colecciones de negocio; una referencia a un documento de TEN-002 dispara SEV2.
+DECISIONES v1.2 (10-11-2026): DEC-100 (la integridad entre tablas SQL no usa claves foráneas, incompatibles con DEC-001: se garantiza con módulo dueño, `ObjectId` y foto en lo emitido, `$jsonSchema`, control optimista y el verificador nocturno de RNF-NFR-260, que lee el registro de referencias generado desde los esquemas, T05 §7.1.16, corre en la cola de baja prioridad con la cuota del tenant y no escribe en tablas SQL de negocio; la alerta se construye en PRO-O1-06). Leer además 01-registro-decisiones.md DEC-100 y anexos/T05-DAT-modelo-datos.md §7.1.16. PRUEBAS adicionales: una referencia rota inyectada en TEN-001 aparece en la bandeja de integridad; la corrida no hace ninguna escritura en tablas SQL de negocio; una referencia a un documento de TEN-002 dispara SEV2.
 ENTREGABLES: dead letter y reintento manual de eventos; pausa, cancelación y prioridad de bulkRuns; operaciones con estados draft, pendingApproval, approved, executed, expired, rejected y revalidación tras PRM-WFL-011 horas; motor declarativo de máquinas de estado con transiciones auditadas; extensión DEC-079 (trámites de tipo solicitud genérica) como punto de extensión.
 NO CONSTRUIR TODAVÍA: diseñador de trámites y formularios dinámicos (O2).
 PRUEBAS: una operación vencida no se ejecuta; un evento fallido 5 veces va a dead letter y se reprocesa manualmente sin duplicar; una transición no declarada es rechazada.
 TERMINADO CUANDO: una operación de ejemplo pasa por aprobación y ejecución idempotente.
-VERIFICAR: npm test -w apps/api -- --grep operations && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep operations && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O1-16 — Aprobaciones, delegaciones, bandeja del empleado, retención y expediente
 
 ```text
 PRO-O1-16 — Aprobaciones, bandeja y expediente
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: políticas de aprobación por bandas de importe y pasos, delegaciones, vencimiento y escalamiento, bandeja unificada del empleado, retención documental, editor de plantillas del tenant, numeración avanzada y expediente digital.
 LEER: anexos/T11-WFL-workflow-eventos-documentos.md §5.8 (110..121, 123, 124), §5.9 (130..136, 138, 139), §5.11 (160, 161), §5.12 (173), §5.13 (190), §5.15 (210, 211, 213), §5.17 (RNF-WFL-003), §7, §10, §11.
@@ -906,13 +962,14 @@ ENTREGABLES: approvalPolicies, approvalRequests con evidencia de decisión; dele
 NO CONSTRUIR TODAVÍA: bandeja de mesa de entradas (O10).
 PRUEBAS: un aprobador sin límite suficiente no aprueba; una delegación vencida no vale; la purga respeta retención mínima; el expediente de TEN-001 no muestra documentos de TEN-002.
 TERMINADO CUANDO: una aprobación con dos pasos aparece en la bandeja del empleado y se resuelve con evidencia.
-VERIFICAR: npm test -w apps/api -- --grep approvals && npm run test:e2e -- --grep @O1-inbox
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep approvals && playwright test --grep @O1-inbox
 ```
 
 #### PRO-O1-17 — Motor de reportes base y preferencias de notificación
 
 ```text
 PRO-O1-17 — Motor de reportes base
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: catálogo único de reportes, ejecución síncrona o asíncrona por costo, exportación XLSX/CSV/PDF por job con descarga firmada, vistas guardadas, tablero de plataforma GOB-001, auditoría de acceso a reportes y preferencias de notificación del usuario.
 LEER: anexos/T10-BIA-reportes-bi-apis.md §5 (RF-BIA de O1), §7, §9, §10, §11, §12, §14, §17; anexos/T09-COM-comunidad-comunicaciones.md §5.10 (RF-COM-176), §5.13 (204, 205).
@@ -922,28 +979,30 @@ ENTREGABLES: reportDefinitions con ficha, parámetros, capabilities y sensibilid
 NO CONSTRUIR TODAVÍA: reportes programados (O2) ni almacén analítico (O11).
 PRUEBAS: un reporte sin capability no se lista; el enlace de descarga revalida permiso; una exportación grande corre en job y notifica.
 TERMINADO CUANDO: dos reportes de plataforma se ejecutan y exportan con datos ficticios.
-VERIFICAR: npm test -w apps/api -- --grep bia && npm run test:e2e -- --grep @O1-reports
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep bia && playwright test --grep @O1-reports
 ```
 
 #### PRO-O1-18 — Privacidad (Ley 25.326) y requisitos de seguridad operativos
 
 ```text
 PRO-O1-18 — Privacidad y seguridad operativa
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: inventario de datos personales desde metadatos de esquemas, finalidades y bases legales, derechos del titular, retención y anonimización, registro de subencargados (DEC-076) y requisitos operativos de seguridad.
 LEER: 01-registro-decisiones.md DEC-076; anexos/T08-NFR-no-funcionales-seguridad.md §5.1 (RF-NFR de O1), §9.11, §10.2, §12.1, §15.9.
 IMPLEMENTAR: RF-NFR-001..004, 006..011, 013..019, 023, 025; RNF-NFR-095, 103, 107..109, 150, 157, 246, 247, 250, 252, 254..257, 259.
-ENTREGABLES: metadatos de sensibilidad en esquemas Mongoose y generador del inventario; privacyRequests con plazos legales; políticas de retención por colección y job de anonimización; registro público de subencargados; EIPD como plantilla obligatoria por funcionalidad sensible; pruebas de seguridad periódicas.
+ENTREGABLES: metadatos de sensibilidad en esquemas EF Core y generador del inventario; privacyRequests con plazos legales; políticas de retención por tabla y job de anonimización; registro público de subencargados; EIPD como plantilla obligatoria por funcionalidad sensible; pruebas de seguridad periódicas.
 NO CONSTRUIR TODAVÍA: portal "Mis datos y privacidad" del socio (O2, RF-NFR-005, 012).
-PRUEBAS: una colección con campo personal sin metadatos hace fallar CI; una solicitud de supresión respeta datos con obligación legal de conservación.
-TERMINADO CUANDO: el inventario generado lista todas las colecciones de O0 y O1.
-VERIFICAR: npm test -w apps/api -- --grep privacy && npm run trace:check
+PRUEBAS: una tabla con campo personal sin metadatos hace fallar CI; una solicitud de supresión respeta datos con obligación legal de conservación.
+TERMINADO CUANDO: el inventario generado lista todas las tablas SQL de O0 y O1.
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep privacy && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 #### PRO-O1-19 — Herramienta de migración base
 
 ```text
 PRO-O1-19 — Herramienta de migración base
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: proyectos de migración por cooperativa, extracción, perfilado y limpieza, reglas de mapeo versionadas, staging, carga por servicio del módulo dueño en modo migration, rechazos, reprocesos idempotentes, conciliación, consulta de históricos y anonimización. Sin datos reales: solo bases ficticias de ejemplo.
 LEER: 01-registro-decisiones.md DEC-068, DEC-070; anexos/T07-MIG-migracion-procoop.md §5.1..§5.7, §5.10, §7, §9, §10, §11, §12, §17, §18.
@@ -953,22 +1012,23 @@ ENTREGABLES: migrationProjects (sigla ProCoop, versión, fuentes), migrationRuns
 NO CONSTRUIR TODAVÍA: mapeos de dominio (cada ola agrega los de su módulo), paralelo, by-pass y corte (O11).
 PRUEBAS: reprocesar una corrida no duplica; un rechazo queda con motivo y se corrige con regla nueva; la anonimización no deja DNI ni correos reales.
 TERMINADO CUANDO: una base ficticia de ejemplo se migra a staging con reporte de conciliación.
-VERIFICAR: npm test -w apps/api -- --grep mig && npm run test:e2e -- --grep @O1-mig
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep mig && playwright test --grep @O1-mig
 ```
 
 #### PRO-O1-20 — Integración de O1: alta asistida de una cooperativa
 
 ```text
 PRO-O1-20 — Integración de O1
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O1 (sección 5.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §5; §17 y §18 de T01, T02, T04, T06, T07, T10 y T11.
 IMPLEMENTAR: ningún RF nuevo. Verificar los 459 RF de O1 (antes 458; versión 1.0: 457), los 73 RNF de O1 (antes 72) y sus extensiones.
-ENTREGABLES: seed demo O1; e2e @O1 del recorrido completo de alta asistida (5.2); test:isolation sobre todas las colecciones nuevas; prueba de carga de lectura de configuración; reporte trace:check.
+ENTREGABLES: seed demo O1; e2e @O1 del recorrido completo de alta asistida (5.2); test:isolation sobre todas las tablas SQL nuevas; prueba de carga de lectura de configuración; reporte trace:check.
 NO CONSTRUIR TODAVÍA: nada de O2.
 PRUEBAS: e2e @O1, test:isolation, k6 config-read.
 TERMINADO CUANDO: criterio 5.2 demostrado con evidencias en docs/evidencias/O1/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O1 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O1 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -1064,21 +1124,23 @@ HUE-SRV-01, 02, 03, 04, 05, 07 y 09; HUECO-TRV-01 (adherentes como entidad de M1
 
 ```text
 PRO-O2-01 — Trámites, formularios, SLA y agenda
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
-OBJETIVO: motor de trámites configurables por tenant (tipos, pasos, responsables, documentos requeridos), formularios dinámicos tipados con validación Zod generada, SLA con vencimiento y escalamiento, agenda y calendario, gestión documental avanzada, firma simple y expediente ampliado.
+OBJETIVO: motor de trámites configurables por tenant (tipos, pasos, responsables, documentos requeridos), formularios dinámicos tipados con validación FluentValidation y contratos Shared generada, SLA con vencimiento y escalamiento, agenda y calendario, gestión documental avanzada, firma simple y expediente ampliado.
 LEER: anexos/T11-WFL-workflow-eventos-documentos.md §5.4 (RF-WFL-063), §5.5, §5.6, §5.7, §5.9 (137), §5.10, §5.11 (155, 156, 158, 162, 164), §5.14 (201), §5.15 (214, 215), §7, §8, §10, §11, §17; 01-registro-decisiones.md DEC-079.
 IMPLEMENTAR: RF-WFL-063, 070..078, 080..082, 090..096, 100..102, 104, 105, 137, 140..145, 155, 156, 158, 162, 164, 201, 214, 215.
 ENTREGABLES: procedureTypes versionados y procedures con máquina de estados declarativa; formDefinitions con tipos (texto, número, fecha, lista, archivo, domicilio con AddressPicker, firma) y renderizador común en admin y PWA; slaPolicies en días hábiles del calendario del tenant y job de escalamiento; calendarEvents y vista agenda; versionado de documentos y vínculo a expediente; firma simple con evidencia.
 NO CONSTRUIR TODAVÍA: firma con certificado y portal del empleado (O9); mesa de entradas (O10).
 PRUEBAS: un formulario publicado no cambia trámites ya iniciados; el SLA vence en día hábil y escala; un documento requerido faltante bloquea el avance del paso.
 TERMINADO CUANDO: el trámite "Solicitud de alta de servicio" de ejemplo se diseña y ejecuta en admin y PWA.
-VERIFICAR: npm test -w apps/api -- --grep procedures && npm run test:e2e -- --grep @O2-procedures
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep procedures && playwright test --grep @O2-procedures
 ```
 
 #### PRO-O2-02 — Campos extra tipados, precargas y perfil de configuración por servicio
 
 ```text
 PRO-O2-02 — Campos extra, precargas y perfil por servicio
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: campos extra tipados por entidad y servicio con validación y búsqueda, precarga de catálogos de ejemplo para nuevos tenants, reglas transversales del perfil de configuración por servicio y tablas fiscales comunes de consulta.
 LEER: anexos/T04-CFG-configuracion-parametros-maestros.md §5.1 (RF-CFG-017), §5.3 (041), §5.6, §5.10 (097), §5.12, §5.13 (118, 119), §5.15 (125..127, 129), §7, §10, §11.
@@ -1087,13 +1149,14 @@ ENTREGABLES: extraFieldDefinitions (tipo, obligatoriedad, visibilidad por canal 
 NO CONSTRUIR TODAVÍA: perfiles fiscales del servicio (O4).
 PRUEBAS: un campo extra obligatorio se valida en API y UI; un seedPack aplicado dos veces no duplica; los campos extra de TEN-001 no existen en TEN-002.
 TERMINADO CUANDO: TEN-002 nuevo recibe el seedPack de ejemplo y se ve en sus catálogos.
-VERIFICAR: npm test -w apps/api -- --grep extraFields && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep extraFields && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O2-03 — Personas e identificación fiscal
 
 ```text
 PRO-O2-03 — Personas e identificación fiscal
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: persona humana y jurídica única por tenant, tipos y números de documento, CUIT/CUIL con dígito verificador, validación contra padrón ARCA en modo simulado y datos sensibles marcados.
 LEER: anexos/M01-PER-personas-titulares-cuentas.md §4, §5.1, §5.2, §6, §7, §8, §9, §10, §11, §12, §17, §18; anexos/T05-DAT-modelo-datos.md (colecciones de M01); anexos/T08-NFR-no-funcionales-seguridad.md §9.12.
@@ -1103,13 +1166,14 @@ ENTREGABLES: persons con normalización de nombres y documentos, unicidad por te
 NO CONSTRUIR TODAVÍA: condición fiscal con efecto en facturación (O4, RF-PER-020, 029).
 PRUEBAS: CUIT con dígito inválido rechazado con RFC 9457; misma persona por DNI en TEN-001 y TEN-002 son registros distintos; campos sensibles no aparecen en logs.
 TERMINADO CUANDO: Ana Demo y las personas ficticias de M01 §18 se cargan por API y UI.
-VERIFICAR: npm test -w apps/api -- --grep per && npm run test:e2e -- --grep @O2-persons
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep per && playwright test --grep @O2-persons
 ```
 
 #### PRO-O2-04 — Contactos, consentimientos, titulares y cuentas
 
 ```text
 PRO-O2-04 — Contactos, titulares y cuentas
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: contactos verificados, preferencias y consentimientos por canal, titulares (persona con relación comercial) y cuentas como unidad de agrupación comercial.
 LEER: anexos/M01-PER-personas-titulares-cuentas.md §5.3, §5.4, §5.5, §8, §10, §11; anexos/T09-COM-comunidad-comunicaciones.md §5.10.
@@ -1119,13 +1183,14 @@ ENTREGABLES: contactos con verificación por OTP, consentimientos con evidencia 
 NO CONSTRUIR TODAVÍA: saldos y deuda en la cuenta (O5); bloqueos por mora (O6); cuentas con efectos fiscales (O4, RF-PER-049, 059, 066).
 PRUEBAS: un consentimiento revocado impide campañas por ese canal; una cuenta no se da de baja con contratos activos; la numeración de cuentas no colisiona en concurrencia.
 TERMINADO CUANDO: Ana Demo es titular con cuenta y contactos verificados.
-VERIFICAR: npm test -w apps/api -- --grep holders && npm run test:e2e -- --grep @O2-accounts
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep holders && playwright test --grep @O2-accounts
 ```
 
 #### PRO-O2-05 — Domicilios, geolocalización, inmuebles y puntos de prestación
 
 ```text
 PRO-O2-05 — Domicilios, inmuebles y puntos de prestación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: domicilios normalizados y geolocalizados sobre las calles del tenant, inmuebles y puntos de prestación donde se presta un servicio.
 LEER: anexos/M01-PER-personas-titulares-cuentas.md §5.6, §5.7, §10, §11; anexos/T04-CFG-configuracion-parametros-maestros.md §5.7.
@@ -1135,13 +1200,14 @@ ENTREGABLES: addresses (real, postal, de prestación) con AddressPicker y geocod
 NO CONSTRUIR TODAVÍA: medidores y puntos de medición (O7, RF-PER-095, 097); relación con nodos de red (O3, RF-PER-096, 098).
 PRUEBAS: un domicilio fuera de las localidades del tenant se rechaza; mover un punto de prestación queda auditado; la búsqueda por calle y altura funciona.
 TERMINADO CUANDO: Ana Demo tiene domicilio y un punto de prestación geolocalizado.
-VERIFICAR: npm test -w apps/api -- --grep addresses && npm run test:e2e -- --grep @O2-addresses
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep addresses && playwright test --grep @O2-addresses
 ```
 
 #### PRO-O2-06 — Relaciones, notas, bloqueos, documentación y transferencias
 
 ```text
 PRO-O2-06 — Relaciones, notas, bloqueos y transferencias
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: relaciones entre personas, representaciones y apoderados, notas, bloqueos administrativos, documentación y adjuntos de la persona, y cambio de titularidad y mudanzas sin efectos económicos.
 LEER: anexos/M01-PER-personas-titulares-cuentas.md §5.8, §5.10, §5.11, §8, §10, §11.
@@ -1151,13 +1217,14 @@ ENTREGABLES: relationships y representaciones con vigencia y documento respaldat
 NO CONSTRUIR TODAVÍA: garantías económicas (O5, RF-PER-107); bloqueos con efecto fiscal o de cobranza (O4, O5); adherentes (O10).
 PRUEBAS: un representante vencido no actúa; una transferencia requiere aprobación y deja historia; un bloqueo impide las acciones configuradas.
 TERMINADO CUANDO: un cambio de titularidad ficticio se tramita de punta a punta.
-VERIFICAR: npm test -w apps/api -- --grep relationships && npm run test:e2e -- --grep @O2-transfers
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep relationships && playwright test --grep @O2-transfers
 ```
 
 #### PRO-O2-07 — Ficha 360, padrón, historia, duplicados, privacidad e importación
 
 ```text
 PRO-O2-07 — Ficha 360, duplicados, privacidad e importación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: ficha 360 de la persona con secciones que cada módulo registra, búsqueda global y padrón, historia, detección y fusión de duplicados, vínculo usuario–persona con privacidad, e importación masiva.
 LEER: anexos/M01-PER-personas-titulares-cuentas.md §5.12, §5.13, §5.14, §5.15, §5.16, §10, §11, §14; 01-registro-decisiones.md DEC-043.
@@ -1167,13 +1234,14 @@ ENTREGABLES: Ficha360 con registro de secciones por módulo (las de facturación
 NO CONSTRUIR TODAVÍA: secciones de otros módulos.
 PRUEBAS: la fusión conserva historia y referencias; la búsqueda respeta alcance por sucursal; una importación con errores no confirma parciales.
 TERMINADO CUANDO: la ficha de Ana Demo muestra persona, titular, cuenta, domicilio y documentos.
-VERIFICAR: npm test -w apps/api -- --grep per && npm run test:e2e -- --grep @O2-360
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep per && playwright test --grep @O2-360
 ```
 
 #### PRO-O2-08 — Registro básico de asociados (M17)
 
 ```text
 PRO-O2-08 — Registro básico de asociados
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: registro de asociados vinculado a persona con número de asociado, estados básicos, relación con baja de servicio (AGR-029) y transversales de M17 necesarios para O2.
 LEER: anexos/M17-INS-institucional.md §5.1 (RF-INS-001..004, 009, 015, 017), §5.8 (099), §5.9 (104, 105, 107), §7, §10, §11; 01-registro-decisiones.md DEC-019.
@@ -1183,13 +1251,14 @@ ENTREGABLES: associates con numeración, fecha de ingreso, estado y persona; alt
 NO CONSTRUIR TODAVÍA: capital social (O5); libro de asociados, asambleas y órganos (O10).
 PRUEBAS: una persona no puede tener dos asociados activos en el mismo tenant; la baja del último servicio solo notifica, no egresa automáticamente.
 TERMINADO CUANDO: Ana Demo queda como asociada ficticia de TEN-001.
-VERIFICAR: npm test -w apps/api -- --grep ins
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep ins
 ```
 
 #### PRO-O2-09 — Catálogo de servicios, perfil por servicio y versionado
 
 ```text
 PRO-O2-09 — Catálogo de servicios y perfil por servicio
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: catálogo de plataforma de servicios (Internet, TV, telefonía, energía, agua, cloacas, gas, sepelio y otros), habilitación por tenant, perfil de configuración por servicio y versionado y publicación del catálogo (DEC-021).
 LEER: anexos/M02-CAT-catalogo-servicios.md §4, §5.1, §5.2, §5.3, §7, §8, §10, §11, §17, §18; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1.3; 01-registro-decisiones.md DEC-021.
@@ -1199,13 +1268,14 @@ ENTREGABLES: serviceCatalog global con capacidades por servicio; tenantServices 
 NO CONSTRUIR TODAVÍA: perfil fiscal efectivo (O4); categorías tarifarias con efectos (O4, O7).
 PRUEBAS: un servicio no habilitado no se puede contratar; una versión publicada del perfil no cambia contratos ya creados.
 TERMINADO CUANDO: Internet INT-100 queda habilitado en TEN-001 según T12 parte1 §1.3.
-VERIFICAR: npm test -w apps/api -- --grep cat && npm run test:e2e -- --grep @O2-catalog
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cat && playwright test --grep @O2-catalog
 ```
 
 #### PRO-O2-10 — Productos, planes, categorías, estados y contrato de servicio
 
 ```text
 PRO-O2-10 — Productos, planes y contrato de servicio
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: productos, conceptos, planes y paquetes, categorías, estados del contrato configurables, contrato de servicio con ciclo de vida, copia de configuración entre tenants y oferta para portal y landing.
 LEER: anexos/M02-CAT-catalogo-servicios.md §5.4..§5.9, §8 (estados), §10, §11; anexos/M13-STK-stock-activos-fabricacion.md §5.7 (RF-STK-082), §5.14 (132); anexos/T11-WFL-workflow-eventos-documentos.md §12.3 (EVT-CAT provisionales).
@@ -1215,13 +1285,14 @@ ENTREGABLES: products, plans y packages con vigencias (sin precio efectivo: el p
 NO CONSTRUIR TODAVÍA: activación técnica e instalación (O3); facturación del contrato (O4); suspensión por mora (O6).
 PRUEBAS: una transición de estado no configurada se rechaza; la copia entre tenants nunca copia datos de personas; un plan dado de baja no se ofrece.
 TERMINADO CUANDO: el contrato de Internet de Ana Demo existe en estado Pendiente de instalación.
-VERIFICAR: npm test -w apps/api -- --grep contracts && npm run test:e2e -- --grep @O2-contracts
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep contracts && playwright test --grep @O2-contracts
 ```
 
 #### PRO-O2-11 — CRM: expediente, bandejas y tickets
 
 ```text
 PRO-O2-11 — CRM: expediente, bandejas y tickets
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: ticket único con tipos configurables, colas y bandejas por rol y sucursal, expediente del socio en CRM, asignación, SLA de T11 y canales básicos.
 LEER: anexos/M09-CRM-atencion.md §4, §5.1, §5.5 (RF-CRM-158), §5.6 (170, 186), §5.9 (255), §5.10 (RNF-CRM-001, 003, 005), §7, §8, §10, §11, §17; 01-registro-decisiones.md DEC-011.
@@ -1231,28 +1302,30 @@ ENTREGABLES: tickets, ticketTypes, queues; asignación manual y por regla; SLA; 
 NO CONSTRUIR TODAVÍA: reclamos técnicos e incidentes (O3); IA supervisada (O6); mesa de entradas y turnero (O10).
 PRUEBAS: un ticket fuera del alcance del operador no se ve; el SLA escala; la reasignación queda auditada.
 TERMINADO CUANDO: un ticket ficticio recorre la bandeja hasta su cierre.
-VERIFICAR: npm test -w apps/api -- --grep crm && npm run test:e2e -- --grep @O2-crm
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep crm && playwright test --grep @O2-crm
 ```
 
 #### PRO-O2-12 — CRM: solicitudes comerciales
 
 ```text
 PRO-O2-12 — CRM: solicitudes comerciales
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: solicitudes comerciales (alta, cambio de plan, baja, cambio de titularidad) como tickets con trámite asociado que crean o modifican contratos en M02 por API del dueño (DEC-011, DEC-057).
 LEER: anexos/M09-CRM-atencion.md §5.2 (RF-CRM-060..067, 076..079, 083); anexos/M02-CAT-catalogo-servicios.md §5.7; 01-registro-decisiones.md DEC-011, DEC-057.
 IMPLEMENTAR: RF-CRM-060..067, 076..079, 083.
 ENTREGABLES: commercialRequests con tipos, validaciones previas (persona, cuenta, domicilio, oferta), creación de contrato por servicio de M02 al aprobar, estados sincronizados y notificación.
 NO CONSTRUIR TODAVÍA: factibilidad técnica (O3) ni presupuesto de conexión (O3).
-PRUEBAS: aprobar dos veces no crea dos contratos (idempotencia); CRM no escribe en colecciones de M02 (prueba de estructura).
+PRUEBAS: aprobar dos veces no crea dos contratos (idempotencia); CRM no escribe en tablas SQL de M02 (prueba de estructura).
 TERMINADO CUANDO: la solicitud de alta de Internet de Ana Demo crea el contrato.
-VERIFICAR: npm test -w apps/api -- --grep commercialRequests && npm run check:structure
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep commercialRequests && dotnet run --project tools/CheckStructure
 ```
 
 #### PRO-O2-13 — Comunidad: muro, reacciones y moderación
 
 ```text
 PRO-O2-13 — Comunidad: muro y moderación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: muro editorial con publicaciones de la cooperativa y de socios habilitados, reacciones, comentarios y menciones, y moderación con IA más humana, reportes, sanciones y auditoría.
 LEER: anexos/T09-COM-comunidad-comunicaciones.md §4, §5.1, §5.2, §5.3, §7, §8, §10, §11, §17, §18.
@@ -1261,13 +1334,14 @@ ENTREGABLES: posts con audiencias y programación; comments y reactions; moderat
 NO CONSTRUIR TODAVÍA: campañas masivas (PRO-O2-15).
 PRUEBAS: un comentario ofensivo de ejemplo queda retenido hasta revisión; un socio sancionado no publica; publicaciones de TEN-001 no se ven en TEN-002.
 TERMINADO CUANDO: una publicación ficticia con comentarios moderados se ve en la PWA.
-VERIFICAR: npm test -w apps/api -- --grep com && npm run test:e2e -- --grep @O2-community
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep com && playwright test --grep @O2-community
 ```
 
 #### PRO-O2-14 — Boletines, encuestas, eventos, beneficios y audiencias
 
 ```text
 PRO-O2-14 — Boletines, encuestas, eventos y audiencias
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: boletines, encuestas y consultas no vinculantes, eventos y beneficios, y motor único de audiencias usado por todos los envíos.
 LEER: anexos/T09-COM-comunidad-comunicaciones.md §5.4, §5.5, §5.6, §5.7, §10, §11.
@@ -1276,13 +1350,14 @@ ENTREGABLES: newsletters; surveys con anonimato configurable y resultados; event
 NO CONSTRUIR TODAVÍA: votaciones vinculantes de asamblea (O10); encuestas post-OT (O3).
 PRUEBAS: la audiencia congelada no cambia tras el envío; una encuesta anónima no expone la persona; la audiencia respeta consentimientos.
 TERMINADO CUANDO: una encuesta ficticia se envía a la audiencia "socios de Internet" de TEN-001.
-VERIFICAR: npm test -w apps/api -- --grep audiences && npm run test:e2e -- --grep @O2-surveys
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep audiences && playwright test --grep @O2-surveys
 ```
 
 #### PRO-O2-15 — Motor de comunicaciones multicanal, preferencias y campañas
 
 ```text
 PRO-O2-15 — Comunicaciones multicanal y campañas
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: motor de comunicaciones con plantillas por canal (correo, SMS, WhatsApp, push, in-app), proveedores simulados, preferencias y consentimientos, avisos de interrupción por zona, notificaciones transaccionales y campañas masivas.
 LEER: anexos/T09-COM-comunidad-comunicaciones.md §5.8..§5.12, §7, §10, §11; anexos/T06-INT-integraciones.md §5.1 (RF-INT-008), §5.7 (058), §5.10 (086).
@@ -1292,13 +1367,14 @@ ENTREGABLES: messageTemplates con diccionario y variables; messages con estado p
 NO CONSTRUIR TODAVÍA: notificaciones de mora (O6); envío de facturas (O4).
 PRUEBAS: un socio sin consentimiento de WhatsApp no recibe por ese canal; un webhook sin firma válida se rechaza; una campaña respeta la franja horaria.
 TERMINADO CUANDO: la notificación de solicitud recibida llega a Ana Demo por correo simulado e in-app.
-VERIFICAR: npm test -w apps/api -- --grep messaging && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep messaging && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O2-16 — Landing pública, registro y vinculación de cuentas
 
 ```text
 PRO-O2-16 — Landing, registro y vinculación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: landing pública por tenant con oferta y contacto, registro del socio con verificación, ámbito de la sesión y vinculación de cuentas por código, factura o validación presencial, con representaciones.
 LEER: anexos/M19-POR-portal-socio-landing.md §4, §5.1, §5.2, §5.3, §7, §10, §11, §17; anexos/T03-UXD-experiencia-marca-diccionario.md §5.6 (RF-UXD-076..078), §5.9 (120); 01-registro-decisiones.md DEC-043, DEC-066, DEC-067.
@@ -1307,13 +1383,14 @@ ENTREGABLES: landing por subdominio con secciones configurables, SEO y oferta de
 NO CONSTRUIR TODAVÍA: pago en landing (O5, RF-POR-012); vinculación por factura con datos fiscales reales (O4, RF-POR-035); accesos de pago (O5, RF-POR-043..045).
 PRUEBAS: un código de vinculación usado o vencido falla; la landing de TEN-001 no muestra oferta de TEN-002; registro con correo existente no revela existencia.
 TERMINADO CUANDO: Ana Demo se registra y vincula su cuenta en la PWA de TEN-001.
-VERIFICAR: npm test -w apps/api -- --grep portal && npm run test:e2e -- --grep @O2-landing
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep portal && playwright test --grep @O2-landing
 ```
 
 #### PRO-O2-17 — Portal del socio: inicio, servicios, gestiones, comunidad y administración
 
 ```text
 PRO-O2-17 — Portal del socio
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: inicio por rol, mis servicios y contratación, gestiones (consultas y trámites), comunidad en el portal, portal del empleado base, accesibilidad y tolerancia a errores, y administración del portal.
 LEER: anexos/M19-POR-portal-socio-landing.md §5.4, §5.5, §5.10, §5.12, §5.13 (RF-POR-134), §5.14, §5.15; anexos/T03-UXD-experiencia-marca-diccionario.md §5.5 (072..075), §5.7 (086, 089), §5.11 (167, 170); anexos/T08-NFR-no-funcionales-seguridad.md §13.
@@ -1322,13 +1399,14 @@ ENTREGABLES: home por rol (titular, representante, empleado); mis servicios con 
 NO CONSTRUIR TODAVÍA: facturas (O4), pagos (O5), consumos (O7), turnos (O10), tótem (O10).
 PRUEBAS: Lighthouse PWA y accesibilidad AA en las pantallas nuevas; un envío sin conexión se reintenta sin duplicar; un representante solo ve lo delegado.
 TERMINADO CUANDO: Ana Demo solicita Internet desde "Mis servicios" y sigue la gestión.
-VERIFICAR: npm run test:e2e -- --grep @O2-portal && npm run lighthouse -w apps/web-pwa
+VERIFICAR: playwright test --grep @O2-portal && npx lighthouse frontend/pwa
 ```
 
 #### PRO-O2-18 — Reportes programados, privacidad del socio y mapeos de migración
 
 ```text
 PRO-O2-18 — Reportes programados, privacidad del socio y mapeos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: reportes programados y de padrón, "Mis datos y privacidad" del socio, y mapeos de migración de personas, cuentas, servicios y contratos desde la base ficticia.
 LEER: anexos/T10-BIA-reportes-bi-apis.md §5 (RF-BIA de O2), §11; anexos/T08-NFR-no-funcionales-seguridad.md §5.1 (RF-NFR-005, 012); anexos/T07-MIG-migracion-procoop.md §5.2 (012), §5.3 (021..023, 026), §5.4 (034, 039), §5.9 (090).
@@ -1338,22 +1416,23 @@ ENTREGABLES: reportSchedules con destinatarios y vencimiento; reportes de padró
 NO CONSTRUIR TODAVÍA: corrida paralela (O11).
 PRUEBAS: un reporte programado no se envía a un destinatario sin permiso; la descarga de datos del socio solo incluye sus datos; la migración ficticia de personas concilia conteos.
 TERMINADO CUANDO: personas y contratos de la base ficticia migran a staging y luego a TEN-001 de prueba.
-VERIFICAR: npm test -w apps/api -- --grep bia && npm test -w apps/api -- --grep mig
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep bia && dotnet test --filter FullyQualifiedName~Api -- --grep mig
 ```
 
 #### PRO-O2-19 — Integración de O2: el socio se registra y solicita Internet
 
 ```text
 PRO-O2-19 — Integración de O2
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O2 (sección 6.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §6; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1.3, §1.5, §1.6; §17 y §18 de M01, M02, M09, M17, M19, T09 y T11.
 IMPLEMENTAR: ningún RF nuevo. Verificar los 617 RF de O2 (antes 614 y 613; versión 1.0: 607).
-ENTREGABLES: seed demo O2 (Ana Demo, INT-100, ONT-DEMO-0001 reservado para O3); e2e @O2 del recorrido de 6.2; test:isolation de todas las colecciones nuevas; actualización de estados de HUE-SRV y HUECO-TRV resueltos (R9).
+ENTREGABLES: seed demo O2 (Ana Demo, INT-100, ONT-DEMO-0001 reservado para O3); e2e @O2 del recorrido de 6.2; test:isolation de todas las tablas SQL nuevas; actualización de estados de HUE-SRV y HUECO-TRV resueltos (R9).
 NO CONSTRUIR TODAVÍA: nada de O3.
 PRUEBAS: e2e @O2, test:isolation, k6 de búsqueda de personas.
 TERMINADO CUANDO: criterio 6.2 demostrado con evidencias en docs/evidencias/O2/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O2 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O2 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -1440,6 +1519,7 @@ HUE-SRV-07 y HUE-INT-03 (R9).
 
 ```text
 PRO-O3-01 — Cuadrillas, recursos y tipos de trabajo
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cuadrillas, técnicos, vehículos y herramientas como recursos, tipos de trabajo con duración y habilidades, y legajo mínimo del empleado (DEC-058).
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §4, §5.7, §7, §10, §11; anexos/M16-SUE-personal-sueldos.md §5.1 (RF-SUE-001); 01-registro-decisiones.md DEC-058.
@@ -1448,13 +1528,14 @@ ENTREGABLES: employees mínimo (persona, legajo, sucursal, usuario); crews con i
 NO CONSTRUIR TODAVÍA: liquidación y RRHH (O9); costeo de cuadrilla (O7, RF-TEC-106).
 PRUEBAS: un técnico sin habilidad no se asigna a un tipo que la exige; el alcance por cuadrilla limita las OT visibles.
 TERMINADO CUANDO: la cuadrilla ficticia de T12 parte1 §1.5 existe en TEN-001.
-VERIFICAR: npm test -w apps/api -- --grep crews
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep crews
 ```
 
 #### PRO-O3-02 — Stock: artículos, depósitos y movimientos
 
 ```text
 PRO-O3-02 — Stock: artículos, depósitos y movimientos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: artículos y clasificación, depósitos, ubicaciones y custodia, y documentos de movimiento de stock transaccionales con saldos por depósito.
 LEER: anexos/M13-STK-stock-activos-fabricacion.md §4, §5.1, §5.2, §5.3, §7, §8, §10, §11, §17, §18.
@@ -1463,13 +1544,14 @@ ENTREGABLES: items con unidad, clase y control por serie o lote; warehouses (inc
 NO CONSTRUIR TODAVÍA: valorización y costeo completos (O8); inventario físico completo (O8); extensiones O8 y O10 de RF-STK-024 y 040 (ver §18).
 PRUEBAS: dos egresos concurrentes del último ítem dejan uno rechazado; un movimiento anulado revierte saldo con documento; depósitos de TEN-001 invisibles en TEN-002.
 TERMINADO CUANDO: el depósito central de TEN-001 tiene stock ficticio de ONT y cable.
-VERIFICAR: npm test -w apps/api -- --grep stk && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep stk && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O3-03 — Stock: series, reservas, custodia de cuadrilla y comodatos
 
 ```text
 PRO-O3-03 — Series, reservas, custodia y comodatos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: trazabilidad por serie y lote, reservas para OT, entregas a cuadrilla y consumo desde la OT, equipos en comodato vinculados al contrato, inventario de cuadrilla, stock por servicio y la recepción mínima de equipo de proveedor.
 LEER: anexos/M13-STK-stock-activos-fabricacion.md §5.4..§5.8, §5.10 (089, 094), §5.12 (113), §5.14 (131, 135..137); anexos/M12-CMP-compras-proveedores.md §5.1 (RF-CMP-018), §5.6 (067); anexos/M15-CON-contabilidad.md §5.5 (RF-CON-071).
@@ -1479,13 +1561,14 @@ ENTREGABLES: serialNumbers con historia completa (depósito, cuadrilla, cliente,
 NO CONSTRUIR TODAVÍA: compras completas (O8); RMA completo (O8); comodato con cargo por no devolución (O4, RF-STK-080; O6, 078).
 PRUEBAS: una serie no puede estar en dos lugares; consumir sin reserva cuando la política la exige falla; la devolución de comodato restituye stock.
 TERMINADO CUANDO: ONT-DEMO-0001 pasa del depósito a la custodia de la cuadrilla.
-VERIFICAR: npm test -w apps/api -- --grep serials && npm run test:e2e -- --grep @O3-stock
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep serials && playwright test --grep @O3-stock
 ```
 
 #### PRO-O3-04 — Factibilidad y estimación técnica
 
 ```text
 PRO-O3-04 — Factibilidad y estimación técnica
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: factibilidad automática por zona y cobertura más revisión técnica, estimación técnica y presupuesto de conexión, y datos técnicos del punto de prestación.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §5.1, §5.2, §8, §10, §11; anexos/M01-PER-personas-titulares-cuentas.md §5.1 (RF-PER-016), §5.7 (096, 098); anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1.3.
@@ -1494,13 +1577,14 @@ ENTREGABLES: feasibilityChecks con resultado automático (zona de cobertura conf
 NO CONSTRUIR TODAVÍA: red GIS real (O7); presupuesto comercial de ventas (O8).
 PRUEBAS: domicilio fuera de cobertura queda "no factible" con motivo; la revisión manual queda auditada.
 TERMINADO CUANDO: el domicilio de Ana Demo es factible para Internet.
-VERIFICAR: npm test -w apps/api -- --grep feasibility
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep feasibility
 ```
 
 #### PRO-O3-05 — Órdenes de trabajo y materiales
 
 ```text
 PRO-O3-05 — Órdenes de trabajo y materiales
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: núcleo de OT con estados, prioridades, SLA, asignación, tareas, evidencias, materiales planificados y consumidos, y cierre con controles.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §5.3, §5.4, §8 (estados de OT), §10, §11; anexos/T11-WFL-workflow-eventos-documentos.md §5.4 (RF-WFL-066), §5.7 (103).
@@ -1509,13 +1593,14 @@ ENTREGABLES: workOrders con máquina de estados (creada, planificada, asignada, 
 NO CONSTRUIR TODAVÍA: costeo de OT (O7, RF-TEC-035, 040, 041, 061); facturación de materiales (O4, RF-TEC-063).
 PRUEBAS: no se cierra una OT con materiales sin conciliar; una OT anulada libera reservas; transición inválida responde 409.
 TERMINADO CUANDO: la OT de instalación de Ana Demo existe con materiales reservados.
-VERIFICAR: npm test -w apps/api -- --grep workOrders && npm run test:e2e -- --grep @O3-wo
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep workOrders && playwright test --grep @O3-wo
 ```
 
 #### PRO-O3-06 — Agenda, visitas y portal de visitas
 
 ```text
 PRO-O3-06 — Agenda y visitas
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: agenda de cuadrillas con capacidad, franjas, reprogramación, confirmación del socio y seguimiento de la visita en el portal.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §5.5; anexos/M19-POR-portal-socio-landing.md §5.5 (RF-POR-055), §5.6; anexos/T11-WFL-workflow-eventos-documentos.md §5.6 (RF-WFL-097).
@@ -1524,13 +1609,14 @@ ENTREGABLES: visits con franjas y capacidad por cuadrilla; elección de turno po
 NO CONSTRUIR TODAVÍA: turnos de atención presencial (O10).
 PRUEBAS: no se sobreasigna una franja; el socio solo ve sus visitas; la reprogramación notifica.
 TERMINADO CUANDO: Ana Demo elige franja desde la PWA y la cuadrilla la ve en su agenda.
-VERIFICAR: npm test -w apps/api -- --grep visits && npm run test:e2e -- --grep @O3-visits
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep visits && playwright test --grep @O3-visits
 ```
 
 #### PRO-O3-07 — Instalación integral, firma y activación del contrato
 
 ```text
 PRO-O3-07 — Instalación integral y activación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: proceso de instalación integral (BASE §73) que une solicitud, OT, materiales, equipo en comodato, firma de conformidad, encuesta y activación del contrato.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §5.6; anexos/M02-CAT-catalogo-servicios.md §5.4 (RF-CAT-050, 051), §5.7 (079, 081, 085, 088, 091, 099); anexos/T11-WFL-workflow-eventos-documentos.md §5.14 (195, 196); anexos/T09-COM-comunidad-comunicaciones.md §5.5 (084..087, 092).
@@ -1539,13 +1625,14 @@ ENTREGABLES: checklist de instalación por servicio; acta de conformidad PDF fir
 NO CONSTRUIR TODAVÍA: cargo de instalación en la factura (O4, RF-TEC-094).
 PRUEBAS: sin firma ni equipo registrado la instalación no se completa; el evento reprocesado no reactiva dos veces.
 TERMINADO CUANDO: el contrato de Ana Demo pasa a Activo tras la instalación.
-VERIFICAR: npm test -w apps/api -- --grep installation && npm run test:e2e -- --grep @O3-install
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep installation && playwright test --grep @O3-install
 ```
 
 #### PRO-O3-08 — App de campo offline-first
 
 ```text
 PRO-O3-08 — App de campo offline-first
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: perfil técnico de la app de campo en la PWA con trabajo sin conexión, almacenamiento local cifrado, cola de operaciones idempotentes, sincronización y resolución de conflictos.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §5.8; anexos/T03-UXD-experiencia-marca-diccionario.md §5.7 (RF-UXD-094, 095); anexos/T08-NFR-no-funcionales-seguridad.md §7.6, §13.2; anexos/T01-PLA-plataforma-saas.md RNF-PLA-013.
@@ -1554,13 +1641,14 @@ ENTREGABLES: módulo field en apps/web-pwa con IndexedDB cifrado, descarga de ho
 NO CONSTRUIR TODAVÍA: perfiles lecturista y cobrador (O7, O5 y O7, RF-TEC-120, 131).
 PRUEBAS: e2e Playwright con red cortada y restaurada sin duplicar movimientos; un dispositivo revocado no sincroniza; los datos locales no son legibles sin sesión.
 TERMINADO CUANDO: la instalación de Ana Demo se registra sin conexión y se sincroniza correctamente.
-VERIFICAR: npm run test:e2e -- --grep @O3-offline && npm test -w apps/api -- --grep fieldSync
+VERIFICAR: playwright test --grep @O3-offline && dotnet test --filter FullyQualifiedName~Api -- --grep fieldSync
 ```
 
 #### PRO-O3-09 — Equipos de red y aprovisionamiento de Internet
 
 ```text
 PRO-O3-09 — Equipos de red y aprovisionamiento
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: equipos de red y centrales, vínculo del equipo del cliente con la red, aprovisionamiento automático de Internet y TV por adaptador (alta, cambio de plan, suspensión, baja) con modo simulado.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §5.11 (RF-TEC-155), §5.12, §5.15; anexos/T06-INT-integraciones.md (fichas de aprovisionamiento); anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1.3, §1.5.
@@ -1569,13 +1657,14 @@ ENTREGABLES: networkEquipment (OLT, nodos, puertos); provisioningRequests con es
 NO CONSTRUIR TODAVÍA: suspensión por mora (O6, RF-TEC-187); TV y telefonía avanzadas (O10, RF-TEC-194, 195, 197..214).
 PRUEBAS: un fallo del proveedor reintenta y alerta sin activar dos veces; la reconciliación detecta un equipo activo con contrato suspendido.
 TERMINADO CUANDO: el plan INT-100 de Ana Demo queda aprovisionado en el simulador.
-VERIFICAR: npm test -w apps/api -- --grep provisioning && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep provisioning && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O3-10 — Geolocalización operativa e informes técnicos
 
 ```text
 PRO-O3-10 — Geolocalización operativa e informes
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: posición de cuadrillas con consentimiento y franja laboral, mapa operativo de OT, informes técnicos, notificaciones y reporte técnico del catálogo BIA.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md §5.17, §5.18; anexos/T10-BIA-reportes-bi-apis.md (RF-BIA-020).
@@ -1584,13 +1673,14 @@ ENTREGABLES: gpsPositions con retención corta; mapa de OT y cuadrillas; informe
 NO CONSTRUIR TODAVÍA: GPS de flota (O10).
 PRUEBAS: fuera de la franja laboral no se registra posición; la retención borra posiciones vencidas; informes respetan alcance.
 TERMINADO CUANDO: el mapa operativo muestra la OT de Ana Demo y la cuadrilla.
-VERIFICAR: npm test -w apps/api -- --grep gps && npm run test:e2e -- --grep @O3-map
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep gps && playwright test --grep @O3-map
 ```
 
 #### PRO-O3-11 — Reclamos e incidentes
 
 ```text
 PRO-O3-11 — Reclamos e incidentes
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: reclamos del socio con clasificación, diagnóstico guiado, OT asociada, incidentes masivos que agrupan reclamos por zona, avisos de interrupción y notificaciones transaccionales.
 LEER: anexos/M09-CRM-atencion.md §5.3, §8, §10, §11, §17; anexos/T09-COM-comunidad-comunicaciones.md §5.7 (RF-COM-120), §5.9 (161, 163), §5.11 (183, 184).
@@ -1599,13 +1689,14 @@ ENTREGABLES: claims con tipos y diagnóstico; incidents con zona y agrupación a
 NO CONSTRUIR TODAVÍA: bonificación por interrupción en factura (O4, RF-CRM-102); reclamos de medición (O7, RF-CRM-114).
 PRUEBAS: cerrar el incidente cierra los reclamos vinculados con notificación; un reclamo duplicado se vincula al incidente.
 TERMINADO CUANDO: el reclamo "sin servicio" de Ana Demo genera OT y se cierra.
-VERIFICAR: npm test -w apps/api -- --grep claims && npm run test:e2e -- --grep @O3-claims
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep claims && playwright test --grep @O3-claims
 ```
 
 #### PRO-O3-12 — Completar expediente, solicitudes y canales del CRM
 
 ```text
 PRO-O3-12 — Completar CRM
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: completar expediente y tickets, solicitudes comerciales con técnica, canales de atención (correo, formulario, WhatsApp) y tareas internas que dependen de OT, y gestiones técnicas en el portal.
 LEER: anexos/M09-CRM-atencion.md §5.1, §5.2, §5.6, §5.8 (RF-CRM-236), §5.9 (256); anexos/M19-POR-portal-socio-landing.md §5.10 (RF-POR-113, 115).
@@ -1614,13 +1705,14 @@ ENTREGABLES: vínculos ticket–OT–contrato; solicitudes que requieren factibi
 NO CONSTRUIR TODAVÍA: bot e IA (O6); omnicanal avanzado (O10).
 PRUEBAS: un mensaje entrante del mismo socio se agrupa en el ticket abierto; el portal muestra el avance de la OT asociada.
 TERMINADO CUANDO: Ana Demo sigue su reclamo en la PWA con el estado de la OT.
-VERIFICAR: npm test -w apps/api -- --grep crm && npm run test:e2e -- --grep @O3-crm
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep crm && playwright test --grep @O3-crm
 ```
 
 #### PRO-O3-13 — Integración de O3: instalación y reclamo del piloto Internet
 
 ```text
 PRO-O3-13 — Integración de O3
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O3 (sección 7.2 del plan), validar la migración técnica y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §7; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1.5, §1.6; anexos/T07-MIG-migracion-procoop.md §5.6 (RF-MIG-056); §17 y §18 de M10, M13 y M09.
@@ -1629,7 +1721,7 @@ ENTREGABLES: seed demo O3; e2e @O3 de 7.2 con red cortada; mapeos MIG de stock y
 NO CONSTRUIR TODAVÍA: nada de O4.
 PRUEBAS: e2e @O3, test:isolation, k6 de sincronización de campo con 50 dispositivos simulados.
 TERMINADO CUANDO: criterio 7.2 demostrado con evidencias en docs/evidencias/O3/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O3 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O3 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -1725,6 +1817,7 @@ HUE-INT-01, HUE-INT-02 y HUE-SRV-05 (R9).
 
 ```text
 PRO-O4-01 — Tablas normativas, perfil fiscal y padrones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: tablas normativas versionadas, relevamiento fiscal, perfil fiscal del tenant por razón social (legalEntityId), condición de agente, padrones ARCA e IIBB importados por archivo y consultas, e índices económicos.
 LEER: anexos/M06-FIS-fiscal-impuestos.md §4, §5.1, §5.2, §7, §10, §11, §14, §17, §18; anexos/T04-CFG-configuracion-parametros-maestros.md §5.5 (RF-CFG-056), §5.9 (095), §5.10 (098, 099, 101, 102); anexos/T06-INT-integraciones.md §5.8 (RF-INT-061, 064); 01-registro-decisiones.md DEC-064.
@@ -1733,13 +1826,14 @@ ENTREGABLES: taxTables con vigencia y fuente normativa; tenantTaxProfiles por le
 NO CONSTRUIR TODAVÍA: condición de agente de retención efectiva (O8, RF-FIS-018..020, 022); RF-FIS-007 y 012 (O8 y O7).
 PRUEBAS: una alícuota con vigencia futura no aplica hoy; el padrón importado dos veces no duplica; perfil fiscal de una legalEntity no afecta a otra.
 TERMINADO CUANDO: TEN-001 tiene perfil fiscal ficticio de Responsable Inscripto en Córdoba.
-VERIFICAR: npm test -w apps/api -- --grep fis
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep fis
 ```
 
 #### PRO-O4-02 — Credenciales ARCA, certificados y WSAA
 
 ```text
 PRO-O4-02 — Credenciales ARCA y WSAA
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: certificados por razón social en la bóveda, generación de CSR, vencimientos y alertas, autenticación WSAA con caché de tickets de acceso por servicio, y cambio controlado de homologación a producción.
 LEER: anexos/M06-FIS-fiscal-impuestos.md §5.3, §13; anexos/T06-INT-integraciones.md §5.2 (RF-INT-022, 023), §5.3; 01-registro-decisiones.md DEC-053, DEC-074.
@@ -1748,13 +1842,14 @@ ENTREGABLES: arcaCredentials con referencia a la bóveda; generador de CSR (la c
 NO CONSTRUIR TODAVÍA: modo pasarela para terceros (O11).
 PRUEBAS: dos workers no piden dos tickets a la vez; la clave privada no aparece en ninguna respuesta ni log; sin certificado de prueba el conector usa el simulador.
 TERMINADO CUANDO: WSAA devuelve un ticket de homologación o del simulador para wsfe.
-VERIFICAR: npm test -w apps/api -- --grep wsaa
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep wsaa
 ```
 
 #### PRO-O4-03 — Puntos de venta, cola CAE (WSFEv1) y CAEA
 
 ```text
 PRO-O4-03 — Puntos de venta, CAE y CAEA
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: puntos de venta y modalidades, cola de autorización CAE con lotes, reintentos, rechazos y conciliación, y CAEA con solicitud, uso en contingencia e informe.
 LEER: anexos/M06-FIS-fiscal-impuestos.md §5.4, §5.5, §5.6, §8 (estado fiscal), §12, §17; anexos/T06-INT-integraciones.md §5.5 (RF-INT-038), §5.9 (074, 076); anexos/T08-NFR-no-funcionales-seguridad.md §8.
@@ -1764,13 +1859,14 @@ ENTREGABLES: pointsOfSale por legalEntity; caeQueue con estados (pending, sent, 
 NO CONSTRUIR TODAVÍA: RF-FIS-049 (O8).
 PRUEBAS: timeout de ARCA deja el comprobante en uncertain y se resuelve consultando sin duplicar número; rechazo por dato inválido va a excepciones; CAEA informado al final del período.
 TERMINADO CUANDO: un comprobante de prueba obtiene CAE en homologación o simulador.
-VERIFICAR: npm test -w apps/api -- --grep cae && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cae && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O4-04 — IVA, IIBB, percepciones básicas, libros y conceptos de terceros
 
 ```text
 PRO-O4-04 — IVA, IIBB, libros y conceptos de terceros
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: condición IVA, clase de comprobante y alícuotas; IIBB de Córdoba con padrones y jurisdicciones; percepciones nacionales básicas; libro IVA ventas base; conceptos por cuenta y orden de terceros; conservación.
 LEER: anexos/M06-FIS-fiscal-impuestos.md §5.8, §5.9, §5.10 (093, 095), §5.12 (112, 115, 116), §5.14 (134, 135, 137, 141), §5.18 (159, 160); anexos/M01-PER-personas-titulares-cuentas.md §5.2 (RF-PER-020, 029).
@@ -1781,28 +1877,30 @@ ENTREGABLES: servicio fiscal puro calculateTaxes(lines, holderTaxProfile, legalE
 NO CONSTRUIR TODAVÍA: RF-FIS-082, 084, 089 (O5); 091, 094, 096 (O8); Libro IVA Digital completo (O8).
 PRUEBAS: tabla de casos de IVA (RI, monotributo, consumidor final, exento) con redondeos exactos; un concepto de terceros no suma IVA propio.
 TERMINADO CUANDO: el cálculo fiscal de la factura de Ana Demo coincide con la tabla esperada de M06 §17.
-VERIFICAR: npm test -w apps/api -- --grep taxes
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep taxes
 ```
 
 #### PRO-O4-05 — Cuadros tarifarios versionados y precios
 
 ```text
 PRO-O4-05 — Cuadros tarifarios y precios
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cuadros tarifarios por servicio con versiones, aprobación y trazabilidad normativa, y precios y parámetros de cálculo por versión.
 LEER: anexos/M04-TAR-tarifas-motor-calculo.md §4, §5.1, §5.2, §7, §8, §10, §11, §17, §18.
 IMPLEMENTAR: RF-TAR-001..016, 018..022, 027, 029, 030.
-ENTREGABLES: tariffSchedules y tariffVersions (draft, approved, published, superseded) con resolución o acta de respaldo; prices y calcParameters en Decimal128 con vigencia; importación de cuadros; comparación entre versiones; PAN-TAR.
+ENTREGABLES: tariffSchedules y tariffVersions (draft, approved, published, superseded) con resolución o acta de respaldo; prices y calcParameters en DECIMAL(19,4) con vigencia; importación de cuadros; comparación entre versiones; PAN-TAR.
 NO CONSTRUIR TODAVÍA: RF-TAR-017, 023, 025, 026, 028, 031 (medidos, O7); 024 (O10).
 PRUEBAS: una versión publicada es inmutable; solapamiento de vigencias rechazado; precios nunca como Number (lint).
 TERMINADO CUANDO: el cuadro de Internet de T12 parte1 §1.3 está publicado en TEN-001.
-VERIFICAR: npm test -w apps/api -- --grep tar
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep tar
 ```
 
 #### PRO-O4-06 — Motor de cálculo, reglas, fórmulas y beneficios
 
 ```text
 PRO-O4-06 — Motor de cálculo
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: motor de cálculo puro y determinista en packages/domain que, dado contrato, período, versión tarifaria y datos de entrada, produce líneas con explicación; reglas declarativas, fórmulas seguras y beneficios.
 LEER: anexos/M04-TAR-tarifas-motor-calculo.md §5.3, §5.4, §6, §9; anexos/T08-NFR-no-funcionales-seguridad.md §7.
@@ -1812,13 +1910,14 @@ ENTREGABLES: calculate(input) sin I/O; prorrateos por días; reglas declarativas
 NO CONSTRUIR TODAVÍA: cálculo por consumo medido (O7); telefonía (O10).
 PRUEBAS: casos de M04 §17 con resultados exactos al centavo; una fórmula que intenta acceder a I/O falla; rendimiento de 10.000 cálculos dentro del RNF.
 TERMINADO CUANDO: el abono INT-100 con prorrateo de alta se calcula exacto.
-VERIFICAR: npm test -w packages/domain && npm test -w apps/api -- --grep calc
+VERIFICAR: dotnet test --filter FullyQualifiedName~domain && dotnet test --filter FullyQualifiedName~Api -- --grep calc
 ```
 
 #### PRO-O4-07 — Explicabilidad, simulación, retroactivos y perfil tarifario del contrato
 
 ```text
 PRO-O4-07 — Explicabilidad, simulación y retroactivos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: explicación consultable de cada cálculo, simulador para operadores y socios, retroactivos por cambio de versión, reportes tarifarios, migración de cuadros y datos tarifarios y fiscales del contrato.
 LEER: anexos/M04-TAR-tarifas-motor-calculo.md §5.5; anexos/M02-CAT-catalogo-servicios.md §5.4 (RF-CAT-044, 046, 048, 052), §5.7 (071, 086, 087, 098).
@@ -1829,13 +1928,14 @@ ENTREGABLES: calcExplanations legibles con dict; simulador en admin y portal; jo
 NO CONSTRUIR TODAVÍA: RF-TAR-097..099 (O10), 101, 102 (O11).
 PRUEBAS: la explicación suma exactamente el total; un retroactivo no se aplica dos veces.
 TERMINADO CUANDO: Ana Demo ve en el simulador del portal el mismo importe que el lote.
-VERIFICAR: npm test -w apps/api -- --grep tar && npm run test:e2e -- --grep @O4-sim
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep tar && playwright test --grep @O4-sim
 ```
 
 #### PRO-O4-08 — Ciclos, universos y lote congelado
 
 ```text
 PRO-O4-08 — Ciclos, universos y lote
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: ciclos de facturación, universos por servicio, zona y categoría, plantillas, y preparación y congelamiento del universo del lote como job reanudable.
 LEER: anexos/M05-FAC-facturacion.md §4, §5.1, §5.2, §7, §8 (estados del lote), §9, §12, §17, §18; anexos/T11-WFL-workflow-eventos-documentos.md §5.2 (RF-WFL-027, 028, 031).
@@ -1844,13 +1944,14 @@ ENTREGABLES: billingCycles; billingUniverses; billingBatches con estados (draft,
 NO CONSTRUIR TODAVÍA: emisión (PRO-O4-10).
 PRUEBAS: un contrato modificado tras congelar no cambia el lote; un job interrumpido reanuda sin duplicar; dos lotes del mismo ciclo y universo no coexisten.
 TERMINADO CUANDO: el lote del ciclo de ejemplo incluye el contrato de Ana Demo.
-VERIFICAR: npm test -w apps/api -- --grep batches && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep batches && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O4-09 — Prefacturación, excepciones y aprobación
 
 ```text
 PRO-O4-09 — Prefacturación, excepciones y aprobación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: prefacturación simulada, comparación con el ciclo anterior, bandeja de excepciones con reglas configurables y aprobación del lote con T11.
 LEER: anexos/M05-FAC-facturacion.md §5.3, §5.4, §5.5; anexos/T11-WFL-workflow-eventos-documentos.md §5.3 (RF-WFL-046, 047).
@@ -1860,13 +1961,14 @@ ENTREGABLES: preInvoices; reglas de excepción (variación mayor al umbral, impo
 NO CONSTRUIR TODAVÍA: emisión.
 PRUEBAS: una excepción abierta bloquea la aprobación según parámetro; la comparación marca variaciones mayores a PRM.
 TERMINADO CUANDO: el lote de ejemplo queda aprobado con evidencia.
-VERIFICAR: npm test -w apps/api -- --grep prebilling
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep prebilling
 ```
 
 #### PRO-O4-10 — Emisión, estado fiscal, modalidades y numeración
 
 ```text
 PRO-O4-10 — Emisión y numeración
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: emisión del lote con numeración por punto de venta y tipo, envío a la cola CAE, estado fiscal separado, modalidad separada y agrupada, grupos de facturación, tipos de comprobante y letras.
 LEER: anexos/M05-FAC-facturacion.md §5.6, §5.7, §5.8, §5.9; anexos/T11-WFL-workflow-eventos-documentos.md §5.13 (RF-WFL-189, 191).
@@ -1876,13 +1978,14 @@ ENTREGABLES: invoices e invoiceLines inmutables tras emitir; numeración transac
 NO CONSTRUIR TODAVÍA: RF-FAC-056 (O10), 076 (O5).
 PRUEBAS: emisión concurrente sin números repetidos; un comprobante emitido no se edita; el lote parcialmente autorizado muestra estado por comprobante.
 TERMINADO CUANDO: la factura de Ana Demo está emitida y autorizada.
-VERIFICAR: npm test -w apps/api -- --grep issue && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep issue && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O4-11 — Vencimientos, bloqueo, notas, recategorización, ítems y factura manual
 
 ```text
 PRO-O4-11 — Vencimientos, notas y factura manual
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: vencimientos y tramas con recargo entre vencimientos, bloqueo de comprobantes, anulación con notas de crédito y débito, recategorización y modificación masiva, cuotas e ítems facturables de terceros, factura manual y refacturación puntual.
 LEER: anexos/M05-FAC-facturacion.md §5.10, §5.11 (093), §5.12, §5.13 (112..114), §5.14, §5.15; anexos/M08-MOR-mora-financiacion.md §5.2 (RF-MOR-011..014).
@@ -1892,13 +1995,14 @@ ENTREGABLES: dueDateRules con días hábiles; recargo entre primer y segundo ven
 NO CONSTRUIR TODAVÍA: bloqueos por mora (O5 y O6); RF-FAC-106..111, 115, 123..125, 130, 133.
 PRUEBAS: una NC no supera el saldo del comprobante; el recargo entre vencimientos coincide con M08 §17; un ítem facturable se factura una sola vez.
 TERMINADO CUANDO: una NC parcial sobre la factura de Ana Demo obtiene CAE.
-VERIFICAR: npm test -w apps/api -- --grep creditNotes
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep creditNotes
 ```
 
 #### PRO-O4-12 — PDF, QR, talones, distribución y cierre de ciclo
 
 ```text
 PRO-O4-12 — PDF, QR, distribución y cierre
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: diseño e impresión con el motor PDF (DEC-080), gráficos de consumo, QR fiscal ARCA, código de barras de pago, talones, distribución por reparto, correo, WhatsApp y portal, y cierre de ciclo y de módulo.
 LEER: anexos/M05-FAC-facturacion.md §5.16, §5.17 (140..144, 147, 148), §5.18 (149, 150, 153), §5.19, §5.20 (164..168, 172, 173); anexos/T11-WFL-workflow-eventos-documentos.md §5.12 (174, 176..178); anexos/T09-COM-comunidad-comunicaciones.md §5.8 (147, 150), §5.10 (174), §5.12 (195); 01-registro-decisiones.md DEC-080.
@@ -1908,13 +2012,14 @@ ENTREGABLES: plantillas de factura con zonas editables; render masivo por job; Q
 NO CONSTRUIR TODAVÍA: QR de pago de billeteras (O5, RF-FAC-145, 146).
 PRUEBAS: el QR codifica los datos exigidos por ARCA; 10.000 PDF en job dentro del RNF; un envío rebotado queda marcado.
 TERMINADO CUANDO: el PDF de la factura de Ana Demo se descarga del portal por URL firmada.
-VERIFICAR: npm test -w apps/api -- --grep pdf && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep pdf && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O4-13 — Cargos por operación y financiación comercial
 
 ```text
 PRO-O4-13 — Cargos por operación y financiación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: conceptos por cobrar en operaciones con titulares (instalación, cambio de equipo, visitas), financiación comercial en cuotas y cargos que vienen de OT, comodato y reclamos.
 LEER: anexos/M11-VEN-ventas-presupuestos.md §4, §5.1, §5.4 (080..086, 091, 092), §5.5 (106), §5.6 (114, 116); anexos/M10-TEC-tecnica-campo-redes.md RF-TEC-063, 094; anexos/M13-STK-stock-activos-fabricacion.md RF-STK-080; anexos/M09-CRM-atencion.md RF-CRM-102.
@@ -1923,13 +2028,14 @@ ENTREGABLES: operationCharges generados por evento del origen como billableItems
 NO CONSTRUIR TODAVÍA: presupuestos y venta de productos (O8); RF-VEN-009 (O6), 012 (O8), 013 (O7).
 PRUEBAS: el cargo de instalación se factura una vez aunque el evento se repita; las cuotas suman exacto el total.
 TERMINADO CUANDO: el cargo de instalación de Ana Demo en 3 cuotas aparece en su factura.
-VERIFICAR: npm test -w apps/api -- --grep ven
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep ven
 ```
 
 #### PRO-O4-14 — Adherentes mínimos (DEC-071)
 
 ```text
 PRO-O4-14 — Adherentes mínimos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: adherentes y beneficiarios como entidad de M18 con referencia a personas de M01, con el alcance mínimo que la facturación de servicios con adherentes requiere (DEC-071, HUECO-TRV-01).
 LEER: 01-registro-decisiones.md DEC-071; 05-registro-huecos.md HUECO-TRV-01; anexos/M18-SOC-servicios-sociales-flota.md §5.2 (RF-SOC-011..014, 026), §5.11 (140..142, 145), §7.
@@ -1938,13 +2044,14 @@ ENTREGABLES: adherents y beneficiaries con vínculo a persona y contrato; altas 
 NO CONSTRUIR TODAVÍA: planes de cobertura y servicios sociales (O10); RF-PER-109..117 de M01 (O10, ver §19 C-02).
 PRUEBAS: un adherente dado de baja no factura desde la fecha; la referencia a persona es única por contrato.
 TERMINADO CUANDO: un contrato ficticio con dos adherentes factura el cargo correcto.
-VERIFICAR: npm test -w apps/api -- --grep adherents
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep adherents
 ```
 
 #### PRO-O4-15 — Portal de facturas, efectos en personas, reportes y mapeos
 
 ```text
 PRO-O4-15 — Portal de facturas, reportes y mapeos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: facturas y documentos en el portal, vinculación por factura, efectos fiscales en personas y cuentas, reportes de facturación y mapeos de migración de comprobantes.
 LEER: anexos/M19-POR-portal-socio-landing.md §5.3 (RF-POR-035), §5.7; anexos/M01-PER-personas-titulares-cuentas.md RF-PER-049, 059, 066, 126, 133, 141; anexos/T03-UXD-experiencia-marca-diccionario.md RF-UXD-111, 161; anexos/T10-BIA-reportes-bi-apis.md RF-BIA-090, 096, 099; anexos/T07-MIG-migracion-procoop.md RF-MIG-007, 033, 038; anexos/T04-CFG-configuracion-parametros-maestros.md RNF-CFG-006; anexos/T11-WFL-workflow-eventos-documentos.md RNF-WFL-002.
@@ -1954,13 +2061,14 @@ ENTREGABLES: "Mis facturas" con filtros y descarga; vinculación por número de 
 NO CONSTRUIR TODAVÍA: pagar desde el portal (O5).
 PRUEBAS: el socio solo descarga sus facturas; la vinculación por factura exige dato adicional.
 TERMINADO CUANDO: Ana Demo ve y descarga su factura en la PWA.
-VERIFICAR: npm run test:e2e -- --grep @O4-portal
+VERIFICAR: playwright test --grep @O4-portal
 ```
 
 #### PRO-O4-16 — Integración de O4: primera factura con CAE
 
 ```text
 PRO-O4-16 — Integración de O4
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O4 (sección 8.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §8; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1.7 (ESC-SRV-INT-01; antes §1.6); §17 y §18 de M04, M05 y M06.
@@ -1969,7 +2077,7 @@ ENTREGABLES: seed demo O4; e2e @O4 de 8.2; prueba de carga de lote de 20.000 con
 NO CONSTRUIR TODAVÍA: nada de O5.
 PRUEBAS: e2e @O4, test:isolation, k6 de lote.
 TERMINADO CUANDO: criterio 8.2 demostrado con evidencias en docs/evidencias/O4/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O4 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O4 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -2060,6 +2168,7 @@ HUECO-CAP-01..04 en su parte contable y de suscripción mínima (el resto en O10
 
 ```text
 PRO-O5-01 — Motor de interés y recargos al cobrar
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: motor común de interés (simple, compuesto, tasa por tramo, índice), recargos por mora al cobrar o consultar, diferimiento y documentación del interés, e índices económicos, monedas y tasas de referencia.
 LEER: anexos/M08-MOR-mora-financiacion.md §4, §5.1, §5.2 (017..020), §5.3, §5.4, §6, §17; anexos/T04-CFG-configuracion-parametros-maestros.md §5.9.
@@ -2068,13 +2177,14 @@ ENTREGABLES: computeInterest puro en packages/domain con decimal.js; interestPol
 NO CONSTRUIR TODAVÍA: proceso masivo de intereses a facturar (O6); RF-MOR-006, 016, 024, 025, 028, 035, 040, 045 (O6); 015, 038, 039 (O7); 037 (O8).
 PRUEBAS: casos de M08 §17 exactos al centavo; un cambio de tasa no recalcula intereses ya documentados.
 TERMINADO CUANDO: el recargo por mora de una factura vencida de Ana Demo coincide con la tabla esperada.
-VERIFICAR: npm test -w packages/domain && npm test -w apps/api -- --grep interest
+VERIFICAR: dotnet test --filter FullyQualifiedName~domain && dotnet test --filter FullyQualifiedName~Api -- --grep interest
 ```
 
 #### PRO-O5-02 — Auxiliar comercial, saldos y resumen de cuenta
 
 ```text
 PRO-O5-02 — Auxiliar comercial y saldos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: auxiliar comercial de doble entrada por cuenta y contrato con saldos materializados, cuentas separadas o unificadas, resumen de cuenta y mínimo de pago.
 LEER: anexos/M07-COB-cuenta-corriente-cobranza.md §4, §5.1, §5.2, §7, §8, §9, §11, §17, §18; anexos/M01-PER-personas-titulares-cuentas.md RF-PER-062, 065.
@@ -2085,13 +2195,14 @@ ENTREGABLES: ledgerEntries inmutables (débito por evento fac.invoice.issued, cr
 NO CONSTRUIR TODAVÍA: imputación (PRO-O5-03).
 PRUEBAS: el saldo materializado coincide con la suma de movimientos tras 1.000 operaciones concurrentes; un evento de factura repetido no duplica débito.
 TERMINADO CUANDO: la cuenta de Ana Demo muestra la factura de O4 como deuda.
-VERIFICAR: npm test -w apps/api -- --grep ledger
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep ledger
 ```
 
 #### PRO-O5-03 — Imputación, saldos a favor y cobros no identificados
 
 ```text
 PRO-O5-03 — Imputación y saldos a favor
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: reglas de imputación configurables (antigüedad, servicio, concepto), imputación manual con aprobación, desimputación, saldos a favor, anticipos, excedentes y cobros no identificados.
 LEER: anexos/M07-COB-cuenta-corriente-cobranza.md §5.3, §5.4, §6; anexos/M01-PER-personas-titulares-cuentas.md RF-PER-107, 127, 140.
@@ -2100,13 +2211,14 @@ ENTREGABLES: allocations con regla aplicada y versión; creditBalances aplicable
 NO CONSTRUIR TODAVÍA: imputación a convenios (O6).
 PRUEBAS: la imputación por antigüedad paga primero la deuda más vieja; desimputar restituye exacto; un no identificado asignado tarde respeta la fecha valor.
 TERMINADO CUANDO: un pago parcial de Ana Demo se imputa según la regla del tenant.
-VERIFICAR: npm test -w apps/api -- --grep allocations
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep allocations
 ```
 
 #### PRO-O5-04 — Caja, recibos y bloqueos de cobro
 
 ```text
 PRO-O5-04 — Caja y recibos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cajas, sesiones de caja con apertura, arqueo y cierre, cobro presencial multimedio, recibos numerados y bloqueos de comprobantes que impiden cobrar.
 LEER: anexos/M07-COB-cuenta-corriente-cobranza.md §5.5 (055..071, 073, 076..085), §5.6; anexos/M05-FAC-facturacion.md §5.11 (094, 096, 097), §5.17 (145); anexos/T08-NFR-no-funcionales-seguridad.md RNF de caja.
@@ -2116,13 +2228,14 @@ ENTREGABLES: cashRegisters y cashSessions; cobro con lectura de código de barra
 NO CONSTRUIR TODAVÍA: RF-COB-072 (O8), 074 (O10), 075 (O7).
 PRUEBAS: no se cobra con sesión cerrada; un comprobante bloqueado no se cobra; dos cajeros no cobran la misma factura (concurrencia).
 TERMINADO CUANDO: un cobro presencial con recargo se registra y emite recibo.
-VERIFICAR: npm test -w apps/api -- --grep cash && npm run test:e2e -- --grep @O5-cash
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cash && playwright test --grep @O5-cash
 ```
 
 #### PRO-O5-05 — Cobradores y entes recaudadores
 
 ```text
 PRO-O5-05 — Cobradores y entes recaudadores
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cobranza fuera de oficina por cobradores y entes recaudadores (Pago Fácil, Rapipago, bancos, otros) con archivos de cobranza, validación, imputación y comisiones.
 LEER: anexos/M07-COB-cuenta-corriente-cobranza.md §5.7 (091..093, 097), §5.8; anexos/T06-INT-integraciones.md §5.8 (RF-INT-059, 060, 062, 063, 065, 066).
@@ -2132,13 +2245,14 @@ ENTREGABLES: collectors con rendición; collectionAgencies con formato de archiv
 NO CONSTRUIR TODAVÍA: app de cobrador offline (O10, RF-COB-094; O7, 095, 096).
 PRUEBAS: el mismo archivo procesado dos veces no duplica (hash); un registro con código de barras inválido queda rechazado con motivo.
 TERMINADO CUANDO: un archivo ficticio de ente recaudador se procesa e imputa.
-VERIFICAR: npm test -w apps/api -- --grep agencies && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep agencies && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O5-06 — Débito automático, pagos online y pasarelas prioritarias (DEC-015)
 
 ```text
 PRO-O5-06 — Débito automático y pasarelas
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: adhesiones y presentaciones de débito automático, pagos online con intención de pago, webhooks firmados y conciliación, y las pasarelas y billeteras prioritarias de DEC-015 para O5 (las restantes van a O11).
 LEER: 01-registro-decisiones.md DEC-015; anexos/M07-COB-cuenta-corriente-cobranza.md §5.9, §5.10; anexos/M05-FAC-facturacion.md §5.17 (RF-FAC-146); anexos/T06-INT-integraciones.md §5.1 (010), §5.5 (045), §5.7 (053..057), §5.9 (067..069, 075), §5.10 (081).
@@ -2147,13 +2261,14 @@ ENTREGABLES: directDebits (adhesión, presentación, rechazo, reintento); paymen
 NO CONSTRUIR TODAVÍA: pasarelas fuera de la lista O5 de DEC-015 (O11, PRO-O11-04).
 PRUEBAS: webhook sin firma rechazado; webhook repetido no duplica; un pago aprobado sin webhook se recupera por conciliación.
 TERMINADO CUANDO: un pago online de prueba se acredita e imputa de punta a punta en el simulador.
-VERIFICAR: npm test -w apps/api -- --grep gateways && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep gateways && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O5-07 — Cupón, devoluciones, conciliación, efectos contables, terceros y transición
 
 ```text
 PRO-O5-07 — Cupón, devoluciones, conciliación y transición
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cupón de pago único, devoluciones y contracargos, conciliación de cobranzas y rendición a tesorería, efectos contables, terceros y operaciones complementarias, transición desde formatos de ProCoop, reportes, y efectos fiscales y de facturación relacionados.
 LEER: anexos/M07-COB-cuenta-corriente-cobranza.md §5.11 (154, 156), §5.12..§5.17; anexos/M05-FAC-facturacion.md RF-FAC-076, 106, 130, 151, 152; anexos/M06-FIS-fiscal-impuestos.md RF-FIS-082, 084, 089, 110, 136, 138, 139, 151..153; anexos/T07-MIG-migracion-procoop.md RF-MIG-047, 054, 055, 057, 083..085.
@@ -2163,13 +2278,14 @@ ENTREGABLES: paymentCoupons; refunds y chargebacks con reversión de imputación
 NO CONSTRUIR TODAVÍA: RF-COB-155 (O11), 176, 178 (O10).
 PRUEBAS: un contracargo reabre la deuda y revierte el recibo; la rendición no incluye cobros ya rendidos; saldos migrados concilian al centavo.
 TERMINADO CUANDO: la cobranza del día de TEN-001 se rinde a tesorería con conciliación.
-VERIFICAR: npm test -w apps/api -- --grep settlements && npm test -w apps/api -- --grep mig
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep settlements && dotnet test --filter FullyQualifiedName~Api -- --grep mig
 ```
 
 #### PRO-O5-08 — Tesorería básica: cuentas, movimientos y conciliación bancaria
 
 ```text
 PRO-O5-08 — Tesorería básica
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cuentas financieras (bancos, cajas de tesorería), maestros, operaciones y movimientos, importación de extractos y conciliación bancaria automática y manual (DEC-059).
 LEER: 01-registro-decisiones.md DEC-059; anexos/M14-TES-tesoreria-bancos.md §4, §5.1, §5.2, §5.3, §7, §8, §10, §11, §17, §18.
@@ -2178,13 +2294,14 @@ ENTREGABLES: financialAccounts por legalEntity; treasuryMovements; bankStatement
 NO CONSTRUIR TODAVÍA: valores, cheques, eCheq, Interbanking, tarjetas y flujo de fondos (O8).
 PRUEBAS: un extracto importado dos veces no duplica; la conciliación automática no concilia dos veces el mismo movimiento.
 TERMINADO CUANDO: el extracto ficticio de TEN-001 se concilia con la rendición de cobranza.
-VERIFICAR: npm test -w apps/api -- --grep tes
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep tes
 ```
 
 #### PRO-O5-09 — Rendiciones, cierre de cajas, cotizaciones e informes de tesorería
 
 ```text
 PRO-O5-09 — Rendiciones, cierre y cotizaciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: recepción de rendiciones de cajas de cobranza y depósitos, cierre de cajas de tesorería, monedas y cotizaciones, posición básica, informes y transversales de M14.
 LEER: anexos/M14-TES-tesoreria-bancos.md §5.11 (123), §5.12, §5.13, §5.14 (140, 144), §5.15 (145), §5.18, §5.19.
@@ -2194,13 +2311,14 @@ ENTREGABLES: cashDeposits; treasuryClosings; exchangeRates; posición diaria; in
 NO CONSTRUIR TODAVÍA: parte O8 de RF-TES-128; RF-TES-131, 141..143 (O8).
 PRUEBAS: una rendición con diferencia requiere aprobación; cierre de caja bloquea movimientos con fecha anterior.
 TERMINADO CUANDO: el cierre diario de tesorería de TEN-001 cuadra.
-VERIFICAR: npm test -w apps/api -- --grep treasury
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep treasury
 ```
 
 #### PRO-O5-10 — Núcleo contable: configuración, plan de cuentas, ejercicios y centros de costo
 
 ```text
 PRO-O5-10 — Núcleo contable
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: configuración contable por legalEntity, plan de cuentas de ejemplo no oficial (DEC-069) editable, ejercicios y períodos con apertura y cierre de período, y centros de costo (secciones).
 LEER: 01-registro-decisiones.md DEC-009, DEC-069; anexos/M15-CON-contabilidad.md §4, §5.1, §5.2, §5.3, §5.6, §7, §8, §10, §11, §17, §18.
@@ -2211,29 +2329,31 @@ ENTREGABLES: chartsOfAccounts con jerarquía y validaciones; fiscalYears y perio
 NO CONSTRUIR TODAVÍA: múltiples planes y equivalencias (O8).
 PRUEBAS: no se imputa a cuenta no imputable; un período cerrado rechaza asientos; el plan de TEN-001 no se ve en TEN-002.
 TERMINADO CUANDO: TEN-001 tiene plan de ejemplo y ejercicio 2026 abierto.
-VERIFICAR: npm test -w apps/api -- --grep con
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep con
 ```
 
 #### PRO-O5-11 — Asientos manuales y automáticos, conciliaciones e informes base
 
 ```text
 PRO-O5-11 — Asientos y motor automático
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: asientos manuales, personalizados e importados; motor de asientos automáticos por reglas que consume eventos de M05, M07, M13 y M14; cuentas corrientes por servicio y conciliación auxiliar–mayor; mayor, sumas y saldos e informes base; sistema contable externo; transversales.
 LEER: anexos/M15-CON-contabilidad.md §5.4, §5.5, §5.7 (092..094, 100..102), §5.9 (112, 114, 115, 121, 124..126), §5.13, §5.16 (153..157, 159, 160); anexos/M06-FIS-fiscal-impuestos.md RF-FIS-157; anexos/T10-BIA-reportes-bi-apis.md RF-BIA-015, 092, 093, 095.
 IMPLEMENTAR: RF-CON-035..040, 042..045, 048, 050..067, 092..094, 100..102, 112, 114, 115, 121, 124..126, 139..141, 153..157, 159; RF-FIS-157; RF-BIA-015, 092, 093, 095; además (corrección 05-11-2026): RF-CON-160 (parte O5: saldos de apertura contables como asiento de apertura importado; la celda del anexo es `O11 (O5 para saldos de apertura)` y por la regla §0.1 el RF empieza en O5; la migración repetible completa es extensión en PRO-O11-06, ver §18) (corrección 05-11-2026: las extensiones pasan a la línea EXTENSIONES y no se cuentan en este prompt).
 EXTENSIONES: extensión de RF-STK-094 (costo para asiento de stock); extensión O5 de RF-CON-075 (reemplazado en v1.1: antes se implementaba aquí; el anexo lo mantiene en O10 y pasa a PRO-O10-02; aquí solo la regla de asiento de capital que piden RF-CON-150, 151 y 098). Parte O5 de RF-BIA-104 (v1.2, DEC-096: filtro por entidad jurídica en los REP-CON que agrupan por centro de costo, con los centros propios o compartidos de la entidad filtrada según `costCenters.legalEntityId` y `sharedWithLegalEntityIds`, acumulando solo lo imputado en esa entidad).
-ENTREGABLES: journalEntries balanceados en Decimal128; postingRules versionadas por evento y tipo; consumidores idempotentes por evento; reproceso de asientos fallidos; mayor y balance de sumas y saldos; exportación a sistema contable externo; conciliación auxiliar comercial contra cuenta de deudores.
+ENTREGABLES: journalEntries balanceados en DECIMAL(19,4); postingRules versionadas por evento y tipo; consumidores idempotentes por evento; reproceso de asientos fallidos; mayor y balance de sumas y saldos; exportación a sistema contable externo; conciliación auxiliar comercial contra cuenta de deudores.
 NO CONSTRUIR TODAVÍA: ajuste por inflación, cierre de ejercicio, libros rubricados (O8).
 PRUEBAS: todo asiento balancea; un evento repetido no genera dos asientos; la conciliación auxiliar–mayor cuadra tras el e2e de cobranza.
 TERMINADO CUANDO: facturación, cobranza y rendición de TEN-001 tienen sus asientos automáticos.
-VERIFICAR: npm test -w apps/api -- --grep postings && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep postings && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O5-12 — Capital social mínimo (DEC-019)
 
 ```text
 PRO-O5-12 — Capital social mínimo
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cuentas de capital por asociado, suscripción e integración por cuotas facturables, y su contabilización (DEC-019, DEC-061, HUECO-CAP-01).
 LEER: 01-registro-decisiones.md DEC-019, DEC-061; 05-registro-huecos.md HUECO-CAP-01..04; anexos/M17-INS-institucional.md §5.3 (029..031, 034..038, 040, 042..046, 056); anexos/M15-CON-contabilidad.md §5.15 (RF-CON-150, 151).
@@ -2243,13 +2363,14 @@ ENTREGABLES: capitalAccounts y capitalMovements; suscripción con integración e
 NO CONSTRUIR TODAVÍA: revalúo, excedentes, retornos y reintegros (O10); RF-INS-041 (O6).
 PRUEBAS: la integración nunca supera lo suscripto; los asientos de capital balancean.
 TERMINADO CUANDO: Ana Demo suscribe capital y la primera cuota se factura e integra.
-VERIFICAR: npm test -w apps/api -- --grep capital
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep capital
 ```
 
 #### PRO-O5-13 — Pagos en el portal y facturación del SaaS (DEC-065)
 
 ```text
 PRO-O5-13 — Pagos en el portal y facturación del SaaS
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: pago desde landing y portal (factura, saldo, cupón), medios guardados, comprobantes y accesos de pago, y facturación del SaaS a los tenants usando M05 en el tenant PLATFORM (DEC-065).
 LEER: anexos/M19-POR-portal-socio-landing.md §5.1 (012), §5.3 (043..045), §5.7 (082, 083), §5.8, §5.12 (128); anexos/T01-PLA-plataforma-saas.md RF-PLA-040, 082; 01-registro-decisiones.md DEC-065.
@@ -2258,13 +2379,14 @@ ENTREGABLES: flujo de pago PWA con estados y recuperación tras cierre de app; p
 NO CONSTRUIR TODAVÍA: RF-POR-099 (O6), 102 (O8).
 PRUEBAS: cerrar la app a mitad del pago no duplica; el socio solo paga cuentas vinculadas; la factura SaaS se emite solo en PLATFORM.
 TERMINADO CUANDO: Ana Demo paga desde la PWA y TEN-001 recibe su factura SaaS ficticia.
-VERIFICAR: npm run test:e2e -- --grep @O5-portal
+VERIFICAR: playwright test --grep @O5-portal
 ```
 
 #### PRO-O5-14 — Integración de O5: pago online imputado, rendido y asentado
 
 ```text
 PRO-O5-14 — Integración de O5
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O5 (sección 9.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §9; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1.6; §17 y §18 de M07, M14, M15 y M17.
@@ -2273,7 +2395,7 @@ ENTREGABLES: seed demo O5; e2e @O5 de 9.2; conciliación auxiliar–mayor automa
 NO CONSTRUIR TODAVÍA: nada de O6.
 PRUEBAS: e2e @O5, test:isolation, k6 de webhooks.
 TERMINADO CUANDO: criterio 9.2 demostrado con evidencias en docs/evidencias/O5/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O5 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O5 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -2359,6 +2481,7 @@ HUE-TEL-04 y HUE-ELE-05 en su parte de corte y protección (R9).
 
 ```text
 PRO-O6-01 — Intereses masivos y bloqueos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: proceso masivo de intereses a facturar, bloqueos de comprobantes por mora y los recargos y diferimientos restantes del motor de interés.
 LEER: anexos/M08-MOR-mora-financiacion.md §5.1 (006), §5.2 (016), §5.3 (024, 025, 028, 035, 040), §5.4 (045, 048), §5.5, §5.6, §12; anexos/M05-FAC-facturacion.md RF-FAC-095.
@@ -2367,13 +2490,14 @@ ENTREGABLES: interestRuns como job con simulación, aprobación y generación de
 NO CONSTRUIR TODAVÍA: RF-MOR-053 (O8).
 PRUEBAS: una corrida repetida no factura intereses dos veces; un comprobante en convenio no genera interés.
 TERMINADO CUANDO: la corrida de intereses de TEN-001 genera ítems para el próximo lote.
-VERIFICAR: npm test -w apps/api -- --grep interestRuns
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep interestRuns
 ```
 
 #### PRO-O6-02 — Política de mora, instancias y candidatos
 
 ```text
 PRO-O6-02 — Política de mora e instancias
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: política de mora configurable por servicio y categoría (BASE §68) con instancias (aviso, intimación, suspensión, corte, baja) y selección de candidatos por job.
 LEER: anexos/M08-MOR-mora-financiacion.md §5.7, §5.8, §8, §9.
@@ -2383,13 +2507,14 @@ ENTREGABLES: delinquencyPolicies versionadas; delinquencyInstances; job de candi
 NO CONSTRUIR TODAVÍA: ejecución técnica (PRO-O6-04).
 PRUEBAS: un candidato bajo el umbral no entra; la política vigente a la fecha de corrida es la que aplica.
 TERMINADO CUANDO: Ana Demo, con factura vencida, aparece como candidata a aviso.
-VERIFICAR: npm test -w apps/api -- --grep delinquency
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep delinquency
 ```
 
 #### PRO-O6-03 — Notificaciones con constancia, tratamiento de morosos y protecciones
 
 ```text
 PRO-O6-03 — Notificaciones, tratamiento y protecciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: avisos e intimaciones por canal con constancia de entrega, tratamiento de morosos y excepciones y protecciones que impiden avanzar.
 LEER: anexos/M08-MOR-mora-financiacion.md §5.9, §5.10, §5.11; anexos/T09-COM-comunidad-comunicaciones.md RF-COM-148, 152, 182, 196.
@@ -2399,13 +2524,14 @@ ENTREGABLES: delinquencyNotices con PDF y envío por COM; noticeEvidences con ha
 NO CONSTRUIR TODAVÍA: corte.
 PRUEBAS: con pago en tránsito no avanza la instancia; la constancia queda vinculada al aviso.
 TERMINADO CUANDO: el aviso de mora de Ana Demo se envía con constancia.
-VERIFICAR: npm test -w apps/api -- --grep notices
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep notices
 ```
 
 #### PRO-O6-04 — Corte y reconexión con aprovisionamiento
 
 ```text
 PRO-O6-04 — Corte y reconexión
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: órdenes de corte con aprobación y ventana, ejecución por OT o por aprovisionamiento remoto (DEC-014), reconexión automática al pagar, cargos de reconexión, y estados de contrato y comodato.
 LEER: 01-registro-decisiones.md DEC-014; anexos/M08-MOR-mora-financiacion.md §5.12 (117..128, 130); anexos/M10-TEC-tecnica-campo-redes.md §5.9, §5.15 (187); anexos/M02-CAT-catalogo-servicios.md RF-CAT-066, 083, 089, 090; anexos/M11-VEN-ventas-presupuestos.md RF-VEN-009; anexos/M13-STK-stock-activos-fabricacion.md RF-STK-078.
@@ -2415,13 +2541,14 @@ ENTREGABLES: cutOrders; suspensión remota por provisioningRequests; reconexión
 NO CONSTRUIR TODAVÍA: RF-MOR-129 (O7, corte de medidos).
 PRUEBAS: con una protección activa no se suspende; el pago total reconecta una sola vez; el evento repetido no genera dos OT.
 TERMINADO CUANDO: el servicio de Ana Demo se suspende y se reconecta al pagar.
-VERIFICAR: npm test -w apps/api -- --grep cut && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cut && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O6-05 — Baja, suspensión y reactivación
 
 ```text
 PRO-O6-05 — Baja, suspensión y reactivación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: baja por mora o voluntaria, suspensión administrativa y reactivación (BASE §53), con efectos en personas y cuentas.
 LEER: anexos/M08-MOR-mora-financiacion.md §5.13; anexos/M01-PER-personas-titulares-cuentas.md RF-PER-051, 067.
@@ -2430,13 +2557,14 @@ ENTREGABLES: flujo de baja con retiro de equipo (OT) y saldo final; reactivació
 NO CONSTRUIR TODAVÍA: egreso de asociado (O10).
 PRUEBAS: la baja con saldo genera deuda final; la reactivación exige pago o convenio según política.
 TERMINADO CUANDO: la baja de un contrato ficticio genera la OT de retiro.
-VERIFICAR: npm test -w apps/api -- --grep baja
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep baja
 ```
 
 #### PRO-O6-06 — Planes de pago y convenios
 
 ```text
 PRO-O6-06 — Planes de pago y convenios
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: planes de pago y convenios (AGR-014) con simulación, condiciones por política, firma, cuotas facturables, caducidad y efectos en mora y capital.
 LEER: anexos/M08-MOR-mora-financiacion.md §5.14; anexos/M17-INS-institucional.md RF-INS-041.
@@ -2445,13 +2573,14 @@ ENTREGABLES: paymentPlans y paymentPlanInstallments; simulador en admin y PWA; a
 NO CONSTRUIR TODAVÍA: entidades financieras externas (PRO-O6-07).
 PRUEBAS: las cuotas suman la deuda más interés exacto; la caducidad restituye la deuda y la mora.
 TERMINADO CUANDO: Ana Demo firma un convenio desde la PWA y paga la primera cuota.
-VERIFICAR: npm test -w apps/api -- --grep paymentPlans && npm run test:e2e -- --grep @O6-plans
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep paymentPlans && playwright test --grep @O6-plans
 ```
 
 #### PRO-O6-07 — Planes de cuotas, garantías, incobrables y prescripción
 
 ```text
 PRO-O6-07 — Cuotas, garantías, incobrables y prescripción
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: planes de cuotas con entidades financieras, garantías y garantes (MER-005), incobrables y gestión externa o judicial (MER-006, DEC-052), y prescripción.
 LEER: 01-registro-decisiones.md DEC-052; anexos/M08-MOR-mora-financiacion.md §5.15, §5.16 (177..181), §5.17 (183..189, 191, 192), §5.18; anexos/M15-CON-contabilidad.md RF-CON-074.
@@ -2460,13 +2589,14 @@ ENTREGABLES: guarantees; badDebts con previsión y castigo contable; externalCol
 NO CONSTRUIR TODAVÍA: RF-MOR-182, 190 (O8).
 PRUEBAS: el castigo genera el asiento correcto; una deuda prescripta no se reclama.
 TERMINADO CUANDO: una deuda ficticia pasa a gestión externa y luego a incobrable con asiento.
-VERIFICAR: npm test -w apps/api -- --grep badDebts
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep badDebts
 ```
 
 #### PRO-O6-08 — Informes, portal de mora, auditoría y migración desde CoopOnline
 
 ```text
 PRO-O6-08 — Informes, portal de mora y migración
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: informes y tableros de mora, deuda y convenios en el portal y la app, auditoría y operación de M08, y migración de usuarios del portal CoopOnline.
 LEER: anexos/M08-MOR-mora-financiacion.md §5.19, §5.20, §5.21; anexos/M19-POR-portal-socio-landing.md RF-POR-031, 049, 050, 066, 088, 099, 157, §5.17 (169, 170, 173).
@@ -2475,13 +2605,14 @@ ENTREGABLES: tableros de mora; alertas de deuda en el portal; convenio autoservi
 NO CONSTRUIR TODAVÍA: RF-MOR-202 (O7), 219 (O11); RF-POR-171, 172 (O11).
 PRUEBAS: el socio ve solo su deuda; la migración de usuarios nunca importa contraseñas.
 TERMINADO CUANDO: el tablero de mora de TEN-001 muestra la corrida del e2e.
-VERIFICAR: npm run test:e2e -- --grep @O6-portal
+VERIFICAR: playwright test --grep @O6-portal
 ```
 
 #### PRO-O6-09 — IA supervisada y canales omnicanal (DEC-055, DEC-056)
 
 ```text
 PRO-O6-09 — IA supervisada y omnicanal
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: IA supervisada en atención (clasificación, resumen, respuesta sugerida, extracción de datos) y canales omnicanal con bot de autogestión, siempre con confirmación humana para acciones.
 LEER: 01-registro-decisiones.md DEC-055, DEC-056; anexos/M09-CRM-atencion.md §5.6 (171, 172, 174..178, 182, 188), §5.7 (200..202, 204..213), §5.10 (RNF-CRM-002); anexos/T03-UXD-experiencia-marca-diccionario.md RF-UXD-163.
@@ -2490,13 +2621,14 @@ ENTREGABLES: conversations unificadas por canal; aiSuggestions con registro de a
 NO CONSTRUIR TODAVÍA: RF-CRM-203 (O10).
 PRUEBAS: la IA nunca ejecuta una acción sin confirmación; un bot no revela datos sin verificación de identidad; un prompt de inyección de ejemplo no altera el flujo.
 TERMINADO CUANDO: un reclamo por WhatsApp simulado se clasifica con IA y lo confirma un operador.
-VERIFICAR: npm test -w apps/api -- --grep ai && npm run test:e2e -- --grep @O6-ai
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep ai && playwright test --grep @O6-ai
 ```
 
 #### PRO-O6-10 — CRM: cierre de piloto, circulares y plantillas
 
 ```text
 PRO-O6-10 — CRM: cierre del piloto
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: completar tickets, solicitudes y reclamos ligados a mora y baja, circulares, plantillas y encuestas del CRM, y avisos de interrupción restantes.
 LEER: anexos/M09-CRM-atencion.md RF-CRM-027, 028, 042, 050, 069, 117, §5.9 (250..253); anexos/T09-COM-comunidad-comunicaciones.md RF-COM-164.
@@ -2505,13 +2637,14 @@ ENTREGABLES: tickets de mora y baja; circulares con audiencias; plantillas de re
 NO CONSTRUIR TODAVÍA: mesa de entradas y turnero (O10).
 PRUEBAS: una circular respeta consentimientos; la encuesta se envía una vez por ticket.
 TERMINADO CUANDO: el ticket de baja de Ana Demo cierra con encuesta.
-VERIFICAR: npm test -w apps/api -- --grep crm
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep crm
 ```
 
 #### PRO-O6-11 — Integración de O6: piloto Internet de punta a punta
 
 ```text
 PRO-O6-11 — Integración de O6 y cierre del piloto
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar ESC-SRV-INT-01..07 en un solo recorrido (sección 10.2 del plan) y cerrar el piloto (DEC-005).
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §10; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §1 completo; §17 de M08 y M09.
@@ -2520,7 +2653,7 @@ ENTREGABLES: e2e @piloto-internet; regresión completa; prueba de carga de corri
 NO CONSTRUIR TODAVÍA: nada de O7.
 PRUEBAS: e2e @O0..@O6, test:isolation, k6.
 TERMINADO CUANDO: criterio 10.2 demostrado y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep "@piloto-internet|@O6" && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep "@piloto-internet|@O6" && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -2609,6 +2742,7 @@ HUE-ELE, HUE-AG, HUE-CLO, HUE-GAS, HUE-ALU y HUECO-OBR abiertos con anexo respon
 
 ```text
 PRO-O7-01 — Medidores y puntos de medición
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: catálogos de modelos, medidores con serie y estado, puntos de medición, canales, instalaciones y su vínculo con punto de prestación y contrato, y perfil medido del servicio.
 LEER: anexos/M03-MED-medicion-consumos.md §4, §5.1, §5.2, §7, §8, §10, §11, §17, §18; anexos/M01-PER-personas-titulares-cuentas.md RF-PER-095, 097; anexos/M02-CAT-catalogo-servicios.md RF-CAT-021, 056, 058, 060, 075, 093, 095..097.
@@ -2618,13 +2752,14 @@ ENTREGABLES: meterModels, meters (con serie de M13), measurementPoints, channels
 NO CONSTRUIR TODAVÍA: rutas (PRO-O7-02).
 PRUEBAS: un medidor no se instala en dos puntos; el cambio de medidor registra lecturas de retiro e instalación.
 TERMINADO CUANDO: los medidores ficticios de M03 §18 están instalados en TEN-001.
-VERIFICAR: npm test -w apps/api -- --grep med
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep med
 ```
 
 #### PRO-O7-02 — Rutas, lotes, captura de lecturas y app de lecturista
 
 ```text
 PRO-O7-02 — Rutas, lotes y app de lecturista
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: rutas y cronogramas, lotes de lectura, captura por app de lecturista offline (perfil de la app de campo de O3), por archivo de colectora y por portal.
 LEER: anexos/M03-MED-medicion-consumos.md §5.3, §5.4; anexos/M10-TEC-tecnica-campo-redes.md §5.8 (RF-TEC-120).
@@ -2633,13 +2768,14 @@ ENTREGABLES: readingRoutes y readingSchedules; readingBatches con estados; perfi
 NO CONSTRUIR TODAVÍA: telemedición (PRO-O7-04).
 PRUEBAS: lecturas sin conexión se sincronizan sin duplicar; una lectura fuera de rango pide confirmación y foto.
 TERMINADO CUANDO: la ruta ficticia se lee completa sin conexión.
-VERIFICAR: npm run test:e2e -- --grep @O7-reading && npm test -w apps/api -- --grep readings
+VERIFICAR: playwright test --grep @O7-reading && dotnet test --filter FullyQualifiedName~Api -- --grep readings
 ```
 
 #### PRO-O7-03 — Cálculo y validación de consumos, estimaciones, prorrateos y demanda
 
 ```text
 PRO-O7-03 — Consumos, estimaciones y demanda
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cálculo de consumo con vueltas de medidor y factor, validación y aprobación, estimaciones y regularización, división, prorrateo, distribución y testigos, demanda y transgresiones.
 LEER: anexos/M03-MED-medicion-consumos.md §5.5, §5.6, §5.7, §5.8, §6.
@@ -2649,13 +2785,14 @@ ENTREGABLES: consumptions con estados; reglas de validación configurables; esti
 NO CONSTRUIR TODAVÍA: inyección (PRO-O7-04).
 PRUEBAS: la vuelta de medidor calcula exacto; una estimación se regulariza con la siguiente lectura real.
 TERMINADO CUANDO: los consumos de la ruta quedan aprobados para facturar.
-VERIFICAR: npm test -w apps/api -- --grep consumptions
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep consumptions
 ```
 
 #### PRO-O7-04 — Inyección, medición propia, telemedición AMI/MDM y prepago
 
 ```text
 PRO-O7-04 — Inyección, telemedición y prepago
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: energía inyectada y generación distribuida, medición propia, pérdidas y cambio de clase, telemedición AMI/MDM por conector simulado y prepago con tokens (DEC-060).
 LEER: 01-registro-decisiones.md DEC-060; anexos/M03-MED-medicion-consumos.md §5.9, §5.10, §5.11, §5.12; anexos/T06-INT-integraciones.md (fichas AMI/MDM y prepago).
@@ -2664,13 +2801,14 @@ ENTREGABLES: injections con saldo de energía; amiReads por ingesta de job; prep
 NO CONSTRUIR TODAVÍA: medidores inteligentes reales (solo simulador).
 PRUEBAS: una ingesta AMI repetida no duplica; un token anulado no se reutiliza.
 TERMINADO CUANDO: un medidor prepago ficticio recibe un token y descuenta consumo.
-VERIFICAR: npm test -w apps/api -- --grep prepaid && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep prepaid && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O7-05 — Portal de consumos, autolectura y facturación in situ
 
 ```text
 PRO-O7-05 — Portal de consumos y facturación in situ
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: consumos, gráficos y autolectura en el portal, compra de prepago, facturación in situ desde la app de lecturista e informes de medición.
 LEER: anexos/M03-MED-medicion-consumos.md §5.13; anexos/M19-POR-portal-socio-landing.md RF-POR-069, §5.9; anexos/T11-WFL-workflow-eventos-documentos.md RF-WFL-098.
@@ -2679,13 +2817,14 @@ ENTREGABLES: "Mis consumos" con comparativas; autolectura con foto y validación
 NO CONSTRUIR TODAVÍA: nada fuera de medidos.
 PRUEBAS: una autolectura fuera de rango queda pendiente de revisión; una factura in situ se autoriza por CAEA al sincronizar.
 TERMINADO CUANDO: un socio ficticio carga su autolectura y ve el consumo.
-VERIFICAR: npm run test:e2e -- --grep @O7-portal
+VERIFICAR: playwright test --grep @O7-portal
 ```
 
 #### PRO-O7-06 — Tarifas medidas
 
 ```text
 PRO-O7-06 — Tarifas medidas
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cuadros y cálculo por consumo con escalones, bloques, cargos fijos y variables, demanda, inyección, subsidios y tablas fiscales del servicio medido.
 LEER: anexos/M04-TAR-tarifas-motor-calculo.md RF-TAR-017, 023, 025, 026, 028, 031, 037, 038, 040, 041, 044..046, 048, 049, 070, 074, 077..081, 087, 109, 111, 114; anexos/T04-CFG-configuracion-parametros-maestros.md RF-CFG-103.
@@ -2696,13 +2835,14 @@ ENTREGABLES: extensión del motor puro para consumo, demanda e inyección; expli
 NO CONSTRUIR TODAVÍA: tasación telefónica (O10).
 PRUEBAS: casos de M04 §17 medidos exactos al centavo; la misma entrada da el mismo resultado.
 TERMINADO CUANDO: la tarifa de energía ficticia calcula los consumos de la ruta.
-VERIFICAR: npm test -w packages/domain && npm test -w apps/api -- --grep tar
+VERIFICAR: dotnet test --filter FullyQualifiedName~domain && dotnet test --filter FullyQualifiedName~Api -- --grep tar
 ```
 
 #### PRO-O7-07 — Facturación medida, CESP/LQSP e informes a reguladores
 
 ```text
 PRO-O7-07 — Facturación medida y reguladores
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: facturación de servicios medidos (recategorización por consumo, ítems de terceros, cierre de módulo), CESP, LQSP y RG 5746/2025, regímenes informativos y reportes a entes reguladores.
 LEER: anexos/M05-FAC-facturacion.md RF-FAC-108..111, 123, 170, 171; anexos/M06-FIS-fiscal-impuestos.md §5.1 (012), §5.7, §5.13 (128), §5.15; anexos/T10-BIA-reportes-bi-apis.md RF-BIA-098.
@@ -2712,13 +2852,14 @@ ENTREGABLES: lote de facturación medida con lecturas; comprobantes de servicios
 NO CONSTRUIR TODAVÍA: regímenes informativos administrativos (O8).
 PRUEBAS: la factura medida muestra lecturas, consumo y explicación; el informe al regulador cuadra con lo facturado.
 TERMINADO CUANDO: el lote de energía ficticio se emite y el informe regulador se genera.
-VERIFICAR: npm test -w apps/api -- --grep regulator
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep regulator
 ```
 
 #### PRO-O7-08 — Red GIS, mantenimiento, obras, inspecciones y costeo de OT
 
 ```text
 PRO-O7-08 — Red GIS, obras e inspecciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: red e infraestructura en GIS, mantenimiento preventivo, obras, loteos y contribución por mejoras (MER-009), inspecciones y consumo no registrado (MER-004), costeo de OT y aprovisionamiento restante.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md RF-TEC-035, 040, 041, 061, 066, 072, 106, §5.10, §5.11, §5.13, §5.14, RF-TEC-196.
@@ -2728,13 +2869,14 @@ ENTREGABLES: networkAssets y gisLayers sobre el mapa de DEC-046; maintenancePlan
 NO CONSTRUIR TODAVÍA: migración de obras (O11, HUECO-OBR-04).
 PRUEBAS: la contribución por mejoras prorratea exacto entre frentistas; una inspección con fraude genera el cargo con aprobación.
 TERMINADO CUANDO: una obra ficticia genera contribuciones facturables.
-VERIFICAR: npm test -w apps/api -- --grep works && npm run test:e2e -- --grep @O7-gis
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep works && playwright test --grep @O7-gis
 ```
 
 #### PRO-O7-09 — Mora, cobranza en campo, CRM y ventas de medidos
 
 ```text
 PRO-O7-09 — Mora, cobranza en campo y CRM de medidos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: recargos y corte de medidos, cobranza en campo por cobrador con la app, solicitudes y reclamos de medición, y cargos de venta de medidos.
 LEER: anexos/M08-MOR-mora-financiacion.md RF-MOR-015, 038, 039, 129, 202; anexos/M07-COB-cuenta-corriente-cobranza.md RF-COB-075, 095, 096; anexos/M09-CRM-atencion.md RF-CRM-080, 081, 085, 114; anexos/M11-VEN-ventas-presupuestos.md RF-VEN-013.
@@ -2744,13 +2886,14 @@ ENTREGABLES: corte de medidos por OT con lectura de corte; perfil cobrador en la
 NO CONSTRUIR TODAVÍA: RF-COB-094 (O10).
 PRUEBAS: un cobro en campo sin conexión no se duplica al sincronizar; el corte registra la lectura.
 TERMINADO CUANDO: un cobrador ficticio cobra sin conexión y rinde.
-VERIFICAR: npm run test:e2e -- --grep @O7-field
+VERIFICAR: playwright test --grep @O7-field
 ```
 
 #### PRO-O7-11 — Migración comercial vigente y corrida paralela (DEC-089)
 
 ```text
 PRO-O7-11 — Migración comercial vigente y corrida paralela
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: migrar los datos vigentes comerciales que el corte de los servicios medidos necesita (configuración, entidades, cuadros tarifarios con sus fórmulas, clasificación tributaria, talones y notificaciones vigentes) y ejecutar la corrida paralela de facturación y cobranza frente a ProCoop (datos ficticios) con comparación por cuenta y concepto, incluida la parte de mora (DEC-089; reemplaza a PRO-O11-07).
 LEER: 01-registro-decisiones.md DEC-089; anexos/T07-MIG-migracion-procoop.md §5.8, §17.4 (PRM-MIG-041); anexos/T04-CFG-configuracion-parametros-maestros.md RF-CFG-132, 142; anexos/M04-TAR-tarifas-motor-calculo.md RF-TAR-101, 102; anexos/M06-FIS-fiscal-impuestos.md RF-FIS-163; anexos/M07-COB-cuenta-corriente-cobranza.md RF-COB-155; anexos/M19-POR-portal-socio-landing.md RF-POR-127; anexos/M08-MOR-mora-financiacion.md RF-MOR-219; anexos/T08-NFR-no-funcionales-seguridad.md RNF-NFR-154.
@@ -2761,13 +2904,14 @@ ENTREGABLES: configVersion de migración con reporte de no migrables; legalEntit
 NO CONSTRUIR TODAVÍA: corte (PRO-O7-12); históricos y archivo (PRO-O11-06).
 PRUEBAS: toda diferencia mayor al umbral exige explicación antes de aprobar el ciclo; el lote paralelo no genera efectos externos; dos migraciones consecutivas de los datos vigentes dan el mismo resultado.
 TERMINADO CUANDO: los ciclos consecutivos ficticios de energía y gas que pide PRM-MIG-041 (default 2) quedan aprobados.
-VERIFICAR: npm test -w apps/api -- --grep "parallel|mig"
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep "parallel|mig"
 ```
 
 #### PRO-O7-12 — Congelamiento, by-pass, corte comercial por servicio y rollback (DEC-068, DEC-089)
 
 ```text
 PRO-O7-12 — Corte comercial por servicio y rollback
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: congelamiento por alcance, by-pass y convivencia con ProCoop, plan de corte comercial por servicio (electricidad, gas y prepago de la piloto al cerrar O7; cada servicio restante al cerrar la ola de su vertical), carga delta, verificación, redirecciones del portal anterior y rollback (DEC-068, DEC-089; reemplaza a PRO-O11-08).
 LEER: 01-registro-decisiones.md DEC-068, DEC-069, DEC-089; anexos/T07-MIG-migracion-procoop.md §5.1 (006), §5.9 (080..082, 086..089); anexos/M19-POR-portal-socio-landing.md RF-POR-020.
@@ -2776,13 +2920,14 @@ ENTREGABLES: congelamiento confirmado por la cooperativa; cutoverPlans con etapa
 NO CONSTRUIR TODAVÍA: corte administrativo (PRO-O11-10).
 PRUEBAS: el corte no se habilita sin congelamiento ni con un criterio go en rojo; el rollback restituye el estado previo sin efectos externos duplicados; pasado el primer hito fiscal o de cobro solo hay rollback hacia adelante.
 TERMINADO CUANDO: el plan de corte comercial ficticio de energía y gas se ejecuta en sandbox con rollback.
-VERIFICAR: npm test -w apps/api -- --grep cutover
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cutover
 ```
 
 #### PRO-O7-10 — Integración de O7: facturación de energía con lecturas
 
 ```text
 PRO-O7-10 — Integración de O7
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O7 (sección 11.2 del plan), incluido el ensayo cronometrado de corte comercial de energía y gas con conciliación de saldos, servicios, deuda y convenios (DEC-089), y cerrar la ola. Se ejecuta después de PRO-O7-11 y PRO-O7-12.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §11; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §4 y §5 (energía y agua; antes citaba parte2); §17 y §18 de M03, M04 y M10; anexos/T07-MIG-migracion-procoop.md §5.9, §17.
@@ -2791,7 +2936,7 @@ ENTREGABLES: seed demo O7; e2e @O7 de 11.2; carga de 50.000 lecturas ficticias; 
 NO CONSTRUIR TODAVÍA: nada de O8.
 PRUEBAS: e2e @O7, test:isolation, k6 de ingesta de lecturas.
 TERMINADO CUANDO: criterio 11.2 demostrado con evidencias en docs/evidencias/O7/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O7 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O7 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -2884,6 +3029,7 @@ HUE-ELE-01, HUE-GAS-04 y HUE-TV-01 en su parte administrativa (R9).
 
 ```text
 PRO-O8-01 — Proveedores, solicitudes y cotizaciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: proveedores con datos fiscales y bancarios (CBU en bóveda o cifrado), catálogos de compras, solicitudes de aprovisionamiento con aprobación y cotizaciones, concursos y licitaciones.
 LEER: anexos/M12-CMP-compras-proveedores.md §4, §5.1..§5.4, §7, §8, §10, §11, §17, §18.
@@ -2893,13 +3039,14 @@ ENTREGABLES: suppliers (persona de M01 con rol proveedor), purchaseCatalogs, pur
 NO CONSTRUIR TODAVÍA: órdenes de pago (PRO-O8-03).
 PRUEBAS: proveedor con CUIT duplicado rechazado; una solicitud sin aprobación no genera orden de compra.
 TERMINADO CUANDO: una solicitud ficticia llega a comparativo de cotizaciones.
-VERIFICAR: npm test -w apps/api -- --grep cmp
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cmp
 ```
 
 #### PRO-O8-02 — Órdenes de compra, recepción, comprobantes de proveedor y 3 vías
 
 ```text
 PRO-O8-02 — Órdenes de compra, recepción y 3 vías
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: órdenes de compra, recepción y remito de proveedor con ingreso a stock, comprobantes de proveedor con imputación contable y fiscal, y control de 3 vías con habilitación de pago.
 LEER: anexos/M12-CMP-compras-proveedores.md §5.5..§5.8.
@@ -2908,13 +3055,14 @@ ENTREGABLES: purchaseOrders, goodsReceipts (movimiento de stock de M13 por API),
 NO CONSTRUIR TODAVÍA: RF-CMP-086 (O9).
 PRUEBAS: un comprobante fuera de tolerancia queda bloqueado para pago; un comprobante duplicado se rechaza.
 TERMINADO CUANDO: la compra ficticia queda habilitada para pago.
-VERIFICAR: npm test -w apps/api -- --grep threeWay
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep threeWay
 ```
 
 #### PRO-O8-03 — Órdenes de pago, Mis Comprobantes, informes y retenciones como agente
 
 ```text
 PRO-O8-03 — Órdenes de pago y retenciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: órdenes de pago con retenciones calculadas por el motor de M06 como agente (Ganancias, IVA, IIBB, SUSS), certificados, importación de Mis Comprobantes con IA que propone, informes y transversales de compras.
 LEER: anexos/M12-CMP-compras-proveedores.md §5.9 (100..108, 111, 112), §5.10 (120..122), §5.11; anexos/M06-FIS-fiscal-impuestos.md §5.11 (097..109).
@@ -2924,13 +3072,14 @@ ENTREGABLES: paymentOrders con aprobación; withholdingRegimes y motor calculate
 NO CONSTRUIR TODAVÍA: RF-CMP-109, 110 (O9), 130, 131 (O11); RF-FIS-110 ya en O5, 111 (O9).
 PRUEBAS: casos de retención de M06 §17 exactos; una OP con retención emite certificado numerado.
 TERMINADO CUANDO: la OP ficticia calcula retenciones y emite certificados.
-VERIFICAR: npm test -w apps/api -- --grep withholdings
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep withholdings
 ```
 
 #### PRO-O8-04 — Fiscal administrativo: agentes, percepciones, libros IVA digitales y regímenes
 
 ```text
 PRO-O8-04 — Libros IVA digitales y regímenes informativos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: condición de agente, percepciones restantes, Libro IVA Digital, Mis Comprobantes, SICORE, SIRE, regímenes informativos provinciales y conceptos de terceros restantes.
 LEER: anexos/M06-FIS-fiscal-impuestos.md RF-FIS-007, 018..020, 022, 049, 091, 094, 096, §5.12 (113, 114, 117..124), §5.13 (125..127, 129..133), §5.14 (140, 142). Además (v1.2): RF-FIS-169 y RN-FIS-133; anexos/M17-INS-institucional.md RF-INS-109 y RF-INS-053; 01-registro-decisiones.md DEC-095 y DEC-096.
@@ -2942,13 +3091,14 @@ ENTREGABLES: informativeReturns con generación de archivos por formato oficial 
 NO CONSTRUIR TODAVÍA: presentación automática con credenciales reales (solo archivos y simulador).
 PRUEBAS: los archivos generados validan contra las especificaciones de formato de M06; los totales cuadran con los libros.
 TERMINADO CUANDO: Libro IVA Digital y SICORE del período ficticio se generan.
-VERIFICAR: npm test -w apps/api -- --grep informative
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep informative
 ```
 
 #### PRO-O8-05 — Stock completo: artículos, movimientos, inventario, mínimos y valorización
 
 ```text
 PRO-O8-05 — Stock completo
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: completar artículos, depósitos, movimientos y trazabilidad, inventario físico y ajustes, stock mínimo y sugerencia de compra, valorización y costeo (PPP, FIFO según parámetro).
 LEER: anexos/M13-STK-stock-activos-fabricacion.md RF-STK-005, 007, 008, 010, 012, 014, 018, 019, 029, 032, 033, 036, 037, 048, 138, 070, §5.8 (083, 085), §5.9, §5.10 (090..093, 095); anexos/M10-TEC-tecnica-campo-redes.md RF-TEC-070.
@@ -2958,13 +3108,14 @@ ENTREGABLES: inventoryCounts con conteo ciego y ajuste aprobado; sugerencia de c
 NO CONSTRUIR TODAVÍA: fabricación (O10).
 PRUEBAS: la valorización PPP coincide con la tabla esperada; un ajuste de inventario genera asiento.
 TERMINADO CUANDO: el inventario físico ficticio se ajusta y valoriza.
-VERIFICAR: npm test -w apps/api -- --grep inventory
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep inventory
 ```
 
 #### PRO-O8-06 — Bienes de uso, RMA y stock por unidad de gasto
 
 ```text
 PRO-O8-06 — Bienes de uso y RMA
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: bienes de uso con alta, amortización, revalúo, baja y asientos; RMA, garantías, reparaciones y recepción técnica; unidades de gasto y stock por servicio.
 LEER: anexos/M13-STK-stock-activos-fabricacion.md §5.11, §5.12 (108..112, 114, 115), §5.14 (130, 134).
@@ -2973,13 +3124,14 @@ ENTREGABLES: fixedAssets; depreciationRuns mensuales por job; rmaCases con prove
 NO CONSTRUIR TODAVÍA: fabricación (O10).
 PRUEBAS: la amortización mensual coincide con la tabla esperada; una corrida repetida no duplica asientos.
 TERMINADO CUANDO: los bienes de uso ficticios amortizan el mes.
-VERIFICAR: npm test -w apps/api -- --grep fixedAssets
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep fixedAssets
 ```
 
 #### PRO-O8-07 — Tesorería: maestros restantes, extractos e Interbanking
 
 ```text
 PRO-O8-07 — Tesorería restante e Interbanking
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: maestros y operaciones restantes de tesorería, extractos avanzados e Interbanking por archivo y conector simulado.
 LEER: anexos/M14-TES-tesoreria-bancos.md RF-TES-007, 008, 010, 012, 019, 023, 024, 026, 029, 045, 046, 049, §5.4.
@@ -2989,13 +3141,14 @@ ENTREGABLES: interbankingBatches con firma por aprobación; transferencias entre
 NO CONSTRUIR TODAVÍA: valores (PRO-O8-08).
 PRUEBAS: un lote Interbanking aprobado no se reenvía; las transferencias generan asientos balanceados.
 TERMINADO CUANDO: un lote de pagos ficticio se genera para Interbanking.
-VERIFICAR: npm test -w apps/api -- --grep interbanking
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep interbanking
 ```
 
 #### PRO-O8-08 — Valores de terceros, cheques, eCheq, tarjetas y retenciones recibidas
 
 ```text
 PRO-O8-08 — Valores, cheques, eCheq y tarjetas
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: valores de terceros en cartera, cheques propios y chequeras, eCheq, tarjetas con cupones y liquidaciones, y retenciones recibidas.
 LEER: anexos/M14-TES-tesoreria-bancos.md §5.5..§5.9.
@@ -3004,13 +3157,14 @@ ENTREGABLES: thirdPartyChecks con estados (cartera, depositado, endosado, rechaz
 NO CONSTRUIR TODAVÍA: nada fuera de M14.
 PRUEBAS: un cheque rechazado revierte la cobranza y genera deuda; un cupón conciliado no se concilia dos veces.
 TERMINADO CUANDO: un cheque ficticio recorre cartera, depósito y acreditación.
-VERIFICAR: npm test -w apps/api -- --grep checks
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep checks
 ```
 
 #### PRO-O8-09 — Pagos a proveedores, cotizaciones, flujo de fondos, compromisos e informes
 
 ```text
 PRO-O8-09 — Pagos, flujo de fondos y compromisos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: cajas para pagos a proveedores, ejecución financiera de órdenes de pago y otros egresos, rendiciones restantes, cotizaciones, flujo de fondos con escenarios, compromisos de fondos e informes.
 LEER: anexos/M14-TES-tesoreria-bancos.md §5.10, §5.11 (113..122, 124, 125), RF-TES-131, §5.14 (141..143), §5.15 (146..155), §5.16, §5.18 (167, 171..174, 177), RF-TES-187.
@@ -3021,13 +3175,14 @@ ENTREGABLES: supplierPaymentCashes; ejecución de OP por medio (transferencia, c
 NO CONSTRUIR TODAVÍA: pago de haberes (O9).
 PRUEBAS: una OP pagada no se paga dos veces; el flujo de fondos refleja compromisos y vencimientos.
 TERMINADO CUANDO: la OP de la compra ficticia se paga y concilia.
-VERIFICAR: npm test -w apps/api -- --grep paymentExecution
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep paymentExecution
 ```
 
 #### PRO-O8-10 — Contabilidad: planes, asientos, motor y centros de costo restantes
 
 ```text
 PRO-O8-10 — Contabilidad restante
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: completar planes de cuentas, períodos, asientos, motor automático para compras, tesorería, stock y sueldos importados, centros de costo y cuentas corrientes por servicio.
 LEER: anexos/M15-CON-contabilidad.md RF-CON-008, 014, 016, 018..021, 024, 026, 034, 041, 046, 047, 049, 068..070, 072, 077..080, 082, 085, 088..090, 095..097.
@@ -3038,13 +3193,14 @@ ENTREGABLES: reglas de asiento de M12, M13, M14 y M16; distribución por centros
 NO CONSTRUIR TODAVÍA: RF-CON-073, 099 (O9).
 PRUEBAS: cada evento administrativo genera su asiento balanceado una sola vez.
 TERMINADO CUANDO: todos los eventos del e2e de compra tienen asiento.
-VERIFICAR: npm test -w apps/api -- --grep postings
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep postings
 ```
 
 #### PRO-O8-11 — Múltiples planes, estados contables, ajuste por inflación, cierre, libros y presupuestos
 
 ```text
 PRO-O8-11 — Estados contables, inflación y cierre
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: múltiples planes con equivalencias y simulaciones, estados contables e informes, ajuste por inflación, cierre y reapertura de ejercicio, libros rubricados, sistema contable externo restante y presupuestos y compromisos.
 LEER: anexos/M15-CON-contabilidad.md §5.8, §5.9 (113, 116..119, 122, 123), §5.10, §5.11 (132, 133, 135), §5.12, §5.13 (142), §5.14 (143..148).
@@ -3053,13 +3209,14 @@ ENTREGABLES: chartEquivalences; estados contables (situación patrimonial, resul
 NO CONSTRUIR TODAVÍA: distribución de excedentes (O10, RF-CON-134).
 PRUEBAS: el ajuste por inflación coincide con la tabla esperada; el cierre no procede con pendientes; la reapertura restituye saldos.
 TERMINADO CUANDO: el período ficticio se cierra con estados contables.
-VERIFICAR: npm test -w apps/api -- --grep closing
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep closing
 ```
 
 #### PRO-O8-12 — Presupuestos de venta
 
 ```text
 PRO-O8-12 — Presupuestos de venta
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: presupuestos con versiones, aprobación, vencimiento, aceptación por el cliente y conversión en venta u OT.
 LEER: anexos/M11-VEN-ventas-presupuestos.md §4, RF-VEN-012, §5.2, §7, §10, §11.
@@ -3068,13 +3225,14 @@ ENTREGABLES: quotes con PDF y aceptación en portal; conversión idempotente.
 NO CONSTRUIR TODAVÍA: RF-VEN-047 (O10).
 PRUEBAS: un presupuesto vencido no se acepta; la conversión no se duplica.
 TERMINADO CUANDO: un presupuesto ficticio se acepta y convierte.
-VERIFICAR: npm test -w apps/api -- --grep quotes
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep quotes
 ```
 
 #### PRO-O8-13 — Venta de productos, financiación, vendedores, POS y efectos restantes
 
 ```text
 PRO-O8-13 — Ventas, POS y efectos restantes
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: venta de productos con entrega y devolución, financiación comercial restante, vendedores, POS y rendiciones, flujo continuo y reportes, y los efectos restantes en cobranza, facturación, mora y portal.
 LEER: anexos/M11-VEN-ventas-presupuestos.md §5.3, §5.4 (087..090, 093, 094), §5.5 (100..102, 104, 107, 108), §5.6 (110..113, 115, 117); anexos/M07-COB-cuenta-corriente-cobranza.md RF-COB-072; anexos/M19-POR-portal-socio-landing.md RF-POR-102; anexos/M05-FAC-facturacion.md RF-FAC-107, 115, 133; anexos/M08-MOR-mora-financiacion.md RF-MOR-037, 053, 182, 190.
@@ -3084,13 +3242,14 @@ ENTREGABLES: salesOrders, deliveries y returns con stock; sellers con comisiones
 NO CONSTRUIR TODAVÍA: RF-VEN-103 (O11), 105 (O10).
 PRUEBAS: una devolución restituye stock y emite NC; la rendición de vendedor cuadra.
 TERMINADO CUANDO: una venta ficticia de mostrador se factura, cobra y rinde.
-VERIFICAR: npm test -w apps/api -- --grep sales
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep sales
 ```
 
 #### PRO-O8-14 — Importación de sueldos externa, firma de pagos y flota contable (DEC-058, DEC-078)
 
 ```text
 PRO-O8-14 — Importación de sueldos externa y firma
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: importación de liquidación de sueldos de un sistema externo con validación y contabilización (DEC-058, CU-28), firma de órdenes de pago y documentos (DEC-078), rendiciones contables de flota y reporte administrativo.
 LEER: 01-registro-decisiones.md DEC-058, DEC-078; anexos/M16-SUE-personal-sueldos.md §5.12 (121), §5.16; anexos/T11-WFL-workflow-eventos-documentos.md §5.14 (198..200); anexos/M18-SOC-servicios-sociales-flota.md RF-SOC-118, 119; anexos/T10-BIA-reportes-bi-apis.md RF-BIA-101.
@@ -3100,13 +3259,14 @@ ENTREGABLES: externalPayrollImports (archivo de ejemplo ficticio) con mapeo de c
 NO CONSTRUIR TODAVÍA: liquidación propia (O9); flota operativa (O10).
 PRUEBAS: la importación repetida no duplica asientos; un concepto sin mapeo bloquea la importación.
 TERMINADO CUANDO: la liquidación externa ficticia queda contabilizada.
-VERIFICAR: npm test -w apps/api -- --grep payrollImport
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep payrollImport
 ```
 
 #### PRO-O8-15 — Integración de O8: cierre contable mensual
 
 ```text
 PRO-O8-15 — Integración de O8
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O8 (sección 12.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §12; §17 y §18 de M11, M12, M13, M14 y M15.
@@ -3115,7 +3275,7 @@ ENTREGABLES: seed demo O8; e2e @O8 de 12.2; test:isolation.
 NO CONSTRUIR TODAVÍA: nada de O9.
 PRUEBAS: e2e @O8, test:isolation, k6 de asientos masivos.
 TERMINADO CUANDO: criterio 12.2 demostrado con evidencias en docs/evidencias/O8/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O8 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O8 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -3186,6 +3346,7 @@ CU de M16 §17 (liquidación mensual, SAC, vacaciones, egreso); paralelo de dos 
 
 ```text
 PRO-O9-01 — Legajo, multiempleador y estructura laboral
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: legajo completo sobre el mínimo de O3, empresas empleadoras por legalEntity, estructura laboral (puestos, categorías, convenios, sectores).
 LEER: 01-registro-decisiones.md DEC-058, DEC-064; anexos/M16-SUE-personal-sueldos.md §4, §5.1, §5.2, §5.3, §7, §8, §10, §11, §17, §18; anexos/T08-NFR-no-funcionales-seguridad.md §9.12.
@@ -3195,13 +3356,14 @@ ENTREGABLES: employees completo con datos sensibles cifrados; employers; positio
 NO CONSTRUIR TODAVÍA: liquidación.
 PRUEBAS: un usuario sin capability de RRHH no ve datos sensibles; el CUIL se valida.
 TERMINADO CUANDO: los empleados ficticios de M16 §18 están cargados.
-VERIFICAR: npm test -w apps/api -- --grep sue
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep sue
 ```
 
 #### PRO-O9-02 — Conceptos, fórmulas, novedades, licencias y vacaciones
 
 ```text
 PRO-O9-02 — Conceptos, novedades y licencias
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: variables, conceptos y fórmulas de liquidación (evaluador seguro reutilizado de M04), novedades del período con importación, licencias y vacaciones con saldos.
 LEER: anexos/M16-SUE-personal-sueldos.md §5.4, §5.5, §5.6.
@@ -3210,13 +3372,14 @@ ENTREGABLES: payrollConcepts y formulas versionadas; payrollNews con importació
 NO CONSTRUIR TODAVÍA: cálculo de la liquidación (PRO-O9-03).
 PRUEBAS: una fórmula con ciclo se rechaza; el saldo de vacaciones respeta la antigüedad.
 TERMINADO CUANDO: el convenio de ejemplo tiene conceptos y novedades del período.
-VERIFICAR: npm test -w apps/api -- --grep payrollConcepts
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep payrollConcepts
 ```
 
 #### PRO-O9-03 — Liquidaciones
 
 ```text
 PRO-O9-03 — Liquidaciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: liquidaciones mensual, quincenal, SAC, vacaciones, final y complementaria, con simulación, aprobación, cierre y reliquidación.
 LEER: anexos/M16-SUE-personal-sueldos.md §5.7, §6, §9.
@@ -3225,13 +3388,14 @@ ENTREGABLES: payrollRuns como job con estados; cálculo puro por empleado con ex
 NO CONSTRUIR TODAVÍA: Ganancias (PRO-O9-04).
 PRUEBAS: casos de M16 §17 exactos al centavo; una liquidación cerrada no se edita.
 TERMINADO CUANDO: el período ficticio se liquida y aprueba.
-VERIFICAR: npm test -w apps/api -- --grep payrollRuns && npm test -w apps/worker
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep payrollRuns && dotnet test --filter FullyQualifiedName~Worker
 ```
 
 #### PRO-O9-04 — Ganancias de 4.ª categoría
 
 ```text
 PRO-O9-04 — Ganancias de 4.ª categoría
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: retención de Ganancias de 4.ª categoría con deducciones (SIRADIG por archivo ficticio), escalas vigentes, ajuste anual y certificados.
 LEER: anexos/M16-SUE-personal-sueldos.md §5.8.
@@ -3240,13 +3404,14 @@ ENTREGABLES: incomeTaxCalcs con tablas normativas; importación de deducciones; 
 NO CONSTRUIR TODAVÍA: nada fuera de M16.
 PRUEBAS: casos de Ganancias de M16 §17 exactos; un cambio de escala aplica desde su vigencia.
 TERMINADO CUANDO: la retención del período ficticio coincide con la tabla esperada.
-VERIFICAR: npm test -w apps/api -- --grep incomeTax
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep incomeTax
 ```
 
 #### PRO-O9-05 — Seguridad social: F.931 y Libro de Sueldos Digital
 
 ```text
 PRO-O9-05 — F.931 y LSD
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: generación de archivos de seguridad social (F.931 / SICOSS) y Libro de Sueldos Digital con validación previa.
 LEER: anexos/M16-SUE-personal-sueldos.md §5.9.
@@ -3255,13 +3420,14 @@ ENTREGABLES: socialSecurityFiles con formato oficial y validaciones; presentaci�
 NO CONSTRUIR TODAVÍA: nada fuera de M16.
 PRUEBAS: los archivos validan contra la especificación de formato de M16; totales cuadran con la liquidación.
 TERMINADO CUANDO: F.931 y LSD del período ficticio se generan válidos.
-VERIFICAR: npm test -w apps/api -- --grep socialSecurity
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep socialSecurity
 ```
 
 #### PRO-O9-06 — Recibos y portal del empleado
 
 ```text
 PRO-O9-06 — Recibos y portal del empleado
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: recibos de sueldo con firma del empleador y conformidad del empleado, portal del empleado (recibos, licencias, datos, certificados).
 LEER: anexos/M16-SUE-personal-sueldos.md §5.10; anexos/M19-POR-portal-socio-landing.md §5.13 (129..133, 135, 136); anexos/T11-WFL-workflow-eventos-documentos.md §5.14 (197, 202).
@@ -3270,13 +3436,14 @@ ENTREGABLES: recibos PDF firmados; conformidad del empleado con evidencia; secci
 NO CONSTRUIR TODAVÍA: nada fuera de M16.
 PRUEBAS: un empleado solo ve sus recibos; la conformidad queda registrada con fecha y hash.
 TERMINADO CUANDO: un empleado ficticio firma su recibo en la PWA.
-VERIFICAR: npm run test:e2e -- --grep @O9-portal
+VERIFICAR: playwright test --grep @O9-portal
 ```
 
 #### PRO-O9-07 — Pago de haberes y contabilización
 
 ```text
 PRO-O9-07 — Pago de haberes y contabilización
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: pago de haberes por acreditación bancaria (archivo y Interbanking simulado), contabilización de la liquidación propia, pagos a terceros (sindicatos, embargos) y retención de Ganancias como agente.
 LEER: anexos/M16-SUE-personal-sueldos.md §5.11, §5.12 (117..120); anexos/M14-TES-tesoreria-bancos.md §5.17; anexos/M15-CON-contabilidad.md RF-CON-073, 099, 149; anexos/M12-CMP-compras-proveedores.md RF-CMP-086, 109, 110; anexos/M06-FIS-fiscal-impuestos.md RF-FIS-111.
@@ -3285,13 +3452,14 @@ ENTREGABLES: payrollPayments; archivo bancario; asiento de sueldos y cargas; OP 
 NO CONSTRUIR TODAVÍA: nada fuera de M16.
 PRUEBAS: el pago no se envía dos veces; el asiento balancea y concilia con la liquidación.
 TERMINADO CUANDO: el pago de haberes ficticio queda conciliado y contabilizado.
-VERIFICAR: npm test -w apps/api -- --grep payrollPayments
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep payrollPayments
 ```
 
 #### PRO-O9-08 — Certificaciones, egreso, RRHH, aprobaciones, reportes y paralelo
 
 ```text
 PRO-O9-08 — Certificaciones, egreso, RRHH y paralelo
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: certificaciones de servicios y remuneraciones, egreso con liquidación final, gestión de RRHH (referencia GLM), aprobaciones, auditoría y reportes, y migración con paralelo frente a la importación externa.
 LEER: anexos/M16-SUE-personal-sueldos.md §5.13, §5.14, §5.15, §5.17.
@@ -3300,13 +3468,14 @@ ENTREGABLES: certifications PDF; flujo de egreso; capacitaciones y evaluaciones 
 NO CONSTRUIR TODAVÍA: BI avanzado de personal (O11).
 PRUEBAS: el comparador explica toda diferencia mayor al umbral; un egreso bloquea liquidaciones posteriores.
 TERMINADO CUANDO: el comparador de paralelo muestra el período ficticio sin diferencias inexplicadas.
-VERIFICAR: npm test -w apps/api -- --grep parallel
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep parallel
 ```
 
 #### PRO-O9-09 — Integración de O9: dos períodos en paralelo
 
 ```text
 PRO-O9-09 — Integración de O9
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O9 (sección 13.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §13; anexos/M16-SUE-personal-sueldos.md §17, §18.
@@ -3315,7 +3484,7 @@ ENTREGABLES: seed demo O9; e2e @O9 de 13.2; test:isolation.
 NO CONSTRUIR TODAVÍA: nada de O10.
 PRUEBAS: e2e @O9, test:isolation, k6 de liquidación de 500 empleados ficticios.
 TERMINADO CUANDO: criterio 13.2 demostrado con evidencias en docs/evidencias/O9/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O9 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O9 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -3408,6 +3577,7 @@ HUECO-SEP, CEM, SAN, SAL, VIV, OTR, HUE-TEL, HUE-TV y HUECO-CAP-01..04 en su par
 
 ```text
 PRO-O10-01 — Registro de asociados e INAES
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: completar el registro de asociados (categorías, ingreso, egreso, exclusión, readmisión) y el Libro de Registro de Asociados con reportes a INAES.
 LEER: anexos/M17-INS-institucional.md §4, §5.1 (005..008, 010..014, 016, 018..020), §5.2, §7, §8, §10, §11, §17, §18.
@@ -3419,13 +3589,14 @@ ENTREGABLES: associateRegister foliado e inmutable; egreso con reintegro de capi
 NO CONSTRUIR TODAVÍA: asambleas (PRO-O10-03).
 PRUEBAS: el libro no admite edición de folios cerrados; un egreso respeta AGR-029.
 TERMINADO CUANDO: el libro de asociados ficticio se exporta.
-VERIFICAR: npm test -w apps/api -- --grep ins
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep ins
 ```
 
 #### PRO-O10-02 — Capital social completo, excedentes y retornos
 
 ```text
 PRO-O10-02 — Capital completo y excedentes
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: capital social completo (revalúo, transferencias, reintegros, capitalización), excedentes y retornos con distribución aprobada por asamblea y su contabilización.
 LEER: 01-registro-decisiones.md DEC-019, DEC-061; 05-registro-huecos.md HUECO-CAP-01..04; anexos/M17-INS-institucional.md §5.3 (032, 033, 039, 047..055, 057..059), §5.4; anexos/M15-CON-contabilidad.md RF-CON-076, 098, 120, 134, 152.
@@ -3436,13 +3607,14 @@ ENTREGABLES: capitalRevaluations; reintegros con límite estatutario; surplusDis
 NO CONSTRUIR TODAVÍA: nada fuera de M17.
 PRUEBAS: la distribución suma exacto el excedente aprobado; el reintegro no supera el límite.
 TERMINADO CUANDO: los excedentes ficticios se distribuyen y asientan.
-VERIFICAR: npm test -w apps/api -- --grep surplus
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep surplus
 ```
 
 #### PRO-O10-03 — Órganos sociales, asambleas, votaciones, actas y honorarios
 
 ```text
 PRO-O10-03 — Órganos, asambleas y honorarios
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: órganos sociales y mandatos, reuniones y asambleas con convocatoria, padrón congelado, acreditación, quórum, votación presencial y remota, actas, honorarios institucionales y relación baja de servicio–egreso.
 LEER: anexos/M17-INS-institucional.md §5.5, §5.6, §5.7, §5.8 (100..102), §5.9 (103, 106, 108); anexos/T11-WFL-workflow-eventos-documentos.md RF-WFL-122, 180, 212.
@@ -3452,13 +3624,14 @@ ENTREGABLES: governingBodies y mandates; meetings, rolls, votes (secreto configu
 NO CONSTRUIR TODAVÍA: nada fuera de M17.
 PRUEBAS: un asociado fuera del padrón no vota; el voto secreto no es trazable a la persona; sin quórum la asamblea pasa a segunda convocatoria.
 TERMINADO CUANDO: la asamblea ficticia de 14.2 se completa con acta.
-VERIFICAR: npm test -w apps/api -- --grep meetings && npm run test:e2e -- --grep @O10-assembly
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep meetings && playwright test --grep @O10-assembly
 ```
 
 #### PRO-O10-04 — Planes de cobertura, prestadores, adherentes y prestaciones
 
 ```text
 PRO-O10-04 — Coberturas, adherentes y prestaciones
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: planes de cobertura y prestadores, adherentes y beneficiarios completos (M18 dueño, M01 referencia; DEC-071), solicitudes de prestación y cobertura.
 LEER: 01-registro-decisiones.md DEC-071; anexos/M18-SOC-servicios-sociales-flota.md §4, §5.1, §5.2 (015..025, 027..030), §5.3, §7, §8, §10, §11, §17, §18; anexos/M01-PER-personas-titulares-cuentas.md §5.9, RF-PER-053, 134; anexos/M02-CAT-catalogo-servicios.md RF-CAT-022, 080.
@@ -3469,13 +3642,14 @@ ENTREGABLES: coveragePlans con carencias y topes; providers con convenios; adher
 NO CONSTRUIR TODAVÍA: servicios específicos (PRO-O10-05..07).
 PRUEBAS: una prestación en carencia se rechaza; los adherentes de O4 siguen facturando igual.
 TERMINADO CUANDO: un adherente ficticio solicita una prestación con cobertura.
-VERIFICAR: npm test -w apps/api -- --grep soc
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep soc
 ```
 
 #### PRO-O10-05 — Sepelio y cementerio parque
 
 ```text
 PRO-O10-05 — Sepelio y cementerio
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: sepelio y subsidio por fallecimiento, y cementerio parque (parcelas, titularidad, inhumaciones, mantenimiento).
 LEER: anexos/M18-SOC-servicios-sociales-flota.md §5.4, §5.5; anexos/T12-SRV-fichas-verticales-servicios-parte2.md (sepelio y cementerio).
@@ -3484,13 +3658,14 @@ ENTREGABLES: funeralServices con orden de servicio y cobertura; cemeteryPlots co
 NO CONSTRUIR TODAVÍA: nada fuera de M18.
 PRUEBAS: una parcela no se asigna dos veces; el subsidio respeta el plan vigente a la fecha del fallecimiento.
 TERMINADO CUANDO: un servicio de sepelio ficticio se cubre y factura el excedente.
-VERIFICAR: npm test -w apps/api -- --grep funeral
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep funeral
 ```
 
 #### PRO-O10-06 — Banco de sangre y salud
 
 ```text
 PRO-O10-06 — Banco de sangre y salud
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: banco de sangre por convenio y salud (ambulancias, traslados sanitarios, profesionales, internaciones) con datos de salud protegidos.
 LEER: anexos/M18-SOC-servicios-sociales-flota.md §5.6, §5.7; anexos/T08-NFR-no-funcionales-seguridad.md RNF-NFR-101, 102, 104.
@@ -3499,13 +3674,14 @@ ENTREGABLES: bloodDonations; healthServices con cifrado de datos sensibles de sa
 NO CONSTRUIR TODAVÍA: nada fuera de M18.
 PRUEBAS: un usuario sin capability de salud no lee datos de salud; cada lectura queda auditada.
 TERMINADO CUANDO: un traslado sanitario ficticio se registra y liquida.
-VERIFICAR: npm test -w apps/api -- --grep health
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep health
 ```
 
 #### PRO-O10-07 — Vivienda y otros servicios
 
 ```text
 PRO-O10-07 — Vivienda y otros servicios
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: planes de vivienda (adjudicación, cuotas indexadas, obra, escrituración) y otros servicios sociales.
 LEER: anexos/M18-SOC-servicios-sociales-flota.md §5.8, §5.9; anexos/M02-CAT-catalogo-servicios.md RF-CAT-059, 100..103.
@@ -3514,13 +3690,14 @@ ENTREGABLES: housingPlans con adjudicatarios, cuotas indexadas por índice de T0
 NO CONSTRUIR TODAVÍA: nada fuera de M18.
 PRUEBAS: la cuota indexada coincide con la tabla esperada; una adjudicación requiere aprobación.
 TERMINADO CUANDO: un plan de vivienda ficticio factura su cuota.
-VERIFICAR: npm test -w apps/api -- --grep housing
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep housing
 ```
 
 #### PRO-O10-08 — Flota, combustibles, viajes, rendiciones y GPS
 
 ```text
 PRO-O10-08 — Flota y GPS
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: flota de vehículos, combustibles, viajes, rendiciones, mantenimiento vehicular, GPS de flota y transversales de M18.
 LEER: anexos/M18-SOC-servicios-sociales-flota.md §5.10 (120..138), §5.11 (139, 143, 144).
@@ -3529,13 +3706,14 @@ ENTREGABLES: vehicles, fuelLoads, trips con GPS por conector simulado; rendicion
 NO CONSTRUIR TODAVÍA: nada fuera de M18.
 PRUEBAS: una carga de combustible duplicada se detecta; la posición GPS respeta retención.
 TERMINADO CUANDO: un viaje ficticio se registra con rendición.
-VERIFICAR: npm test -w apps/api -- --grep fleet
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep fleet
 ```
 
 #### PRO-O10-09 — Telefonía y TV avanzadas
 
 ```text
 PRO-O10-09 — Telefonía y TV
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: telefonía (líneas, numeración, portabilidad, CDR y tasación en M04) y TV avanzada (aprovisionamiento de paquetes), con app de campo para cobrador restante.
 LEER: anexos/M10-TEC-tecnica-campo-redes.md RF-TEC-131, §5.15 (194, 195), §5.16; anexos/M04-TAR-tarifas-motor-calculo.md RF-TAR-024, 047, 050, 052, 097..099; anexos/T12-SRV-fichas-verticales-servicios-parte1.md §2 y §3 (telefonía y TV; antes citaba parte2).
@@ -3546,13 +3724,14 @@ ENTREGABLES: phoneLines, numbering y cdrs con ingesta por job; tasación pura en
 NO CONSTRUIR TODAVÍA: nada fuera de telefonía y TV.
 PRUEBAS: un CDR repetido no se tasa dos veces; la tasación coincide con la tabla esperada.
 TERMINADO CUANDO: una línea ficticia se tasa y factura.
-VERIFICAR: npm test -w apps/api -- --grep cdr && npm test -w packages/domain
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cdr && dotnet test --filter FullyQualifiedName~domain
 ```
 
 #### PRO-O10-10 — Fabricación
 
 ```text
 PRO-O10-10 — Fabricación
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: fabricación con listas de materiales, órdenes de producción, consumo y producto terminado con costeo, y stock por vivienda.
 LEER: anexos/M13-STK-stock-activos-fabricacion.md §5.13, RF-STK-133; anexos/M11-VEN-ventas-presupuestos.md RF-VEN-047, 105.
@@ -3562,13 +3741,14 @@ ENTREGABLES: boms versionadas; productionOrders con consumo y alta de producto; 
 NO CONSTRUIR TODAVÍA: nada fuera de M13.
 PRUEBAS: una orden de producción consume exacto la lista de materiales; el costo resultante coincide.
 TERMINADO CUANDO: una orden de producción ficticia se completa.
-VERIFICAR: npm test -w apps/api -- --grep production
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep production
 ```
 
 #### PRO-O10-11 — Mesa de entradas, turnero y tótem
 
 ```text
 PRO-O10-11 — Mesa de entradas, turnero y tótem
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: mesa de entradas (ingreso y pase de expedientes), atención presencial con turnero, turnos desde el portal, tótem de autogestión presencial y agente local para periféricos.
 LEER: anexos/M09-CRM-atencion.md §5.4, §5.5 (140..157); anexos/M19-POR-portal-socio-landing.md §5.11, RF-POR-161, §5.16; anexos/T06-INT-integraciones.md RF-INT-084; anexos/T11-WFL-workflow-eventos-documentos.md §5.16.
@@ -3577,13 +3757,14 @@ ENTREGABLES: inboundFiles con pases; serviceDesks y queuesTickets con pantalla d
 NO CONSTRUIR TODAVÍA: nada fuera de estos módulos.
 PRUEBAS: el tótem no permite salir del modo kiosco; un turno no se asigna dos veces; un pase de expediente queda auditado.
 TERMINADO CUANDO: un socio ficticio saca turno en el tótem y es llamado.
-VERIFICAR: npm run test:e2e -- --grep @O10-kiosk
+VERIFICAR: playwright test --grep @O10-kiosk
 ```
 
 #### PRO-O10-12 — Actividades y tareas internas, omnicanal restante
 
 ```text
 PRO-O10-12 — Actividades y omnicanal restante
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: actividades y tareas internas, expediente y canales restantes del CRM y la IA de actividades.
 LEER: anexos/M09-CRM-atencion.md RF-CRM-026, 040, 041, 044, §5.6 (179..181, 183), RF-CRM-203, §5.8 (220..235, 237), RNF-CRM-004, 006.
@@ -3592,13 +3773,14 @@ ENTREGABLES: activities con asignación, vencimiento y recordatorios; canales re
 NO CONSTRUIR TODAVÍA: nada fuera de M09.
 PRUEBAS: una tarea vencida escala; los canales nuevos respetan consentimientos.
 TERMINADO CUANDO: una tarea interna ficticia se asigna, recuerda y cierra.
-VERIFICAR: npm test -w apps/api -- --grep activities
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep activities
 ```
 
 #### PRO-O10-13 — Facturación y cobranza de terceros restantes
 
 ```text
 PRO-O10-13 — Facturación y cobranza de terceros
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: facturación de cuotas y de terceros restante, cobranza de terceros, cobrador offline restante y contratación de servicios sociales en el portal.
 LEER: anexos/M05-FAC-facturacion.md RF-FAC-056, 124, 125; anexos/M07-COB-cuenta-corriente-cobranza.md RF-COB-074, 094, 176, 178; anexos/M19-POR-portal-socio-landing.md RF-POR-068; anexos/T08-NFR-no-funcionales-seguridad.md RNF-NFR-258.
@@ -3607,13 +3789,14 @@ ENTREGABLES: ítems facturables de M17 y M18; cobros por cuenta de terceros con 
 NO CONSTRUIR TODAVÍA: nada de O11.
 PRUEBAS: un cobro por cuenta de terceros se rinde al tercero exacto.
 TERMINADO CUANDO: las cuotas de sepelio y vivienda se facturan y cobran.
-VERIFICAR: npm test -w apps/api -- --grep thirdParty
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep thirdParty
 ```
 
 #### PRO-O10-14 — Integración de O10: asamblea y servicios sociales
 
 ```text
 PRO-O10-14 — Integración de O10
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: demostrar el criterio de salida de O10 (sección 14.2 del plan) y cerrar la ola.
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §14; §17 y §18 de M17, M18 y M09; anexos/T12-SRV-fichas-verticales-servicios-parte2.md.
@@ -3622,7 +3805,7 @@ ENTREGABLES: seed demo O10; e2e @O10 de 14.2; test:isolation.
 NO CONSTRUIR TODAVÍA: nada de O11.
 PRUEBAS: e2e @O10, test:isolation, k6 de votación remota con 2.000 asociados ficticios.
 TERMINADO CUANDO: criterio 14.2 demostrado con evidencias en docs/evidencias/O10/ y PRO-GEN-02 ejecutado.
-VERIFICAR: npm run seed:demo && npm run test:e2e -- --grep @O10 && npm run test:isolation && npm run trace:check
+VERIFICAR: dotnet run --project tools/SeedDemo && playwright test --grep @O10 && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -3708,12 +3891,13 @@ HUECO-TRV-05 y los de migración: HUECO-OBR-04, OBR-05, CEM-03, SAL-02, TAS-03, 
 | PRO-O11-09 | Ensayo de corte comercial de los servicios que sigan en ProCoop (DEC-089; antes "Ensayo de corte comercial (M01–M09)") | 0 |
 | PRO-O11-10 | Ensayo de corte administrativo y cierre del plan | 0 (verifica 65 y 4.213; v1.2: antes 4.204; *reemplazado, DEC-089:* antes 89; *corrección 05-11-2026:* antes 90; cierre 05-11-2026: antes 4.203) |
 
-*PRO-O11-07 y PRO-O11-08 se conservan como reemplazados: no se ejecutan y no cuentan en los 172 prompts (O11 queda con 8 prompts efectivos).*
+*PRO-O11-07 y PRO-O11-08 se conservan como reemplazados: no se ejecutan y no se ejecutan (O11 queda con **8 prompts efectivos**; plan tiene **174** bloques PRO-O).*
 
 #### PRO-O11-01 — Almacén analítico y modelo dimensional
 
 ```text
 PRO-O11-01 — Almacén analítico
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: almacén analítico por tenant alimentado por eventos y jobs incrementales, con modelo dimensional y conservación fiscal.
 LEER: anexos/T10-BIA-reportes-bi-apis.md §5 (RF-BIA-060..069), §7, §12; anexos/M06-FIS-fiscal-impuestos.md RF-FIS-158; anexos/M09-CRM-atencion.md RF-CRM-257.
@@ -3724,13 +3908,14 @@ ENTREGABLES: analyticsStore con hechos y dimensiones; ETL incremental idempotent
 NO CONSTRUIR TODAVÍA: salas BI (PRO-O11-02).
 PRUEBAS: una recarga incremental no duplica hechos; un tenant no consulta hechos de otro.
 TERMINADO CUANDO: los hechos de facturación y cobranza de TEN-001 están en el almacén.
-VERIFICAR: npm test -w apps/api -- --grep analytics && npm run test:isolation
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep analytics && dotnet test --filter Category=Isolation
 ```
 
 #### PRO-O11-02 — Generador de reportes y salas BI
 
 ```text
 PRO-O11-02 — Generador de reportes y salas BI
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: generador de reportes para usuarios avanzados sobre el almacén, salas BI con tableros compartidos y administración del portal con indicadores.
 LEER: anexos/T10-BIA-reportes-bi-apis.md RF-BIA-041..045, 089, 091, 102; anexos/M19-POR-portal-socio-landing.md RF-POR-159.
@@ -3740,13 +3925,14 @@ ENTREGABLES: reportBuilderDefinitions con campos permitidos por capability y sen
 NO CONSTRUIR TODAVÍA: API de terceros (PRO-O11-03).
 PRUEBAS: un usuario no agrega campos sensibles sin permiso; un tablero compartido respeta el alcance del que lo ve.
 TERMINADO CUANDO: una sala BI ficticia muestra recaudación y mora.
-VERIFICAR: npm run test:e2e -- --grep @O11-bi
+VERIFICAR: playwright test --grep @O11-bi
 ```
 
 #### PRO-O11-03 — API para terceros, medición y tableros avanzados
 
 ```text
 PRO-O11-03 — API para terceros
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: API pública versionada para terceros con clientes, claves, alcances, cuotas, medición facturable (RF-PLA-083) y documentación; tableros avanzados y los RF restantes de varios módulos que dependen de ella.
 LEER: anexos/T10-BIA-reportes-bi-apis.md RF-BIA-070..088; anexos/T01-PLA-plataforma-saas.md RF-PLA-083, 153; anexos/T11-WFL-workflow-eventos-documentos.md RF-WFL-014; RF-FAC-169, RF-TEC-230, RF-STK-043, RF-COM-094 en sus anexos; anexos/T08-NFR-no-funcionales-seguridad.md RNF-NFR-175..177.
@@ -3755,13 +3941,14 @@ ENTREGABLES: apiClients y apiKeys (hash, nunca en claro); rate limit y cuota por
 NO CONSTRUIR TODAVÍA: modo pasarela fiscal (PRO-O11-05).
 PRUEBAS: una clave revocada se rechaza; superar la cuota responde 429 con RFC 9457; el uso se mide por cliente.
 TERMINADO CUANDO: un cliente ficticio consume la API con su clave y cuota medida.
-VERIFICAR: npm test -w apps/api -- --grep apiClients && k6 run infra/k6/public-api.js
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep apiClients && k6 run infra/k6/public-api.js
 ```
 
 #### PRO-O11-04 — Pasarelas y billeteras restantes (DEC-015)
 
 ```text
 PRO-O11-04 — Pasarelas y billeteras restantes
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: agregar las pasarelas y billeteras de DEC-015 que no entraron en O5 (por ejemplo las que M07 §5.10 RF-COB-132 indica como posteriores) sobre el punto de extensión de PRO-O5-06.
 LEER: 01-registro-decisiones.md DEC-015; anexos/M07-COB-cuenta-corriente-cobranza.md §5.10 (RF-COB-132); anexos/M05-FAC-facturacion.md RF-FAC-146; anexos/T06-INT-integraciones.md (fichas de pasarelas).
@@ -3771,13 +3958,14 @@ ENTREGABLES: un adaptador por proveedor en modo test con simulador; QR de billet
 NO CONSTRUIR TODAVÍA: nada fuera de pasarelas.
 PRUEBAS: las mismas pruebas de PRO-O5-06 (firma, duplicados, conciliación) por cada adaptador nuevo.
 TERMINADO CUANDO: cada pasarela nueva acredita un pago ficticio de punta a punta.
-VERIFICAR: npm test -w apps/api -- --grep gateways
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep gateways
 ```
 
 #### PRO-O11-05 — Modo pasarela fiscal, IA de compras y auditoría de plataforma
 
 ```text
 PRO-O11-05 — Modo pasarela fiscal y auditoría de plataforma
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: autorización fiscal ARCA para sistemas externos (modo pasarela), importación de Mis Comprobantes con IA avanzada, sistema contable externo restante, POS restante, auditoría completa de plataforma y eventos restantes.
 LEER: anexos/M06-FIS-fiscal-impuestos.md §5.17 (154..156); anexos/M12-CMP-compras-proveedores.md RF-CMP-130, 131; anexos/M15-CON-contabilidad.md RF-CON-158; anexos/M11-VEN-ventas-presupuestos.md RF-VEN-103; anexos/T02-IAM-identidad-roles-auditoria.md RF-IAM-144; anexos/T11-WFL-workflow-eventos-documentos.md RF-WFL-012.
@@ -3787,13 +3975,14 @@ ENTREGABLES: gatewayClients que piden CAE por API con su propia legalEntity; IA 
 NO CONSTRUIR TODAVÍA: nada fuera de lo listado.
 PRUEBAS: un cliente de pasarela no usa el certificado de otro; la IA de compras nunca confirma sola.
 TERMINADO CUANDO: un sistema externo ficticio obtiene CAE en homologación por la pasarela.
-VERIFICAR: npm test -w apps/api -- --grep fiscalGateway
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep fiscalGateway
 ```
 
 #### PRO-O11-06 — Migración por dominio: históricos y equivalencias
 
 ```text
 PRO-O11-06 — Migración por dominio e históricos
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: completar la migración por dominio (cada módulo con su mapeo), históricos y archivo consultable, equivalencias de configuración y los RF de migración de otros módulos.
 LEER: anexos/T07-MIG-migracion-procoop.md §5.1 (006), §5.7 (060, 061, 063, 064); anexos/T04-CFG-configuracion-parametros-maestros.md RF-CFG-132; RF-TAR-101, 102; RF-CON-160; RF-COB-155; RF-CRM-125, 254; RF-POR-020, 127, 171, 172; RF-WFL-163 en sus anexos; 05-registro-huecos.md HUECO-OBR-04, OBR-05, CEM-03, SAL-02, TAS-03, CAP-03, VIV-03, OTR-01.
@@ -3806,7 +3995,7 @@ ENTREGABLES: mapeos de todos los dominios; archives de solo lectura con búsqued
 NO CONSTRUIR TODAVÍA: corte administrativo (PRO-O11-10) (DEC-089; antes "paralelo (PRO-O11-07)", que pasa a PRO-O7-11).
 PRUEBAS: dos corridas consecutivas producen el mismo resultado (hash por colección); los históricos no son editables.
 TERMINADO CUANDO: la base ficticia migra completa dos veces con resultado idéntico.
-VERIFICAR: npm test -w apps/api -- --grep mig
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep mig
 ```
 
 #### PRO-O11-07 — Corrida paralela y facturación comparada (*reemplazado por PRO-O7-11, DEC-089*)
@@ -3815,6 +4004,7 @@ VERIFICAR: npm test -w apps/api -- --grep mig
 
 ```text
 PRO-O11-07 — Corrida paralela (REEMPLAZADO por PRO-O7-11, DEC-089)
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: corrida paralela de facturación y cobranza frente a ProCoop (datos ficticios) con comparación por cuenta y concepto, y la parte de mora de migración.
 LEER: anexos/T07-MIG-migracion-procoop.md §5.8; anexos/M08-MOR-mora-financiacion.md RF-MOR-219; anexos/T08-NFR-no-funcionales-seguridad.md RNF-NFR-019, 154.
@@ -3824,7 +4014,7 @@ ENTREGABLES: parallelRuns y parallelDiffs con umbral, clasificación y explicaci
 NO CONSTRUIR TODAVÍA: corte (PRO-O11-08).
 PRUEBAS: toda diferencia mayor al umbral exige explicación antes de aprobar el paralelo.
 TERMINADO CUANDO: un ciclo ficticio en paralelo queda aprobado.
-VERIFICAR: npm test -w apps/api -- --grep parallel
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep parallel
 ```
 
 #### PRO-O11-08 — By-pass, convivencia, corte por etapas y rollback (DEC-068) (*reemplazado por PRO-O7-12, DEC-089*)
@@ -3833,6 +4023,7 @@ VERIFICAR: npm test -w apps/api -- --grep parallel
 
 ```text
 PRO-O11-08 — Corte por etapas y rollback (REEMPLAZADO por PRO-O7-12, DEC-089)
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: by-pass y convivencia con ProCoop, plan de corte por etapas (comercial M01–M09 y luego administrativo, DEC-068), congelamiento, carga delta, verificación y rollback.
 LEER: 01-registro-decisiones.md DEC-068, DEC-069; anexos/T07-MIG-migracion-procoop.md §5.9 (080..082, 086..089); anexos/T08-NFR-no-funcionales-seguridad.md RNF-NFR-046, 106.
@@ -3842,13 +4033,14 @@ ENTREGABLES: cutoverPlans con etapas, pasos, responsables y tiempos; cutoverStep
 NO CONSTRUIR TODAVÍA: nada fuera de T07.
 PRUEBAS: el rollback restituye el estado previo sin efectos externos duplicados; un paso fallido detiene el plan.
 TERMINADO CUANDO: el plan de corte ficticio se ejecuta en sandbox con rollback.
-VERIFICAR: npm test -w apps/api -- --grep cutover
+VERIFICAR: dotnet test --filter FullyQualifiedName~Api -- --grep cutover
 ```
 
 #### PRO-O11-09 — Ensayo de corte comercial (M01–M09)
 
 ```text
 PRO-O11-09 — Ensayo de corte comercial
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: ensayo cronometrado del corte comercial de los servicios que sigan en ProCoop sobre la base ficticia en sandbox, con conciliación de saldos, servicios, deuda y convenios, y rollback (DEC-089: electricidad, gas y prepago de la piloto ya se cortaron al cerrar O7 con PRO-O7-12; antes "del corte comercial (M01–M09)").
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §15; anexos/T07-MIG-migracion-procoop.md §5.9, §17.
@@ -3857,13 +4049,14 @@ ENTREGABLES: informe de ensayo con tiempos por paso, conciliaciones y rollback e
 NO CONSTRUIR TODAVÍA: corte administrativo.
 PRUEBAS: e2e @piloto-internet sobre los datos migrados; conciliación de saldos al centavo.
 TERMINADO CUANDO: el ensayo termina dentro de la ventana planificada y el rollback funciona.
-VERIFICAR: npm run test:e2e -- --grep "@O11-cutover-commercial|@piloto-internet"
+VERIFICAR: playwright test --grep "@O11-cutover-commercial|@piloto-internet"
 ```
 
 #### PRO-O11-10 — Ensayo de corte administrativo y cierre del plan
 
 ```text
 PRO-O11-10 — Ensayo de corte administrativo y cierre
+NORMA: 03-norma-ejecucion-goodapps.md §3–§4 (stack GoodApps; barrido 19-11-2026).
 Aplicá R1–R20 de docs/especificacion/03-plan-de-olas-y-prompts.md §2.
 OBJETIVO: ensayo del corte administrativo (M11–M16) con balance conciliado, y verificación final de los 4.213 RF y 293 RNF del plan (antes 4.204 y 292, v1.2; antes 4.203; versión 1.0: 4.120).
 LEER: docs/especificacion/03-plan-de-olas-y-prompts.md §15, §16, §17; docs/especificacion/04-matriz-trazabilidad.md.
@@ -3872,7 +4065,7 @@ ENTREGABLES: informe de ensayo administrativo; reporte final de trace:check sin 
 NO CONSTRUIR TODAVÍA: no aplica.
 PRUEBAS: e2e de todas las olas, test:isolation, k6 completo.
 TERMINADO CUANDO: criterio 15.2 demostrado y PRO-GEN-02 ejecutado para O11.
-VERIFICAR: npm run test:e2e && npm run test:isolation && npm run trace:check
+VERIFICAR: playwright test && dotnet test --filter Category=Isolation && python docs/especificacion/_trabajo/plan_recuento.py
 ```
 
 ---
@@ -3920,7 +4113,7 @@ Cada celda es la cantidad de RF del anexo que **empiezan** en la ola (regla §0.
 
 *Reemplazado (versión 1.0): fila Total RF 299, 457, 607, 315, 419, 463, 241, 256, 454, 161, 360, 88; total 4.120.* La matriz de v1.1 se recalculó por script leyendo las tablas de RF de los anexos y las líneas IMPLEMENTAR de este plan. *Reemplazado (corrección 05-11-2026): M15 CON O5 84 y O11 2; Total RF O5 468 y O11 90 (RF-CON-160 pasa a O5, §18).* Recalculada con `_trabajo/plan_recuento.py`; las filas RNF y Prompts no cambian. *Reemplazado (cierre de la corrección de inconsistencias del 05-11-2026): M19 POR O2 96 y total 179; Total RF O2 613 y total 4.203 (RF-POR-180, §21.6).* *Reemplazado (versión 1.2, 10-11-2026): T10 BIA O1 34 y total 103; M01 PER O2 142 y 173; M02 CAT O4 8 y 116; M06 FIS O8 42 y 168; M07 COB O5 185 y 194; M09 CRM O2 48 y 193; M15 CON O8 64 y 162; M17 INS O8 — y 108; Total RF O1 458, O2 614, O4 424, O5 469, O8 462 y total 4.204; RNF O1 72 y total 292 (§22).*
 
-T05-DAT y T12-SRV no tienen tabla de RF propia: T05 es el modelo de datos que todos los prompts consultan para colecciones e índices, y T12 aporta fichas, escenarios ESC-SRV y precargas que citan los prompts de integración. Los 172 prompts no incluyen los tres PRO-GEN de §3.
+T05-DAT y T12-SRV no tienen tabla de RF propia: T05 es el modelo de datos que todos los prompts consultan para colecciones e índices, y T12 aporta fichas, escenarios ESC-SRV y precargas que citan los prompts de integración. Los **174** bloques `PRO-O*` incluyen dos reemplazados no ejecutables (PRO-O11-07/08); **172 ejecutables**. Los PRO-GEN están en `03-norma` (4) y §3.
 
 ---
 
@@ -3980,7 +4173,7 @@ Un RNF reasignado: RNF-NFR-100 no tenía ola y va a O2 (§18). Recuento del 05-1
 
 ### 17.3 Cómo se recalcula
 
-En PRO-O0-02 se crea `npm run trace:check`, que recorre las tablas de RF y RNF de los anexos, este plan y las pruebas, y falla si: (1) un RF o RNF no aparece en ningún prompt; (2) aparece en dos prompts como "Implementar"; (3) un prompt cita un ID inexistente; (4) un RF de una ola cerrada no tiene prueba que lo cite. Si un anexo agrega RF después de este plan, el script los informa como faltantes y se asignan con PRO-GEN-03 en la ola correspondiente. Mientras no exista `trace:check`, el mismo control se hace con `docs/especificacion/_trabajo/plan_recuento.py` (solo lectura): recuento por ola, por prompt y por anexo, faltantes, duplicados, IDs inexistentes, RF sin ola válida y RF cuyo prompt no está en la primera ola de la celda del anexo.
+En **PRO-O0-02** se crea el control de trazabilidad en CI (objetivo: mismo comportamiento que el histórico `trace:check` Connectia), que recorre tablas de RF/RNF, este plan y pruebas .NET/Playwright, y falla ante: (1) RF/RNF sin prompt; (2) doble `IMPLEMENTAR`; (3) ID inexistente; (4) RF de ola cerrada sin prueba citada. Mientras no exista el script en el repo GoodApps, el control documental se hace con `docs/especificacion/_trabajo/plan_recuento.py` (solo lectura): recuento por ola, prompt y anexo; faltantes, duplicados, IDs inexistentes y celdas de ola inconsistentes.
 
 ---
 

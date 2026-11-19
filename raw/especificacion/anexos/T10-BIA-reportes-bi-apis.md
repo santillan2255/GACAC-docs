@@ -191,6 +191,9 @@ Cada reporte declara además **sus** capabilities del módulo dueño (p. ej. `co
 
 ## 5. Requisitos funcionales
 
+> **Barrido transversal (19-11-2026, DEC-111).** Los RF/RN de **§5–§6** definen comportamiento aceptado. Citas a MongoDB, Mongoose, BullMQ, Vue o npm son **mecanismos históricos Connectia** o columnas de contraste; en build GoodApps prevalecen `03-norma-ejecucion-goodapps.md` §3–§4, `07-ddl` y §7 de este anexo. No reinterpretar alcance sin nueva DEC.
+
+
 | ID | Requisito | Origen | Prioridad | Ola | Estado | Criterio de aceptación |
 |---|---|---|---|---|---|---|
 | RF-BIA-001 | Catálogo único de reportes (`reportDefinitions`) con código REP, nombre por clave de diccionario, módulo dueño, propósito, granularidad, parámetros, columnas, capabilities, sensibilidad, salidas y versión. | DFA M28; CAT `INFO_SYS`; BASE §30 | Núcleo | O1 | Adoptado | El catálogo lista sólo reportes ejecutables por el usuario; cada uno muestra su ficha. |

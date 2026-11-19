@@ -69,6 +69,9 @@ Convertir **cada** parámetro `Busca_V2_*` de ProCoop de los módulos SISTEMA, C
 
 ## 5. Módulo SISTEMA (8 parámetros)
 
+> **Barrido transversal (19-11-2026, DEC-111).** Los RF/RN de **§5–§6** definen comportamiento aceptado. Citas a MongoDB, Mongoose, BullMQ, Vue o npm son **mecanismos históricos Connectia** o columnas de contraste; en build GoodApps prevalecen `03-norma-ejecucion-goodapps.md` §3–§4, `07-ddl` y §7 de este anexo. No reinterpretar alcance sin nueva DEC.
+
+
 | V2 # | Tabla/canal | Tipo | Descripción ProCoop | Uso en código (resumido) | Decisión | PRM-ID | Clave nueva | Tipo nuevo | Ámbito | Default sugerido | Anexo destino |
 |---:|---|---|---|---|---|---|---|---|---|---|---|
 | -1 | VAR | Mixto (Lógico + Texto destinatario) | Enviar errores por mail | Excepcion.GrabarExcepcion / EnviarMailError | Plataforma: observabilidad centralizada (errores con `requestId`, alertas a guardia de plataforma) | PRM-PLA-P1-001 | pla.observabilidad.alertasErrores | object {habilitado: boolean, destinatarios: email[]} | plataforma | habilitado=true; destinatarios=guardia plataforma | T01 / T08 |

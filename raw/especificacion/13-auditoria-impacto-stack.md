@@ -123,7 +123,7 @@ _Ninguno._
 - L2226: `ENTREGABLES: journalEntries balanceados en Decimal128; postingRules versionadas por evento y tipo; consumidores idempote`
 
 ### `docs/especificacion/06-impacto-adaptacion-stack-goodapps.md`
-- L472: `**No es incoherencia:** `ObjectId`, tablas comparativas T01 «antes Node» u homólogos dentro de anexos **con banner**, si`
+- L473: `**No es incoherencia:** `ObjectId`, tablas comparativas T01 «antes Node» u homólogos dentro de anexos **con banner**, si`
 
 ### `docs/especificacion/07-catalogo-tablas-sql.md`
 - L471: `| Propósito (resumen) | Ejecuciones de jobs BullMQ; TTL |`

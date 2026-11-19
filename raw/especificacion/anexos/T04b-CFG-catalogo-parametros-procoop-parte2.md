@@ -58,6 +58,9 @@ Los anexos destino (M02, M03, M04, M05, M06, M07, M08, M09, M10, M11, M17, M18, 
 
 ## 5. Catálogo por subtema
 
+> **Barrido transversal (19-11-2026, DEC-111).** Los RF/RN de **§5–§6** definen comportamiento aceptado. Citas a MongoDB, Mongoose, BullMQ, Vue o npm son **mecanismos históricos Connectia** o columnas de contraste; en build GoodApps prevalecen `03-norma-ejecucion-goodapps.md` §3–§4, `07-ddl` y §7 de este anexo. No reinterpretar alcance sin nueva DEC.
+
+
 ### 5.1 Cálculo de la factura de servicios (motor tarifario, gas, cos φ, telefonía, redondeo)
 
 | V2 # | Tabla/canal | Tipo | Descripción ProCoop | Uso en código (resumido) | Decisión | PRM-ID | Clave nueva | Tipo nuevo | Ámbito | Default sugerido | Anexo destino |

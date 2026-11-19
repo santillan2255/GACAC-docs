@@ -142,6 +142,9 @@ Controles transversales: toda acción de escritura queda en auditoría (T02); la
 
 ## 5. Requisitos funcionales
 
+> **Barrido transversal (19-11-2026, DEC-111).** Los RF/RN de **§5–§6** definen comportamiento aceptado. Citas a MongoDB, Mongoose, BullMQ, Vue o npm son **mecanismos históricos Connectia** o columnas de contraste; en build GoodApps prevalecen `03-norma-ejecucion-goodapps.md` §3–§4, `07-ddl` y §7 de este anexo. No reinterpretar alcance sin nueva DEC.
+
+
 Convención de columnas: Prioridad (Núcleo / Estándar / Extensión) · Ola · Estado (Informado / Adoptado / A validar (PA) / Reemplazado / Descartado).
 
 ### 5.1 Versiones de cuadros tarifarios, aprobación y trazabilidad normativa

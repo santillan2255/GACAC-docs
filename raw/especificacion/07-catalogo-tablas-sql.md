@@ -20,7 +20,7 @@
 | Filas COL-* en T05 | 1109 |
 | Tablas a crear (no `A→`) | 1058 |
 | Absorbidas (`A→`, no tabla propia) | 51 |
-| Con capa B (columnas en `07` §2) | 61 |
+| Con capa B (enlace `07` §2.x o canónica absorbida) | 1.109 filas (1.058 activas + 51 absorbidas) |
 | Con capa C (script `.sql`) | (ver columna por tabla) |
 
 ## Convención de nombres

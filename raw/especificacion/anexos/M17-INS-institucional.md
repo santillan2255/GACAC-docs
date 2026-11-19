@@ -142,6 +142,9 @@ Reglas de separación de tareas (AGR-008): quien registra un rescate no puede ap
 
 ## 5. Requisitos funcionales
 
+> **Barrido transversal (19-11-2026, DEC-111).** Los RF/RN de **§5–§6** definen comportamiento aceptado. Citas a MongoDB, Mongoose, BullMQ, Vue o npm son **mecanismos históricos Connectia** o columnas de contraste; en build GoodApps prevalecen `03-norma-ejecucion-goodapps.md` §3–§4, `07-ddl` y §7 de este anexo. No reinterpretar alcance sin nueva DEC.
+
+
 ### 5.1 Registro de asociados
 
 | ID | Requisito | Origen | Prioridad | Ola | Estado | Criterio de aceptación |

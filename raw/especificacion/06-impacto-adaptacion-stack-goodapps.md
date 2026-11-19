@@ -4,7 +4,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | 2.32 |
+| Versión | 2.33 |
 | Fecha | 19-11-2026 |
 | Fuentes | PDF GoodApps (6 páginas); informe naming CoopApps; especificación `00`–`05` y anexos |
 | Respaldo | `OLD/2026-11-19-pre-naming-coopapps/` (especificación + presentación) |
@@ -251,7 +251,7 @@ Estado: `Pendiente` | `En curso` | `Hecho` | `No aplica`.
 | `00-ESPECIFICACION-MAESTRA.md` | D-02, D-03, D-04, DIR-04 | §5 Azure/React/.NET; §16 GoodApps; enlace `06` | Hecho (19-11) |
 | `01-registro-decisiones.md` | D-01, D-02… | DEC-110–119 redacción afirmativa | Hecho (19-11) |
 | `02-preguntas-abiertas.md` | D-02, D-08 | Bloque PA-STACK-* | Parcial |
-| `03-plan-de-olas-y-prompts.md` | DEC-118 | Banner histórico + mapa olas | Hecho (19-11) |
+| `03-plan-de-olas-y-prompts.md` + `03-norma-ejecucion-goodapps.md` | DEC-118 | Mapa 174 PRO + norma build .NET/SQL/React | **Hecho** (19-11) |
 | `07-modelo-relacional-azure-sql.md` + `07-catalogo-tablas-sql.md` + `07-ddl/` | DEC-117 | Capa **A** 1.058; **B** §2.0–§2.28 (29 esquemas); **C** `deploy-coopapps-full.sql` | **Hecho** (19-11-2026) |
 | `T05-DAT` | D-02, D-11 | §6.1 + §7.0 → `07-*`; catálogo 1.058 | **Parcial hecho** (§7.1 cuerpo histórico) |
 | `T04` / `T04b` | D-05, DEC-114 | §7.0 + capa B `07` §2.3; T04b catálogo sin mover | **Parcial hecho** (cuerpo §7 incremental) |
@@ -379,6 +379,10 @@ _Completar después del cuestionario interactivo (fecha, responsable, opción el
 | 2.30 | 19-11-2026 | **Segunda pasada:** §12.4 OLD vs vigente; C-04 checklist **Hecho**; catálogo sin `Capa B: pendiente`; `07-ddl/README` totales 31+1.027. |
 | 2.31 | 19-11-2026 | **C-10 cerrado** (`00-C10-CIERRE-STACK.md`); **C-05** barrido §7 en anexos vía `barrido_c05_anexo_sec7.py`. |
 | 2.32 | 19-11-2026 | **C-05 fino** tipos SQL en §7 (`barrido_c05_fino_sec7.py`); T12 §7 puente; sync portal. |
+| 2.33 | 19-11-2026 | **`03-norma-ejecucion-goodapps.md`**: 174 PRO + PRO-GEN GoodApps; alineación plan `03` con impacto stack. |
+| 2.34 | 19-11-2026 | **Barrido plan:** `barrido_plan_connectia_goodapps.py` (PRO-O, R11–R16, §2.5); cosmética `04` §15 + maestro §15 O0; portal menú `03-norma`/`13-coherencia`; `13` §8 actualizado. |
+| 2.35 | 19-11-2026 | **Anexos §5:** banner transversal (`barrido_anexos_sec56_banner.py`); fix artefactos plan (UI paths, T03 §). |
+| 2.36 | 19-11-2026 | **T08:** barrido columna verificación RF/RNF (`barrido_t08_verificacion_goodapps.py`); §1 calidad CI Azure SQL. |
 ---
 
 ## 12. Checklist de alineación documental
@@ -391,7 +395,7 @@ _Completar después del cuestionario interactivo (fecha, responsable, opción el
 | **¿Qué es el checklist §12?** | Criterios **Hecho / Pendiente** para saber si cada capa documental ya dice solo la norma vigente en export (DIR-13). No es un plan de slides ni de implementación en código. |
 | **¿Qué es la matriz §7?** | Estado **por artefacto** (T05, T04, entregables…) con acciones concretas; puede ir «En curso» aunque varios ítems del §12 estén hechos. |
 | **¿Qué NO cuenta como impacto?** | Generar PNG/HTML en Claude (IMG-F, IMG-N, IMG-MD): apoya **C-07 presentación**, no cierra el checklist de spec. |
-| **¿Dónde miro el progreso hoy?** | Tablero §12.1 + [§12.4 coherencia](#124-coherencia-old-vs-norma-vigente-19-11-2026) + `13-auditoria-impacto-stack.md` (C-10: entregables). |
+| **¿Dónde miro el progreso hoy?** | Tablero §12.1 + [§12.4 coherencia](#124-coherencia-old-vs-norma-vigente-19-11-2026) + `13-auditoria-impacto-stack.md` (C-10: entregables). **¿Listo para construir?** → `13-coherencia-especificacion.md` §8. |
 
 ### 12.1 Tablero (próximo trabajo checklist)
 
@@ -449,9 +453,9 @@ Marcar **Hecho** en la tabla §12 cuando el criterio de cada fila se cumpla en e
 |---|---|---|---|
 | C-01 | `00` §3.0, §5, §14, §16 | Tabla de reemplazo DEC-001→111; stack Azure en §5 | Hecho (§3 fila histórica conservada) |
 | C-02 | `01` DEC-110–118 | DEC-001/004 marcadas reemplazadas | Hecho |
-| C-03 | `03` encabezado | Mapa de olas; no como guía de build | Hecho |
+| C-03 | `03` encabezado + PRO-O | Mapa de olas; barrido GoodApps en cuerpos (19-11-2026) | **Hecho** |
 | C-04 | `07-*` A/B/C + catálogo | A=1.058; **B=§2.0–§2.28** enlazadas; **C=`07-ddl` 1.058** (`deploy-coopapps-full.sql`) | **Hecho** |
-| C-05 | Todos los anexos M/T | Banner; nota §7 + **barrido fino** tipos SQL (`barrido_c05_fino_sec7.py`) | **Hecho** |
+| C-05 | Todos los anexos M/T | Banner §7 + fino SQL; **banner §5** transversal (19-11-2026) | **Hecho** |
 | C-06 | T03 | React (banner DEC-113); referencias CNX `.vue` = benchmark; T03b ayuda | Hecho (RF sin prescripción Vue) |
 | C-07 | `presentacion-stakeholders` stack/datos | Azure, SQL, React en IMG-T05/MD02; tablas 1.058 (no Mongo en export) | Hecho (barrido menor en `documento-base` hecho 19-11 v1.2) |
 | C-08 | Anexos Mxx (físico) | Colección → tabla en `07-ddl` (**1.058 tablas** en catálogo; 0 fallback) | **Hecho** |
@@ -491,5 +495,7 @@ python docs/especificacion/_trabajo/barrido_c05_fino_sec7.py
 |---|---|
 | **`13-auditoria-impacto-stack.md`** | Anexos, maestro, guía, `07`, presentación (sin `OLD`) |
 | **`13-auditoria-impacto-entregables.md`** | `docs/entregables-analisis-diseno/` (**C-10**) |
+| **`13-coherencia-especificacion.md`** | Revisión transversal (este informe manual) |
+| **`14-diferencias-vs-OLD-2026-11-19.md`** | Vigente vs backup `OLD/2026-11-19-pre-naming-coopapps/` |
 
 Residuos Mongo/Node en **cuerpo** = barrido incremental; norma vigente = banner + maestro `00` §5 + `06` §12.

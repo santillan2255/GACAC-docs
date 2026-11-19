@@ -6,7 +6,7 @@
 | Fecha | 04-11-2026 |
 | Estado | Especificación consolidada al 10-11-2026; adaptación de stack y export GoodApps al 19-11-2026 (DEC-110–119; ver `06-impacto-adaptacion-stack-goodapps.md`). 31 anexos completos (M01–M19 y T01–T12), matriz (`04`), huecos (`05`), ER físico en elaboración (`07`) |
 | Alcance | Sistema SaaS multitenant integral para cooperativas de servicios (ERP + CRM + autogestión + plataforma + cobranza + pasarelas + impuestos + APIs) que reemplaza a ProCoop |
-| Uso | Fuente **única y suficiente** del alcance funcional y de las decisiones. La implementación con GoodApps usa el stack de §5 y el checklist de `06-impacto-adaptacion-stack-goodapps.md`. El mapa por olas O0–O11 está en `03-plan-de-olas-y-prompts.md` como referencia de contenido (DEC-118) |
+| Uso | Fuente **única y suficiente** del alcance funcional y de las decisiones. La implementación con GoodApps usa el stack de §5 y el checklist de `06-impacto-adaptacion-stack-goodapps.md`. Olas y **174 prompts** en `03-plan-de-olas-y-prompts.md`; norma técnica de build en `03-norma-ejecucion-goodapps.md` (DEC-118) |
 
 > **Regla de uso.** Este documento es el índice rector. Define el concepto, las decisiones, la arquitectura, la tecnología, los roles, las aplicaciones, el mapa del sitio, los layouts, las convenciones y las olas de **contenido**. El detalle de cada módulo está en `anexos/`. Ante cualquier conflicto entre un anexo y este documento, **prevalece este documento** (sección 3); ante conflicto entre anexos, prevalece el anexo **dueño del dato** (sección 12 y `T05`). Para stack, nube, UI y entrega a GoodApps, prevalecen **DEC-110–119** y `06`.
 
@@ -149,7 +149,7 @@ Decisiones tomadas por el solicitante el 04-11-2026. Prevalecen sobre cualquier 
 
 ### 3.0 Stack de implementación vigente (GoodApps, 19-11-2026)
 
-Las filas **DEC-001** a **DEC-004** registran el acuerdo del **04-11-2026** (patrón Connectia). Para **construcción y export** prevalecen **DEC-110** a **DEC-113**, **DEC-117** y **DEC-118**, detalladas en §5, `06-impacto-adaptacion-stack-goodapps.md` y `01` (DEC-111 reemplaza el stack de DEC-001; DEC-110 concreta multitenancy en Azure SQL; DEC-112 reemplaza el despliegue de DEC-004; DEC-118 archiva `03` como guía de build). El funcional (DEC-003 monolito modular, DEC-007 alcance, etc.) **no cambia**.
+Las filas **DEC-001** a **DEC-004** registran el acuerdo del **04-11-2026** (patrón Connectia). Para **construcción y export** prevalecen **DEC-110** a **DEC-113**, **DEC-117** y **DEC-118**, detalladas en §5, `06-impacto-adaptacion-stack-goodapps.md` y `01` (DEC-111 reemplaza el stack de DEC-001; DEC-110 concreta multitenancy en Azure SQL; DEC-112 reemplaza el despliegue de DEC-004; DEC-118: olas en `03`; stack de build en `03-norma-ejecucion-goodapps.md`). El funcional (DEC-003 monolito modular, DEC-007 alcance, etc.) **no cambia**.
 
 | DEC histórica | Tema | Reemplazo / vigente en implementación |
 |---|---|---|
@@ -686,11 +686,11 @@ Son obligatorias para todo código generado. Detalle en `_GUIA-REDACCION-ANEXOS.
 
 ---
 
-## 15. Plan de olas (resumen de **contenido**; detalle en `03-plan-de-olas-y-prompts.md`, referencia histórica DEC-118)
+## 15. Plan de olas (resumen de **contenido**; detalle en `03-plan-de-olas-y-prompts.md`; build: `03-norma-ejecucion-goodapps.md`, DEC-118)
 
 | Ola | Contenido | Hito de salida |
 |---|---|---|
-| O0 | Fundaciones: monorepo, Docker, CI, librerías compartidas, shells, design system, auth básica, tenancy, auditoría, outbox/BullMQ, almacenamiento, diccionario/branding base, notificaciones base, entidades jurídicas del tenant y sucursales (`legalEntities` y `branches`, REQ-DEC-064 cubierto por RF-CFG-134..138 y 140; `legalEntityId` obligatorio por RF-CFG-136; `workstations` en O1 y perfil fiscal `fiscalProfiles` de M06 en O4) | Un tenant de demo con login, menú vacío y pruebas de aislamiento verdes |
+| O0 | Fundaciones: solución .NET+React, Docker/CI, librerías compartidas, shells, design system, auth básica, tenancy, auditoría, outbox/colas Azure, almacenamiento Blob, diccionario/branding base, notificaciones base, entidades jurídicas del tenant y sucursales (`legalEntities` y `branches`, REQ-DEC-064 cubierto por RF-CFG-134..138 y 140; `legalEntityId` obligatorio por RF-CFG-136; `workstations` en O1 y perfil fiscal `fiscalProfiles` de M06 en O4) | Un tenant de demo con login, menú vacío y pruebas de aislamiento verdes |
 | O1 | Plataforma e IAM completos, configuración versionada, parámetros, maestros, geografía, workflow de autorizaciones, expediente documental | Alta asistida de una cooperativa con usuarios, roles y configuración publicada |
 | O2 | Personas/cuentas, catálogo de servicios, landing, registro y portal base, CRM de solicitudes, comunidad | Un socio se registra y solicita Internet desde la landing |
 | O3 | Técnica para Internet: factibilidad, agenda, OT, instalación, comodato, stock serializado, app de campo offline, aprovisionamiento; legajo mínimo de personal (DEC-058) | El servicio queda instalado y activo |
@@ -703,7 +703,7 @@ Son obligatorias para todo código generado. Detalle en `_GUIA-REDACCION-ANEXOS.
 | O10 | Institucional, servicios sociales, flota, telefonía, TV, fabricación, turnero, actividades | Asamblea y servicios sociales operativos |
 | O11 | BI, generador de reportes, APIs de terceros, pasarelas restantes, migración repetible e históricos (DEC-089; antes también "paralelo y by-pass", que pasan a O7) | Corte administrativo y apagado de ProCoop en una cooperativa (DEC-068, DEC-089; antes "Corte de ProCoop por etapas en una cooperativa: primero comercial y luego administrativo") |
 
-El plan detallado (versión 1.2 del 10-11-2026; antes 1.1) tiene 172 prompts (más 3 generales) que cubren los 4.213 RF (antes 4.204, versión 1.2: se suman 9 RF de DEC-093 a DEC-108; antes 4.203; se suma RF-POR-180 de M19, Comunidad en la tabbar del socio, en O2, cierre de la corrección de inconsistencias, 05-11-2026) y los 293 RNF de los anexos (antes 292; se suma RNF-NFR-260, DEC-100), cada uno asignado a exactamente un prompt (recontado por script leyendo los anexos; §18 y §19 del plan documentan las reasignaciones y las 16 contradicciones de ola, y §21 y §22 los cambios de las versiones 1.1 y 1.2). Reparto de RF por ola: O0 305, O1 459 (antes 458), O2 617 (antes 614 y 613), O3 319, O4 425 (antes 424), O5 470 (antes 469), O6 244, O7 298 (DEC-089; antes 274), O8 465 (antes 462), O9 163, O10 383, O11 65 (DEC-089; antes 89). Reparto de prompts por ola: O0 21, O1 20, O2 19, O3 13, O4 16, O5 14, O6 11, O7 12 (DEC-089: se suman PRO-O7-11 y PRO-O7-12; antes 10), O8 15, O9 9, O10 14, O11 8 (DEC-089: PRO-O11-07 y PRO-O11-08 quedan reemplazados; antes 10). RNF por ola: O0 144, O1 73 (antes 72), O2 15, O3 9, O4 23, O5 13, O6 2, O7 1 (DEC-089: RNF-NFR-154; antes 0), O8 1, O9 0, O10 6, O11 6 (antes 7). Los 83 RF agregados al resolver los huecos de cobertura (`05-registro-huecos.md`) se asignaron a la ola indicada en el propio RF, sin prompts nuevos; DEC-082 a DEC-087 están reflejadas en los prompts que corresponden, y DEC-093 a DEC-107 en los prompts que cambian (plan §22; DEC-108 no afecta al plan). *Reemplazado (versión 1.0 del plan): 4.120 RF, con O0 299, O1 457, O2 607, O3 315, O4 419, O5 463, O6 241, O7 256, O8 454, O9 161, O10 360, O11 88.* *Reemplazado (corrección 05-11-2026 del plan, §21.5): O5 468 y O11 90; RF-CON-160 empieza en O5 (saldos de apertura) y su migración completa queda como extensión en O11. El total (4.203 RF y 292 RNF) y los prompts por ola no cambian.*
+El plan detallado (versión 1.2 del 10-11-2026; recuento 19-11-2026) tiene **174** prompts `PRO-O*` (más **4** `PRO-GEN` en `03-norma`, incluido **PRO-GEN-04** control pre-PR) que cubren los **4.213** RF (antes 4.204, versión 1.2: se suman 9 RF de DEC-093 a DEC-108; antes 4.203; se suma RF-POR-180 de M19, Comunidad en la tabbar del socio, en O2, cierre de la corrección de inconsistencias, 05-11-2026) y los 293 RNF de los anexos (antes 292; se suma RNF-NFR-260, DEC-100), cada uno asignado a exactamente un prompt (recontado por script leyendo los anexos; §18 y §19 del plan documentan las reasignaciones y las 16 contradicciones de ola, y §21 y §22 los cambios de las versiones 1.1 y 1.2). Reparto de RF por ola: O0 305, O1 459 (antes 458), O2 617 (antes 614 y 613), O3 319, O4 425 (antes 424), O5 470 (antes 469), O6 244, O7 298 (DEC-089; antes 274), O8 465 (antes 462), O9 163, O10 383, O11 65 (DEC-089; antes 89). Reparto de prompts por ola: O0 21, O1 20, O2 19, O3 13, O4 16, O5 14, O6 11, O7 12 (DEC-089: se suman PRO-O7-11 y PRO-O7-12; antes 10), O8 15, O9 9, O10 14, O11 8 (DEC-089: PRO-O11-07 y PRO-O11-08 quedan reemplazados; antes 10). RNF por ola: O0 144, O1 73 (antes 72), O2 15, O3 9, O4 23, O5 13, O6 2, O7 1 (DEC-089: RNF-NFR-154; antes 0), O8 1, O9 0, O10 6, O11 6 (antes 7). Los 83 RF agregados al resolver los huecos de cobertura (`05-registro-huecos.md`) se asignaron a la ola indicada en el propio RF, sin prompts nuevos; DEC-082 a DEC-087 están reflejadas en los prompts que corresponden, y DEC-093 a DEC-107 en los prompts que cambian (plan §22; DEC-108 no afecta al plan). *Reemplazado (versión 1.0 del plan): 4.120 RF, con O0 299, O1 457, O2 607, O3 315, O4 419, O5 463, O6 241, O7 256, O8 454, O9 161, O10 360, O11 88.* *Reemplazado (corrección 05-11-2026 del plan, §21.5): O5 468 y O11 90; RF-CON-160 empieza en O5 (saldos de apertura) y su migración completa queda como extensión en O11. El total (4.203 RF y 292 RNF) y los prompts por ola no cambian.*
 
 ---
 
@@ -716,6 +716,7 @@ El plan detallado (versión 1.2 del 10-11-2026; antes 1.1) tiene 172 prompts (m�
 5. **Definición de terminado** (diseño): criterios de aceptación del anexo; trazabilidad RF/RN; inventario ScreenHelp/FAQ donde aplique; decisión cerrada en `01` si hubo cambio de comportamiento.
 6. **Preguntas abiertas**: registrar en `02-preguntas-abiertas.md`; hasta cerrar, rige la opción recomendada.
 7. **Checklist de alineación documental**: `06-impacto-adaptacion-stack-goodapps.md` §12.
+8. **Listo para construcción (export / arranque O0)**: semáforo y límites en `13-coherencia-especificacion.md` §8 (19-11-2026).
 
 ---
 
@@ -802,7 +803,7 @@ El glosario de cada módulo está en la sección 3 de su anexo.
 | `00-ESPECIFICACION-MAESTRA.md` | Este documento |
 | `01-registro-decisiones.md` | DEC-001..010 y siguientes, con fecha y fundamento |
 | `02-preguntas-abiertas.md` | Preguntas consolidadas con opciones y recomendación |
-| `03-plan-de-olas-y-prompts.md` | Olas O0–O11, dependencias, entregables, prompts para Cursor |
+| `03-plan-de-olas-y-prompts.md` + `03-norma-ejecucion-goodapps.md` | Olas O0–O11, 174 PRO-O + 4 PRO-GEN; mapa RF vs stack GoodApps |
 | `04-matriz-trazabilidad.md` | Fuente → anexo/ID |
 | `05-registro-huecos.md` | Huecos de cobertura y contradicciones entre anexos detectados por las fichas verticales (T12), con propuesta y estado |
 | `_GUIA-REDACCION-ANEXOS.md` | Convenciones y plantilla |

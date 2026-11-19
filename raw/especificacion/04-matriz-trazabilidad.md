@@ -7,7 +7,7 @@
 | Estado | Regenerada por script según la sección 14 sobre los anexos, el plan de olas v1.1 y los registros vigentes al 05-11-2026. Siguen abiertas las brechas de fuente de la sección 4 y las citas de decisiones de 5.3. El 10-11-2026 se actualizaron las secciones 1, 5.1, 5.3, 15, 18 y 22 sobre los anexos y el plan v1.2; las matrices de fuentes (secciones 3 a 13) no se regeneraron porque ninguna unidad de fuente cambia de estado. *Reemplazado (v1.0): "Generada por script sobre los anexos vigentes a la fecha; pendiente de cerrar las brechas de la sección 4".* |
 | Propósito | Demostrar que ninguna sección, módulo, función, regla ni tabla de las fuentes se perdió al consolidar la especificación (requisito del solicitante: "sin perder info ni un módulo ni una función") y que cada requisito (RF y RNF) tiene exactamente un prompt de construcción en el plan de olas |
 | Referencias | `00-ESPECIFICACION-MAESTRA.md` §2 (fuentes y prevalencia), §17 (contraposiciones globales), §19 (trazabilidad global); `_GUIA-REDACCION-ANEXOS.md` §1 (regla de oro) y §4 (sección 22 de cada anexo); `01-registro-decisiones.md`; `02-preguntas-abiertas.md`; `03-plan-de-olas-y-prompts.md` v1.2 (§0, §17, §18, §21, §22); `05-registro-huecos.md` |
-| Fuentes trazadas | BASE, COMPLEMENTO (AGR), CNX, DFA, FIC, RN-00 a RN-13 y CAT (659 tablas). Además: plan de olas v1.2 (172 prompts, 4.213 RF y 293 RNF; antes v1.1 con 4.204 RF y 292 RNF, y antes 4.203 RF), registro de huecos (77 huecos únicos), DEC-001 a DEC-088 (DEC-088 incorporada el 05-11-2026) y DEC-093 a DEC-108 (incorporadas el 10-11-2026, sección 22), PA nuevas de los huecos y PA-FIS-23 a PA-FIS-26, y eventos nuevos o reemplazados de T11. Fuente revisada que no es fuente de requisitos: el documento externo `NucleoTransversal-Modelo` (sus aportes entraron por DEC-093 a DEC-104; sección 22.1) |
+| Fuentes trazadas | BASE, COMPLEMENTO (AGR), CNX, DFA, FIC, RN-00 a RN-13 y CAT (659 tablas). Además: plan de olas v1.2 (**174** prompts `PRO-O*`, 4.213 RF y 293 RNF; antes v1.1 con 4.204 RF y 292 RNF, y antes 4.203 RF), registro de huecos (77 huecos únicos), DEC-001 a DEC-088 (DEC-088 incorporada el 05-11-2026) y DEC-093 a DEC-108 (incorporadas el 10-11-2026, sección 22), PA nuevas de los huecos y PA-FIS-23 a PA-FIS-26, y eventos nuevos o reemplazados de T11. Fuente revisada que no es fuente de requisitos: el documento externo `NucleoTransversal-Modelo` (sus aportes entraron por DEC-093 a DEC-104; sección 22.1) |
 | Anexos leídos | M01–M19, T01–T04, T04b partes 1–4, T05, T06–T11, T12 partes 1–2, en su estado del 10-11-2026 para las secciones 5.1, 15, 18 y 22 (antes 05-11-2026). *Reemplazado (v1.0): T05 figuraba "en redacción a la fecha".* |
 
 ## Índice
@@ -52,7 +52,7 @@ Unidades trazadas:
 | FIC | `procoop-relevamiento/integraciones-fichas.md` | Cada ficha y subficha (§0–§23) |
 | RN-00..13 | `procoop-relevamiento/reglas-negocio/*.md` | Cada encabezado de cada archivo |
 | CAT | `procoop-relevamiento/binarios/Procoop-catalogo-tablas.md` | Cada una de las 659 tablas |
-| PLAN | `docs/especificacion/03-plan-de-olas-y-prompts.md` v1.2 (antes v1.1) | Cada RF y RNF definido en los anexos, frente a la línea IMPLEMENTAR de los 172 prompts (sección 15) |
+| PLAN | `docs/especificacion/03-plan-de-olas-y-prompts.md` v1.2 (antes v1.1) | Cada RF y RNF definido en los anexos, frente a la línea IMPLEMENTAR de los **174** prompts `PRO-O*` (sección 15) |
 | HUE | `docs/especificacion/05-registro-huecos.md` | Cada hueco único (77), con la ubicación de su corrección y el prompt que la construye (sección 16) |
 | DEC, PA, EVT | `01-registro-decisiones.md`, `02-preguntas-abiertas.md`, T11 | DEC-001 a DEC-087 (secciones 5 y 17) y DEC-093 a DEC-108 (secciones 5 y 22), PA nuevas de los huecos y PA-FIS-23 a PA-FIS-26 (sección 18) y eventos nuevos o reemplazados de T11 (sección 19) |
 | REV (fuente revisada) | `docs/revision-externa/NucleoTransversal-contraste.md` y `NucleoTransversal-rechazados.md` (documento externo `NucleoTransversal-Modelo`) | No es fuente de requisitos y no se trazan sus unidades: se contrastó con la especificación y sus aportes entraron por DEC-093 a DEC-104; la revisión de los rechazos dio DEC-105 a DEC-108 (sección 22.1). GestionApps no es fuente (DEC-108) |
@@ -2886,7 +2886,7 @@ Fuente: `procoop-relevamiento/binarios/Procoop-catalogo-tablas.md` (659 tablas e
 
 ## 15. Trazabilidad RF y RNF → prompt (plan de olas v1.2)
 
-Fuente: `03-plan-de-olas-y-prompts.md` versión 1.2 (antes 1.1; 172 prompts de O0 a O11 más 3 PRO-GEN). Se recorrieron por script las tablas de requisitos de los 29 anexos con RF (columna `ID` con `Ola`) y la línea `IMPLEMENTAR:` de cada prompt. Reglas de lectura de la línea, iguales a las del plan (§0.1 y §17.1):
+Fuente: `03-plan-de-olas-y-prompts.md` versión 1.2 (recuento **19-11-2026**: **174** bloques `PRO-O*`, **172** ejecutables sin PRO-O11-07/08; **4 PRO-GEN** en `03-norma`). Se recorrieron por script las tablas de requisitos de los 29 anexos con RF (columna `ID` con `Ola`) y la línea `IMPLEMENTAR:` de cada prompt. Reglas de lectura de la línea, iguales a las del plan (§0.1 y §17.1):
 
 - Un ID cuenta como **implementado** en el prompt cuando aparece en `IMPLEMENTAR:` fuera de un tramo "extensión de …" / "extensiones de …"; el texto entre paréntesis o corchetes es aclaración y no asigna (por ejemplo "(RF-COB-176 reemplazado en v1.1: pasó a O5)").
 - "parte Ox de RF-…" asigna el RF al prompt de la ola más temprana y cuenta como extensión en las siguientes (caso RF-TES-128).
@@ -2898,14 +2898,14 @@ Fuente: `03-plan-de-olas-y-prompts.md` versión 1.2 (antes 1.1; 172 prompts de O
 |---|---|
 | RF definidos en los anexos | 4.213 (antes 4.204 y 4.203; 29 anexos; T04b, T05 y T12 no tienen tabla de RF) |
 | RNF definidos en los anexos | 293 (antes 292; T01, T04, T08, T11, M09) |
-| Prompts con línea IMPLEMENTAR | 172 |
+| Prompts con línea IMPLEMENTAR | 174 (172 ejecutables) |
 | RF y RNF con exactamente un prompt | 4.506 de 4.506 (antes 4.496 y 4.495) |
 | Faltantes (sin prompt) | 0 |
 | Duplicados (en más de un prompt como implementación) | 0 |
 | IDs de la línea IMPLEMENTAR inexistentes en los anexos | 0 |
 | IDs citados como extensión inexistentes en los anexos | 0 |
 | IDs RF/RNF citados en cualquier parte del plan e inexistentes | 1: RF-XXX-999 (ejemplo de la prueba de `trace:check` en PRO-O0-02, inexistente a propósito) |
-| Conteo de RF por prompt frente a la tabla de cada ola del plan | coincide en los 172 prompts |
+| Conteo de RF por prompt frente a la tabla de cada ola del plan | coincide en los 174 bloques PRO-O |
 | Filas duplicadas de definición (mismo ID dos veces en tablas con Ola) | 0 |
 
 ### 15.2 Totales por ola
@@ -3473,12 +3473,12 @@ Esta matriz no tiene una sección de colecciones: las colecciones se trazan en T
 | Encabezado, 15.1 a 15.3 | 4.204 RF; 4.496 RF y RNF con un prompt; O2 614; M19 180 | 4.203; 4.495; O2 613; M19 179 |
 | 15.2 | O5 469 y O11 89 (alineado con el plan §21.5, que esta matriz no había tomado) | O5 468 y O11 90 |
 | 15.4 | RF-CON-160 en PRO-O5-11; RF-UXD-163 con celda `O6 (DEC-056)` en T03 | PRO-O11-06; `O9+ (cuando haya bot)` |
-| 15.7 | PRO-O2-17 65 RF (con RF-POR-180); PRO-O5-11 57 (con RF-CON-160); PRO-O11-06 18 (RF-CON-160 como extensión). Verificación: los 172 prompts coinciden con el plan | 64, 56 y 19 |
+| 15.7 | PRO-O2-17 65 RF (con RF-POR-180); PRO-O5-11 57 (con RF-CON-160); PRO-O11-06 18 (RF-CON-160 como extensión). Verificación: **174** bloques PRO-O alineados con el plan (19-11-2026) | 64, 56 y 19 |
 | 18 | 48 PA (10 de los huecos y 38 de la corrección) | 10 |
 
 ### 21.5 Ronda de residuales (05-11-2026)
 
-Recuento con `_trabajo/plan_recuento.py` (4.204 RF y 292 RNF, 0 faltantes y 0 duplicados) y verificación prompt → RF de 15.7 con `_trabajo/matriz_verif_157.py` (172 prompts, 0 diferencias). §18 con `_trabajo/cierre_final2_matriz.py`.
+Recuento con `_trabajo/plan_recuento.py` (**4.213 RF** y **293 RNF**, 0 faltantes en IMPLEMENTAR). Verificación prompt ↔ RF: misma lectura §15.0; herramientas históricas `matriz_verif_157.py` sustituidas por `plan_recuento.py` (19-11-2026).
 
 | CU vigente | Anexo | Antes | Dueño del ID anterior | Fundamento | Efecto en esta matriz |
 |---|---|---|---|---|---|
