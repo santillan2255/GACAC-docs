@@ -1,0 +1,40 @@
+{
+  "product": "CoopApps",
+  "version": "1.0",
+  "date": "2026-11-19",
+  "colors": {
+    "brand": "#6B5BF0",
+    "brandAccent": "#8B78FF",
+    "brand2": "#2E3A59",
+    "platformOperatorBand": "#E2B552",
+    "semantic": {
+      "ok": "#5BD39B",
+      "warn": "#E2B552",
+      "bad": "#F0837B",
+      "info": "#7CB4F5",
+      "neutral": "#9A95AB"
+    },
+    "adminCanvasDark": "#111019",
+    "pwaBackground": "#000000"
+  },
+  "typography": {
+    "adminDisplay": "Space Grotesk",
+    "adminBody": "IBM Plex Sans",
+    "adminMono": "IBM Plex Mono",
+    "pwa": "Sora"
+  },
+  "dictKeys": [
+    "product.name",
+    "product.tagline",
+    "product.attribution",
+    "product.logoAlt",
+    "vendor.name",
+    "plt.banda"
+  ],
+  "assets": {
+    "productLogo": "logo-producto-horizontal.svg",
+    "productLogoLight": "logo-producto-horizontal-claro.svg",
+    "productIsotype": "isotipo.svg",
+    "favicon": "favicon.svg"
+  }
+}
