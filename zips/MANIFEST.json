@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-11-19T19:45:37.090Z",
+  "zips": [
+    {
+      "name": "01-especificacion.zip",
+      "bytes": 4814023,
+      "package": "especificacion"
+    },
+    {
+      "name": "02-entregables-analisis-diseno.zip",
+      "bytes": 8493051,
+      "package": "entregables"
+    },
+    {
+      "name": "03-relevamiento-procoop.zip",
+      "bytes": 1012459,
+      "package": "relevamiento"
+    },
+    {
+      "name": "04-presentacion-stakeholders.zip",
+      "bytes": 657642,
+      "package": "stakeholders"
+    },
+    {
+      "name": "05a-alcance-funcional.zip",
+      "bytes": 143659,
+      "package": "alcance"
+    },
+    {
+      "name": "05b-base-funcional.zip",
+      "bytes": 169714,
+      "package": "base-funcional"
+    },
+    {
+      "name": "05c-revision-externa.zip",
+      "bytes": 11550,
+      "package": "revision-externa"
+    },
+    {
+      "name": "06-marca.zip",
+      "bytes": 2844,
+      "package": "brand"
+    },
+    {
+      "name": "07-referencia-connectia.zip",
+      "bytes": 22415,
+      "package": "connectia"
+    },
+    {
+      "name": "08-portal-especificacion.zip",
+      "bytes": 5658,
+      "package": "portal-spec"
+    },
+    {
+      "name": "99-archivo-completo.zip",
+      "package": "archivo"
+    },
+    {
+      "name": "GACAC-documentacion-vigente.zip",
+      "package": "vigente-all"
+    }
+  ]
+}
