@@ -526,8 +526,10 @@ Decisión: **Replicar** (igual que ProCoop), **Mejorar** (misma intención con m
 | RN-MED-126 | El aislamiento entre tenants es total: lecturas, fotos y GPS llevan `tenantId`; no existe base compartida entre cooperativas. | Base MySQL de la app compartida entre cooperativas separada por `COD_SUM` (RN-06 §13.3, Duda 13). | Reemplazar (DEC-002, CTR-MED-07). | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-**Campos comunes** a todas las colecciones de negocio (no se repiten): `tenantId` (ObjectId, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista), `deletedAt` (solo catálogos y configuración; lecturas, consumos, instalaciones y ajustes **nunca** se borran: se anulan o se reemplazan por versión). Cuando un documento representa un hecho, lleva `effectiveAt` (fecha efectiva del hecho) y `recordedAt` (fecha de registro en el sistema) (AGR-010). Las cantidades físicas (estados, consumos, demanda, factores) se guardan como `Decimal128` y se operan con `decimal.js` igual que el dinero, para evitar errores de coma flotante en acumulados y factores. Los importes (prepago) siguen la convención de dinero.
+
+**Campos comunes** a todas las colecciones de negocio (no se repiten): `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista), `deletedAt` (solo catálogos y configuración; lecturas, consumos, instalaciones y ajustes **nunca** se borran: se anulan o se reemplazan por versión). Cuando un documento representa un hecho, lleva `effectiveAt` (fecha efectiva del hecho) y `recordedAt` (fecha de registro en el sistema) (AGR-010). Las cantidades físicas (estados, consumos, demanda, factores) se guardan como `DECIMAL(18,4)` y se operan con `decimal.js` igual que el dinero, para evitar errores de coma flotante en acumulados y factores. Los importes (prepago) siguen la convención de dinero.
 
 ### 7.1 Catálogos
 
@@ -537,7 +539,7 @@ Decisión: **Replicar** (igual que ProCoop), **Mejorar** (misma intención con m
 |---|---|---|---|
 | `code` | String | Sí | Código interno. |
 | `name` | String | Sí | Nombre (`DES_MAR`). |
-| `serviceIds` | [ObjectId] | Sí | Servicios a los que aplica (`COD_SER`). Antes `utilityCodes` (nombre de T05). |
+| `serviceIds` | [uniqueidentifier] | Sí | Servicios a los que aplica (`COD_SER`). Antes `utilityCodes` (nombre de T05). |
 | `status` | enum `active`/`inactive` | Sí | — |
 
 Índices: `{tenantId, code}` único.
@@ -548,24 +550,24 @@ Decisión: **Replicar** (igual que ProCoop), **Mejorar** (misma intención con m
 |---|---|---|---|
 | `code` | String | Sí | Código (`COD_TIP`). |
 | `name` | String | Sí | Descripción (`DES_TIP`). |
-| `serviceId` | ObjectId | Sí | Servicio (`COD_SER`). Antes `utilityCode` (nombre de T05). |
-| `brandId` | ObjectId → `meterBrands` | No | Marca (`COD_MAR`). |
+| `serviceId` | uniqueidentifier | Sí | Servicio (`COD_SER`). Antes `utilityCode` (nombre de T05). |
+| `brandId` | uniqueidentifier → `meterBrands` | No | Marca (`COD_MAR`). |
 | `model` | String | No | Modelo (ej. "Galileo"). |
 | `phases` | enum `single`/`three`/`na` | No | Monofásico/trifásico (`MONOTRI`). |
 | `multiTariff` | Boolean | No | Multitarifa (`MULTITA`). |
 | `accuracyClass` | String | No | Clase de exactitud. |
 | `defaultDigits` | Int | Sí | Dígitos por defecto. |
-| `defaultMultiplier` | Decimal128 | Sí | Factor por defecto (> 0). |
+| `defaultMultiplier` | DECIMAL(18,4) | Sí | Factor por defecto (> 0). |
 | `registers` | [{`code`, `quantity` enum (ver `meteringChannels.channelType`), `unit`, `touBand`, `digits`, `multiplier`, `indicated`}] | Sí | Registros que el modelo expone. |
 | `isPrepaid` | Boolean | Sí | Prepago (`PREPAGO`). |
 | `prepaidRounding` | {`mode` enum `none`/`floor`/`round`/`ceil`, `decimals` Int} | No | `REDONDEO_PREPAGA`. |
 | `isTelemetered` | Boolean | Sí | — |
-| `meteringSystemId` | ObjectId → `meteringSystems` | Cond. | Obligatorio si telemedido o prepago remoto (`SIS_TEL`, `CONEX_SIST`). |
+| `meteringSystemId` | uniqueidentifier → `meteringSystems` | Cond. | Obligatorio si telemedido o prepago remoto (`SIS_TEL`, `CONEX_SIST`). |
 | `isBidirectional` | Boolean | Sí | Apto para generación distribuida. |
 | `allowsIndicated` | Boolean | Sí | Inverso de `NOINDICADO`. |
 | `availableForInstall` | Boolean | Sí | `DISPONIBLE`. |
 | `supplyType` | String | No | `TIPO_SUM`. |
-| `inventoryItemId` | ObjectId (M13) | No | Producto de stock asociado (`COD_PRO`). Antes `stockProductRef` (nombre de T05). |
+| `inventoryItemId` | uniqueidentifier (M13) | No | Producto de stock asociado (`COD_PRO`). Antes `stockProductRef` (nombre de T05). |
 | `status` | enum `active`/`inactive` | Sí | — |
 
 Índices: `{tenantId, code}` único; `{tenantId, serviceId, status}`.
@@ -626,27 +628,27 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 | `number` | String | Sí | Número de medidor (`NUM_MED`); se conserva texto original (con ceros). |
 | `factorySerial` | String | No | Matrícula/serie de fábrica (`MAT_MED`). |
 | `serviceId` | String | Sí | Servicio. |
-| `meterTypeId` | ObjectId → `meterTypes` | Sí | — |
-| `brandId` | ObjectId → `meterBrands` | Sí | — |
+| `meterTypeId` | uniqueidentifier → `meterTypes` | Sí | — |
+| `brandId` | uniqueidentifier → `meterBrands` | Sí | — |
 | `manufactureYear` | Int | No | `ANO_MED`. |
 | `class` | String | No | `CLA_MED`. |
 | `digits` | Int | Sí | > 0. |
-| `multiplier` | Decimal128 | Sí | > 0. |
+| `multiplier` | DECIMAL(18,4) | Sí | > 0. |
 | `indicated` | Boolean | Sí | — |
 | `readingIncludesMultiplier` | Boolean | Sí | — |
 | `hp` | String | No | Dato "HP" de la ficha ProCoop (hilos/fases) **[VERIFICAR]** significado. |
-| `bonusUnits` | Decimal128 | No | Unidades bonificadas de la ficha (DFA M5); M04 decide su efecto. |
+| `bonusUnits` | DECIMAL(18,4) | No | Unidades bonificadas de la ficha (DFA M5); M04 decide su efecto. |
 | `registers` | [{`code`, `channelType`, `unit`, `touBand`, `digits`, `multiplier`, `indicated`}] | Sí | Copia de los registros del tipo, editable. |
 | `ownership` | enum `cooperative`/`member`/`communal` | Sí | `COD_PROP`. |
 | `isPrepaid` | Boolean | Sí | — |
 | `isTelemetered` | Boolean | Sí | — |
 | `remoteIds` | [{`meteringSystemId`, `externalId`}] | No | `ID_SYS_TEL`. |
-| `serialUnitId` | ObjectId (M13 `serialUnits`; T05 §7.2) | Cond. | Obligatorio si el servicio registra stock. |
+| `serialUnitId` | uniqueidentifier (M13 `serialUnits`; T05 §7.2) | Cond. | Obligatorio si el servicio registra stock. |
 | `assetStatus` | enum `available`/`installed`/`removed`/`inRepair`/`discarded` | Sí | Proyección de M13 + instalación. |
-| `currentInstallationId` | ObjectId → `meterInstallations` | No | Derivado. |
+| `currentInstallationId` | uniqueidentifier → `meterInstallations` | No | Derivado. |
 | `observations` | [{`codeId`, `text`, `at`, `by`}] | No | `OBSMED`. |
 | `lastTest` | {`testId`, `result`, `at`} | No | Derivado de `meterTests`. |
-| `documents` | [ObjectId] (expediente T11) | No | Fotos, certificados. Referencia: → `documents` (T11). |
+| `documents` | [uniqueidentifier] (expediente T11) | No | Fotos, certificados. Referencia: → `documents` (T11). |
 
 Índices: `{tenantId, serviceId, brandId, number}` único (configurable a `{tenantId, serviceId, number}`, PRM-MED-001); `{tenantId, serialUnitId}` único parcial; `{tenantId, assetStatus}`.
 
@@ -657,23 +659,23 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 | `code` | String | Sí | Código visible del punto. |
 | `pointType` | enum `customer`/`witness`/`purchase`/`boundary`/`internal`/`distributionParent` | Sí | Rol del punto. |
 | `serviceId` | String | Sí | Servicio. |
-| `contractId` | ObjectId (M02 `serviceContracts`; CTR-DAT-71) | Cond. | Obligatorio en `customer` y `distributionParent` de cliente. |
-| `accountId` | ObjectId (M01) | Cond. | Desnormalizado para búsquedas. |
-| `premiseId` | ObjectId (M01) | No | Inmueble. |
+| `contractId` | uniqueidentifier (M02 `serviceContracts`; CTR-DAT-71) | Cond. | Obligatorio en `customer` y `distributionParent` de cliente. |
+| `accountId` | uniqueidentifier (M01) | Cond. | Desnormalizado para búsquedas. |
+| `premiseId` | uniqueidentifier (M01) | No | Inmueble. |
 | `location` | GeoJSON Point | No | GPS. |
 | `accessNotes` | String | No | Observación postal / acceso. |
-| `reading` | {`zone` String, `sector` String, `sequence` Int, `routeIds` [ObjectId]} | Cond. | ZSR (ej. zona 30, sector 1, recorrido 250). Referencia: `routeIds` → `readingRoutes` (M03); el resto no es referencia. |
+| `reading` | {`zone` String, `sector` String, `sequence` Int, `routeIds` [uniqueidentifier]} | Cond. | ZSR (ej. zona 30, sector 1, recorrido 250). Referencia: `routeIds` → `readingRoutes` (M03); el resto no es referencia. |
 | `consumptionMode` | enum `accumulated`/`indicated` | Sí | — |
 | `isPrepaid` | Boolean | Sí | Derivado de la categoría (M02). |
 | `isTelemetered` | Boolean | Sí | Derivado del medidor instalado. |
 | `hasDistributedGeneration` | Boolean | Sí | Derivado de `distributedGenerationContracts`. |
-| `witnessPointId` | ObjectId → `meteringPoints` | No | Testigo asignado (`SERSOC_EXTRAS.COD_TES`). |
+| `witnessPointId` | uniqueidentifier → `meteringPoints` | No | Testigo asignado (`SERSOC_EXTRAS.COD_TES`). |
 | `witnessExcluded` | Boolean | No | `MED_TESTIGO.NO_INCLUIR`. |
 | `description` | String | No | `MED_TESTIGO.DESCRIPCION`. |
 | `status` | enum `pending`/`active`/`withoutMeter`/`suspended`/`closed` | Sí | — |
 | `lastValues` | [{`channelId`, `readingId`, `value`, `effectiveAt`, `consumption`}] | No | Proyección (no editable). |
 | `consecutiveEstimates` | Int | No | Proyección. |
-| `servicePointId` | ObjectId | [VERIFICAR] | Punto de prestación (T05 lo declara en claves; la ficha no lo tenía). Referencia: `servicePoints` (M01). |
+| `servicePointId` | uniqueidentifier | [VERIFICAR] | Punto de prestación (T05 lo declara en claves; la ficha no lo tenía). Referencia: `servicePoints` (M01). |
 
 Índices: `{tenantId, code}` único; `{tenantId, contractId}`; `{tenantId, serviceId, reading.zone, reading.sector, reading.sequence}`; `{tenantId, location}` 2dsphere; `{tenantId, pointType}`.
 
@@ -681,12 +683,12 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringPointId` | ObjectId | Sí | — |
+| `meteringPointId` | uniqueidentifier | Sí | — |
 | `channelType` | enum `activeImport`/`activeExport`/`reactiveImport`/`reactiveExport`/`demandPeak`/`demandOffPeak`/`demandValley`/`demandMax`/`energyPeak`/`energyRest`/`energyValley`/`energyPunta`/`energyFueraPunta`/`waterVolume`/`gasVolume`/`generation`/`other` | Sí | `TIP_ENE`: A → `activeImport` (o `activeExport` si factor negativo en migración), R → `reactiveImport`, DP → `demandPeak`, DFP → `demandOffPeak`, DV → `demandValley`. |
 | `unit` | enum `kWh`/`kVArh`/`kW`/`m3`/`unit` | Sí | — |
 | `touBand` | String | No | Banda/franja (T0..T6, pico/resto/valle). |
-| `conceptId` | ObjectId (M02 `billableConcepts`; T05 §7.2) | Cond. | `COD_CON`. |
-| `contractedValue` | Decimal128 | No | `CONTRATADO` (demanda contratada vigente; la historia está en `demandDeclarations`). |
+| `conceptId` | uniqueidentifier (M02 `billableConcepts`; T05 §7.2) | Cond. | `COD_CON`. |
+| `contractedValue` | DECIMAL(18,4) | No | `CONTRATADO` (demanda contratada vigente; la historia está en `demandDeclarations`). |
 | `order` | Int | Sí | Orden por concepto (V2 2520). |
 | `isBillable` | Boolean | Sí | Falso para `generation` informativa. |
 | `validFrom` / `validTo` | Date | Sí / No | Vigencia del canal. |
@@ -698,14 +700,14 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meterId` | ObjectId | Sí | — |
-| `meteringPointId` | ObjectId | Sí | — |
+| `meterId` | uniqueidentifier | Sí | — |
+| `meteringPointId` | uniqueidentifier | Sí | — |
 | `role` | enum `main`/`control` | Sí | `control` permite paralelo (RN-MED-018). |
 | `installedAt` | Date | Sí | Fecha efectiva de colocación. |
 | `removedAt` | Date | No | Fecha efectiva de retiro. |
 | `recordedAt` / `removalRecordedAt` | Date | Sí / No | Fechas de registro. |
 | `registerMapping` | [{`registerCode`, `channelId`, `digits`, `multiplier`, `indicated`, `readingIncludesMultiplier`}] | Sí | Registro → canal. |
-| `initialReadingIds` / `finalReadingIds` | [ObjectId → `meterReadings`] | Sí / Cond. | Lecturas de colocación y retiro. |
+| `initialReadingIds` / `finalReadingIds` | [uniqueidentifier → `meterReadings`] | Sí / Cond. | Lecturas de colocación y retiro. |
 | `installReason` | enum `newService`/`replacement`/`reconnection`/`migration`/`other` | Sí | — |
 | `removalReason` | enum `replacement`/`disconnection`/`termination`/`theft`/`damage`/`test`/`other` | Cond. | — |
 | `workOrderRefs` | {`installWorkOrderId`, `removalWorkOrderId`} (M10) | No | OT de origen. |
@@ -723,11 +725,11 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 |---|---|---|---|
 | `sealNumber` | String | Sí | — |
 | `sealType` / `color` / `position` | String | No | — |
-| `meterId` / `installationId` | ObjectId | Sí | — |
+| `meterId` / `installationId` | uniqueidentifier | Sí | — |
 | `placedAt` / `removedAt` | Date | Sí / No | — |
 | `status` | enum `placed`/`removed`/`broken`/`missing` | Sí | — |
-| `workOrderId` / `inspectionActId` | ObjectId (M10) | No | — |
-| `photoIds` | [ObjectId] | No | — |
+| `workOrderId` / `inspectionActId` | uniqueidentifier (M10) | No | — |
+| `photoIds` | [uniqueidentifier] | No | — |
 
 Índices: `{tenantId, sealNumber}` con único parcial `status = placed`.
 
@@ -735,14 +737,14 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meterId` | ObjectId | Sí | — |
+| `meterId` | uniqueidentifier | Sí | — |
 | `testedAt` | Date | Sí | — |
 | `testType` | enum `factory`/`periodic`/`onClaim`/`afterRepair`/`other` | Sí | — |
 | `laboratory` / `responsible` | String | No | — |
 | `result` | enum `approved`/`rejected`/`withObservations` | Sí | — |
-| `measuredError` | [{`loadPoint`, `errorPercent` Decimal128}] | No | — |
-| `certificateDocId` | ObjectId | No | — |
-| `crmCaseId` | ObjectId (M09) | No | Reclamo que motivó el ensayo. Antes `claimRef` (nombre de T05). |
+| `measuredError` | [{`loadPoint`, `errorPercent` DECIMAL(18,4)}] | No | — |
+| `certificateDocId` | uniqueidentifier | No | — |
+| `crmCaseId` | uniqueidentifier (M09) | No | Reclamo que motivó el ensayo. Antes `claimRef` (nombre de T05). |
 
 ### 7.3 Rutas, cronogramas, lotes y tareas
 
@@ -753,12 +755,12 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 | `code` / `name` | String | Sí | — |
 | `serviceIds` | [String] | Sí | Servicios. |
 | `selection` | {`mode` enum `zoneSectorSequence`/`street`/`accountRange`/`polygon`, `zones` [String], `sectorFrom`, `sectorTo`, `sequenceFrom`, `sequenceTo`, `streets` [{`streetId`, `numberFrom`, `numberTo`, `parity` enum `all`/`even`/`odd`}], `accountFrom`, `accountTo`, `polygon` GeoJSON} | Sí | `REC_CAL`, `ORD_CAL`. |
-| `categoryIds` | [ObjectId] (M02) | No | Filtro opcional. |
+| `categoryIds` | [uniqueidentifier] (M02) | No | Filtro opcional. |
 | `order` | enum `default`/`holder`/`streetNumber`/`zoneSequence`/`lastReaderOrder`/`manual` | Sí | `ORDEN`. |
 | `includeDisconnectedNotRemoved` | Boolean | Sí | `SERV_DESC`. |
 | `telemeteredFilter` | enum `only`/`exclude`/`all` | Sí | `TELEMED`. |
 | `includePrepaidForControl` | Boolean | Sí | Default falso. |
-| `defaultReaderIds` | [ObjectId] | No | — Referencia: → `memberships` (T02): usuario de la app de campo del lecturista, confirmado en PA-MED-15 (DEC-072; antes [VERIFICAR]). |
+| `defaultReaderIds` | [uniqueidentifier] | No | — Referencia: → `memberships` (T02): usuario de la app de campo del lecturista, confirmado en PA-MED-15 (DEC-072; antes [VERIFICAR]). |
 | `deviceFields` | [String] | No | Campos que se envían al dispositivo (sobrescribe el default del servicio). |
 | `status` | enum | Sí | — |
 
@@ -778,14 +780,14 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `code` | String | Sí | — |
-| `routeId` | ObjectId | Cond. | Nulo en lotes de importación de archivo o telemedición puntual. |
+| `routeId` | uniqueidentifier | Cond. | Nulo en lotes de importación de archivo o telemedición puntual. |
 | `period` | String | Sí | — |
 | `source` | enum `fieldApp`/`fileExport`/`fileImport`/`telemetry`/`manual`/`selfReadingWindow` | Sí | — |
 | `assignments` | [{`readerId`, `taskCount`, `assignedAt`}] | No | — |
 | `counters` | {`total`, `pending`, `read`, `notRead`, `outOfRange`, `withPhoto`, `conflicts`, `confirmed`, `rejected`, `estimated`} | Sí | Proyección. |
 | `status` | enum `generated`/`assigned`/`downloaded`/`inProgress`/`received`/`inReview`/`confirmed`/`closed`/`cancelled` | Sí | — |
 | `closingReport` | {`closedAt`, `closedBy`, `summary`, `pendingDecision` enum `estimate`/`reread`/`leaveUnread`} | No | Acta de cierre. |
-| `jobRefs` | [ObjectId] | No | Jobs ejecutados. |
+| `jobRefs` | [uniqueidentifier] | No | Jobs ejecutados. |
 
 Índices: `{tenantId, routeId, period}` único parcial para `status ≠ cancelled`.
 
@@ -793,17 +795,17 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `batchId` | ObjectId | Sí | — |
-| `meteringPointId` / `channelId` / `meterId` / `installationId` | ObjectId | Sí | Snapshot al generar. |
+| `batchId` | uniqueidentifier | Sí | — |
+| `meteringPointId` / `channelId` / `meterId` / `installationId` | uniqueidentifier | Sí | Snapshot al generar. |
 | `sequence` | Int | Sí | Orden en la ruta. |
 | `snapshot` | {`previousReadingId`, `previousValue`, `previousAt`, `previousConsumption`, `digits`, `multiplier`, `indicated`, `meterNumber`, `categoryCode`, `address`, `accessNotes`, `zone`, `sector`, `readingSequence`, `cadastral`, `blockLot`, `ownership`, `serviceStatus`, `registration`} | Sí | Datos enviados al dispositivo (según campos habilitados). |
 | `expectedRange` | {`min`, `max`, `basis` enum, `tolerancePercent`} | Sí | `UMB_MIN`/`UMB_MAX`. |
 | `flags` | {`realReadingPriority`, `photoRequired`, `isWitness`} | Sí | V2 2559. |
-| `assigneeId` | ObjectId | No | Lecturista. |
+| `assigneeId` | uniqueidentifier | No | Lecturista. |
 | `taskVersion` | Int | Sí | Versión para conflictos (AGR-025). |
-| `downloadedAt` / `deviceId` | Date / ObjectId (antes String) | No | Referencia: `deviceId` → `fieldDevices` (M10), PA-MED-15 (DEC-072). |
+| `downloadedAt` / `deviceId` | Date / uniqueidentifier (antes String) | No | Referencia: `deviceId` → `fieldDevices` (M10), PA-MED-15 (DEC-072). |
 | `status` | enum `pending`/`assigned`/`downloaded`/`captured`/`notRead`/`estimated`/`confirmed`/`rejected`/`conflict`/`cancelled` | Sí | — |
-| `capturedReadingId` | ObjectId | No | — Referencia: `meterReadings` (M03). |
+| `capturedReadingId` | uniqueidentifier | No | — Referencia: `meterReadings` (M03). |
 | `rejectionReason` | String | Cond. | Causa de R. |
 
 Índices: `{tenantId, batchId, sequence}`; `{tenantId, assigneeId, status}`; `{tenantId, meteringPointId, batchId}` único.
@@ -812,11 +814,11 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `readerId` | ObjectId (persona/empleado) | Sí | — Referencia: → `memberships` (T02): usuario de la app de campo del lecturista; el legajo, si es empleado, se obtiene de la membresía (PA-MED-15, DEC-072; antes [VERIFICAR]). |
+| `readerId` | uniqueidentifier (persona/empleado) | Sí | — Referencia: → `memberships` (T02): usuario de la app de campo del lecturista; el legajo, si es empleado, se obtiene de la membresía (PA-MED-15, DEC-072; antes [VERIFICAR]). |
 | `date` | Date | Sí | — |
 | `startedAt` / `endedAt` | Date | Sí / No | — |
-| `batchIds` | [ObjectId] | No | — |
-| `tasksDone` / `distanceKm` | Int / Decimal128 | No | Derivados. |
+| `batchIds` | [uniqueidentifier] | No | — |
+| `tasksDone` / `distanceKm` | Int / DECIMAL(18,4) | No | Derivados. |
 | `source` | enum `app`/`manual` | Sí | — |
 
 ### 7.4 Lecturas y consumos
@@ -825,27 +827,27 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringPointId` / `channelId` / `meterId` / `installationId` | ObjectId | Sí | — |
+| `meteringPointId` / `channelId` / `meterId` / `installationId` | uniqueidentifier | Sí | — |
 | `registerCode` | String | Sí | — |
-| `rawValue` | Decimal128 | Cond. | Valor recibido (puede venir con factor). |
-| `value` | Decimal128 | Cond. | Valor normalizado (rawValue ÷ factor si lectura con factor). Nulo si no leído. |
+| `rawValue` | DECIMAL(18,4) | Cond. | Valor recibido (puede venir con factor). |
+| `value` | DECIMAL(18,4) | Cond. | Valor normalizado (rawValue ÷ factor si lectura con factor). Nulo si no leído. |
 | `effectiveAt` | Date | Sí | Fecha y hora de la lectura. |
 | `recordedAt` | Date | Sí | Recepción en servidor. |
 | `deviceAt` | Date | No | Hora del dispositivo. |
 | `source` | enum `manual`/`fieldApp`/`collectorFile`/`thirdPartyFile`/`telemetry`/`selfReading`/`workOrder`/`migration` | Sí | — |
 | `purpose` | enum `periodic`/`installation`/`removal`/`verification`/`additional`/`control` | Sí | — |
-| `readingTaskId` / `batchId` / `importJobId` / `workOrderId` | ObjectId | No | — |
-| `readerId` / `memberUserId` | ObjectId | No | Quién relevó. |
+| `readingTaskId` / `batchId` / `importJobId` / `workOrderId` | uniqueidentifier | No | — |
+| `readerId` / `memberUserId` | uniqueidentifier | No | Quién relevó. |
 | `notRead` | {`observationCodeId`, `text`} | Cond. | Motivo si no hubo lectura. |
-| `observationCodeIds` | [ObjectId] | No | — |
-| `resultCodeId` / `conditionCodeId` | ObjectId | No | `RESESTAD`, `CERESTAD`. |
+| `observationCodeIds` | [uniqueidentifier] | No | — |
+| `resultCodeId` / `conditionCodeId` | uniqueidentifier | No | `RESESTAD`, `CERESTAD`. |
 | `gps` | {`location` GeoJSON, `accuracyM`, `distanceToPointM`} | No | — |
-| `photoIds` | [ObjectId] | No | Expediente (fotos). Referencia: → `storedFiles` (T01). |
+| `photoIds` | [uniqueidentifier] | No | Expediente (fotos). Referencia: → `storedFiles` (T01). |
 | `deviceWarnings` | [String] | No | Advertencias mostradas al lecturista. |
 | `reentryConfirmed` | Boolean | No | — |
 | `status` | enum `captured`/`validated`/`rejected`/`superseded`/`redundant`/`voided` | Sí | — |
 | `rejectionReasons` | [String] | No | — |
-| `supersedesId` / `supersededById` | ObjectId | No | Cadena de versiones. |
+| `supersedesId` / `supersededById` | uniqueidentifier | No | Cadena de versiones. |
 | `correctionReason` | String | Cond. | — |
 | `rolloverConfirmed` | {`by`, `at`} | No | — |
 | `clientMutationId` | String | Cond. | Idempotencia offline. |
@@ -857,15 +859,15 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringPointId` / `channelId` | ObjectId | Sí | — |
-| `contractId` | ObjectId | Cond. | — |
+| `meteringPointId` / `channelId` | uniqueidentifier | Sí | — |
+| `contractId` | uniqueidentifier | Cond. | — |
 | `period` | String `YYYY-MM` | Sí | — |
-| `categoryId` | ObjectId (M02) | Cond. | Categoría vigente a la fecha (M02). |
+| `categoryId` | uniqueidentifier (M02) | Cond. | Categoría vigente a la fecha (M02). |
 | `fromAt` / `toAt` | Date | Sí | Intervalo. |
 | `days` | Int | Sí | RN-MED-071. |
-| `fromReadingId` / `toReadingId` | ObjectId | Cond. | Lecturas base. Referencia: `meterReadings` (M03). |
-| `quantity` | Decimal128 | Sí | Cantidad resultante. |
-| `netQuantity` | Decimal128 | No | Original antes de corrección o prorrateo (`NETO`). |
+| `fromReadingId` / `toReadingId` | uniqueidentifier | Cond. | Lecturas base. Referencia: `meterReadings` (M03). |
+| `quantity` | DECIMAL(18,4) | Sí | Cantidad resultante. |
+| `netQuantity` | DECIMAL(18,4) | No | Original antes de corrección o prorrateo (`NETO`). |
 | `unit` | enum | Sí | — |
 | `origin` | enum `real`/`estimated`/`split`/`distributed`/`distributionCompensation`/`additional`/`witness`/`directImport`/`prepaid`/`adjustment`/`migration` | Sí | — |
 | `estimation` | {`method`, `basisPeriods` [String], `basisQuantity`, `reason`, `authorizedBy`} | Cond. | — |
@@ -873,9 +875,9 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 | `distribution` | {`distributionId`, `runId`} | Cond. | — |
 | `gasCorrection` | {`measuredVolume`, `pressure`, `temperature`, `calorificFactor`, `correctionCoefficient`, `optimalCalorificFactor`, `rounding`, `factorRecordId`} | Cond. | **Reemplazado (DEC-085):** M03 guarda solo `measuredVolume` y `correctionCoefficient` (copia de `meteringPoints.gasCorrectionCoefficient`); factores, redondeo y cantidad corregida los guarda M04 en la traza del cálculo (RN-TAR-035). |
 | `rolloverApplied` | Boolean | No | — |
-| `exceptionIds` | [ObjectId] | No | — |
+| `exceptionIds` | [uniqueidentifier] | No | — |
 | `status` | enum `calculated`/`inReview`/`blocked`/`approved`/`billed`/`adjusted`/`voided` | Sí | — |
-| `approvedBy` / `approvedAt` | ObjectId / Date | Cond. | — |
+| `approvedBy` / `approvedAt` | uniqueidentifier / Date | Cond. | — |
 | `billingRef` | {`invoiceId`, `itemIds`, `billedAt`} (M05) | Cond. | Facturado (`COD_COM`/`SUC_COM`/`NUM_COM`). |
 | `notBillableReason` | String | Cond. | Para excedentes "limitados". |
 
@@ -885,7 +887,7 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `consumptionId` / `readingId` / `meteringPointId` | ObjectId | Sí (al menos uno) | Referencia: → `consumptions`, → `meterReadings` y → `meteringPoints` (M03). |
+| `consumptionId` / `readingId` / `meteringPointId` | uniqueidentifier | Sí (al menos uno) | Referencia: → `consumptions`, → `meterReadings` y → `meteringPoints` (M03). |
 | `rule` | enum `zeroOnConnected`/`negative`/`outOfRange`/`percentVariation`/`daysDeviation`/`repeatedReading`/`digitsOverflow`/`lowerThanPrevious`/`consumptionWhileDisconnected`/`demandOverContracted`/`injectionWithoutContract`/`consecutiveEstimates`/`missingGasFactor`/`missingTelemetryMapping`/`distributionCapExceeded`/`duplicateSource`/`suspectedNonRegistered`/`geofence` | Sí | — |
 | `severity` | enum `info`/`review`/`blocking` | Sí | — |
 | `details` | Object | Sí | Valores que dispararon la regla. |
@@ -898,13 +900,13 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `contractId` / `meteringPointId` / `channelId` | ObjectId | Sí | — |
+| `contractId` / `meteringPointId` / `channelId` | uniqueidentifier | Sí | — |
 | `type` | enum `estimateSettlement`/`correction`/`claimResolution`/`other` | Sí | — |
 | `method` | enum `unitCompensation`/`rebill` | Sí | PA-MED-01. |
 | `periods` | [String] | Sí | Períodos afectados. |
-| `estimatedQuantity` / `realQuantity` / `differenceQuantity` | Decimal128 | Sí | — |
+| `estimatedQuantity` / `realQuantity` / `differenceQuantity` | DECIMAL(18,4) | Sí | — |
 | `rounding` | enum `awayFromZero`/`bankers` | Sí | — |
-| `consumptionIds` | [ObjectId] | Sí | — |
+| `consumptionIds` | [uniqueidentifier] | Sí | — |
 | `status` | enum `proposed`/`approved`/`applied`/`rejected`/`voided` | Sí | — |
 | `appliedRef` | {`invoiceId`, `itemId`} (M05) | Cond. | — |
 | `approval` | {`requestId` (T11), `by`, `at`} | Cond. | — |
@@ -913,10 +915,10 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `parentPointId` | ObjectId | Sí | — Referencia: `meteringPoints` (M03). |
+| `parentPointId` | uniqueidentifier | Sí | — Referencia: `meteringPoints` (M03). |
 | `mode` | enum `percentage`/`equal`/`combined` | Sí | — |
-| `children` | [{`pointId`, `percentage` Decimal128 (2 dec)}] | Sí | — |
-| `capPerChild` | Decimal128 | Cond. | `TOPE` (combinada). |
+| `children` | [{`pointId`, `percentage` DECIMAL(18,4) (2 dec)}] | Sí | — |
+| `capPerChild` | DECIMAL(18,4) | Cond. | `TOPE` (combinada). |
 | `controlBy` | enum `period`/`month` | Sí | V2 2618. |
 | `runs` | [{`runId`, `period`, `parentConsumptionId`, `childConsumptionIds`, `status` enum `executed`/`reverted`, `at`, `by`}] | No | — |
 | `validFrom` / `validTo` | Date | Sí / No | — |
@@ -927,20 +929,20 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringPointId` / `channelId` | ObjectId | Sí | — |
+| `meteringPointId` / `channelId` | uniqueidentifier | Sí | — |
 | `period` | String | Sí | — |
-| `contractedKw` | Decimal128 | Sí | — |
-| `declaredKw` | Decimal128 | No | — |
-| `registeredKw` | Decimal128 | No | Demanda máxima medida. |
+| `contractedKw` | DECIMAL(18,4) | Sí | — |
+| `declaredKw` | DECIMAL(18,4) | No | — |
+| `registeredKw` | DECIMAL(18,4) | No | Demanda máxima medida. |
 | `source` | enum `contract`/`transgression`/`reset`/`migration` | Sí | — |
 
 **`demandTransgressions`** — transgresiones. Origen: `clsTransgresiones`.
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringPointId` / `channelId` | ObjectId | Sí | — |
+| `meteringPointId` / `channelId` | uniqueidentifier | Sí | — |
 | `period` | String | Sí | — |
-| `registeredKw` / `contractedKw` / `transgressionPercent` | Decimal128 | Sí | — |
+| `registeredKw` / `contractedKw` / `transgressionPercent` | DECIMAL(18,4) | Sí | — |
 | `firstTransgressionAt` | Date | Sí | — |
 | `status` | enum `detected`/`notified`/`resolved`/`reset` | Sí | — |
 | `resetAudit` | {`previousDeclaredKw`, `by`, `at`, `approvalRequestId`} | Cond. | "RESET_DEM". |
@@ -951,12 +953,12 @@ Campos de `meterObservationCodes` (tabla normalizada el 05-11-2026 a partir del 
 |---|---|---|---|
 | `period` | String | Sí | — |
 | `categoryCode` | String | No | Nulo = general. |
-| `pressure` / `temperature` | Decimal128 | No | — |
-| `calorificFactor` | Decimal128 | Sí | — |
+| `pressure` / `temperature` | DECIMAL(18,4) | No | — |
+| `calorificFactor` | DECIMAL(18,4) | Sí | — |
 | `source` | String | Sí | Documento/distribuidora de origen (BASE §89). |
 | `status` | enum `draft`/`approved` | Sí | — |
 
-Índices: `{tenantId, period, categoryCode}` único. El coeficiente corrector por servicio se guarda en `meteringPoints.gasCorrectionCoefficient` (Decimal128, default 1).
+Índices: `{tenantId, period, categoryCode}` único. El coeficiente corrector por servicio se guarda en `meteringPoints.gasCorrectionCoefficient` (DECIMAL(18,4), default 1).
 
 > **Reemplazado por `gasCalorificFactors` de M04 (HUE-GAS-03; PA-TAR-19 opción A):** la colección `gasCorrectionFactors` no se crea. Factor calórico, presión, temperatura y su aprobación por período/categoría viven en M04 (PAN-TAR-09, API-TAR-030); M03 los lee para estimar y validar ~~y calcular la cantidad corregida~~ (la corrección la aplica M04, DEC-085). Se conserva en M03 solo `meteringPoints.gasCorrectionCoefficient` (coeficiente corrector del punto, `SERSOC.COEF_CORRECTOR`), que es dato del punto de medición.
 
@@ -986,12 +988,12 @@ Campos de `readingImportJobs` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `profileId` | ObjectId | Sí | — | `readingImportProfiles` (M03) |
-| `storedFileId` | ObjectId | Sí | Antes `fileDocId`; nombre de T05 | `storedFiles` (T01) |
+| `profileId` | uniqueidentifier | Sí | — | `readingImportProfiles` (M03) |
+| `storedFileId` | uniqueidentifier | Sí | Antes `fileDocId`; nombre de T05 | `storedFiles` (T01) |
 | `period` | string | [VERIFICAR] | — | — |
 | `rows` | [VERIFICAR] | [VERIFICAR] | Total, válidas, con error, duplicadas | — |
 | `errors` | [VERIFICAR] | [VERIFICAR] | [{`row`, `message`}] | — |
-| `batchId` | ObjectId | [VERIFICAR] | — | `readingBatches` (M03) |
+| `batchId` | uniqueidentifier | [VERIFICAR] | — | `readingBatches` (M03) |
 | `status` | enum | Sí | Enum `uploaded`/`previewed`/`confirmed`/`processed`/`failed`/`cancelled` | — |
 | `approvedBy` | [VERIFICAR] | [VERIFICAR] | Importación directa de consumos | `memberships` (T02) |
 | `fileHash` | string | Sí | Hash del archivo; único con `profileId` (T05). | — |
@@ -1004,34 +1006,34 @@ Campos de `readingImportJobs` (tabla normalizada el 05-11-2026 a partir del text
 | `provider` | enum `discar`/`boiero`/`boieroTsm`/`nexo`/`nexoSql`/`nexoTcp2`/`nexoPlus`/`cashPower`/`cashPowerMws`/`batcom`/`cToken`/`hexing`/`rainbow`/`quo`/`silexis`/`kaptor`/`genericRest`/`genericFile` | Sí | Proveedores de medición/prepago (los ISP van a M10). |
 | `families` | [enum `metering`/`prepaid`] | Sí | — |
 | `endpoint` | String | Cond. | `URL_TEL`/`PATH`. |
-| `credentialRef` | ObjectId → `integrationSecrets` (T06, DEC-074; CTR-DAT-72) | Cond. | Nunca el secreto. |
+| `credentialRef` | uniqueidentifier → `integrationSecrets` (T06, DEC-074; CTR-DAT-72) | Cond. | Nunca el secreto. |
 | `extra` | Object | No | `DATO_EXTRA1/2` y opciones del proveedor (V2 2504, 2336, 2594, 3116). |
 | `supportedOperations` | [String] | Sí | RN-MED-107. |
 | `retryPolicy` | {`maxAttempts`, `delaySeconds`, `forceReconnect`} | Sí | V2 2370, 2491. |
 | `serviceIds` | [String] | Sí | — |
 | `health` | {`status` enum `ok`/`degraded`/`down`/`credentialExpired`, `checkedAt`, `pendingOps`} | No | — |
 | `status` | enum | Sí | — |
-| `connectionId` | ObjectId | [VERIFICAR] | Conexión de integración del sistema (T05 lo declara en claves). Referencia: `integrationConnections` (T06). |
+| `connectionId` | uniqueidentifier | [VERIFICAR] | Conexión de integración del sistema (T05 lo declara en claves). Referencia: `integrationConnections` (T06). |
 
 **`telemetryRegisterMappings`** — mapeo de registros remotos. Origen: `LEC_MEDTEL` (`SIS_TEL`, `TIP_MED`, `COD_CATSER`, `TIP_ENE`, `COD_CON`, `COD_LEC`, `COD_LEC2`, `COD_LEC3`, `GENERADOR`).
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringSystemId` | ObjectId | Sí | — |
-| `meterTypeId` | ObjectId | Sí | — |
-| `categoryId` | ObjectId (M02) | No | — |
+| `meteringSystemId` | uniqueidentifier | Sí | — |
+| `meterTypeId` | uniqueidentifier | Sí | — |
+| `categoryId` | uniqueidentifier (M02) | No | — |
 | `channelType` / `touBand` | enum / String | Sí | — |
-| `conceptId` | ObjectId (M02) | No | — |
+| `conceptId` | uniqueidentifier (M02) | No | — |
 | `remoteRegisterCodes` | [String] (máx. 3) | Sí | — |
 | `aggregation` | enum `max`/`sum`/`first` | Sí | Default `max`. |
-| `scale` | Decimal128 | Sí | Ej. 0,001 para demanda. |
+| `scale` | DECIMAL(18,4) | Sí | Ej. 0,001 para demanda. |
 | `isGenerator` | Boolean | Sí | — |
 
 **`remoteMeterOperations`** — operaciones/comandos remotos. Origen: `TELEMED_COMM` (`FECHA`, `OPERACION`, `COMANDO`, `RESPUESTA`, `ID_SERSOC`, `SUMINISTRO`, `OBSERVACION`).
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringSystemId` / `meterId` / `meteringPointId` | ObjectId | Sí | — |
+| `meteringSystemId` / `meterId` / `meteringPointId` | uniqueidentifier | Sí | — |
 | `operation` | enum `register`/`changeCategory`/`assignMeter`/`removeMeter`/`replaceMeter`/`confirmWorkOrder`/`disconnect`/`reconnect`/`readNow`/`validatePreSale`/`topUp`/`topUpStatus`/`topUpHistory` | Sí | — |
 | `requestedBy` | {`module` enum `MOR`/`TEC`/`CRM`/`MED`/`COB`, `orderId`, `userId`} | Sí | — |
 | `idempotencyKey` | String | Sí | — |
@@ -1039,7 +1041,7 @@ Campos de `readingImportJobs` (tabla normalizada el 05-11-2026 a partir del text
 | `attempts` | [{`at`, `result`, `errorCode`}] | No | — |
 | `status` | enum `queued`/`sent`/`pendingProvider`/`succeeded`/`failed`/`rejected`/`cancelled`/`unknown` | Sí | — |
 | `confirmedAt` | Date | No | — |
-| `integrationOperationId` | ObjectId | [VERIFICAR] | Operación de integración que la ejecuta (T05 lo declara en claves). Referencia: `integrationOperations` (T06). |
+| `integrationOperationId` | uniqueidentifier | [VERIFICAR] | Operación de integración que la ejecuta (T05 lo declara en claves). Referencia: `integrationOperations` (T06). |
 
 Índices: `{tenantId, idempotencyKey}` único; `{tenantId, meteringPointId, createdAt}`; `{tenantId, status}`.
 
@@ -1063,11 +1065,11 @@ Campos de `intervalReadings` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `meteringPointId` / `contractId` / `meterId` | ObjectId | Sí | — |
-| `meteringSystemId` | ObjectId | Sí | — |
+| `meteringPointId` / `contractId` / `meterId` | uniqueidentifier | Sí | — |
+| `meteringSystemId` | uniqueidentifier | Sí | — |
 | `vendorMeterId` | String | Sí | Identificador en el proveedor. |
 | `mode` | enum `token`/`onlineCredit` | Sí | PA-MED-04. |
-| `reportedBalance` | {`quantity` Decimal128, `unit`, `amount` Decimal128, `currency`, `reportedAt`} | No | — |
+| `reportedBalance` | {`quantity` DECIMAL(18,4), `unit`, `amount` DECIMAL(18,4), `currency`, `reportedAt`} | No | — |
 | `lowBalanceThreshold` | {`quantity`, `days`} | No | — |
 | `status` | enum `active`/`suspended`/`closed` | Sí | — |
 
@@ -1075,12 +1077,12 @@ Campos de `intervalReadings` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `prepaidAccountId` | ObjectId | Sí | — |
+| `prepaidAccountId` | uniqueidentifier | Sí | — |
 | `channel` | enum `cashDesk`/`pos`/`portal`/`app`/`remotePos` | Sí | — |
 | `paymentRef` | {`paymentId`, `receiptId`} (M07) | Cond. | — |
-| `invoiceId` | ObjectId (M05) | Cond. | — Antes `invoiceRef` (nombre de T05). |
-| `amount` | Decimal128 | Sí | ARS. |
-| `quantity` | Decimal128 | Sí | Unidades (kWh) tras redondeo del tipo. |
+| `invoiceId` | uniqueidentifier (M05) | Cond. | — Antes `invoiceRef` (nombre de T05). |
+| `amount` | DECIMAL(18,4) | Sí | ARS. |
+| `quantity` | DECIMAL(18,4) | Sí | Unidades (kWh) tras redondeo del tipo. |
 | `preSaleCheck` | {`result`, `at`, `message`} | Sí | — |
 | `token` | String (cifrado) | Cond. | Solo modo token. |
 | `vendorTransactionId` | String | No | — Referencia: externa: identificador del proveedor de prepago (sin colección); no es referencia interna. |
@@ -1092,15 +1094,15 @@ Campos de `intervalReadings` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `contractId` / `meteringPointId` | ObjectId | Sí | — |
+| `contractId` / `meteringPointId` | uniqueidentifier | Sí | — |
 | `prosumerClass` | String (catálogo del régimen) | Sí | Clasificación del usuario-generador. |
 | `technology` | enum `solar`/`wind`/`hydro`/`biomass`/`other` | Sí | — |
-| `installedKw` / `authorizedKw` | Decimal128 | Sí | — |
+| `installedKw` / `authorizedKw` | DECIMAL(18,4) | Sí | — |
 | `equipment` | {`inverterBrand`, `inverterModel`, `serials` [String]} | No | — |
 | `connectedAt` | Date | Cond. | — |
 | `installer` | {`name`, `license`, `personId`} | Sí | Instalador habilitado. |
 | `regime` | {`code`, `jurisdiction`, `compensationMode` enum `monetaryNetBilling`/`energyNetMetering`} | Sí | PA-MED-08; default `monetaryNetBilling` (DEC-060). |
-| `documents` | [ObjectId] | No | Referencia: → `documents` (T11). |
+| `documents` | [uniqueidentifier] | No | Referencia: → `documents` (T11). |
 | `status` | enum `requested`/`underReview`/`approved`/`connected`/`suspended`/`terminated` | Sí | — |
 | `validFrom` / `validTo` | Date | Sí / No | — |
 
@@ -1108,14 +1110,14 @@ Campos de `intervalReadings` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `contractId` / `meteringPointId` | ObjectId | Sí | — |
+| `contractId` / `meteringPointId` | uniqueidentifier | Sí | — |
 | `period` | String | Sí | — |
-| `importedKwh` / `exportedKwh` / `netKwh` | Decimal128 | Sí | — |
+| `importedKwh` / `exportedKwh` / `netKwh` | DECIMAL(18,4) | Sí | — |
 | `byBand` | [{`touBand`, `importedKwh`, `exportedKwh`}] | No | — |
-| `generationKwh` | Decimal128 | No | — |
-| `consumptionIds` | [ObjectId] | Sí | — |
+| `generationKwh` | DECIMAL(18,4) | No | — |
+| `consumptionIds` | [uniqueidentifier] | Sí | — |
 | `status` | enum `calculated`/`approved`/`billed` | Sí | — |
-| `distributedGenerationContractId` | ObjectId | [VERIFICAR] | Contrato de generación distribuida (T05 lo declara en claves). Referencia: `distributedGenerationContracts` (M03). |
+| `distributedGenerationContractId` | uniqueidentifier | [VERIFICAR] | Contrato de generación distribuida (T05 lo declara en claves). Referencia: `distributedGenerationContracts` (M03). |
 
 ### 7.7 Otros
 
@@ -1129,7 +1131,7 @@ Campos de `consumptionClassReviews` (tabla normalizada el 05-11-2026 a partir de
 | `period` | string | [VERIFICAR] | — | — |
 | `candidates` | [VERIFICAR] | [VERIFICAR] | [{`contractId`, `currentCategory`, `proposedCategory`, `reason`}] | — |
 | `status` | enum | Sí | Enum `draft`/`approved`/`applied`/`discarded` | — |
-| `approvalRequestId` | ObjectId | [VERIFICAR] | T11 | `approvalRequests` (T11) |
+| `approvalRequestId` | uniqueidentifier | [VERIFICAR] | T11 | `approvalRequests` (T11) |
 
 ### 7.8 Relaciones principales
 

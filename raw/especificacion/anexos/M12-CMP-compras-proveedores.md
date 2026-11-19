@@ -366,8 +366,10 @@ Compras recurrentes de insumos regulados (energía y gas) y de derechos de retra
 | RN-CMP-075 | La liquidación de derechos de señales usa únicamente el informe de abonados activos por paquete de M02 a la fecha de corte; M12 no cuenta contratos por su cuenta. Una liquidación aprobada no se recalcula: las correcciones posteriores se liquidan como ajuste en el período siguiente con referencia a la original. | Derechos de señales "a relevar por tenant" (M02 6.C.3). | Nuevo (HUE-TV-01) | PRM-CMP-115, PRM-CMP-116 | Base de cómputo exigida por cada programadora |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Campos comunes (no se repiten): `tenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`, `deletedAt` (solo catálogos), `legacy` (clave ProCoop original, migración; subdocumento de T05 `{system: 'procoop', table, key, displayKey, runId, hash, readOnly, priorMigration}`, antes `legacyRef`). Importes `Decimal128` con `currency`. Todos los índices empiezan por `tenantId`. Los documentos económicos nunca se borran.
+
+Campos comunes (no se repiten): `TenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`, `deletedAt` (solo catálogos), `legacy` (clave ProCoop original, migración; subdocumento de T05 `{system: 'procoop', table, key, displayKey, runId, hash, readOnly, priorMigration}`, antes `legacyRef`). Importes `DECIMAL(18,4)` con `currency`. Todos los índices empiezan por `TenantId`. Los documentos económicos nunca se borran.
 
 Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`, `supplierReceipts`, `supplierInvoices`, `paymentOrders`, `supplierAdvances`, `matchExceptions` y `signalRightsSettlements` llevan `legalEntityId` → `legalEntities` (T04), origen `COD_EMP`; en `supplierInvoices`, `paymentOrders` y `purchaseOrders` es obligatorio por el esquema base de RF-CFG-136 (T04), que rechaza el documento sin entidad o con entidad inactiva a su fecha. Una OP solo aplica comprobantes de la misma entidad; el libro IVA compras (M06) y los asientos (M15) se emiten por entidad. El proveedor (`suppliers`) es compartido por el tenant. Nombres canónicos (T05 §7.2, CTR-DAT-30): `storedFileId`, `workflowInstanceId`; derivados con rol como `<rol>StoredFileId(s)`: `specStoredFileIds` y `dossierCoverStoredFileId` en `sourcingEvents` (antes `specFileIds`, `dossierCoverFileId`), `wholesaleSupply.sourceStoredFileId` (antes `sourceFileId`) y `signalRightsSettlements.declarationStoredFileId` (antes `declarationFileId`, COL-CMP-23); el CBU del proveedor en `paymentOrders` es `supplierBankAccountId` (cuenta del proveedor en `suppliers.bankAccounts`, no una cuenta de tesorería `treasuryAccountId`).
 
@@ -376,7 +378,7 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 | Campo | Tipo | Oblig. | Descripción / origen |
 |---|---|---|---|
 | `code` | String | Sí | Código legible (`COD_PROV`) |
-| `personId` | ObjectId | Sí | Persona de M01 que tiene el rol de proveedor (DEC-097); se obtiene con el alta asistida de M01 (RF-PER-174). Única por tenant. Antes: opcional (§7.13.1) |
+| `personId` | uniqueidentifier | Sí | Persona de M01 que tiene el rol de proveedor (DEC-097); se obtiene con el alta asistida de M01 (RF-PER-174). Única por tenant. Antes: opcional (§7.13.1) |
 | `identitySnapshot` | Object (proyección) | Calculado | `{ displayName, tradeName, taxId, vatConditionId, refreshedAt }` copiado de la persona de M01 al crear y al recibir `per.person.updated` / `per.taxId.verified`; solo lectura, para búsquedas, índices, el portal y el cruce de Mis Comprobantes por CUIT. La fuente es M01 (DEC-097) |
 | `legalName`, `tradeName` | — | — | **Reemplazado (10-11-2026, DEC-097):** se leen de `persons.legalName`/`displayName` y `persons.tradeName` (M01); copia en `identitySnapshot`. Fila anterior: "String · Sí/No · `NOM_PRO`" |
 | `taxId` | — | — | **Reemplazado (10-11-2026, DEC-097):** es la identificación CUIT de la persona (`persons.identifiers`, M01), única por tenant por RN-PER-005; copia en `identitySnapshot.taxId`. Fila anterior: "String (CUIT) · Sí · `CUIT`; único" |
@@ -385,15 +387,15 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 | `addresses[]` | — | — | **Reemplazado (10-11-2026, DEC-097):** domicilios de la persona en M01 (`persons.addresses` con rol `fiscal` y `commercial`). Fila anterior: "Array · Sí · `{ kind: fiscal\|commercial, street, number, neighborhood, province, locality, postalCode }` (`DOM_*`)" |
 | `contacts[]` | Array | No | Contactos comerciales del rol: `{ name, role, phone, mobile, email, preferredChannel }`, personas de contacto con su función. Los teléfonos y correos del propio proveedor son contactos de la persona en M01 (`DOM_TEL`, `DOM_FAX`, email; DEC-097). Antes: "`{ name, role, phone, mobile, email, preferredChannel }` (`DOM_TEL`, `DOM_FAX`, email)" |
 | `bankAccounts[]` | Array | No | `{ accountId, description, cbu, alias, bankCode, holderName, holderTaxId, preferred, status: pendingApproval\|approved\|disabled, approvedBy, approvedAt }` (`PROVEED_CBU`) |
-| `productTypeIds[]` | ObjectId | No | `PROVEED_TIPPROD` |
+| `productTypeIds[]` | uniqueidentifier | No | `PROVEED_TIPPROD` |
 | `authorizedPersons[]` | Array | No | `{ name, documentNumber, authorizedAt, expiresAt?, note }` (`PROVEED_AUT`) |
 | `categoryAssignments[]` | Array | Según config | `{ categoryId, since }` (`RUBXPRO`, `RPSXPROV`) |
 | `notes[]` | Array | No | `{ text, at, by }` (`OBS_PRO`) |
 | `linkedAccounts[]` | Array | No | `{ accountId, personId, relation }` (`PROVSUM`) |
 | `paysOthers` | Boolean | Sí | `PERPAGOTROS` |
-| `isEmployee`, `employeeId` | Boolean, ObjectId | No | Proveedor-empleado (M16) |
+| `isEmployee`, `employeeId` | Boolean, uniqueidentifier | No | Proveedor-empleado (M16) |
 | `defaultPaymentTerms` | Object | No | `{ days, method, currency }` |
-| `accountingAccountId` | ObjectId | Según P3068 | Cuenta del proveedor (M15) |
+| `accountingAccountId` | uniqueidentifier | Según P3068 | Cuenta del proveedor (M15) |
 | `documents[]` | Array | No | `{ type, storedFileId, validUntil, required }` (trámites) |
 | `portal` | Object | No | `{ enabled, invitedUsers[], lastAccessAt }` |
 | `performance` | Object | Calculado | `{ onTimeRate, qtyDiffRate, priceDiffRate, returnsRate, avgScore, computedAt }` |
@@ -404,7 +406,7 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 ### 7.2 Catálogos
 
 - `supplierCategories`: `{ code, name, shortName, bankCode?, allowsDeferredPayment, kind: supplier|productService }`. Origen `RUBPROV` (`COD_RUB`, `DES_RUB`, `DES_RUBR`, `COD_BAN`, `PAGDIF`) y `RPSPROV` (`DES_RUB`, `DES_RUBR`) unificados (CTR-CMP-10).
-- `purchaseConcepts`: `{ code, name, printName, unit, accountingCategoryId, vatRateCode, nonTaxed, type, vatType, grossIncomeCode, active }`. Origen `CON_COM` (`COD_RUB`, `DES_CON`, `DES_FOR`, `UNI_MED`, `COD_ALI`, `CON_NOG`, `TIPO`, `TIPO_IVA`, `COD_IB`); `CON_COM_RET` → M06 `withholdingAssignments`. Absorbe además `CON_TASAS` (conceptos asociados a tasas, que ProCoop administra solo desde Compras; T05 COL-CMP-05, T07 §19.2, HUECO-TAS-03): campos `kind` (Enum `purchase` | `rateConcept`, default `purchase`; `rateConcept` para las filas de `CON_TASAS`), `ratePercent` (Decimal128, obligatorio si `kind = rateConcept`; tasa aplicada) y `purchaseBookColumn` (String; columna del libro de IVA compras donde se acumula). Ninguna regla de facturación lee estos conceptos (antes `CON_TASAS` iba a `taxes` de M06 o a `chargeRules` de M04).
+- `purchaseConcepts`: `{ code, name, printName, unit, accountingCategoryId, vatRateCode, nonTaxed, type, vatType, grossIncomeCode, active }`. Origen `CON_COM` (`COD_RUB`, `DES_CON`, `DES_FOR`, `UNI_MED`, `COD_ALI`, `CON_NOG`, `TIPO`, `TIPO_IVA`, `COD_IB`); `CON_COM_RET` → M06 `withholdingAssignments`. Absorbe además `CON_TASAS` (conceptos asociados a tasas, que ProCoop administra solo desde Compras; T05 COL-CMP-05, T07 §19.2, HUECO-TAS-03): campos `kind` (Enum `purchase` | `rateConcept`, default `purchase`; `rateConcept` para las filas de `CON_TASAS`), `ratePercent` (DECIMAL(18,4), obligatorio si `kind = rateConcept`; tasa aplicada) y `purchaseBookColumn` (String; columna del libro de IVA compras donde se acumula). Ninguna regla de facturación lee estos conceptos (antes `CON_TASAS` iba a `taxes` de M06 o a `chargeRules` de M04).
 - `purchaseLookups`: `{ kind: recipient|spendingUnit|fuel|contractingModality|department|deliveryPlace, code, name, notes, thresholds? }`. Origen `DESTINATARIO_SAPROV` (`NOM_DES`), `UNIDADES_GASTOS` (`DES_UNIDADES`, `OBS_UNIDADES`), `COMBUSTIBLES` (`COMBUSTIBLE`). **Corregido (CTR-DAT-54):** `purchaseLookups` conserva solo `kind = recipient|contractingModality|department|deliveryPlace`; las unidades de gasto son `expenseUnits` de M13 (`UNIDADES_GASTOS`) y los combustibles `fuelTypes` de M18 (`COMBUSTIBLES`). Los valores `spendingUnit` y `fuel` del enum quedan sin uso: las solicitudes, OC y comprobantes referencian `expenseUnitId` [M13] y `fuelTypeId` [M18].
 - `supplierEvaluations`: `{ supplierId, userId, date, quality, score, note, sourceDocument? }`. Origen `PROVEED_VALORACIONES`.
 - `supplierCorrespondence`: `{ supplierIds[] | filter, kind: circular|email|sms|whatsapp, templateId, subject, body, sentAt, deliveries[{ supplierId, status }] }`. Origen `CIRCUPRO` (`DES_CIR`, `TEXTO`).
@@ -417,11 +419,11 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 | `number` | String | Sí | Por tipo y punto (`COD_COM`, `SUC_COM`, `NUM_COM`) |
 | `date`, `requiredBy` | Date | Sí/No | `FECHA`, `HORA` |
 | `origin` | Object | Sí | `{ type: manual\|reorderPoint\|workOrder\|project\|manufacturing, refId? }` |
-| `requesterId`, `recipientId`, `departmentId` | ObjectId | Sí/Según P2705/No | `USU_SOL`, `COD_DES` |
+| `requesterId`, `recipientId`, `departmentId` | uniqueidentifier | Sí/Según P2705/No | `USU_SOL`, `COD_DES` |
 | `criticality` | Enum | Sí | `normal`, `high`, `urgent` |
 | `modality` | Enum | Sí | `unassigned`, `pettyCash`, `quoteByMail`, `priceContest`, `contest`, `tender` |
 | `items[]` | Array | Sí | `{ itemId, lineType: product\|concept\|text, productId?, conceptId?, description, quantity, unit, estimatedCost, lastPurchasePrice, pendingQty, receivedQty, serviceCode?, costCenterId?, workOrderId?, projectId?, warehouseId?, allocation[]?, rejected, rejectReason, note }` (`IT_APROV`: `COD_PROD`, `PRO_CON`, `CANT_PED`, `CANT_REC`, `COSTO`, `OBSE`, `CAN_PEN`, `DES_PRO`, `USU_SOL`, `COD_DES`, `OBSE2`) |
-| `estimatedTotal` | Decimal128 | Sí | `ESTIMADO` |
+| `estimatedTotal` | DECIMAL(18,4) | Sí | `ESTIMADO` |
 | `approval` | Object | No | `{ workflowInstanceId, requiresDouble, approvals[{ userId, at, level }] }` (`AUTORIZADO`, `USU_AUTO`, `USU_AUTO2`, `DOBLE_AUTO`) |
 | `takenByPurchasingAt` | Date | No | `FEC_COMPRAS` |
 | `exportedForSignature` | Object | No | `{ at, by }` (`EXPORTADA`) |
@@ -441,8 +443,8 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 |---|---|---|---|
 | `number` | String | Sí | Por tipo y punto |
 | `kind` | Enum | Sí | `standard`, `blanket` (marco), `release` (liberación) |
-| `blanketOrderId` | ObjectId | Si `release` | OC marco |
-| `supplierId` | ObjectId | Sí | `COD_PROV` |
+| `blanketOrderId` | uniqueidentifier | Si `release` | OC marco |
+| `supplierId` | uniqueidentifier | Sí | `COD_PROV` |
 | `date`, `deliveryDate`, `estimatedPaymentDate` | Date | Sí/Según P2735/Según P2810 | `FECHA`, `FENTREGA` |
 | `paymentTerms`, `deliveryTerms`, `deliveryPlace` | String/Object | Sí | Forma de pago, plazos, lugar |
 | `requesterId`, `signerName`, `departmentId` | | No | `USU_GEN`, firmante, departamento |
@@ -466,7 +468,7 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 
 | Campo | Tipo | Oblig. | Descripción / origen |
 |---|---|---|---|
-| `supplierId` | ObjectId | Sí | `COD_PROV` |
+| `supplierId` | uniqueidentifier | Sí | `COD_PROV` |
 | `documentType`, `pointOfSale`, `number`, `letter` | String/Number | Sí | `COD_COM`, `SUC_COM`, `NUM_COM` |
 | `kind` | Enum | Sí | `invoice`, `debitNote`, `creditNote`, `ticket`, `receipt`, `advance`, `advanceOffset` |
 | `issueDate`, `accountingDate` | Date | Sí | `FECHA`, `FEC_CON` |
@@ -474,11 +476,11 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 | `currency`, `exchangeRate` | | Sí | |
 | `authorization` | Object | No | `{ type: CAE\|CAI\|CAEA, code, dueDate, arcaCheck: { status, at } }` |
 | `amounts` | Object | Sí | `{ taxedNet, nonTaxed, exempt, vat[{ rate, base, amount }], perceptions[{ tax, jurisdiction, amount }], internalTaxes, otherTaxes, total }` (`IMP_GRA`, `IMP_EXE`, `IMP_NGR`, `IMP_PER`; `FPALIC_IVA`: `PORC_IVA`, `IMP_IVA`, `IMP_BASE`) |
-| `vatTakenPct` | Decimal128 | No | IVA no tomado (P2890) |
+| `vatTakenPct` | DECIMAL(18,4) | No | IVA no tomado (P2890) |
 | `items[]` | Array | Sí | `{ itemId, productId?, conceptId?, description, quantity, unitPrice, vatRate, vatNotTaken, accountingCategoryId, allocation[], expenseUnitId? [M13] (antes `spendingUnitId`, CTR-DAT-54), sourceLinks[], pendingReceiptQty, pendingStock: Boolean, matchStatus }` (`FPITEMS`: `COD_PRO`, `PRO_CON`, `CAN_PRO`, `PRE_UNI`, `IVA`, `COD_COMRE`, `SUC_COMRE` y 17 más) |
 | `fuel[]` | Array | No | `{ fuelTypeId [M18] (antes `fuelId`, CTR-DAT-54), liters, km, vehicleRef }` (`IVACOM_COMBUSTIBLES`: `ID_COMBUST`, `LTS`, `KM`, `COD_MOV`) |
 | `wholesaleSupply` | Object | No | Factura mayorista (RF-CMP-149, RF-CMP-152; HUE-ELE-01, HUE-GAS-04): `{ kind: energy\|gas, serviceId, period, sourceStoredFileId?, lines[{ meteringPointId (M03), band?, quantity, unit: kWh\|kVArh\|kW\|m3, correctionFactor?, measuredQuantity, difference, amount }], meteringCheck: { status: pending\|matched\|exception, checkedAt }, balanceId? }` |
-| `signalRightsSettlementId` | ObjectId | No | Liquidación de derechos de señales que concilia la factura de la programadora (RF-CMP-155; HUE-TV-01) |
+| `signalRightsSettlementId` | uniqueidentifier | No | Liquidación de derechos de señales que concilia la factura de la programadora (RF-CMP-155; HUE-TV-01) |
 | `separateInVatBook` | Mixed | No | P832 |
 | `customerServiceRef` | Object | No | Servicio de un cliente (P2277) |
 | `housingCategoryCheck` | Boolean | No | P2502/P2503 |
@@ -486,7 +488,7 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 | `sourceRefs` | Object | No | `{ portalSubmissionId?, arcaImportLineId?, aiExtractionId? }` |
 | `matchStatus` | Enum | Sí | `notRequired`, `matched`, `exception`, `withoutPO` |
 | `paymentRelease` | Object | Sí | `{ status: blocked\|released\|partiallyReleased, releasedAmount, by, at, reason }` (`PER_PAGO`) |
-| `balance`, `committedForPayment` | Decimal128 | Sí | `SALDO` |
+| `balance`, `committedForPayment` | DECIMAL(18,4) | Sí | `SALDO` |
 | `status` | Enum | Sí | §8.5 |
 
 Índices: `{tenantId, supplierId, documentType, pointOfSale, number}` único parcial (`status != voided`); `{tenantId, status, "paymentRelease.status"}`; `{tenantId, accountingDate}`; `{tenantId, supplierId, balance}`. Origen `IVACOM` (`COD_EMP`, `FEC_CON`, `FECHA`, `COD_COM`, `SUC_COM`, `NUM_COM`, `COD_PROV`, `COD_RUB`, `IMP_GRA`, `IMP_EXE`, `IMP_NGR`, `IMP_PER` y 35 más), `FPITEMS`, `FPALIC_IVA`, `IVACOM_COMBUSTIBLES`.
@@ -504,8 +506,8 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 | Campo | Tipo | Oblig. | Descripción / origen |
 |---|---|---|---|
 | `number` | String | Sí | Por tipo y punto (sin renumerar al chocar) |
-| `supplierId`, `beneficiaryName` | ObjectId, String | Sí/No | `COD_PROV`; P1029 |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica pagadora, la de las facturas aplicadas (DEC-064; clave de T05; PA-CMP-16) |
+| `supplierId`, `beneficiaryName` | uniqueidentifier, String | Sí/No | `COD_PROV`; P1029 |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica pagadora, la de las facturas aplicadas (DEC-064; clave de T05; PA-CMP-16) |
 | `paymentDate`, `expectedExecutionDate` | Date | Sí | `FEC_PAG` |
 | `applications[]` | Array | Sí | `{ invoiceId, supplierId, amountApplied, fullPayment }` (`PPITEMS`: `ID_IVACOM`, `COD_C`, `SUC_C`, `NUM_C`, `FAC_PAGA`, `TOTAL_C`) |
 | `creditApplications[]` | Array | No | NC y anticipos aplicados |
@@ -513,7 +515,7 @@ Entidad jurídica (DEC-064): `supplyRequests`, `quoteRequests`, `purchaseOrders`
 | `discount` | Object | No | `{ pct, amount }` (`POR_DES`, `IMP_DES`, `SIN_DES`) |
 | `withholdings[]` | Array | Sí | Instantánea de M06: `{ withholdingAppliedId, tax, regimeCode, base, amount, calculatedAmount, adjusted: { by, reason }?, certificateNumber }` (`RETG`, `RETB`; detalle en `withholdingsApplied`) |
 | `totals` | Object | Sí | `{ gross, withholdings, discount, net }` |
-| `supplierBankAccountId` | ObjectId | No | CBU aprobado preferido |
+| `supplierBankAccountId` | uniqueidentifier | No | CBU aprobado preferido |
 | `approval` | Object | Sí | `{ policyBand, workflowInstanceId, approvedBy[], approvedAt }` |
 | `execution` | Object | No | `{ paymentExecutionId (M14), status, executedAt }` |
 | `status` | Enum | Sí | §8.6 |
@@ -577,14 +579,14 @@ Lista original: §7.2.
 | `name` | string | [VERIFICAR] | — | — |
 | `printName` | string | [VERIFICAR] | — | — |
 | `unit` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `accountingCategoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `accountingCategoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
 | `vatRateCode` | string | [VERIFICAR] | — | — |
 | `nonTaxed` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `type` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `vatType` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `grossIncomeCode` | string | [VERIFICAR] | — | — |
 | `active` | bool | [VERIFICAR] | — | — |
-| `vatRateId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `vatRates` (M06); antes implícita por el nombre |
+| `vatRateId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `vatRates` (M06); antes implícita por el nombre |
 
 #### 7.13.4 `purchaseLookups` (COL-CMP-06)
 
@@ -604,8 +606,8 @@ Lista original: §7.2.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
-| `userId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
+| `userId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `date` | Date | [VERIFICAR] | — | — |
 | `quality` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `score` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -620,12 +622,12 @@ Lista original: §7.2.
 |---|---|---|---|---|
 | `supplierIds` | array | [VERIFICAR] | \| filter | `suppliers` (M12) |
 | `kind` | enum | [VERIFICAR] | Valores: `circular`, `email`, `sms`, `whatsapp`. | — |
-| `templateId` | ObjectId | [VERIFICAR] | — | `messageTemplates` (T09) (antes `[VERIFICAR]`) |
+| `templateId` | uniqueidentifier | [VERIFICAR] | — | `messageTemplates` (T09) (antes `[VERIFICAR]`) |
 | `subject` | string | [VERIFICAR] | — | — |
 | `body` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `sentAt` | Date | [VERIFICAR] | — | — |
 | `deliveries` | array | [VERIFICAR] | [{ supplierId, status }] | — |
-| `communicationId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `communications` (T09) |
+| `communicationId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `communications` (T09) |
 
 #### 7.13.7 `purchaseForecasts` (COL-CMP-17)
 
@@ -633,16 +635,16 @@ Lista original: §7.2.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
-| `conceptId` | ObjectId | No | — | `billableConcepts` (M02) |
-| `productId` | ObjectId | No | T05 nombra el campo `inventoryItemId` (§7.2); `productId` queda como alias (PA-CMP-16). | `inventoryItems` (M13) (antes `[VERIFICAR]`) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
+| `conceptId` | uniqueidentifier | No | — | `billableConcepts` (M02) |
+| `productId` | uniqueidentifier | No | T05 nombra el campo `inventoryItemId` (§7.2); `productId` queda como alias (PA-CMP-16). | `inventoryItems` (M13) (antes `[VERIFICAR]`) |
 | `from` | Date | [VERIFICAR] | — | — |
 | `to` | Date | [VERIFICAR] | — | — |
 | `periodicity` | enum | [VERIFICAR] | Valores: `monthly`, `bimonthly`, `quarterly`, `weekly`, `biweekly`. | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `currency` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `serviceCode` | string | No | — | — |
-| `costCenterId` | ObjectId | No | — | `costCenters` (M15) |
+| `costCenterId` | uniqueidentifier | No | — | `costCenters` (M15) |
 
 #### 7.13.8 `supplyRequests` (COL-CMP-07) — referencias declaradas
 
@@ -658,19 +660,19 @@ Lista original: §7.4.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `groupId` | ObjectId | [VERIFICAR] | — | — (identificador que agrupa las solicitudes enviadas juntas a varios proveedores; no es referencia; antes `[VERIFICAR]`) |
-| `sourcingEventId` | ObjectId | No | — | `sourcingEvents` (M12); antes implícita por el nombre |
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
+| `groupId` | uniqueidentifier | [VERIFICAR] | — | — (identificador que agrupa las solicitudes enviadas juntas a varios proveedores; no es referencia; antes `[VERIFICAR]`) |
+| `sourcingEventId` | uniqueidentifier | No | — | `sourcingEvents` (M12); antes implícita por el nombre |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
 | `date` | Date | [VERIFICAR] | — | — |
 | `dueDate` | Date | [VERIFICAR] | — | — |
 | `currency` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `exchangeRate` | Decimal128 | [VERIFICAR] | — | — |
+| `exchangeRate` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `sentAt` | Date | [VERIFICAR] | — | — |
 | `sentChannel` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `rejectReason` | string | [VERIFICAR] | — | — |
 | `items` | array | [VERIFICAR] | [{ itemId, productId?, conceptId?, description, quantity, unitCost, previousCost, validityDays, leadTimeDays, note, criticality, pendingQty, evaluation: pending\|award… | — |
-| `supplierIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `suppliers` (M12) |
+| `supplierIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `suppliers` (M12) |
 
 #### 7.13.10 `sourcingEvents` (COL-CMP-09)
 
@@ -683,14 +685,14 @@ Lista original: §7.4.
 | `title` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `specStoredFileIds` | array | [VERIFICAR] | — | `storedFiles` (T01) |
 | `invitedSupplierIds` | array | [VERIFICAR] | — | `suppliers` (M12) |
-| `invitationTemplateId` | ObjectId | [VERIFICAR] | — | `documentTemplates` (T11) (antes `[VERIFICAR]`) |
+| `invitationTemplateId` | uniqueidentifier | [VERIFICAR] | — | `documentTemplates` (T11) (antes `[VERIFICAR]`) |
 | `offersDueAt` | Date | [VERIFICAR] | — | — |
 | `openedAt` | Date | [VERIFICAR] | — | — |
 | `openingAct` | object | [VERIFICAR] | { storedFileId, attendees[] } | — |
 | `awardSheet` | object | [VERIFICAR] | { storedFileId } | — |
-| `dossierCoverStoredFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `dossierCoverStoredFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `status` | enum | [VERIFICAR] | Valores: `draft`, `published`, `closed`, `opened`, `awarded`, `cancelled`. | — |
-| `quoteRequestId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `quoteRequests` (M12); antes implícita por el nombre |
+| `quoteRequestId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `quoteRequests` (M12); antes implícita por el nombre |
 
 #### 7.13.11 `purchaseOrders` (COL-CMP-10) — referencias declaradas
 
@@ -709,11 +711,11 @@ Lista original: §7.6.
 |---|---|---|---|---|
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `supplierDocument` | object | [VERIFICAR] | { type, pointOfSale, number }? | — |
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
 | `date` | Date | [VERIFICAR] | — | — |
 | `kind` | enum | [VERIFICAR] | Valores: `goods`, `serviceAcceptance`, `return`. | — |
-| `warehouseId` | ObjectId | No | — | `warehouses` (M13) |
-| `receiverId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) (usuario que recibe; antes `[VERIFICAR]`) |
+| `warehouseId` | uniqueidentifier | No | — | `warehouses` (M13) |
+| `receiverId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) (usuario que recibe; antes `[VERIFICAR]`) |
 | `items` | array | [VERIFICAR] | [{ itemId, purchaseOrderItemRef?, productId?, conceptId?, description, quantity, unitPrice?, invoicedQty, pendingToInvoiceQty, pendingStockEntry: Boolean, serials[], l… | — |
 | `stockStatus` | enum | [VERIFICAR] | Valores: `notApplicable`, `pending`, `confirmed`, `rejected`. | — |
 | `stockMovementIds` | array | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
@@ -733,14 +735,14 @@ Lista original: §7.8.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `originType` | enum | [VERIFICAR] | Valores: `supplyRequest`, `quoteRequest`, `purchaseOrder`, `receipt`, `invoice`. | — |
-| `originId` | ObjectId | [VERIFICAR] | — | Polimórfica según `originType`: `supplyRequests`, `quoteRequests`, `purchaseOrders`, `supplierReceipts` o `supplierInvoices` (M12) (antes `[VERIFICAR]`) |
-| `originItemId` | ObjectId | [VERIFICAR] | — | — (renglón embebido `items[].itemId` del documento indicado por `originType`; no es colección; antes `[VERIFICAR]`) |
+| `originId` | uniqueidentifier | [VERIFICAR] | — | Polimórfica según `originType`: `supplyRequests`, `quoteRequests`, `purchaseOrders`, `supplierReceipts` o `supplierInvoices` (M12) (antes `[VERIFICAR]`) |
+| `originItemId` | uniqueidentifier | [VERIFICAR] | — | — (renglón embebido `items[].itemId` del documento indicado por `originType`; no es colección; antes `[VERIFICAR]`) |
 | `targetType` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `targetId` | ObjectId | [VERIFICAR] | — | Polimórfica según `targetType`: `supplyRequests`, `quoteRequests`, `purchaseOrders`, `supplierReceipts` o `supplierInvoices` (M12) (antes `[VERIFICAR]`) |
-| `targetItemId` | ObjectId | [VERIFICAR] | — | — (renglón embebido `items[].itemId` del documento indicado por `targetType`; no es colección; antes `[VERIFICAR]`) |
-| `quantity` | Decimal128 | [VERIFICAR] | — | — |
-| `originPrice` | Decimal128 | [VERIFICAR] | — | — |
-| `targetPrice` | Decimal128 | [VERIFICAR] | — | — |
+| `targetId` | uniqueidentifier | [VERIFICAR] | — | Polimórfica según `targetType`: `supplyRequests`, `quoteRequests`, `purchaseOrders`, `supplierReceipts` o `supplierInvoices` (M12) (antes `[VERIFICAR]`) |
+| `targetItemId` | uniqueidentifier | [VERIFICAR] | — | — (renglón embebido `items[].itemId` del documento indicado por `targetType`; no es colección; antes `[VERIFICAR]`) |
+| `quantity` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `originPrice` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `targetPrice` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `createdAt` | Date | [VERIFICAR] | — | — |
 | `undoneAt` | Date | No | }`. Índices `{tenantId, originType, originId}`; `{tenantId, targetType, targetId | — |
 
@@ -750,10 +752,10 @@ Lista original: §7.9.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `invoiceId` | ObjectId | [VERIFICAR] | — | `supplierInvoices` (M12) (antes `invoices` (M05), que es la factura de venta; PA-CMP-16) |
-| `invoiceItemId` | ObjectId | No | — | — (renglón embebido `items[].itemId` de `supplierInvoices` (M12); antes `[VERIFICAR]`) |
-| `purchaseOrderId` | ObjectId | No | — | `purchaseOrders` (M12); antes implícita por el nombre |
-| `receiptId` | ObjectId | No | — | `supplierReceipts` (M12) (antes `receipts` (M07), que es el recibo de cobranza; PA-CMP-16) |
+| `invoiceId` | uniqueidentifier | [VERIFICAR] | — | `supplierInvoices` (M12) (antes `invoices` (M05), que es la factura de venta; PA-CMP-16) |
+| `invoiceItemId` | uniqueidentifier | No | — | — (renglón embebido `items[].itemId` de `supplierInvoices` (M12); antes `[VERIFICAR]`) |
+| `purchaseOrderId` | uniqueidentifier | No | — | `purchaseOrders` (M12); antes implícita por el nombre |
+| `receiptId` | uniqueidentifier | No | — | `supplierReceipts` (M12) (antes `receipts` (M07), que es el recibo de cobranza; PA-CMP-16) |
 | `type` | enum | [VERIFICAR] | Valores: `quantity`, `price`, `terms`, `withoutPO`, `withoutReceipt`, `excessReceipt`, `meteringMismatch`, `meteringMissing`. | — |
 | `expected` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `actual` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -761,8 +763,8 @@ Lista original: §7.9.
 | `amountInDispute` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `cause` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `decision` | enum | [VERIFICAR] | Valores: `pending`, `accepted`, `claimCreditNote`, `rejected`. | — |
-| `workflowInstanceId` | ObjectId | [VERIFICAR] | — | `workflowInstances` (T11) |
-| `decidedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `workflowInstanceId` | uniqueidentifier | [VERIFICAR] | — | `workflowInstances` (T11) |
+| `decidedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `decidedAt` | Date | [VERIFICAR] | — | — |
 | `note` | [VERIFICAR] | [VERIFICAR] | }`. Índices `{tenantId, invoiceId}`; `{tenantId, decision | — |
 
@@ -772,11 +774,11 @@ Lista original: §7.11.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
-| `paymentOrderId` | ObjectId | [VERIFICAR] | — | `paymentOrders` (M12); antes implícita por el nombre |
-| `conceptId` | ObjectId | [VERIFICAR] | P2035 | `purchaseConcepts` (M12); antes implícita por el nombre |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `appliedAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
+| `paymentOrderId` | uniqueidentifier | [VERIFICAR] | — | `paymentOrders` (M12); antes implícita por el nombre |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | P2035 | `purchaseConcepts` (M12); antes implícita por el nombre |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `appliedAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `installments` | array | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | Valores: `open`, `partiallyApplied`, `applied`, `voided`. | — |
 
@@ -786,17 +788,17 @@ Lista original: §7.11.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `taxId` | string | [VERIFICAR] | — | — (CUIT informado por el proveedor; no es referencia; antes tipo ObjectId y `[VERIFICAR]`) |
+| `taxId` | string | [VERIFICAR] | — | — (CUIT informado por el proveedor; no es referencia; antes tipo uniqueidentifier y `[VERIFICAR]`) |
 | `legalName` | string | [VERIFICAR] | — | — |
-| `supplierId` | ObjectId | No | — | `suppliers` (M12) |
+| `supplierId` | uniqueidentifier | No | — | `suppliers` (M12) |
 | `documentType` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `pointOfSale` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `issueDate` | Date | [VERIFICAR] | — | — |
 | `dueDate` | Date | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `storedFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
-| `submittedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
+| `submittedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `submittedAt` | Date | [VERIFICAR] | — | — |
 | `review` | object | [VERIFICAR] | { status: pending\|registered\|rejected, reason, invoiceId?, by, at } }`. Índice único `{tenantId, taxId, documentType, pointOfSale, number | — |
 
@@ -806,18 +808,18 @@ Lista original: §7.11.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `storedFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `model` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `requestedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `requestedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `requestedAt` | Date | [VERIFICAR] | — | — |
 | `fields` | object | [VERIFICAR] | { name: { value, confidence } } | — |
-| `proposedSupplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
+| `proposedSupplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
 | `proposedItems` | array | [VERIFICAR] | — | — |
 | `tokens` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `outcome` | enum | [VERIFICAR] | Valores: `pending`, `accepted`, `corrected`, `discarded`. | — |
-| `invoiceId` | ObjectId | No | — | `supplierInvoices` (M12) (antes `invoices` (M05); PA-CMP-16) |
+| `invoiceId` | uniqueidentifier | No | — | `supplierInvoices` (M12) (antes `invoices` (M05); PA-CMP-16) |
 | `corrections` | array | [VERIFICAR] | — | — |
-| `aiUsageLogId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `aiUsageLogs` (T06); antes implícita por el nombre |
+| `aiUsageLogId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `aiUsageLogs` (T06); antes implícita por el nombre |
 
 #### 7.13.19 `supplierLedgerEntries` (COL-CMP-20)
 
@@ -825,10 +827,10 @@ Lista original: §7.11.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
 | `date` | Date | [VERIFICAR] | — | — |
 | `documentType` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `documentId` | ObjectId | [VERIFICAR] | — | `documents` (T11) |
+| `documentId` | uniqueidentifier | [VERIFICAR] | — | `documents` (T11) |
 | `debit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `credit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `balanceAfter` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -841,17 +843,17 @@ Lista original: §7.11.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `kind` | enum | [VERIFICAR] | Valores: `energy`, `gas`. | — |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
-| `zoneId` | ObjectId | No | — | `zones` (T04); antes implícita por el nombre |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
+| `zoneId` | uniqueidentifier | No | — | `zones` (T04); antes implícita por el nombre |
 | `period` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `purchasedQty` | Decimal128 | [VERIFICAR] | — | — |
-| `boundaryMeasuredQty` | Decimal128 | [VERIFICAR] | — | — |
-| `billedToUsersQty` | Decimal128 | [VERIFICAR] | — | — |
-| `lossQty` | Decimal128 | [VERIFICAR] | — | — |
-| `lossPct` | Decimal128 | [VERIFICAR] | — | — |
+| `purchasedQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `boundaryMeasuredQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `billedToUsersQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `lossQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `lossPct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `invoiceIds` | array | [VERIFICAR] | — | `supplierInvoices` (M12) (facturas mayoristas de compra; antes `invoices` (M05); PA-CMP-16) |
 | `status` | enum | [VERIFICAR] | Valores: `draft`, `approved`. | — |
-| `approvedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `approvedAt` | Date | [VERIFICAR] | }`. Índice único `{tenantId, kind, serviceId, zoneId, period | — |
 
 #### 7.13.21 `signalRightsContracts` (COL-CMP-22)
@@ -860,7 +862,7 @@ Lista original: §7.11.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `supplierId` | ObjectId | [VERIFICAR] | programadora | `suppliers` (M12) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | programadora | `suppliers` (M12) |
 | `signals` | array | [VERIFICAR] | — | — |
 | `packageIds` | array | [VERIFICAR] | M02 | `serviceProducts` (M02, COL-CAT-05) (paquetes de señales del servicio de TV; antes `servicePlans` (M02), antes `[VERIFICAR]`; PA-CMP-16) |
 | `pricePerSubscriber` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -877,19 +879,19 @@ Lista original: §7.11.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | [VERIFICAR] | — | `signalRightsContracts` (M12) (contrato de señales, T05 COL-CMP-23; antes `serviceContracts` (M02); PA-CMP-16) |
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `signalRightsContracts` (M12) (contrato de señales, T05 COL-CMP-23; antes `serviceContracts` (M02); PA-CMP-16) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
 | `period` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `cutoffDate` | Date | [VERIFICAR] | — | — |
 | `lines` | array | [VERIFICAR] | [{ packageId, activeSubscribers, price, amount }] | — |
 | `minimumApplied` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
-| `adjustsSettlementId` | ObjectId | No | — | `signalRightsSettlements` (M12); antes implícita por el nombre |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `adjustsSettlementId` | uniqueidentifier | No | — | `signalRightsSettlements` (M12); antes implícita por el nombre |
 | `reportRef` | string | [VERIFICAR] | informe de M02 | — (clave del informe de abonados activos que emite M02; no es referencia) |
-| `declarationStoredFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
-| `invoiceId` | ObjectId | No | — | `supplierInvoices` (M12) (factura de la programadora; antes `invoices` (M05); PA-CMP-16) |
+| `declarationStoredFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
+| `invoiceId` | uniqueidentifier | No | — | `supplierInvoices` (M12) (factura de la programadora; antes `invoices` (M05); PA-CMP-16) |
 | `status` | enum | [VERIFICAR] | Valores: `draft`, `approved`, `invoiced`, `voided`. | — |
-| `approvedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `approvedAt` | Date | [VERIFICAR] | }`. Índice único `{tenantId, contractId, period, adjustsSettlementId | — |
 
 ## 8. Estados y transiciones

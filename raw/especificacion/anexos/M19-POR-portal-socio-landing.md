@@ -496,8 +496,10 @@ La verificación del vínculo usuario-titular sigue DEC-043 (PA-PER-01 de M01): 
 | RN-POR-078 | Un servicio retirado de la oferta deja de mostrarse para nuevas contrataciones, pero los contratos existentes siguen visibles y operables. | — | Adoptar (BASE §66) | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Convenciones: todo documento lleva `tenantId` (ObjectId, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`; los índices empiezan por `tenantId`. Ninguna colección de este módulo almacena importes propios (los importes se leen de M05/M07 y viajan como `Decimal128` en las vistas). Los adjuntos se guardan en almacenamiento privado (T11) y aquí solo se referencian por `fileId`. Nombres canónicos de T05 (CTR-DAT-30, CTR-DAT-32): `fileId` se lee `storedFileId` (binario en `storedFiles` de T01) o `documentRefId` (expediente de T11) según apunte a archivo o a documento; `legacyRef` se reemplaza por el subdocumento `legacy` de T05 §19.1 (`{system, table, key, runId, hash, readOnly}`); las solicitudes de derechos del titular de datos que origina el portal se guardan en `dataSubjectRequests` de T08 (CTR-DAT-19), M19 solo las inicia y muestra su estado.
+
+Convenciones: todo documento lleva `TenantId` (uniqueidentifier, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`; los índices empiezan por `TenantId`. Ninguna colección de este módulo almacena importes propios (los importes se leen de M05/M07 y viajan como `DECIMAL(18,4)` en las vistas). Los adjuntos se guardan en almacenamiento privado (T11) y aquí solo se referencian por `fileId`. Nombres canónicos de T05 (CTR-DAT-30, CTR-DAT-32): `fileId` se lee `storedFileId` (binario en `storedFiles` de T01) o `documentRefId` (expediente de T11) según apunte a archivo o a documento; `legacyRef` se reemplaza por el subdocumento `legacy` de T05 §19.1 (`{system, table, key, runId, hash, readOnly}`); las solicitudes de derechos del titular de datos que origina el portal se guardan en `dataSubjectRequests` de T08 (CTR-DAT-19), M19 solo las inicia y muestra su estado.
 
 > **Corrección 05-11-2026 (tablas de campos):** las tablas de este §7 incorporan la columna Referencia, que declara la colección destino y su anexo dueño según los nombres canónicos de T05 §7.2 (`userId` → `memberships` de T02, `accountId` → `accounts` de M01, `contractIds` → `serviceContracts` de M02). Se agregan los campos de referencia que T05 declara y este anexo no describía (`tenantBrandingId`, `formVersionId`, `migrationRunId`, `localAgentId`), con obligatoriedad `[VERIFICAR]`, y `portalForms.serviceCode` pasa a `serviceId` (nombre de T05).
 
@@ -507,17 +509,17 @@ Propósito: configuración vigente de la landing de un tenant (una por tenant y 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `tenantId` | ObjectId | Sí |  | `tenants` (T01) |
+| `TenantId` | uniqueidentifier | Sí |  | `tenants` (T01) |
 | `locale` | String | Sí | `es-AR` por defecto | — |
 | `slug` | String | Sí | Subdominio (`coop-a`) | — |
 | `customDomain` | String | No | Dominio propio verificado (PA-POR-12). Copia validada contra el registro único de dominios `tenants.domains` de T01, que es el que resuelve el tenant (CTR-DAT-56); no se acepta un valor que no exista allí | — |
 | `customDomainStatus` | Enum | No | `pendienteVerificacion`, `verificado`, `certificadoEmitido`, `error` | — |
-| `publishedVersionId` | ObjectId | No | Versión publicada vigente | `landingPageVersions` (M19) |
-| `draftVersionId` | ObjectId | No | Versión en edición | `landingPageVersions` (M19) |
+| `publishedVersionId` | uniqueidentifier | No | Versión publicada vigente | `landingPageVersions` (M19) |
+| `draftVersionId` | uniqueidentifier | No | Versión en edición | `landingPageVersions` (M19) |
 | `seo` | Object | No | `{ titleKey, descriptionKey, ogImageStoredFileId, indexable: Boolean }` (antes `ogImageFileId`, CTR-DAT-30) | — |
 | `legacyRedirects` | Array | No | `[{ fromPath, toPath, active }]` (RF-POR-020) | — |
 | `status` | Enum | Sí | `activa`, `suspendida` (tenant suspendido T01) | — |
-| `tenantBrandingId` | ObjectId | [VERIFICAR] | Marca del tenant que usa la landing; T05 (COL-POR-01) la declara y este anexo no la describía | `tenantBrandings` (T03) |
+| `tenantBrandingId` | uniqueidentifier | [VERIFICAR] | Marca del tenant que usa la landing; T05 (COL-POR-01) la declara y este anexo no la describía | `tenantBrandings` (T03) |
 
 Índices: `{ tenantId: 1, locale: 1 }` único; `{ slug: 1 }` único global (resolución de tenant desde subdominio, sin tenant en token); `{ customDomain: 1 }` único parcial (control de consistencia; la unicidad y la resolución de dominios propios las garantiza `tenants.domains` de T01, CTR-DAT-56).
 
@@ -527,15 +529,15 @@ Propósito: versiones inmutables de la landing (RN-POR-067).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `landingPageId` | ObjectId | Sí |  | `landingPages` (M19) |
+| `landingPageId` | uniqueidentifier | Sí |  | `landingPages` (M19) |
 | `number` | Int | Sí | Correlativo | — |
 | `status` | Enum | Sí | `borrador`, `enRevision`, `aprobada`, `programada`, `publicada`, `archivada`, `rechazada` | — |
 | `blocks` | Array | Sí | `[{ blockId, type, order, visible, props }]`; `type` ∈ `hero`, `serviciosDestacados`, `accesosRapidos`, `noticias`, `avisosInterrupcion`, `tramites`, `faq`, `contacto`, `sucursales`, `redes`, `botonBaja`, `textoLibre`, `imagenTexto`, `pieLegal` | — |
 | `blocks[].props` | Object | Sí | Validado por esquema Zod por tipo; textos como claves `dict:` o texto plano saneado (sin HTML) | — |
 | `scheduledAt` | Date | No | Publicación programada | — |
-| `publishedAt` / `publishedBy` | Date / ObjectId | No |  | `memberships` (T02) (solo `publishedBy`) |
+| `publishedAt` / `publishedBy` | Date / uniqueidentifier | No |  | `memberships` (T02) (solo `publishedBy`) |
 | `reviewComment` | String | No |  | — |
-| `previousVersionId` | ObjectId | No | Para revertir | `landingPageVersions` (M19) |
+| `previousVersionId` | uniqueidentifier | No | Para revertir | `landingPageVersions` (M19) |
 
 Reglas: el bloque `botonBaja` no puede ocultarse si el tenant tiene servicios con capacidad "botón de baja" (RN-POR-077); el validador lo exige en portada y pie. Índices: `{ tenantId: 1, landingPageId: 1, number: -1 }`.
 
@@ -545,19 +547,19 @@ Propósito: acceso de un usuario a una cuenta con rol, alcance y vigencia (reemp
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `userId` | ObjectId | Sí | Usuario T02 | `memberships` (T02) |
-| `personId` | ObjectId | Sí | Persona M01 del usuario en este tenant | `persons` (M01) |
-| `accountId` | ObjectId | Sí | Cuenta M01 | `accounts` (M01) |
-| `contractIds` | [ObjectId] | No | Si el acceso se limita a contratos concretos (vacío = todos los de la cuenta) | `serviceContracts` (M02) |
+| `userId` | uniqueidentifier | Sí | Usuario T02 | `memberships` (T02) |
+| `personId` | uniqueidentifier | Sí | Persona M01 del usuario en este tenant | `persons` (M01) |
+| `accountId` | uniqueidentifier | Sí | Cuenta M01 | `accounts` (M01) |
+| `contractIds` | [uniqueidentifier] | No | Si el acceso se limita a contratos concretos (vacío = todos los de la cuenta) | `serviceContracts` (M02) |
 | `role` | Enum | Sí | `titular`, `cotitular`, `representanteLegal`, `autorizado`, `autorizadoConsulta` | — |
 | `actions` | [Enum] | Sí | `consultar`, `pagar`, `gestionar`, `solicitarBaja`, `firmar` | — |
 | `origin` | Enum | Sí | `codigoSocioClave`, `suministroDocumento`, `factura`, `codigoContactoTitular` (RF-POR-179, DEC-043), `identidadFederada`, `invitacionOperador`, `invitacionTitular`, `relacionLegalValidada`, `migracionCoopOnline`, `altaPorTramite` | — |
 | `evidence` | Object | No | `{ relationId (M01), storedFileIds, verifiedBy, verifiedAt, idpLevel }` (antes `fileIds`, CTR-DAT-30) | — |
-| `grantedByUserId` | ObjectId | No | Titular que invitó | `memberships` (T02) |
+| `grantedByUserId` | uniqueidentifier | No | Titular que invitó | `memberships` (T02) |
 | `validFrom` / `validTo` | Date | Sí / No | Vigencia | — |
 | `status` | Enum | Sí | `pendienteVerificacion`, `pendienteConfirmacionTitular`, `activo`, `suspendido`, `revocado`, `vencido` | — |
 | `revokedAt` | Date | No | Antes en una fila conjunta con `revokedBy` y `revokeReason` (PA-POR-22) | — |
-| `revokedBy` | ObjectId | No | Usuario que revocó | `memberships` (T02) |
+| `revokedBy` | uniqueidentifier | No | Usuario que revocó | `memberships` (T02) |
 | `revokeReason` | String | No | Motivo de la revocación | — (texto, no es referencia) |
 | `isDefault` | Boolean | No | Cuenta por defecto del usuario | — |
 | `lastUsedAt` | Date | No |  | — |
@@ -571,11 +573,11 @@ Propósito: intentos de vinculación para limitar abuso y auditar (RN-POR-005).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `userId` | ObjectId | Sí |  | `memberships` (T02) |
+| `userId` | uniqueidentifier | Sí |  | `memberships` (T02) |
 | `method` | Enum | Sí | Igual a `origin` de 7.3 | — |
 | `inputFingerprint` | String | Sí | Hash HMAC de los datos ingresados (nunca en claro) | — |
 | `result` | Enum | Sí | `exito`, `datosInvalidos`, `bloqueado`, `requiereAsistencia`, `pendienteTitular` | — |
-| `accountId` | ObjectId | No | Solo si `exito` | `accounts` (M01) |
+| `accountId` | uniqueidentifier | No | Solo si `exito` | `accounts` (M01) |
 | `ip` / `userAgentHash` | String | Sí |  | — |
 | `expiresAt` | Date | Sí | TTL 90 días | — |
 
@@ -587,16 +589,16 @@ Propósito: invitaciones de representación del titular a un tercero (AGR-007).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `accountId` | ObjectId | Sí |  | `accounts` (M01) |
-| `contractIds` | [ObjectId] | No |  | `serviceContracts` (M02) |
-| `grantorUserId` | ObjectId | Sí | Titular | `memberships` (T02) |
+| `accountId` | uniqueidentifier | Sí |  | `accounts` (M01) |
+| `contractIds` | [uniqueidentifier] | No |  | `serviceContracts` (M02) |
+| `grantorUserId` | uniqueidentifier | Sí | Titular | `memberships` (T02) |
 | `inviteeContact` | Object | Sí | `{ email?, phone?, documentType?, documentNumberHash? }` | — |
-| `inviteeUserId` | ObjectId | No | Al aceptar | `memberships` (T02) |
+| `inviteeUserId` | uniqueidentifier | No | Al aceptar | `memberships` (T02) |
 | `actions` | [Enum] | Sí | Igual a 7.3 | — |
 | `validTo` | Date | Sí | ≤ hoy + PRM-POR-014 | — |
 | `tokenHash` | String | Sí | Token de un solo uso (hash) | — |
 | `status` | Enum | Sí | `enviada`, `aceptada`, `rechazada`, `vencida`, `revocada` | — |
-| `accessId` | ObjectId | No | Acceso creado al aceptar | `portalAccountAccess` (M19) |
+| `accessId` | uniqueidentifier | No | Acceso creado al aceptar | `portalAccountAccess` (M19) |
 
 Índices: `{ tenantId: 1, accountId: 1, status: 1 }`; `{ tokenHash: 1 }` único.
 
@@ -608,7 +610,7 @@ Propósito: definición versionada de formularios por servicio y tipo de trámit
 |---|---|---|---|---|
 | `code` | String | Sí | `INT-ALTA`, `INT-BAJA`, `ENE-DDJJ-ART`… | — |
 | `nameKey` / `descriptionKey` | String | Sí | Claves `dict:` | — |
-| `serviceId` | ObjectId | No | Servicio M02 (vacío = general). Antes `serviceCode` (String; nombre de T05, COL-POR-06) | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | No | Servicio M02 (vacío = general). Antes `serviceCode` (String; nombre de T05, COL-POR-06) | `tenantServices` (M02) |
 | `kind` | Enum | Sí | `solicitudAlta`, `solicitudBaja`, `suspension`, `reactivacion`, `cambioPlan`, `cambioTitularidad`, `cambioDomicilioPostal`, `cambioCategoria`, `altaAdherente`, `ddjjArtefactos`, `ddjjVehiculosElectricos`, `reclamo`, `consulta`, `tramiteGeneral`, `pdfDescargable` (ProCoop `TIPO_TRAMITE`: PDF, trámite web, DDJJ) | — |
 | `requiredSubject` | Enum | Sí | `ninguno`, `persona`, `cuenta`, `servicio` (`DATO_REQUIERE` 1–3) | — |
 | `audience` | Enum | Sí | `publico` (sin login, solo baja/contacto), `registrado`, `conAcceso` | — |
@@ -616,7 +618,7 @@ Propósito: definición versionada de formularios por servicio y tipo de trámit
 | `repetition` | Enum | Sí | `ilimitada`, `unaVigentePorSujeto`, `unaPorPeriodo` (`REPETICION`) | — |
 | `compareDocument` | Boolean | Sí | `COMPARAR_DOCUMENTO` | — |
 | `showTerms` / `termsKey` / `termsVersion` | Boolean / String / String | No | `MOSTRAR_TYC`, `DESCRIP_TYC` | — |
-| `pdfStoredFileId` | ObjectId | No | `PDFFILE` (antes `pdfFileId`, CTR-DAT-30) | `storedFiles` (T01) |
+| `pdfStoredFileId` | uniqueidentifier | No | `PDFFILE` (antes `pdfFileId`, CTR-DAT-30) | `storedFiles` (T01) |
 | `contactRequired` | Boolean | Sí | `DATO_CONTACTO` | — |
 | `executionCommand` | String | No | Comando tipado registrado (`crm.openServiceRequest`, `per.registerAppliances`…) (RN-POR-046) | — |
 | `notifyEmail` | String | No | VAR_PMOVIL 49 | — |
@@ -627,7 +629,7 @@ Propósito: definición versionada de formularios por servicio y tipo de trámit
 | `versions[].steps[].fields[]` | Object | No (antes Sí) | Reemplazado por los campos de `formVersions` de T11 (PA-POR-21); definición anterior: `{ fieldId, labelKey, helpKey, type, mask, required, visibleIf, order, operatorOnly, sendToCommand, options: [{code, labelKey}], catalogSource, maxFiles, maxSizeMb, acceptedTypes, min, max, pattern }` | — |
 | `fields[].type` | Enum | Sí | `texto`, `numero`, `fecha`, `lista`, `consultaCatalogo`, `archivo`, `foto`, `adherentes`, `domicilio`, `plan`, `firma`, `aceptacion`, `grillaDdjj`, `informativo`, `contacto` | — |
 | `legacy` | Object | No | Subdocumento de T05 §19.1 (CTR-DAT-32). Antes `legacyRef` `{ requisitoId }` | — |
-| `formVersionId` | ObjectId | Sí (al publicar) | Versión publicada vigente del formulario en `formVersions` de T11 (PA-POR-21, como T05 COL-POR-06); antes "[VERIFICAR] cuál prevalece" frente a `versions` embebido. | `formVersions` (T11) |
+| `formVersionId` | uniqueidentifier | Sí (al publicar) | Versión publicada vigente del formulario en `formVersions` de T11 (PA-POR-21, como T05 COL-POR-06); antes "[VERIFICAR] cuál prevalece" frente a `versions` embebido. | `formVersions` (T11) |
 
 Mapeo ProCoop: `REQUISITOS.ORDEN` → orden en lista pública; `INICIO_QUERY`/`FIN_QUERY`/`QUERY_CONSULTA_WS` → **no se migran como SQL**: se reemplazan por `catalogSource` de catálogos permitidos; `REQUISITOS_ITEMS.DES_DATO` → `labelKey`; `TIPO_DATO` → `type`; `MASCARA` → `mask`/`options`; `OBLIGATORIO` → `required`; `QUERY` (HTML del control) → descartado (lo genera el componente); `COMBINADO` → `visibleIf`; `VISIBLE` → visibilidad; `TABLA` → `catalogSource`; `REGISTRA_USER` → `operatorOnly`; `NOENVIAR_PROC` → `sendToCommand = false`.
 
@@ -639,23 +641,23 @@ Propósito: presentaciones de formularios (reemplaza `Requisitos_Usuarios` y los
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `formId` / `formVersion` | ObjectId / Int | Sí | Versión usada (inmutable) | `portalForms` (M19) (solo `formId`) |
-| `formVersionId` | ObjectId | Sí | Versión de T11 usada en la presentación (inmutable; PA-POR-21). `formVersion` queda como número de lectura. | `formVersions` (T11) |
-| `userId` | ObjectId | No | Vacío si es público | `memberships` (T02) |
-| `actorUserId` / `onBehalfOfPersonId` | ObjectId | No | RF-POR-046 | `memberships` (T02) / `persons` (M01) |
+| `formId` / `formVersion` | uniqueidentifier / Int | Sí | Versión usada (inmutable) | `portalForms` (M19) (solo `formId`) |
+| `formVersionId` | uniqueidentifier | Sí | Versión de T11 usada en la presentación (inmutable; PA-POR-21). `formVersion` queda como número de lectura. | `formVersions` (T11) |
+| `userId` | uniqueidentifier | No | Vacío si es público | `memberships` (T02) |
+| `actorUserId` / `onBehalfOfPersonId` | uniqueidentifier | No | RF-POR-046 | `memberships` (T02) / `persons` (M01) |
 | `subject` | Object | No | `{ type: persona/cuenta/servicio, personId?, accountId?, contractId? }` | — |
 | `serviceCode` | String | No |  | — |
 | `values` | Object | Sí | Valores por `fieldId`, ya normalizados (RN-POR-044) | — |
 | `operatorValues` | Object | No | Campos `operatorOnly` | — |
-| `storedFileIds` | [ObjectId] | No | Antes `fileIds` (CTR-DAT-30) | `storedFiles` (T01) |
+| `storedFileIds` | [uniqueidentifier] | No | Antes `fileIds` (CTR-DAT-30) | `storedFiles` (T01) |
 | `termsAccepted` | Object | No | `{ version, acceptedAt, ip }` | — |
 | `status` | Enum | Sí | `enviada`, `observada`, `aceptada`, `rechazada`, `cancelada` | — |
 | `observations` | Array | No | `[{ fieldIds, messageKey/text, createdBy, createdAt, resolvedAt }]` | — |
-| `crmCaseId` | ObjectId | No | Caso M09 creado | `crmCases` (M09) |
+| `crmCaseId` | uniqueidentifier | No | Caso M09 creado | `crmCases` (M09) |
 | `executionResult` | Object | No | `{ ok, message, createdRef: { type, id } }` | — |
 | `channel` | Enum | Sí | `pwa`, `landing`, `totem`, `operador`, `migracion` | — |
 | `idempotencyKey` | String | Sí |  | — |
-| `receiptStoredFileId` | ObjectId | No | Constancia PDF (antes `receiptFileId`, CTR-DAT-30) | `storedFiles` (T01) |
+| `receiptStoredFileId` | uniqueidentifier | No | Constancia PDF (antes `receiptFileId`, CTR-DAT-30) | `storedFiles` (T01) |
 | `legacy` | Object | No | Subdocumento de T05 §19.1 (CTR-DAT-32). Antes `legacyRef` `{ idRequisitoUsuario }` | — |
 
 Índices: `{ tenantId: 1, userId: 1, createdAt: -1 }`; `{ tenantId: 1, formId: 1, status: 1 }`; `{ tenantId: 1, idempotencyKey: 1 }` único; `{ tenantId: 1, crmCaseId: 1 }`.
@@ -666,14 +668,14 @@ Propósito: borradores de formularios, gestiones, pagos en armado (AGR-032).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `userId` | ObjectId | Sí |  | `memberships` (T02) |
+| `userId` | uniqueidentifier | Sí |  | `memberships` (T02) |
 | `space` | Enum | Sí | `socio`, `empleado` | — |
 | `kind` | Enum | Sí | `formulario`, `gestion`, `vinculacion`, `representacion`, `licencia` | — |
-| `formId` / `formVersion` | ObjectId / Int | No |  | `portalForms` (M19) (solo `formId`) |
-| `formVersionId` | ObjectId | No | Versión de T11 del formulario en armado (PA-POR-21). | `formVersions` (T11) |
+| `formId` / `formVersion` | uniqueidentifier / Int | No |  | `portalForms` (M19) (solo `formId`) |
+| `formVersionId` | uniqueidentifier | No | Versión de T11 del formulario en armado (PA-POR-21). | `formVersions` (T11) |
 | `currentStep` | String | No |  | — |
 | `values` | Object | Sí | Cifrado a nivel de campo para datos sensibles (DNI, CBU) | — |
-| `storedFileIds` | [ObjectId] | No | Antes `fileIds` (CTR-DAT-30) | `storedFiles` (T01) |
+| `storedFileIds` | [uniqueidentifier] | No | Antes `fileIds` (CTR-DAT-30) | `storedFiles` (T01) |
 | `clientMutationId` | String | No | Para sincronización offline | — (identificador de la mutación offline generado por el cliente, no es referencia) |
 | `expiresAt` | Date | Sí | Hoy + PRM-POR-090 | — |
 | `expiryNoticeSentAt` | Date | No |  | — |
@@ -694,10 +696,10 @@ Propósito: recepciones sin login desde la landing (baja pública, contacto, con
 | `sameChannelAsContract` | Boolean | No | Si coincide con el medio de contratación (Ley 24.240 art. 10 ter) | — |
 | `receivedAt` | Date | Sí | Fecha de solicitud a efectos legales | — |
 | `codeDeliveredAt` / `codeDeliveryEvidence` | Date / Object | No | Evidencia T09 (RN-POR-054) | — |
-| `receiptIssuedAt` / `receiptStoredFileId` | Date / ObjectId | No | Constancia (antes `receiptFileId`, CTR-DAT-30) | `storedFiles` (T01) (solo `receiptStoredFileId`) |
+| `receiptIssuedAt` / `receiptStoredFileId` | Date / uniqueidentifier | No | Constancia (antes `receiptFileId`, CTR-DAT-30) | `storedFiles` (T01) (solo `receiptStoredFileId`) |
 | `dueCodeAt` / `dueReceiptAt` | Date | Sí | Plazos calculados (24 h / 72 h) | — |
 | `identification` | Object | No | `{ status: pendiente/identificada/noIdentificable, accountId, contractId, identifiedBy, identifiedAt }` | — |
-| `crmCaseId` | ObjectId | No |  | `crmCases` (M09) |
+| `crmCaseId` | uniqueidentifier | No |  | `crmCases` (M09) |
 | `status` | Enum | Sí | `recibida`, `codigoEntregado`, `identificada`, `derivada`, `constanciaEmitida`, `cerrada`, `descartadaSpam` | — |
 | `captchaScore` / `ip` | Number / String | No | Antiabuso | — |
 
@@ -709,14 +711,14 @@ Propósito: preferencias del portal por usuario y tenant (las preferencias de co
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `userId` | ObjectId | Sí |  | `memberships` (T02) |
-| `defaultAccountId` | ObjectId | No |  | `accounts` (M01) |
+| `userId` | uniqueidentifier | Sí |  | `memberships` (T02) |
+| `defaultAccountId` | uniqueidentifier | No |  | `accounts` (M01) |
 | `defaultSpace` | Enum | No | `socio`, `empleado` | — |
 | `theme` | Enum | No | `oscuro`, `claro`, `altoContraste`, `sistema` | — |
 | `textScale` | Number | No | 1.0–2.0 | — |
 | `reduceMotion` | Boolean | No |  | — |
 | `wideLayout` | Boolean | No | PA-POR-07 | — |
-| `dismissedBannerIds` | [ObjectId] | No |  | `portalBanners` (M19) |
+| `dismissedBannerIds` | [uniqueidentifier] | No |  | `portalBanners` (M19) |
 | `installPromptState` | Enum | No | `noMostrado`, `rechazado`, `instalado` | — |
 | `lastContactConfirmationAt` | Date | No | VAR_PMOVIL 19 | — |
 | `acceptedTerms` | Array | No | `[{ docType, version, acceptedAt }]` | — |
@@ -746,20 +748,20 @@ Propósito: lotes de importación de CoopOnline.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `sourceKind` | Enum | Sí | `wsUsers`, `wsUsersAccounts`, `adhesionesFacturaDigital`, `adhesionesDebito`, `requisitos`, `tramitesUsuarios`, `notificaciones`, `novedades` | — |
-| `storedFileId` | ObjectId | Sí | Volcado cargado (antes `fileId`, CTR-DAT-30) | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | Sí | Volcado cargado (antes `fileId`, CTR-DAT-30) | `storedFiles` (T01) |
 | `status` | Enum | Sí | `cargado`, `validando`, `validado`, `conErrores`, `importando`, `importado`, `revertido` | — |
 | `counters` | Object | Sí | `{ rows, valid, invalid, duplicates, conflicts, imported, invited, activated }` | — |
 | `errors` | Array | No | `[{ row, code, message }]` (sin datos personales en claro) | — |
 | `jobId` | String | No |  | `jobRuns` (T01) |
-| `migrationRunId` | ObjectId | [VERIFICAR] | Corrida de migración de T07 que agrupa la importación; T05 (COL-POR-12) la declara y este anexo no la describía | `migrationRuns` (T07) |
+| `migrationRunId` | uniqueidentifier | [VERIFICAR] | Corrida de migración de T07 que agrupa la importación; T05 (COL-POR-12) la declara y este anexo no la describía | `migrationRuns` (T07) |
 
 ### 7.13. `legacyPortalUserMap`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `importId` | ObjectId | Sí |  | `legacyPortalImports` (M19) |
+| `importId` | uniqueidentifier | Sí |  | `legacyPortalImports` (M19) |
 | `legacyCodUser` | Int | Sí | `WS_USERS.COD_USER` | — |
-| `userId` | ObjectId | No | Usuario T02 creado o existente | `memberships` (T02) |
+| `userId` | uniqueidentifier | No | Usuario T02 creado o existente | `memberships` (T02) |
 | `emailNormalized` / `phoneE164` | String | No |  | — |
 | `legacyValidatedAt` | Date | No | `WS_USERS.FEC_VALIDACION` | — |
 | `status` | Enum | Sí | `pendiente`, `creado`, `fusionado`, `conflicto`, `invitado`, `activado`, `descartado` | — |
@@ -774,8 +776,8 @@ Propósito: tótems de autogestión (PA-POR-06).
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `code` / `name` | String | Sí |  | — |
-| `branchId` | ObjectId | Sí | Sucursal | `branches` (T04) |
-| `cashboxId` | ObjectId | Sí | Caja M07 asociada | `cashRegisters` (M07); antes `[VERIFICAR]` (T05 podría nombrar el campo `cashRegisterId`); T05 no declara otro nombre y se conserva `cashboxId` (PA-POR-22) |
+| `branchId` | uniqueidentifier | Sí | Sucursal | `branches` (T04) |
+| `cashboxId` | uniqueidentifier | Sí | Caja M07 asociada | `cashRegisters` (M07); antes `[VERIFICAR]` (T05 podría nombrar el campo `cashRegisterId`); T05 no declara otro nombre y se conserva `cashboxId` (PA-POR-22) |
 | `capabilities` | [Enum] | Sí | `cobranza`, `prepaga`, `turnos` | — |
 | `paymentMethods` | [Enum] | Sí | `tarjeta`, `qr`, `efectivo` | — |
 | `defaultSearch` | Enum | Sí | `asociado`, `cuenta`, `documento`, `codigoQr` (VAR 2790) | — |
@@ -786,7 +788,7 @@ Propósito: tótems de autogestión (PA-POR-06).
 | `orientation` | Enum | Sí | `horizontal`, `vertical` (variantes `_Vertical` de INV) | — |
 | `status` | Enum | Sí | `activo`, `fueraDeServicio`, `baja` | — |
 | `lastHeartbeatAt` | Date | No |  | — |
-| `localAgentId` | ObjectId | [VERIFICAR] | Agente local de T06 que maneja los periféricos (`peripherals`); T05 (COL-POR-14) lo declara y este anexo no lo describía | `localAgents` (T06) |
+| `localAgentId` | uniqueidentifier | [VERIFICAR] | Agente local de T06 que maneja los periféricos (`peripherals`); T05 (COL-POR-14) lo declara y este anexo no lo describía | `localAgents` (T06) |
 
 Índices: `{ tenantId: 1, code: 1 }` único.
 

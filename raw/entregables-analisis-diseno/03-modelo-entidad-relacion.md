@@ -11,6 +11,8 @@
 | Fuente principal | [`T05-DAT-modelo-datos.md`](../especificacion/anexos/T05-DAT-modelo-datos.md) (catálogo canónico de colecciones) |
 | Fuentes complementarias | §7 de los anexos M01 a M19 y T01 a T11 |
 
+> **Norma stack CoopApps (C-10, DEC-111–113).** Los diagramas en `03-er/` y partes `03a`–`03e` usan notación **lógica** (`ObjectId`, nombre de colección). El modelo **físico ejecutable** es **`docs/especificacion/07-modelo-relacional-azure-sql.md`** y **`07-ddl/`** (1.058 tablas). No reescribir 61 diagramas salvo export visual que exija SQL; ver `00-C10-CIERRE-STACK.md`.
+
 ## Control de versiones
 
 | Versión | Fecha | Autor | Descripción |

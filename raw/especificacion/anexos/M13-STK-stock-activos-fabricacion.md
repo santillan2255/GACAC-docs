@@ -442,8 +442,10 @@ Prioridad: N = Núcleo, E = Estándar, X = Extensión.
 | RN-STK-078 | Los eventos económicos llevan `sourceDocumentId` + `eventSeq`; M15 deduplica. Un reintento de un proceso fallido repara el paso faltante sin repetir movimientos ya confirmados. | Cierre automático por rango sin marca de contabilizado (RN-08 §13.1) | Reemplazar (AGR-016) | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-**Campos comunes a todas las colecciones** (no se repiten abajo): `tenantId` (ObjectId, obligatorio, primer campo de todo índice), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (entero, control optimista). Las colecciones maestras tienen además `status` (`active`/`inactive`) y `deletedAt` (borrado lógico). Los documentos económicos (`stockDocuments`, `stockMovements`, `revaluations`, `fixedAssetDepreciations`, `depreciationRuns`) **nunca** se borran. Importes y costos: `Decimal128` (costos unitarios hasta 6 decimales, importes a 2; AGR-011). Cantidades: `Decimal128` con decimales según unidad (PRM-STK-059). Fechas en UTC; `effectiveDate` se interpreta en la zona horaria del tenant.
+
+**Campos comunes a todas las colecciones** (no se repiten abajo): `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (entero, control optimista). Las colecciones maestras tienen además `status` (`active`/`inactive`) y `deletedAt` (borrado lógico). Los documentos económicos (`stockDocuments`, `stockMovements`, `revaluations`, `fixedAssetDepreciations`, `depreciationRuns`) **nunca** se borran. Importes y costos: `DECIMAL(18,4)` (costos unitarios hasta 6 decimales, importes a 2; AGR-011). Cantidades: `DECIMAL(18,4)` con decimales según unidad (PRM-STK-059). Fechas en UTC; `effectiveDate` se interpreta en la zona horaria del tenant.
 
 Abreviaturas: O = obligatorio, C = condicional, — = opcional.
 
@@ -466,9 +468,9 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 |---|---|---|---|
 | `code` | string | O | Único por tenant. |
 | `name` | string | O | Nombre. |
-| `parentId` | ObjectId | — | Clasificación padre. |
-| `path` | [ObjectId] | O | Ancestros (materializado). |
-| `laborCoefficient` | Decimal128 | — | Coeficiente de mano de obra para costo fijo de fabricación (RN-08 §15.3 `Get_CostoFijo`). |
+| `parentId` | uniqueidentifier | — | Clasificación padre. |
+| `path` | [uniqueidentifier] | O | Ancestros (materializado). |
+| `laborCoefficient` | DECIMAL(18,4) | — | Coeficiente de mano de obra para costo fijo de fabricación (RN-08 §15.3 `Get_CostoFijo`). |
 
 Índices: `{tenantId, code}` único; `{tenantId, path}`.
 
@@ -478,10 +480,10 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 |---|---|---|---|
 | `code` | string | O | Único por tenant. |
 | `name` | string | O | Nombre. |
-| `parentId`, `level`, `path` | ObjectId, int, [ObjectId] | — / O / O | Jerarquía (`COD_PAD`, `NIVEL`). |
+| `parentId`, `level`, `path` | uniqueidentifier, int, [uniqueidentifier] | — / O / O | Jerarquía (`COD_PAD`, `NIVEL`). |
 | `accountingProfileKey` | string | — | Clave del perfil contable en M15 (cuentas compras `COD_CTAC`, ventas `COD_CTAV`, otros `COD_CTAO`, costo de venta, costo de baja, valor de origen, amortización ejercicio, amortización acumulada, disminución, revalúo). STK no guarda números de cuenta (RN-08 §13.2). |
 | `isIndirect` | bool | — | `INDIRECTO`. |
-| `defaultUsefulLifeYears` | Decimal128 | — | `VIDA_UTIL`. |
+| `defaultUsefulLifeYears` | DECIMAL(18,4) | — | `VIDA_UTIL`. |
 | `inflationAdjustable` | bool | — | `AJUSTABLE`. |
 | `revaluationIndexKey` | string | — | Índice de revaluación de T04 (`INDICE_REVALUACION`). |
 | `classKey` | string | — | `CLA_RUB` (clase de rubro). |
@@ -499,21 +501,21 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 | `code` | string | O | Código único por tenant. |
 | `name`, `shortName` | string | O / — | Descripción. |
 | `barcodes` | [string] | — | EAN/códigos de barras. |
-| `itemTypeId`, `classificationId`, `itemGroupId`, `departmentId` | ObjectId | O / — / O / — | Clasificaciones. |
+| `itemTypeId`, `classificationId`, `itemGroupId`, `departmentId` | uniqueidentifier | O / — / O / — | Clasificaciones. |
 | `brand`, `model`, `manufacturer` | string | — | Marca, modelo, fabricante (BASE §7). |
 | `registrationNumber` | string | — | Matrícula (única si PRM-STK-021). |
 | `uom` | string | O | Unidad de stock (catálogo T04). |
 | `alternateUoms` | [{uom, factor, use: `purchase`/`consumption`}] | — | Equivalencias. |
-| `packSize` | Decimal128 | — | Bulto de reposición (`BULTOS`). |
+| `packSize` | DECIMAL(18,4) | — | Bulto de reposición (`BULTOS`). |
 | `flags` | object | O | `tracksStock`, `serialized`, `lotTracked`, `hasExpiry`, `usesLocations`, `isFixedAsset`, `manufacturable`, `isComponent`, `isKit`, `consumable`, `customerEquipment`, `sellable`, `purchasable`. |
 | `moduleAvailability` | [enum] | O | `sales`, `stock`, `purchases`, `installments` (reemplaza `PROD_SERV` 1–6). |
-| `catalogProductId` | ObjectId | — | Producto comercial de M02. |
-| `serviceIds`, `defaultServiceId` | [ObjectId], ObjectId | — | Stock por servicio (OPE-002). |
+| `catalogProductId` | uniqueidentifier | — | Producto comercial de M02. |
+| `serviceIds`, `defaultServiceId` | [uniqueidentifier], uniqueidentifier | — | Stock por servicio (OPE-002). |
 | `defaultDeliveryMode` | enum | — | `loanForUse`, `temporaryLoan`, `rental`, `sale`, `customerOwned`, `networkIncorporation`. |
 | `secondaryIdTypes` | [enum] | C | Identificadores requeridos si serializado: `mac`, `gponSn`, `imei`, `meterNumber`, `registration`, `internal`. |
 | `compatibility` | [{serviceId, technologyKey}] | — | RN-STK-019. |
 | `extendedProperties` | [{key, label, type, unique, required}] | — | Esquema de propiedades (`DATOSEXT`). |
-| `costing` | object | O | `replacementCost` (Decimal128), `standardCost`, `previousReplacementCost`, `costUpdatedAt`, `currency`. |
+| `costing` | object | O | `replacementCost` (DECIMAL(18,4)), `standardCost`, `previousReplacementCost`, `costUpdatedAt`, `currency`. |
 | `reorder` | [{warehouseId?, min, max, reorderPoint, reorderQty, leadTimeDays}] | — | Niveles (`STO_MIN`, `CAN_REP`). |
 | `warrantyMonthsSupplier`, `warrantyMonthsSale` | int | — | Garantías por defecto. |
 | `inspectionPolicy` | {required, periodMonths, blockIfExpired} | — | BASE §7. |
@@ -523,7 +525,7 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 
 ### 7.6 `itemKits` — composición de kits (origen `COMBOS`)
 
-`kitItemId` (O), `components` [{`itemId` O, `quantity` Decimal128 O}]. Índice `{tenantId, kitItemId}` único.
+`kitItemId` (O), `components` [{`itemId` O, `quantity` DECIMAL(18,4) O}]. Índice `{tenantId, kitItemId}` único.
 
 ### 7.7 `warehouses` — depósitos y custodios (origen `DEPOSITO`)
 
@@ -531,11 +533,11 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 |---|---|---|---|
 | `code`, `name` | string | O | Código único. |
 | `type` | enum | O | `central`, `branch`, `crew`, `technician`, `vehicle`, `production`, `components`, `transit`, `repair`, `supplier`, `quarantine`, `consignment`, `scrap`, `customerPremisesPool`. |
-| `branchId` | ObjectId | — | Sucursal (T04). |
+| `branchId` | uniqueidentifier | — | Sucursal (T04). |
 | `address`, `geo` | object | — | Ubicación física. |
-| `crewId`, `employeeId`, `vehicleId`, `supplierId` | ObjectId | C | Custodio según tipo. |
-| `custodianUserId` | ObjectId | C | Responsable actual de custodia (cuadrilla/técnico). |
-| `serviceIds` | [ObjectId] | — | Servicios asociados. |
+| `crewId`, `employeeId`, `vehicleId`, `supplierId` | uniqueidentifier | C | Custodio según tipo. |
+| `custodianUserId` | uniqueidentifier | C | Responsable actual de custodia (cuadrilla/técnico). |
+| `serviceIds` | [uniqueidentifier] | — | Servicios asociados. |
 | `ownStock` | bool | O | `true` salvo depósitos de equipos de clientes. |
 | `allowsNegative` | bool | — | Sobrescribe la política (solo no serializados). |
 | `usesLocations` | bool | — | Si exige ubicación. |
@@ -548,7 +550,7 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 
 ### 7.9 `itemLocationDefaults` — ubicaciones por defecto del artículo (origen `PROD_SER_UBICACION`)
 
-`itemId` (O), `locationId` (O), `capacity` (Decimal128, `CAPACIDAD`). Índice `{tenantId, itemId, locationId}` único.
+`itemId` (O), `locationId` (O), `capacity` (DECIMAL(18,4), `CAPACIDAD`). Índice `{tenantId, itemId, locationId}` único.
 
 ### 7.10 `stockDocuments` — documentos de stock (origen `RETI_MAT`, `IT_RETM`, remitos internos, vales, `TRANSFER`)
 
@@ -558,7 +560,7 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 | `number` | {pointOfSale, sequence, display} | O | Secuencia por tenant, tipo y sucursal (RN-STK-071). |
 | `effectiveDate`, `recordedAt` | Date | O | Fechas efectiva y de registro. |
 | `status` | enum | O | Ver 8.1. |
-| `sourceWarehouseId`, `targetWarehouseId` | ObjectId | C | Según tipo. |
+| `sourceWarehouseId`, `targetWarehouseId` | uniqueidentifier | C | Según tipo. |
 | `destination` | {type, refId} | C | `workOrder`, `maintenanceOrder`, `project` (obra), `serviceContract`, `service`, `costCenter`, `expenseUnit`, `housingPlan`, `rmaCase`, `manufacturingOrder`. |
 | `serviceAllocation` | [{serviceId, percent}] | — | RN-STK-027. |
 | `lines` | [{lineId, itemId, quantity, uom, lotId, serialUnitIds[], locationId, unitCost, condition, notes}] | O | Renglones (`IT_RETM`: `CAN_PRO`, `DES_PRO`, `SAL_CANTRO` saldo, `ID_UNIDADES`). |
@@ -578,42 +580,42 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `stockDocumentId`, `lineId` | ObjectId, string | O | Antes `documentId`. Documento y renglón (nombre de T05; PA-STK-11). |
+| `stockDocumentId`, `lineId` | uniqueidentifier, string | O | Antes `documentId`. Documento y renglón (nombre de T05; PA-STK-11). |
 | `operation` | enum | O | `sales` (1), `suppliers` (2), `workOrders` (3), `stockReconciliation` (4), `vouchers` (5), `maintenance` (6), `manufacturing` (7), `consignment` (8), `interWarehouse` (10), `noRecord` (11, solo migración), `invoicing` (12), `housing` (13); nuevas: `crewCustody`, `equipmentApplication`, `equipmentRetrieval`, `adjustment`, `revaluation`, `rma`, `openingBalance`, `reversal`, `bottledGasDelivery` y `emptyContainerReturn` (RF-STK-139, DEC-082). |
 | `kind` | enum | O | `quantity` o `value` (revaluaciones y diferencias de precio). |
 | `direction` | enum | O | `in` / `out`. |
 | `effectiveDate`, `recordedAt` | Date | O | |
-| `inventoryItemId`, `warehouseId` | ObjectId | O | Antes `itemId`. Nombre de T05 (PA-STK-11). |
-| `locationId`, `lotId`, `serialUnitId` | ObjectId | C | |
-| `contractId` | ObjectId | C | Obligatorio en `customerPremisesPool` (`COD_SUM`). |
+| `inventoryItemId`, `warehouseId` | uniqueidentifier | O | Antes `itemId`. Nombre de T05 (PA-STK-11). |
+| `locationId`, `lotId`, `serialUnitId` | uniqueidentifier | C | |
+| `contractId` | uniqueidentifier | C | Obligatorio en `customerPremisesPool` (`COD_SUM`). |
 | `stockState` | enum | O | `available`, `inTransit`, `custody`, `applied`, `repair`, `supplier`, `quarantine`, `consigned`, `scrap`. |
-| `quantity` | Decimal128 | O | Siempre positiva (RN-STK-003). |
-| `unitCost`, `amount` | Decimal128 | O | Costo según método; `amount` = cantidad × costo (o valor en `kind = value`). |
+| `quantity` | DECIMAL(18,4) | O | Siempre positiva (RN-STK-003). |
+| `unitCost`, `amount` | DECIMAL(18,4) | O | Costo según método; `amount` = cantidad × costo (o valor en `kind = value`). |
 | `costProvisional` | bool | — | RN-STK-029. |
-| `destination`, `serviceId`, `costCenterId`, `projectId`, `expenseUnitId` | object/ObjectId | C | Dimensiones analíticas. |
-| `supplierId`, `accountId` | ObjectId | — | `COD_PROV`, cuenta. |
-| `reversalOf` | ObjectId | — | Movimiento revertido. |
+| `destination`, `serviceId`, `costCenterId`, `projectId`, `expenseUnitId` | object/uniqueidentifier | C | Dimensiones analíticas. |
+| `supplierId`, `accountId` | uniqueidentifier | — | `COD_PROV`, cuenta. |
+| `reversalOf` | uniqueidentifier | — | Movimiento revertido. |
 | `periodKey` | string | O | `YYYY-MM` para cierre. |
 
 Índices: `{tenantId, inventoryItemId, warehouseId, effectiveDate}`; `{tenantId, serialUnitId, effectiveDate}`; `{tenantId, stockDocumentId}` (antes con `itemId` y `documentId`); `{tenantId, contractId}`; `{tenantId, periodKey, operation}`. Inmutable (sin `updatedAt` de negocio).
 
 ### 7.12 `stockBalances` — saldos materializados
 
-`inventoryItemId` (antes `itemId`; nombre de T05, PA-STK-11), `warehouseId` (O), `locationId`, `lotId`, `contractId` (C), `stockState` (O; mismos valores que `stockMovements.stockState`, §7.11: `available`, `inTransit`, `custody`, `applied`, `repair`, `supplier`, `quarantine`, `consigned`, `scrap`; es dimensión del saldo, no máquina de estados), `quantity` (O), `reservedQuantity` (O), `value` (Decimal128), `lastMovementAt`. Índice único `{tenantId, inventoryItemId, warehouseId, locationId, lotId, contractId, stockState}` (antes con `itemId`). Se actualiza con `$inc` dentro de la transacción del movimiento, con `version` (RN-STK-025).
+`inventoryItemId` (antes `itemId`; nombre de T05, PA-STK-11), `warehouseId` (O), `locationId`, `lotId`, `contractId` (C), `stockState` (O; mismos valores que `stockMovements.stockState`, §7.11: `available`, `inTransit`, `custody`, `applied`, `repair`, `supplier`, `quarantine`, `consigned`, `scrap`; es dimensión del saldo, no máquina de estados), `quantity` (O), `reservedQuantity` (O), `value` (DECIMAL(18,4)), `lastMovementAt`. Índice único `{tenantId, inventoryItemId, warehouseId, locationId, lotId, contractId, stockState}` (antes con `itemId`). Se actualiza con `$inc` dentro de la transacción del movimiento, con `version` (RN-STK-025).
 
 ### 7.13 `serialUnits` — unidades serializadas (origen `PROD_TRH`)
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `inventoryItemId` | ObjectId | O | Antes `itemId`. `COD_PRO`; nombre de T05 (PA-STK-11). |
+| `inventoryItemId` | uniqueidentifier | O | Antes `itemId`. `COD_PRO`; nombre de T05 (PA-STK-11). |
 | `serialNumber` | string | O | `NID_PTH`. |
 | `secondaryIds` | [{type, value}] | C | MAC, GPON SN, IMEI, número de medidor. |
 | `status` | enum | O | Ver 8.2. |
 | `ownership` | enum | O | `own`, `customer`, `thirdParty`, `soldToCustomer`. |
-| `currentWarehouseId`, `currentLocationId`, `currentContractId` | ObjectId | C | Antes `currentServiceContractId`. Posición vigente; nombre de T05 (PA-STK-11). |
+| `currentWarehouseId`, `currentLocationId`, `currentContractId` | uniqueidentifier | C | Antes `currentServiceContractId`. Posición vigente; nombre de T05 (PA-STK-11). |
 | `currentCustodian` | {type: `warehouse`/`crew`/`employee`/`customer`/`supplier`, refId} | O | Custodia. |
-| `lotId` | ObjectId | — | |
-| `unitCost` | Decimal128 | — | `PRE_TRH`. |
+| `lotId` | uniqueidentifier | — | |
+| `unitCost` | DECIMAL(18,4) | — | `PRE_TRH`. |
 | `receivedAt`, `supplierId`, `purchaseReceiptId` | | — | Origen. |
 | `warranty` | {supplierUntil, saleUntil} | — | |
 | `extendedProperties` | object | — | Valores de `DATOSEXT`. |
@@ -621,8 +623,8 @@ Dueño único M13 (COL-STK-02 y CTR-DAT-44 de T05): M05 y M06 la citan por `item
 | `seals` | [{number, placedAt, removedAt}] | — | Precintos. |
 | `inspections` | [{type, date, result, certificateStoredFileId, validUntil}] | — | Ensayos (BASE §7). |
 | `condition` | enum | — | `new`, `refurbished`, `used`, `damaged`, `incomplete`. |
-| `replacesSerialUnitId`, `replacedBySerialUnitId` | ObjectId | — | Reemplazos RMA. |
-| `fixedAssetId` | ObjectId | — | Bien de uso vinculado. |
+| `replacesSerialUnitId`, `replacedBySerialUnitId` | uniqueidentifier | — | Reemplazos RMA. |
+| `fixedAssetId` | uniqueidentifier | — | Bien de uso vinculado. |
 | `notes` | string | — | `OBS_PTH`. |
 
 Índices: `{tenantId, itemId, serialNumber}` único; `{tenantId, "secondaryIds.type", "secondaryIds.value"}` único (multikey con valor no nulo); `{tenantId, status}`; `{tenantId, currentServiceContractId}`; `{tenantId, "currentCustodian.refId"}`.
@@ -647,20 +649,20 @@ Dueño único M13 de `lotTypes` (COL-STK-15 y CTR-DAT-46 de T05; M04 lo atribuí
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `contractId`, `accountId`, `premiseId`, `serviceId` | ObjectId | O | `ID_SERSOC`. |
-| `itemId`, `serialUnitId` | ObjectId | O / C | `COD_PRO`, `COD_PTH`. |
-| `quantity` | Decimal128 | O | 1 para serializados. |
+| `contractId`, `accountId`, `premiseId`, `serviceId` | uniqueidentifier | O | `ID_SERSOC`. |
+| `itemId`, `serialUnitId` | uniqueidentifier | O / C | `COD_PRO`, `COD_PTH`. |
+| `quantity` | DECIMAL(18,4) | O | 1 para serializados. |
 | `mode` | enum | O | Ver 7.5 `defaultDeliveryMode`. |
 | `deliveredAt` | Date | O | `FECHA_ENTREGA`. |
 | `expectedReturnAt` | Date | — | `FECHA_DEVOLUCION`. |
 | `returnedAt` | Date | — | `FECHA_DEVUELTO`. |
-| `sourceWarehouseId` | ObjectId | O | `COD_DPS`. |
-| `declaredValue` | Decimal128 | — | `PRECIO`. |
-| `workOrderId`, `retrievalWorkOrderId` | ObjectId | — | OT de instalación y de retiro. |
-| `deliveryReceiptStoredFileId` | ObjectId → `storedFiles` (T01; antes `deliveryReceiptFileRef`) | — | Constancia aceptada (versión). |
+| `sourceWarehouseId` | uniqueidentifier | O | `COD_DPS`. |
+| `declaredValue` | DECIMAL(18,4) | — | `PRECIO`. |
+| `workOrderId`, `retrievalWorkOrderId` | uniqueidentifier | — | OT de instalación y de retiro. |
+| `deliveryReceiptStoredFileId` | uniqueidentifier → `storedFiles` (T01; antes `deliveryReceiptFileRef`) | — | Constancia aceptada (versión). |
 | `status` | enum | O | Ver 8.4. |
 | `returnCondition` | enum | — | `ok`, `damaged`, `incomplete`, `notRecovered`. |
-| `chargeProposalId` | ObjectId → `approvalRequests` (T11) | — | Propuesta de cargo por no devolución: solicitud de aprobación de T11 (RN-STK-038; antes sin destino). |
+| `chargeProposalId` | uniqueidentifier → `approvalRequests` (T11) | — | Propuesta de cargo por no devolución: solicitud de aprobación de T11 (RN-STK-038; antes sin destino). |
 | `saleDocumentRef` | object | C | Comprobante M05/M11 si `mode = sale`. |
 | `notes` | string | — | `OBSERVA`. |
 
@@ -696,21 +698,21 @@ Dueño único M13 de `lotTypes` (COL-STK-15 y CTR-DAT-46 de T05; M04 lo atribuí
 |---|---|---|---|
 | `assetNumber` | string | O | `NRO_BIEN`. |
 | `description`, `notes` | string | O / — | `DES_BIEN`, `OBS_BIEN`. |
-| `itemId`, `serialUnitId`, `serialNumber` | ObjectId, ObjectId, string | — | `COD_PRO`, `NRO_SERIE`. |
-| `itemGroupId` | ObjectId | O | Rubro (cuentas y vida útil). |
-| `registeredAt`, `registeredBy` | Date, ObjectId | O | `FEC_ALTA`, `USER_ALTA`. |
+| `itemId`, `serialUnitId`, `serialNumber` | uniqueidentifier, uniqueidentifier, string | — | `COD_PRO`, `NRO_SERIE`. |
+| `itemGroupId` | uniqueidentifier | O | Rubro (cuentas y vida útil). |
+| `registeredAt`, `registeredBy` | Date, uniqueidentifier | O | `FEC_ALTA`, `USER_ALTA`. |
 | `purchasedAt`, `supplierInvoiceRef` | Date, object | — | `FEC_COMPRA`, `IVACOM_IN`. |
 | `inServiceAt` | Date | C | `FEC_AFECTA`; sin afectación no amortiza. |
 | `disposedAt`, `disposal` | Date, {type, recoveryAmount, documentRef, result} | — | `FEC_BAJA`, `IVACOM_OUT`. |
-| `originalValue` | Decimal128 | O | `IMP_ORIGEN`. |
-| `historicalOriginalValue` | Decimal128 | — | `VAL_ORIG_HIST`. |
-| `usefulLifeYears` | Decimal128 | O | `VIDA_UTIL`. |
-| `depreciablePercent` | Decimal128 | O | `PORC_AMORT`. |
-| `residualValue` | Decimal128 | — | |
-| `accumulatedDepreciation`, `accumulatedDepreciationHistorical`, `accumulatedDepreciationAdjusted` | Decimal128 | O | Acumulados. |
-| `isImprovement`, `parentAssetId` | bool, ObjectId | — | Mejora. |
+| `originalValue` | DECIMAL(18,4) | O | `IMP_ORIGEN`. |
+| `historicalOriginalValue` | DECIMAL(18,4) | — | `VAL_ORIG_HIST`. |
+| `usefulLifeYears` | DECIMAL(18,4) | O | `VIDA_UTIL`. |
+| `depreciablePercent` | DECIMAL(18,4) | O | `PORC_AMORT`. |
+| `residualValue` | DECIMAL(18,4) | — | |
+| `accumulatedDepreciation`, `accumulatedDepreciationHistorical`, `accumulatedDepreciationAdjusted` | DECIMAL(18,4) | O | Acumulados. |
+| `isImprovement`, `parentAssetId` | bool, uniqueidentifier | — | Mejora. |
 | `costCenterAllocation` | [{costCenterId, percent}] | — | `BIENES_USO_CTSEC` (`COD_SEC`, `POR_ASIGNACION`). |
-| `costCenterId` | ObjectId | — | Centro de costo principal (clave de T05; PA-STK-11). |
+| `costCenterId` | uniqueidentifier | — | Centro de costo principal (clave de T05; PA-STK-11). |
 | `branchId`, `physicalLocation`, `responsibleEmployeeId` | | — | |
 | `status` | enum | O | Ver 8.7. |
 
@@ -733,8 +735,8 @@ Dueño único M13 de `lotTypes` (COL-STK-15 y CTR-DAT-46 de T05; M04 lo atribuí
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | string | O | Secuencia. |
-| `openedAt`, `receivedBy` | Date, ObjectId | O | `FECHA`, `USER_RECIBIO`. |
-| `contractId` | ObjectId | — | `COD_SUM`. |
+| `openedAt`, `receivedBy` | Date, uniqueidentifier | O | `FECHA`, `USER_RECIBIO`. |
+| `contractId` | uniqueidentifier | — | `COD_SUM`. |
 | `contact` | {name, phone, preferredHours} | — | `NOM_CONTACTO`, `TEL_CONTACTO`, `HORA_CONTACTO`. |
 | `itemId`, `model`, `serialUnitId`, `serialNumber` | | O / — / C / C | `COD_PROD`, `MODELO`, `NRO_SERIE`. |
 | `supplierId`, `supplierRmaNumber` | | — | `COD_PROV`. |
@@ -742,12 +744,12 @@ Dueño único M13 de `lotTypes` (COL-STK-15 y CTR-DAT-46 de T05; M04 lo atribuí
 | `warranty` | {inWarranty, until, source} | — | |
 | `type` | enum | O | `supplierWarranty`, `supplierRepair`, `internalRepair`, `customerReturn`. |
 | `resolution` | enum | — | `repaired`, `replaced`, `rejected`, `creditNote`, `scrapped`. |
-| `replacementSerialUnitId` | ObjectId | — | |
+| `replacementSerialUnitId` | uniqueidentifier | — | |
 | `shippedAt`, `returnedAt` | Date | — | |
 | `costs` | {parts, labor, freight, total} | — | |
-| `statusId` | ObjectId | O | Estado configurable (catálogo `rmaStatuses` embebido en configuración del módulo: código, nombre, notifica, plantilla, final). |
+| `statusId` | uniqueidentifier | O | Estado configurable (catálogo `rmaStatuses` embebido en configuración del módulo: código, nombre, notifica, plantilla, final). |
 | `history` | [{statusId, at, userId, notes}] | O | `RMA_HISTORIAL` (`ID_ESTADO`, `FECHA`, `COD_USER`, `OBS_HIS`). |
-| `documentIds` | [ObjectId] | — | Envío y retorno. |
+| `documentIds` | [uniqueidentifier] | — | Envío y retorno. |
 
 Índices: `{tenantId, number}` único; `{tenantId, serialUnitId}`; `{tenantId, statusId}`.
 
@@ -773,15 +775,15 @@ Dueño único M13 de `lotTypes` (COL-STK-15 y CTR-DAT-46 de T05; M04 lo atribuí
 |---|---|---|---|
 | `number` | object | O | `COD_COM/SUC_COM/NUM_COM`. |
 | `date`, `plannedLaunchAt`, `plannedEndAt`, `actualLaunchAt`, `actualEndAt` | Date | O / — | `FECHA`, `FEC_LAN`, `FEC_FIN`, `FEC_LANR`, `FEC_FINR`. |
-| `responsibleId` | ObjectId | — | `COD_RES`. |
+| `responsibleId` | uniqueidentifier | — | `COD_RES`. |
 | `stage` | enum | O | 8.9 (`COD_ETA`, `FEC_ETA`). |
 | `isGenericDamagedOrder` | bool | — | P3040. |
-| `bomStructureVersionId` | ObjectId | C | Versión de estructura vigente al generar la orden (clave de T05; cada renglón puede fijar la suya en `products[].bomVersionId`; PA-STK-11). |
+| `bomStructureVersionId` | uniqueidentifier | C | Versión de estructura vigente al generar la orden (clave de T05; cada renglón puede fijar la suya en `products[].bomVersionId`; PA-STK-11). |
 | `products` | [{lineId (`COD_OPR`), itemId, quantity (`CAN_PRO`), saleDocumentRef (`COD_CVE`, `ID_ITEM`), inReportsQty (`CAN_PPROD`), status (`ESTADO`), reassignedQty (`CAN_REASIGNADO`), productChangedQty (`CAN_CAMBIOPROD`), bomVersionId}] | O | `ORPRFAB`. |
 | `components` | [{itemId, quantity (`CAN_PRO`), withdrawnQty (`CAN_RET`), unitCost (`PRE_CSI`), leadDays (`DIAS`), productLineId (`COD_OPR`), inReportsQty (`CAN_PPROD`)}] | O | `ORCOFAB`. |
 | `stageProgress` | [{stageId, plannedStart, plannedEnd, actualStart, actualEnd, responsibleId}] | — | `ORDAFAB`. |
 | `extensions` | [{newEndAt, description, at, userId}] | — | `ORDEFAB_EXT`. |
-| `productionWarehouseId`, `componentsWarehouseId` | ObjectId | O | Depósitos (P165, P166). |
+| `productionWarehouseId`, `componentsWarehouseId` | uniqueidentifier | O | Depósitos (P165, P166). |
 | `notes` | string | — | `OBSERVA`. |
 
 Índices: `{tenantId, number.display}` único; `{tenantId, stage}`; `{tenantId, "products.itemId"}`.
@@ -849,10 +851,10 @@ Lista original: §7.6.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `kitItemId` | ObjectId | Sí | — | `inventoryItems` (M13); antes implícita por el nombre |
-| `components` | array | [VERIFICAR] | [{`itemId` O, `quantity` Decimal128 O}] | — |
-| `inventoryItemId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `inventoryItems` (M13) |
-| `componentItemId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `inventoryItems` (M13); antes implícita por el nombre |
+| `kitItemId` | uniqueidentifier | Sí | — | `inventoryItems` (M13); antes implícita por el nombre |
+| `components` | array | [VERIFICAR] | [{`itemId` O, `quantity` DECIMAL(18,4) O}] | — |
+| `inventoryItemId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `inventoryItems` (M13) |
+| `componentItemId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `inventoryItems` (M13); antes implícita por el nombre |
 
 #### 7.37.6 `warehouses` (COL-STK-07) — referencias declaradas
 
@@ -866,10 +868,10 @@ Lista original: §7.8.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `warehouseId` | ObjectId | Sí | — | `warehouses` (M13) |
+| `warehouseId` | uniqueidentifier | Sí | — | `warehouses` (M13) |
 | `code` | string | Sí | — | — |
 | `name` | string | Sí | O, `NOMBRE` | — |
-| `parentId` | ObjectId | [VERIFICAR] | `ID_PADRE` | `warehouseLocations` (M13) |
+| `parentId` | uniqueidentifier | [VERIFICAR] | `ID_PADRE` | `warehouseLocations` (M13) |
 | `path` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `assignable` | bool | [VERIFICAR] | bool, `ASIGNABLE` | — |
 | `isDefault` | bool | [VERIFICAR] | bool, `POR_DEFECTO` | — |
@@ -881,10 +883,10 @@ Lista original: §7.9.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
-| `warehouseLocationId` | ObjectId | Sí | Nombre de T05; antes `locationId` en este anexo. | `warehouseLocations` (M13); antes implícita por el nombre |
-| `capacity` | Decimal128 | [VERIFICAR] | `CAPACIDAD` | — |
-| `warehouseId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
+| `inventoryItemId` | uniqueidentifier | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
+| `warehouseLocationId` | uniqueidentifier | Sí | Nombre de T05; antes `locationId` en este anexo. | `warehouseLocations` (M13); antes implícita por el nombre |
+| `capacity` | DECIMAL(18,4) | [VERIFICAR] | `CAPACIDAD` | — |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
 
 #### 7.37.9 `stockDocuments` (COL-STK-10) — referencias declaradas
 
@@ -911,15 +913,15 @@ Lista original: §7.12.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
-| `warehouseId` | ObjectId | Sí | — | `warehouses` (M13) |
-| `locationId` | ObjectId | [VERIFICAR] | — | `warehouseLocations` (M13); antes implícita por el nombre |
-| `lotId` | ObjectId | [VERIFICAR] | — | `lots` (M13); antes implícita por el nombre |
-| `contractId` | ObjectId | No | — | `serviceContracts` (M02) |
+| `inventoryItemId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
+| `warehouseId` | uniqueidentifier | Sí | — | `warehouses` (M13) |
+| `locationId` | uniqueidentifier | [VERIFICAR] | — | `warehouseLocations` (M13); antes implícita por el nombre |
+| `lotId` | uniqueidentifier | [VERIFICAR] | — | `lots` (M13); antes implícita por el nombre |
+| `contractId` | uniqueidentifier | No | — | `serviceContracts` (M02) |
 | `stockState` | [VERIFICAR] | Sí | O; mismos valores que `stockMovements.stockState`, §7.11: `available`, `inTransit`, `custody`, `applied`, `repair`, `supplier`, `quarantine`, `consigned`, `scrap`; es… | — |
-| `quantity` | Decimal128 | Sí | — | — |
-| `reservedQuantity` | Decimal128 | Sí | — | — |
-| `value` | Decimal128 | [VERIFICAR] | — | — |
+| `quantity` | DECIMAL(18,4) | Sí | — | — |
+| `reservedQuantity` | DECIMAL(18,4) | Sí | — | — |
+| `value` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `lastMovementAt` | Date | [VERIFICAR] | . Índice único `{tenantId, itemId, warehouseId, locationId, lotId, contractId, stockState}`. Se actualiza con `$inc` dentro de la transacción del movimiento | — |
 
 #### 7.37.12 `serialUnits` (COL-STK-13) — referencias declaradas
@@ -938,7 +940,7 @@ Lista original: §7.14.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serialUnitId` | ObjectId | Sí | — | `serialUnits` (M13) |
+| `serialUnitId` | uniqueidentifier | Sí | — | `serialUnits` (M13) |
 | `eventType` | [VERIFICAR] | [VERIFICAR] | O: `received`, `reserved`, `reservationReleased`, `transferred`, `deliveredToCustody`, `accepted`, `applied`, `retrieved`, `returned`, `reviewed`, `sentToRepair`,… | — |
 | `effectiveDate` | Date | [VERIFICAR] | — | — |
 | `recordedAt` | Date | [VERIFICAR] | — | — |
@@ -946,12 +948,12 @@ Lista original: §7.14.
 | `toStatus` | enum | [VERIFICAR] | Valores de `serialUnits.status` (§8.2). | — |
 | `fromCustodian` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `toCustodian` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `documentId` | ObjectId | [VERIFICAR] | — | `documents` (T11) |
-| `movementId` | ObjectId | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
-| `workOrderId` | ObjectId | [VERIFICAR] | — | `workOrders` (M10) |
-| `contractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
-| `rmaCaseId` | ObjectId | [VERIFICAR] | — | `rmaCases` (M13); antes implícita por el nombre |
-| `actorId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `documentId` | uniqueidentifier | [VERIFICAR] | — | `documents` (T11) |
+| `movementId` | uniqueidentifier | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
+| `workOrderId` | uniqueidentifier | [VERIFICAR] | — | `workOrders` (M10) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `rmaCaseId` | uniqueidentifier | [VERIFICAR] | — | `rmaCases` (M13); antes implícita por el nombre |
+| `actorId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `notes` | string | [VERIFICAR] | `OBS_MPT` | — |
 | `attachments` | [VERIFICAR] | [VERIFICAR] | — | — |
 
@@ -966,11 +968,11 @@ Lista original: §7.15.
 | `requiresExpiry` | bool | [VERIFICAR] | — | — |
 | `blockExpired` | bool | Sí | bool). `lots`: `itemId` (O | — |
 | `lotNumber` | int / string [VERIFICAR] | Sí | — | — |
-| `lotTypeId` | ObjectId | [VERIFICAR] | — | `lotTypes` (M13); antes implícita por el nombre |
+| `lotTypeId` | uniqueidentifier | [VERIFICAR] | — | `lotTypes` (M13); antes implícita por el nombre |
 | `manufacturedAt` | Date | [VERIFICAR] | — | — |
 | `expiresAt` | Date | [VERIFICAR] | — | — |
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12); antes implícita por el nombre |
-| `purchaseReceiptId` | ObjectId | [VERIFICAR] | Renglón de `lots`. | `supplierReceipts` (M12) (antes `[VERIFICAR]`) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12); antes implícita por el nombre |
+| `purchaseReceiptId` | uniqueidentifier | [VERIFICAR] | Renglón de `lots`. | `supplierReceipts` (M12) (antes `[VERIFICAR]`) |
 | — | — | — | Renglón sin campo en `lotTypes` (antes `status` en esta tabla, luego `lots.status`). Reemplazado por `lots.status` (§7.37.15, §8.12): la lista original del §7.15 mezcla `lotTypes` y `lots`; desde `blockExpired` los renglones son de `lots` y `lotTypes` no tiene estado (PA-STK-11). | — |
 
 #### 7.37.15 `lots` (COL-STK-16)
@@ -979,13 +981,13 @@ Lista original: §7.15.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
+| `inventoryItemId` | uniqueidentifier | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
 | `lotNumber` | int / string [VERIFICAR] | Sí | — | — |
-| `lotTypeId` | ObjectId | [VERIFICAR] | — | `lotTypes` (M13); antes implícita por el nombre |
+| `lotTypeId` | uniqueidentifier | [VERIFICAR] | — | `lotTypes` (M13); antes implícita por el nombre |
 | `manufacturedAt` | Date | [VERIFICAR] | — | — |
 | `expiresAt` | Date | [VERIFICAR] | — | — |
-| `supplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
-| `purchaseReceiptId` | ObjectId | [VERIFICAR] | Recepción de compra que originó el lote. | `supplierReceipts` (M12) (antes `receipts` (M07); PA-STK-11) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
+| `purchaseReceiptId` | uniqueidentifier | [VERIFICAR] | Recepción de compra que originó el lote. | `supplierReceipts` (M12) (antes `receipts` (M07); PA-STK-11) |
 | `status` | enum | [VERIFICAR] | `available`, `blocked`, `expired`, `depleted` | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
@@ -995,16 +997,16 @@ Lista original: §7.16.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
-| `serialUnitId` | ObjectId | No | — | `serialUnits` (M13) |
-| `quantity` | Decimal128 | Sí | — | — |
-| `warehouseId` | ObjectId | [VERIFICAR] | O: depósito o cuadrilla donde se reserva | `warehouses` (M13) |
+| `inventoryItemId` | uniqueidentifier | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
+| `serialUnitId` | uniqueidentifier | No | — | `serialUnits` (M13) |
+| `quantity` | DECIMAL(18,4) | Sí | — | — |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | O: depósito o cuadrilla donde se reserva | `warehouses` (M13) |
 | `target` | object | [VERIFICAR] | {type: `workOrder`/`project`/`quote`/`housingPlan`/`manufacturingOrder`, refId} (O) | — |
 | `mode` | enum | [VERIFICAR] | `byModel`/`bySerial` | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | 8.3 | — |
 | `expiresAt` | Date | [VERIFICAR] | — | — |
-| `consumedQuantity` | Decimal128 | [VERIFICAR] | — | — |
-| `releasedQuantity` | Decimal128 | [VERIFICAR] | — | — |
+| `consumedQuantity` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `releasedQuantity` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `releaseReason` | string | [VERIFICAR] | — | — |
 | `idempotencyKey` | string | [VERIFICAR] | — | — |
 | `sourceRef` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — (clave polimórfica del documento origen; la colección la indica `target.type`; no es referencia directa) |
@@ -1015,16 +1017,16 @@ Lista original: §7.18.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `warehouseId` | ObjectId | Sí | O, depósito de cuadrilla/técnico | `warehouses` (M13) |
+| `warehouseId` | uniqueidentifier | Sí | O, depósito de cuadrilla/técnico | `warehouses` (M13) |
 | `periodFrom` | Date | [VERIFICAR] | — | — |
 | `periodTo` | Date | Sí | — | — |
 | `snapshotAt` | Date | [VERIFICAR] | — | — |
 | `lines` | array | [VERIFICAR] | [{itemId, serialUnitId?, opening, delivered, consumed, applied, returned, retrieved, expected, counted, difference, differenceType (`shortage`/`surplus`), adjustmentDo… | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | 8.5 | — |
-| `supervisorId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `supervisorId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `evidence` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `closedAt` | Date | [VERIFICAR] | — | — |
-| `crewId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crews` (M10); antes implícita por el nombre |
+| `crewId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crews` (M10); antes implícita por el nombre |
 | `number` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.18 `physicalCounts` (COL-STK-20)
@@ -1040,8 +1042,8 @@ Lista original: §7.19.
 | `mode` | [VERIFICAR] | [VERIFICAR] | PA-STK-07 | — |
 | `lines` | array | [VERIFICAR] | [{itemId, locationId, lotId, expectedQty, countedQty, countedSerials[], missingSerials[], foundSerials[], difference, countedBy, countedAt}] | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | 8.6 | — |
-| `adjustmentDocumentId` | ObjectId | [VERIFICAR] | — | `documents` (T11) |
-| `warehouseId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
+| `adjustmentDocumentId` | uniqueidentifier | [VERIFICAR] | — | `documents` (T11) |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
 | `number` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.19 `itemCostStates` (COL-STK-21)
@@ -1050,19 +1052,19 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
-| `scopeWarehouseId` | ObjectId | [VERIFICAR] | C, si el costeo es por depósito; PA-STK-01 | `warehouses` (M13) |
+| `inventoryItemId` | uniqueidentifier | Sí | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
+| `scopeWarehouseId` | uniqueidentifier | [VERIFICAR] | C, si el costeo es por depósito; PA-STK-01 | `warehouses` (M13) |
 | `method` | enum | [VERIFICAR] | `weightedAverage`/`fifo`/`specificIdentification` | — |
 | `quantityOnHand` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `averageCost` | Decimal128 | [VERIFICAR] | — | — |
-| `totalValue` | Decimal128 | [VERIFICAR] | — | — |
+| `averageCost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `totalValue` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `lastRecalculatedAt` | Date | [VERIFICAR] | . Índice único `{tenantId, itemId, scopeWarehouseId}`. `costLayers` (solo PEPS): `itemId` | — |
-| `inMovementId` | ObjectId | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
+| `inMovementId` | uniqueidentifier | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
 | `receivedAt` | Date | [VERIFICAR] | — | — |
-| `originalQty` | Decimal128 | [VERIFICAR] | — | — |
-| `remainingQty` | Decimal128 | [VERIFICAR] | — | — |
-| `unitCost` | Decimal128 | [VERIFICAR] | — | — |
-| `warehouseId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
+| `originalQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `remainingQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `unitCost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
 
 #### 7.37.20 `costLayers` (COL-STK-22)
 
@@ -1070,13 +1072,13 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
-| `inMovementId` | ObjectId | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
+| `inventoryItemId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
+| `inMovementId` | uniqueidentifier | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
 | `receivedAt` | Date | [VERIFICAR] | — | — |
-| `originalQty` | Decimal128 | [VERIFICAR] | — | — |
-| `remainingQty` | Decimal128 | [VERIFICAR] | — | — |
-| `unitCost` | Decimal128 | [VERIFICAR] | — | — |
-| `stockMovementId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `stockMovements` (M13); antes implícita por el nombre |
+| `originalQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `remainingQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `unitCost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `stockMovementId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `stockMovements` (M13); antes implícita por el nombre |
 
 #### 7.37.21 `revaluations` (COL-STK-23)
 
@@ -1089,11 +1091,11 @@ Lista original: §7.21.
 | `dateTo` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `indexKey` | string | [VERIFICAR] | — | — |
 | `lines` | array | [VERIFICAR] | [{itemId, warehouseId, quantity, previousCost, newCost, factor, difference}] | — |
-| `projectId` | ObjectId | [VERIFICAR] | obra P3041 | `works` (M10) (antes `[VERIFICAR]`; PA-STK-11) |
-| `responsibleId` | ObjectId | [VERIFICAR] | P3042 | `memberships` (T02) |
+| `projectId` | uniqueidentifier | [VERIFICAR] | obra P3041 | `works` (M10) (antes `[VERIFICAR]`; PA-STK-11) |
+| `responsibleId` | uniqueidentifier | [VERIFICAR] | P3042 | `memberships` (T02) |
 | `status` | enum | [VERIFICAR] | `draft`/`approved`/`posted`/`cancelled` | — |
-| `documentId` | ObjectId | [VERIFICAR] | — | `documents` (T11) |
-| `inventoryItemIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `inventoryItems` (M13) |
+| `documentId` | uniqueidentifier | [VERIFICAR] | — | `documents` (T11) |
+| `inventoryItemIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `inventoryItems` (M13) |
 | `number` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.22 `reorderSuggestions` (COL-STK-24)
@@ -1102,9 +1104,9 @@ Lista original: §7.22.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
-| `warehouseId` | ObjectId | [VERIFICAR] | — | `warehouses` (M13) |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `inventoryItemId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `itemId` en este anexo. | `inventoryItems` (M13) |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | — | `warehouses` (M13) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `computedAt` | Date | [VERIFICAR] | — | — |
 | `available` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `inTransit` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1112,12 +1114,12 @@ Lista original: §7.22.
 | `reserved` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `min` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `max` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `suggestedQty` | Decimal128 | [VERIFICAR] | — | — |
-| `preferredSupplierId` | ObjectId | [VERIFICAR] | — | `suppliers` (M12) |
+| `suggestedQty` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `preferredSupplierId` | uniqueidentifier | [VERIFICAR] | — | `suppliers` (M12) |
 | `lastPurchases` | array | [VERIFICAR] | [{date, supplierId, unitCost, quantity}] | — |
 | `status` | enum | [VERIFICAR] | `open`/`converted`/`dismissed` | — |
-| `requisitionId` | ObjectId | [VERIFICAR] | M12 | `supplyRequests` (M12) (antes `[VERIFICAR]`) |
-| `supplyRequestId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `supplyRequests` (M12); antes implícita por el nombre |
+| `requisitionId` | uniqueidentifier | [VERIFICAR] | M12 | `supplyRequests` (M12) (antes `[VERIFICAR]`) |
+| `supplyRequestId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `supplyRequests` (M12); antes implícita por el nombre |
 
 #### 7.37.23 `expenseUnits` (COL-STK-25)
 
@@ -1128,8 +1130,8 @@ Lista original: §7.23.
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | `DES_UNIDADES` | — |
 | `notes` | string | [VERIFICAR] | `OBS_UNIDADES` | — |
-| `costCenterId` | ObjectId | [VERIFICAR] | M15, PA-STK-06 | `costCenters` (M15) |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `costCenterId` | uniqueidentifier | [VERIFICAR] | M15, PA-STK-06 | `costCenters` (M15) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 
 #### 7.37.24 `fixedAssets` (COL-STK-26) — referencias declaradas
 
@@ -1148,12 +1150,12 @@ Lista original: §7.25.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `fixedAssetId` | ObjectId | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
+| `fixedAssetId` | uniqueidentifier | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
 | `versionNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `snapshot` | [VERIFICAR] | [VERIFICAR] | todos los campos de 7.24 | — |
 | `changedFields` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `changedAt` | Date | [VERIFICAR] | — | — |
-| `changedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `changedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `reason` | string | [VERIFICAR] | — | — |
 
 #### 7.37.26 `fixedAssetValueChanges` (COL-STK-28)
@@ -1162,14 +1164,14 @@ Lista original: §7.26.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `fixedAssetId` | ObjectId | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
+| `fixedAssetId` | uniqueidentifier | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
 | `type` | enum | [VERIFICAR] | `impairment`/`improvement`/`inflationAdjustment`/`revaluation` | — |
 | `date` | Date | [VERIFICAR] | `FECHA` | — |
-| `amount` | Decimal128 | [VERIFICAR] | `IMPORTE` | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | `IMPORTE` | — |
 | `reason` | string | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`, `posted`, `voided` (§8.13; PA-STK-10; antes sin valores ni máquina). | — |
-| `eventId` | ObjectId | [VERIFICAR] | — | `accountingEvents` (M15); antes implícita por el nombre |
-| `journalEntryId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `journalEntries` (M15); antes implícita por el nombre |
+| `eventId` | uniqueidentifier | [VERIFICAR] | — | `accountingEvents` (M15); antes implícita por el nombre |
+| `journalEntryId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `journalEntries` (M15); antes implícita por el nombre |
 
 #### 7.37.27 `depreciationRuns` (COL-STK-29)
 
@@ -1183,22 +1185,22 @@ Lista original: §7.27.
 | `mode` | enum | [VERIFICAR] | `simulation`/`posted` | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | 8.8 | — |
 | `totals` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `reversalOfRunId` | ObjectId | [VERIFICAR] | Corrida revertida. | `depreciationRuns` (M13) (antes `[VERIFICAR]`) |
-| `fixedAssetId` | ObjectId | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
+| `reversalOfRunId` | uniqueidentifier | [VERIFICAR] | Corrida revertida. | `depreciationRuns` (M13) (antes `[VERIFICAR]`) |
+| `fixedAssetId` | uniqueidentifier | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
 | `from` | Date | [VERIFICAR] | `DESDE` | — |
 | `to` | Date | [VERIFICAR] | `HASTA` | — |
 | `days` | int | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `lastDepreciationAmount` | Decimal128 | [VERIFICAR] | `ULT_IMP_AMORT` | — |
-| `lastOriginalValue` | Decimal128 | [VERIFICAR] | `ULT_IMP_ORIGEN` | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `lastDepreciationAmount` | DECIMAL(18,4) | [VERIFICAR] | `ULT_IMP_AMORT` | — |
+| `lastOriginalValue` | DECIMAL(18,4) | [VERIFICAR] | `ULT_IMP_ORIGEN` | — |
 | `inflationAdjustment` | [VERIFICAR] | [VERIFICAR] | `AJUSTE_INFL` | — |
-| `adjustedOriginalValue` | Decimal128 | [VERIFICAR] | `VAL_ORIG_AJUS` | — |
+| `adjustedOriginalValue` | DECIMAL(18,4) | [VERIFICAR] | `VAL_ORIG_AJUS` | — |
 | `accumulated` | [VERIFICAR] | [VERIFICAR] | `AMOR_ACUM` | — |
 | `accumulatedAdjusted` | [VERIFICAR] | [VERIFICAR] | `AMOR_ACUM_AJUS` | — |
 | `periodAdjusted` | [VERIFICAR] | [VERIFICAR] | `AMOR_EJER_AJUS` | — |
 | `costCenterSplit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `journalRef` | string | [VERIFICAR] | devuelto por M15, reemplaza `COD_ASI` | `journalEntries` (M15) (identificador del asiento informado por EVT-CON-01) |
-| `fiscalYearId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `fiscalYears` (M15); antes implícita por el nombre |
+| `fiscalYearId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `fiscalYears` (M15); antes implícita por el nombre |
 | `period` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.28 `fixedAssetDepreciations` (COL-STK-30)
@@ -1207,22 +1209,22 @@ Lista original: §7.27.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `runId` | ObjectId | [VERIFICAR] | Reemplazado por `depreciationRunId` (nombre de T05). | `depreciationRuns` (M13) (antes `[VERIFICAR]`) |
-| `fixedAssetId` | ObjectId | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
+| `runId` | uniqueidentifier | [VERIFICAR] | Reemplazado por `depreciationRunId` (nombre de T05). | `depreciationRuns` (M13) (antes `[VERIFICAR]`) |
+| `fixedAssetId` | uniqueidentifier | [VERIFICAR] | — | `fixedAssets` (M13); antes implícita por el nombre |
 | `from` | Date | [VERIFICAR] | `DESDE` | — |
 | `to` | Date | [VERIFICAR] | `HASTA` | — |
 | `days` | int | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `lastDepreciationAmount` | Decimal128 | [VERIFICAR] | `ULT_IMP_AMORT` | — |
-| `lastOriginalValue` | Decimal128 | [VERIFICAR] | `ULT_IMP_ORIGEN` | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `lastDepreciationAmount` | DECIMAL(18,4) | [VERIFICAR] | `ULT_IMP_AMORT` | — |
+| `lastOriginalValue` | DECIMAL(18,4) | [VERIFICAR] | `ULT_IMP_ORIGEN` | — |
 | `inflationAdjustment` | [VERIFICAR] | [VERIFICAR] | `AJUSTE_INFL` | — |
-| `adjustedOriginalValue` | Decimal128 | [VERIFICAR] | `VAL_ORIG_AJUS` | — |
+| `adjustedOriginalValue` | DECIMAL(18,4) | [VERIFICAR] | `VAL_ORIG_AJUS` | — |
 | `accumulated` | [VERIFICAR] | [VERIFICAR] | `AMOR_ACUM` | — |
 | `accumulatedAdjusted` | [VERIFICAR] | [VERIFICAR] | `AMOR_ACUM_AJUS` | — |
 | `periodAdjusted` | [VERIFICAR] | [VERIFICAR] | `AMOR_EJER_AJUS` | — |
 | `costCenterSplit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `journalRef` | string | [VERIFICAR] | devuelto por M15, reemplaza `COD_ASI` | `journalEntries` (M15) (identificador del asiento informado por EVT-CON-01) |
-| `depreciationRunId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `depreciationRuns` (M13); antes implícita por el nombre |
+| `depreciationRunId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `depreciationRuns` (M13); antes implícita por el nombre |
 
 #### 7.37.29 `rmaCases` (COL-STK-31) — referencias declaradas
 
@@ -1245,11 +1247,11 @@ Lista original: §7.29.
 | `isFinal` | bool | [VERIFICAR] | . `serviceReceptions`: `number` (`COD_REC`) | — |
 | `date` | Date | [VERIFICAR] | — | — |
 | `receivedAt` | Date | [VERIFICAR] | `FECHA_ING` | — |
-| `accountIds` | ObjectId[] | [VERIFICAR] | `COD_CLI1`, `COD_CLI2` | `accounts` (M01); antes implícita por el nombre |
-| `requestedBy` | ObjectId | [VERIFICAR] | `QUIENPIDE` | — |
+| `accountIds` | uniqueidentifier[] | [VERIFICAR] | `COD_CLI1`, `COD_CLI2` | `accounts` (M01); antes implícita por el nombre |
+| `requestedBy` | uniqueidentifier | [VERIFICAR] | `QUIENPIDE` | — |
 | `documentRef` | string | [VERIFICAR] | `COD_COM/SUC_COM/NUM_COM` | — (número del comprobante de origen como texto; no es referencia) |
 | `notes` | string | [VERIFICAR] | `OBS` | — |
-| `registeredBy` | ObjectId | [VERIFICAR] | `USERS`, `FECHA_REG` | — |
+| `registeredBy` | uniqueidentifier | [VERIFICAR] | `USERS`, `FECHA_REG` | — |
 | `items` | array | [VERIFICAR] | [{lineId, itemId (`COD_PRO`), quantity (`CAN_PRO`), price (`PRE_VSI`), customerSerial, currentStatusId, statusHistory [{statusId, at, userId}] (`ITRE_EST`)}] | — |
 | — | — | — | Renglón sin campo en `receptionStatuses` (antes `status` en esta tabla, luego `serviceReceptions.status`). Reemplazado por `serviceReceptions.status` (§7.37.31, §8.14): la lista original del §7.29 mezcla ambas colecciones; desde `date` los renglones son de `serviceReceptions` y `receptionStatuses` es un catálogo sin estado (PA-STK-11). | — |
 
@@ -1262,15 +1264,15 @@ Lista original: §7.29.
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | `COD_REC` | — |
 | `date` | Date | [VERIFICAR] | — | — |
 | `receivedAt` | Date | [VERIFICAR] | `FECHA_ING` | — |
-| `accountIds` | ObjectId[] | [VERIFICAR] | `COD_CLI1`, `COD_CLI2` | `accounts` (M01) |
-| `requestedBy` | ObjectId | [VERIFICAR] | `QUIENPIDE` | `memberships` (T02) |
+| `accountIds` | uniqueidentifier[] | [VERIFICAR] | `COD_CLI1`, `COD_CLI2` | `accounts` (M01) |
+| `requestedBy` | uniqueidentifier | [VERIFICAR] | `QUIENPIDE` | `memberships` (T02) |
 | `documentRef` | string | [VERIFICAR] | `COD_COM/SUC_COM/NUM_COM` | — (número del comprobante de origen como texto; no es referencia) |
 | `notes` | string | [VERIFICAR] | `OBS` | — |
-| `registeredBy` | ObjectId | [VERIFICAR] | `USERS`, `FECHA_REG` | `memberships` (T02) |
+| `registeredBy` | uniqueidentifier | [VERIFICAR] | `USERS`, `FECHA_REG` | `memberships` (T02) |
 | `items` | array | [VERIFICAR] | [{lineId, itemId (`COD_PRO`), quantity (`CAN_PRO`), price (`PRE_VSI`), customerSerial, currentStatusId, statusHistory [{statusId, at, userId}] (`ITRE_EST`)}] | — |
 | `status` | enum | Sí | `open`, `closed`, `cancelled` (§8.14; antes sin valores, PA-STK-11). El avance de cada renglón lo da `items[].currentStatusId` (`receptionStatuses`). | — |
-| `accountId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `accounts` (M01) |
-| `serialUnitId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `serialUnits` (M13) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `accounts` (M01) |
+| `serialUnitId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `serialUnits` (M13) |
 
 #### 7.37.32 `bomStructures` (COL-STK-34)
 
@@ -1278,14 +1280,14 @@ Lista original: §7.30.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `inventoryItemId` | ObjectId | Sí | Nombre de T05; antes `itemId` en este anexo. O, producto fabricable | `inventoryItems` (M13) |
-| `currentVersionId` | ObjectId | [VERIFICAR] | . `bomStructureVersions`: `itemId` | `bomStructureVersions` (M13); antes implícita por el nombre |
+| `inventoryItemId` | uniqueidentifier | Sí | Nombre de T05; antes `itemId` en este anexo. O, producto fabricable | `inventoryItems` (M13) |
+| `currentVersionId` | uniqueidentifier | [VERIFICAR] | . `bomStructureVersions`: `itemId` | `bomStructureVersions` (M13); antes implícita por el nombre |
 | `versionNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `nodes` | array | [VERIFICAR] | [{nodeId (`INT_RED`), parentNodeId (`INT_PADRE`), level (`NIVEL`), componentItemId (`COD_COM`), quantity (`CAN_COM`), unitCost (`PRE_CSI`), stageId (`COD_ETA`), refere… | — |
-| `laborCost` | Decimal128 | [VERIFICAR] | — | — |
-| `fixedCost` | Decimal128 | [VERIFICAR] | — | — |
-| `marginPercent` | Decimal128 | [VERIFICAR] | — | — |
+| `laborCost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `fixedCost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `marginPercent` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.33 `bomStructureVersions` (COL-STK-35)
@@ -1294,14 +1296,14 @@ Lista original: §7.30.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `itemId` | ObjectId | [VERIFICAR] | — | `inventoryItems` (M13); antes implícita por el nombre |
+| `itemId` | uniqueidentifier | [VERIFICAR] | — | `inventoryItems` (M13); antes implícita por el nombre |
 | `versionNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `nodes` | array | [VERIFICAR] | [{nodeId (`INT_RED`), parentNodeId (`INT_PADRE`), level (`NIVEL`), componentItemId (`COD_COM`), quantity (`CAN_COM`), unitCost (`PRE_CSI`), stageId (`COD_ETA`), refere… | — |
-| `laborCost` | Decimal128 | [VERIFICAR] | — | — |
-| `fixedCost` | Decimal128 | [VERIFICAR] | — | — |
-| `marginPercent` | Decimal128 | [VERIFICAR] | — | — |
-| `bomStructureId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `bomStructures` (M13); antes implícita por el nombre |
+| `laborCost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `fixedCost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `marginPercent` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `bomStructureId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `bomStructures` (M13); antes implícita por el nombre |
 
 #### 7.37.34 `productDivisions` (COL-STK-36)
 
@@ -1311,11 +1313,11 @@ Lista original: §7.31.
 |---|---|---|---|---|
 | `operationType` | [VERIFICAR] | [VERIFICAR] | `TIPO_OPERACION` | — |
 | `operationRef` | string | [VERIFICAR] | `ID_OPERACION` | `operations` (T11); antes implícita por el nombre |
-| `quantity` | Decimal128 | [VERIFICAR] | `CANTIDAD` | — |
+| `quantity` | DECIMAL(18,4) | [VERIFICAR] | `CANTIDAD` | — |
 | `measure` | [VERIFICAR] | [VERIFICAR] | `MEDIDA` | — |
 | `decompositionCoefficient` | [VERIFICAR] | [VERIFICAR] | `COEFICIENTE_DESCOMPOSICION` | — |
 | `history` | array | [VERIFICAR] | [{snapshot, at}] (`FEC_REG`) | — |
-| `bomStructureId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `bomStructures` (M13); antes implícita por el nombre |
+| `bomStructureId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `bomStructures` (M13); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.35 `manufacturingStages` (COL-STK-37)
@@ -1324,7 +1326,7 @@ Lista original: §7.32.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `itemId` | ObjectId | [VERIFICAR] | `COD_PRO` | `inventoryItems` (M13); antes implícita por el nombre |
+| `itemId` | uniqueidentifier | [VERIFICAR] | `COD_PRO` | `inventoryItems` (M13); antes implícita por el nombre |
 | `order` | int | [VERIFICAR] | `ORDEN` | — |
 | `name` | string | [VERIFICAR] | `DES_ETA` | — |
 | `durationHours` | int | [VERIFICAR] | `DURACION` | — |
@@ -1342,16 +1344,16 @@ Lista original: §7.34.
 | `startAt` | Date | [VERIFICAR] | `FECHA_INICIO` | — |
 | `plannedAt` | Date | [VERIFICAR] | `FECHA_PREVISTA` | — |
 | `endAt` | Date | [VERIFICAR] | `FECHA_FIN` | — |
-| `userId` | ObjectId | [VERIFICAR] | `COD_USER` | `memberships` (T02) |
-| `responsibleId` | ObjectId | [VERIFICAR] | `COD_RES` | `memberships` (T02) |
+| `userId` | uniqueidentifier | [VERIFICAR] | `COD_USER` | `memberships` (T02) |
+| `responsibleId` | uniqueidentifier | [VERIFICAR] | `COD_RES` | `memberships` (T02) |
 | `status` | [VERIFICAR] | [VERIFICAR] | 8.10, `COD_ESTADO` | — |
 | `itemUpTo` | [VERIFICAR] | [VERIFICAR] | `ITEM_HASTA` | — |
 | `items` | array | [VERIFICAR] | [{itemId, quantity, saleDocumentRef (`COD_CVE`), status, orderProductLineId (`COD_OPR`), itemUpTo, manufacturingOrderId, serialNumbers[]}] | — |
 | `components` | array | [VERIFICAR] | [{itemId, quantity, orderProductLineId, serialUnitId (`COD_PTH`)}] | — |
 | `componentsConsumed` | bool | [VERIFICAR] | — | — |
 | `damage` | array | [VERIFICAR] | [{type: `productChange`/`destruction`/`reassignment`, itemId, quantity, targetOrderId}] | — |
-| `originalReportId` | ObjectId | [VERIFICAR] | — | `productionReports` (M13); antes implícita por el nombre |
-| `manufacturingOrderId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `manufacturingOrders` (M13); antes implícita por el nombre |
+| `originalReportId` | uniqueidentifier | [VERIFICAR] | — | `productionReports` (M13); antes implícita por el nombre |
+| `manufacturingOrderId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `manufacturingOrders` (M13); antes implícita por el nombre |
 
 #### 7.37.37 `mrpRuns` (COL-STK-40)
 
@@ -1364,9 +1366,9 @@ Lista original: §7.35.
 | `runAt` | Date | [VERIFICAR] | — | — |
 | `lines` | array | [VERIFICAR] | [{componentItemId, requiredAt, requiredQty, inProcessQty, stockQty, minStock, netQty, preferredSupplierId, lastPurchases[]}] | — |
 | `excludedLines` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `requisitionIds` | ObjectId[] | [VERIFICAR] | Solicitudes generadas en M12 (§8.13). | `supplyRequests` (M12) (antes `[VERIFICAR]`) |
+| `requisitionIds` | uniqueidentifier[] | [VERIFICAR] | Solicitudes generadas en M12 (§8.13). | `supplyRequests` (M12) (antes `[VERIFICAR]`) |
 | `status` | Enum | Sí | `calculated`, `confirmed`, `discarded`, `failed` (§8.13; PA-STK-10; antes tipo `Date` por error y sin valores). Reemplaza P168 (última fecha de requerimiento) por el historial de corridas | — |
-| `manufacturingOrderIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `manufacturingOrders` (M13); antes implícita por el nombre |
+| `manufacturingOrderIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `manufacturingOrders` (M13); antes implícita por el nombre |
 
 ## 8. Estados y transiciones
 

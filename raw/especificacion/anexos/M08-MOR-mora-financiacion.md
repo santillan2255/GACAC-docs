@@ -678,8 +678,10 @@ Notación de decisión: **Replicar** (igual que ProCoop), **Mejorar** (misma int
 | RN-MOR-136 | Prescripción: plazo por tipo de obligación desde la fecha de cómputo; se interrumpe por reconocimiento (convenio, pago parcial si la política lo considera, promesa firmada) o por demanda; el informe sugiere y la aprobación registra; el documento de prescripción es de signo contrario, con concepto y cuenta contable configurados, imputado al documento. | RN-04 §9 (#104, #2158). | **Mejorar** (interrupción y aprobación). | PRM-MOR-184, -185, -186 | Sí (PA-MOR-20). |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Todas las colecciones llevan además los campos comunes obligatorios: `tenantId` (ObjectId, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, salvo indicación, `deletedAt` solo en catálogos (los documentos económicos no se borran). Importes en `Decimal128`; tasas en `Decimal128` con 8 decimales; fechas en UTC con interpretación en la zona del tenant. Todos los índices comienzan por `tenantId`. Las referencias a colecciones de otros módulos se indican con el módulo dueño entre corchetes.
+
+Todas las colecciones llevan además los campos comunes obligatorios: `TenantId` (uniqueidentifier, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, salvo indicación, `deletedAt` solo en catálogos (los documentos económicos no se borran). Importes en `DECIMAL(18,4)`; tasas en `DECIMAL(18,4)` con 8 decimales; fechas en UTC con interpretación en la zona del tenant. Todos los índices comienzan por `TenantId`. Las referencias a colecciones de otros módulos se indican con el módulo dueño entre corchetes.
 
 Entidad jurídica (DEC-064, DEC-087): los documentos económicos del módulo (`interestCalculations`, `deferredInterests`, `interestBillingRunItems`, `agreements`, `agreementInstallments`, `guarantees`, `collectionCases.costs`, `writeOffs`, `prescriptionRuns` por documento) llevan `legalEntityId` [T04 `legalEntities`], heredado de la cuenta corriente (`currentAccounts.legalEntityId` de M07) o del documento de origen. Un convenio solo incluye obligaciones de una misma entidad jurídica; si la deuda del socio abarca varias, se genera un convenio por entidad (error `mor/agreement-mixed-legal-entities` si se intenta mezclar). Los nombres de campos siguen T05 §7.2 (CTR-DAT-30): `contractId`, `voucherTypeId`, `storedFileId`, `workflowInstanceId`, `ledgerAccountId`, `holderId`, subdocumento `legacy`.
 
@@ -691,50 +693,50 @@ Entidad jurídica (DEC-064, DEC-087): los documentos económicos del módulo (`i
 |---|---|---|---|
 | `code` | String | Sí | Código único por tenant. |
 | `name` | String | Sí | Nombre (clave `dict` opcional). |
-| `scope.serviceId` | ObjectId [M02] | No | Vacío = todos los servicios. |
-| `scope.categoryIds` | [ObjectId] [M02] | No | Vacío = todas las categorías. |
-| `scope.voucherTypeIds` | [ObjectId] [M05] | No | Tipos de documento alcanzados (tipo de factura/cuota). |
+| `scope.serviceId` | uniqueidentifier [M02] | No | Vacío = todos los servicios. |
+| `scope.categoryIds` | [uniqueidentifier] [M02] | No | Vacío = todas las categorías. |
+| `scope.voucherTypeIds` | [uniqueidentifier] [M05] | No | Tipos de documento alcanzados (tipo de factura/cuota). |
 | `priority` | Int | Sí | Calculado por especificidad (servicio+categoría+tipo = 3 … general = 0); empate → error al publicar. |
 | `validFrom` / `validTo` | Date | Sí / No | Vigencia. |
 | `status` | Enum | Sí | `draft`, `published`, `retired`. |
 | `lateInterest.method` | Enum | Sí | `fixedDaily`, `rateTable`, `index`, `none`. |
-| `lateInterest.fixedDailyRate` | Decimal128 | Cond. | % diario (método `fixedDaily`). |
-| `lateInterest.rateTableId` | ObjectId → `interestRateTables` | Cond. | Método `rateTable`. |
-| `lateInterest.indexTableId` | ObjectId → `interestIndexTables` | Cond. | Método `index`. |
+| `lateInterest.fixedDailyRate` | DECIMAL(18,4) | Cond. | % diario (método `fixedDaily`). |
+| `lateInterest.rateTableId` | uniqueidentifier → `interestRateTables` | Cond. | Método `rateTable`. |
+| `lateInterest.indexTableId` | uniqueidentifier → `interestIndexTables` | Cond. | Método `index`. |
 | `lateInterest.compounding` | Enum | Sí | `simple` (default), `compound` (solo si PA-MOR-01). |
 | `lateInterest.fromLastDueDate` | Boolean | Sí | Equivale a V2 #621. |
 | `lateInterest.separateBetweenDueDates` | Boolean | Sí | V2 #2356. |
 | `base.mode` | Enum | Sí | `total1`, `balance`, `concepts`. |
-| `base.conceptIds` | [ObjectId] [M04] | Cond. | Conceptos que forman la base (CONCEPTOS_INT TIPO > 0). |
-| `base.taxIds` | [ObjectId] [M06] | No | Impuestos incluidos en la base por conceptos. |
-| `base.excludedTaxIds` | [ObjectId] [M06] | No | V2 #2300. |
+| `base.conceptIds` | [uniqueidentifier] [M04] | Cond. | Conceptos que forman la base (CONCEPTOS_INT TIPO > 0). |
+| `base.taxIds` | [uniqueidentifier] [M06] | No | Impuestos incluidos en la base por conceptos. |
+| `base.excludedTaxIds` | [uniqueidentifier] [M06] | No | V2 #2300. |
 | `base.excludePreviouslyBilledInterest` | Boolean | Sí | Default `true`. |
 | `betweenDueDates.proportionalToBalance` | Boolean | Sí | V2 #2363. |
 | `betweenDueDates.iibbSeparate` | Boolean | Sí | V2 #2826. |
 | `exemptions.respectAccountNoSurcharge` | Boolean | Sí | V2 #3135. |
 | `exemptions.exemptConditions` | [{ conditionCode, scope: `all`/`betweenDueDate2` }] | No | Ej. jubilado: `all` (#1002) o solo VTO2 (#299). |
 | `exemptions.interestOnCredits` | Boolean | Sí | V2 #625. |
-| `minimum.amount` | Decimal128 | No | V2 #609. |
+| `minimum.amount` | DECIMAL(18,4) | No | V2 #609. |
 | `minimum.mode` | Enum | Cond. | `exemptBelow` (default), `floor`. |
-| `adminFee.amount` / `adminFee.conceptId` / `adminFee.admissibilityRef` | Decimal128 / ObjectId / String | No | V2 #372; requiere referencia de admisibilidad para activar. |
-| `rounding` | { mode: `halfUp`/`halfEven`/`down`, decimals: 0–2, step: Decimal128 } | Sí | V2 #608 (paso 0,1). |
+| `adminFee.amount` / `adminFee.conceptId` / `adminFee.admissibilityRef` | DECIMAL(18,4) / uniqueidentifier / String | No | V2 #372; requiere referencia de admisibilidad para activar. |
+| `rounding` | { mode: `halfUp`/`halfEven`/`down`, decimals: 0–2, step: DECIMAL(18,4) } | Sí | V2 #608 (paso 0,1). |
 | `earlyPaymentDiscountEnabled` | Boolean | Sí | Usa `earlyPaymentDiscountRules`. |
-| `fiscal.lateInterestConceptId` | ObjectId [M04] | Sí | V2 #606 o por tipo de documento. |
-| `fiscal.betweenDueDatesConceptId` | ObjectId [M04] | Sí | V2 #2080. |
-| `fiscal.financingModeLateConceptId` | ObjectId [M04] | No | V2 #307. |
-| `fiscal.defaultVatSituationId` | ObjectId [M06] | No | V2 #2086. |
+| `fiscal.lateInterestConceptId` | uniqueidentifier [M04] | Sí | V2 #606 o por tipo de documento. |
+| `fiscal.betweenDueDatesConceptId` | uniqueidentifier [M04] | Sí | V2 #2080. |
+| `fiscal.financingModeLateConceptId` | uniqueidentifier [M04] | No | V2 #307. |
+| `fiscal.defaultVatSituationId` | uniqueidentifier [M06] | No | V2 #2086. |
 | `deferral.mode` | Enum | Sí | `none`, `lateOnly`, `all` (V2 #1011). |
 | `deferral.relateToService` | Boolean | Sí | V2 #2828. |
 | `settlement.documentKind` | Enum | Sí | `debitNote`, `invoice` (V2 #273, PA-MOR-04). |
 | `settlement.groupByDocumentType` | Boolean | Sí | V2 #1056. |
-| `settlement.forcedDocumentTypeId` | ObjectId [M05] | No | V2 #2249. |
+| `settlement.forcedDocumentTypeId` | uniqueidentifier [M05] | No | V2 #2249. |
 | `settlement.originCode` | String | No | V2 #1008 (vendedor/origen). |
 | `waiver.requiresApproval` | Boolean | Sí | V2 #3162. |
-| `reversal.dailyRate` | Decimal128 | No | V2 #3052. |
-| `values.dailyRate` / `values.conceptId` | Decimal128 / ObjectId | No | V2 #486/#487. |
+| `reversal.dailyRate` | DECIMAL(18,4) | No | V2 #3052. |
+| `values.dailyRate` / `values.conceptId` | DECIMAL(18,4) / uniqueidentifier | No | V2 #486/#487. |
 | `prepaid.retainInterest` | Boolean | No | V2 #713. |
 | `servicePunitive` | { enabled, rate, conceptId } | No | V2 #3138. |
-| `publishedVersionId` | ObjectId [T04] | No | Versión publicada. |
+| `publishedVersionId` | uniqueidentifier [T04] | No | Versión publicada. |
 
 Índices: `{tenantId, code}` único; `{tenantId, status, scope.serviceId, validFrom}`.
 
@@ -745,13 +747,13 @@ Entidad jurídica (DEC-064, DEC-087): los documentos económicos del módulo (`i
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
 | `code`, `name` | String | Sí | `DES_MOT`. |
-| `serviceId` | ObjectId [M02] | No | `COD_SER`. |
-| `voucherTypeId` | ObjectId [M05] | No | `TIPO` (vacío = todos). |
+| `serviceId` | uniqueidentifier [M02] | No | `COD_SER`. |
+| `voucherTypeId` | uniqueidentifier [M05] | No | `TIPO` (vacío = todos). |
 | `rates[]` | Array | Sí | Tramos. |
-| `rates[].rateId` | ObjectId | Sí | `COD_MOT`. |
+| `rates[].rateId` | uniqueidentifier | Sí | `COD_MOT`. |
 | `rates[].from` / `rates[].to` | Date | Sí | `FEDESDE`/`FEHASTA` (inclusive). |
-| `rates[].dailyRate` | Decimal128 | Sí | `TASA_CASO` (% diario). |
-| `rates[].categoryIds` | [ObjectId] [M02] | No | `MORATAS_CATSER`; vacío = general. |
+| `rates[].dailyRate` | DECIMAL(18,4) | Sí | `TASA_CASO` (% diario). |
+| `rates[].categoryIds` | [uniqueidentifier] [M02] | No | `MORATAS_CATSER`; vacío = general. |
 | `rates[].sourceRef` | String | No | Fuente de la tasa (ej. resolución, tasa activa). |
 | `status` | Enum | Sí | `draft`, `published`, `retired`. |
 
@@ -761,9 +763,9 @@ Validación: sin superposición de `[from, to]` para el mismo `serviceId` + `vou
 
 **Origen:** `TABMORA` (cabecera) e `INDICESMORA` (valores); `INFLACIO`/`TABINFL` para ajuste de cuotas (se modelan igual con `purpose`). **Corregido (CTR-DAT-29):** `interestIndexTables` queda solo para los índices de mora propios (`purpose = lateInterest`); los índices económicos de ajuste de cuotas y garantías (`INFLACIO`/`TABINFL`) son series de T04 (`economicIndexSeries`/`economicIndexValues`) y se referencian con `economicIndexSeriesId`. Los valores `installmentAdjustment` y `guaranteeAdjustment` del enum quedan sin uso.
 
-`interestIndexTables`: `code` (String, Sí; `COD_TAB`), `name` (`NOM_TAB`), `purpose` (Enum: `lateInterest`, `installmentAdjustment`, `guaranteeAdjustment` — los dos últimos reemplazados por `economicIndexSeries` de T04, CTR-DAT-29), `periodicity` (Enum: `daily`, `monthly`), `voucherTypeIds` ([ObjectId]; `TABMORA.TIPO_FAC`), `sourceRef` (String), `status`.
+`interestIndexTables`: `code` (String, Sí; `COD_TAB`), `name` (`NOM_TAB`), `purpose` (Enum: `lateInterest`, `installmentAdjustment`, `guaranteeAdjustment` — los dos últimos reemplazados por `economicIndexSeries` de T04, CTR-DAT-29), `periodicity` (Enum: `daily`, `monthly`), `voucherTypeIds` ([uniqueidentifier]; `TABMORA.TIPO_FAC`), `sourceRef` (String), `status`.
 
-`interestIndexValues`: `tableId` (ObjectId, Sí), `date` (Date, Sí; de `DIA_TAB`/`MES_TAB`/`ANO_TAB` o `FECHA`), `value` (Decimal128, Sí; `IND_TAB`), `importBatchId` (ObjectId, No). Índice único `{tenantId, tableId, date}`.
+`interestIndexValues`: `tableId` (uniqueidentifier, Sí), `date` (Date, Sí; de `DIA_TAB`/`MES_TAB`/`ANO_TAB` o `FECHA`), `value` (DECIMAL(18,4), Sí; `IND_TAB`), `importBatchId` (uniqueidentifier, No). Índice único `{tenantId, tableId, date}`.
 
 ### 7.4 `dueDateSurchargeSchemes` — Recargo entre vencimientos
 
@@ -772,21 +774,21 @@ Validación: sin superposición de `[from, to]` para el mismo `serviceId` + `vou
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
 | `code`, `name` | String | Sí | |
-| `scope.serviceId`, `scope.cycleIds`, `scope.voucherTypeIds` | ObjectId/[ObjectId] | No | Alcance (BASE §97.3 "por servicio y ciclo"). |
+| `scope.serviceId`, `scope.cycleIds`, `scope.voucherTypeIds` | uniqueidentifier/[uniqueidentifier] | No | Alcance (BASE §97.3 "por servicio y ciclo"). |
 | `type` | Enum | Sí | `none`, `variablePercent`, `fixedPercentCascade`, `fixedAmount`, `trameByAmount`, `trameByDueDate`. |
-| `value` | Decimal128 | Cond. | V2 #578 para `variablePercent`, `fixedPercentCascade`, `fixedAmount`. |
+| `value` | DECIMAL(18,4) | Cond. | V2 #578 para `variablePercent`, `fixedPercentCascade`, `fixedAmount`. |
 | `trameMode` | Enum | Cond. | `simple` (default), `cascade` (PA-MOR-03). |
 | `trames[]` | Array | Cond. | `TRAMASREC`: `trameId` (`COD_TRM`), `description` (`DES_TRM`), `voucherTypeId` (`TIPO`), `amountFrom` (`IMP_DES`), `amountTo` (`IMP_HAS`), `value` (`VAL_TRAMA`), `valueType` (`perDay`/`fixed`; `TIPOVALOR`), `dueDateNumber` (2..N; para `trameByDueDate`; N = tope efectivo de vencimientos del comprobante, PRM-FAC-163 de M05, 4 por defecto; DEC-106, 10-11-2026; *antes "2/3/4"*). |
 | `fixedAmountVatApplies` | Boolean | Sí | PA-MOR-03 (ProCoop: `false`). |
-| `conceptId` | ObjectId [M04] | Sí | Concepto fiscal del recargo (obligatorio para publicar). |
-| `changeOfTrameConceptId` | ObjectId [M04] | No | V2 #2283. |
+| `conceptId` | uniqueidentifier [M04] | Sí | Concepto fiscal del recargo (obligatorio para publicar). |
+| `changeOfTrameConceptId` | uniqueidentifier [M04] | No | V2 #2283. |
 | `validFrom`, `validTo`, `status` | | Sí | |
 
 **Consumidor M05 (CTR-DAT-37 de T05):** M05 conserva el espaciado de vencimientos (`dueDateSchemes.dueCount`, `spacing[]`) y, al emitir, invoca el servicio interno de M08 `mor.service.computeDueDateSurcharge` (antes "el servicio interno de M08", sin nombre) con el esquema vigente por servicio, ciclo y tipo de comprobante para obtener los importes de Vto2 a VtoN (`dueDates[].totalK`, §7.36; flujo §9.1); el resultado se congela en el comprobante con `schemeId` y versión. **Cantidad de vencimientos (DEC-106; 10-11-2026):** el esquema admite de 1 a N vencimientos, con N = tope efectivo del comprobante (`invoices.dueDateCap.effective`, PRM-FAC-163 de M05; 4 por defecto) que M05 envía en la llamada; las variantes se generalizan al vencimiento k = 2..N sin cambiar su fórmula (escalón sobre el anterior en `fixedPercentCascade`, `v × (k − 1)` en `fixedAmount`, días `VTOk − VTO1` en `variablePercent` y `trameByAmount`, trama con `dueDateNumber = k` en `trameByDueDate`), y un esquema `trameByDueDate` sin trama para algún k ≤ N es error de configuración (RN-MOR-033). M08 no fija el tope: lo valida M05 (RN-FAC-163). *Reemplazado (10-11-2026, DEC-106): "para obtener los importes de Vto2 a Vto4".* Absorbe de `dueDateSchemes` de M05 los campos `mode` → `type`, `rows[]` → `trames[]`, `compounding` → `trameMode = cascade` e `interestConceptId` → `conceptId`.
 
 ### 7.5 `earlyPaymentDiscountRules` — Descuento por pronto pago
 
-**Origen:** `DESCUENTO_CAJA`. Campos: `voucherTypeId` (Sí), `dayFrom` (Int, Sí; `DIA_DESDE`), `dayTo` (Int, Sí; `DIA_HASTA`), `percent` (Decimal128, Sí, 0 < p ≤ 100), `membersOnly` (Boolean, default `true`), `conceptId`, `validFrom`, `validTo`, `status`. Validación: sin superposición de días por tipo (RN-MOR-003). Índice `{tenantId, voucherTypeId, dayFrom}`.
+**Origen:** `DESCUENTO_CAJA`. Campos: `voucherTypeId` (Sí), `dayFrom` (Int, Sí; `DIA_DESDE`), `dayTo` (Int, Sí; `DIA_HASTA`), `percent` (DECIMAL(18,4), Sí, 0 < p ≤ 100), `membersOnly` (Boolean, default `true`), `conceptId`, `validFrom`, `validTo`, `status`. Validación: sin superposición de días por tipo (RN-MOR-003). Índice `{tenantId, voucherTypeId, dayFrom}`.
 
 ### 7.6 `interestCalculations` — Cálculos de interés
 
@@ -796,12 +798,12 @@ Validación: sin superposición de `[from, to]` para el mismo `serviceId` + `vou
 |---|---|---|---|
 | `purpose` | Enum | Sí | `collection`, `entityCollection`, `gateway`, `batch`, `agreement`, `reversal`, `unlock`, `quoteAccepted`. |
 | `documentRef` | { module: `fac`, id, number, type } | Sí | Documento de origen. |
-| `accountId` | ObjectId [M01] | Sí | |
+| `accountId` | uniqueidentifier [M01] | Sí | |
 | `calculationDate` | Date | Sí | Fecha de cálculo. |
 | `baseDate` | Date | Sí | Fecha base. |
-| `policyId` / `policyVersion` | ObjectId / Int | Sí | |
+| `policyId` / `policyVersion` | uniqueidentifier / Int | Sí | |
 | `parameters` | Object | Sí | Snapshot: `excludedTaxes`, `minimum`, `onCredits`, `fromLastDueDate`, `retiree`, `rounding`, `retireeNoVto2`, `adminFee`, `deferralMode`, `entityOverrides`. |
-| `components.lateInterest` / `components.betweenDueDates` / `components.adminFee` / `components.discount` | { net, vat1, vat2, vatPerception, iibb, total } Decimal128 | Sí | `InfoImporte`. |
+| `components.lateInterest` / `components.betweenDueDates` / `components.adminFee` / `components.discount` | { net, vat1, vat2, vatPerception, iibb, total } DECIMAL(18,4) | Sí | `InfoImporte`. |
 | `tranches[]` | [{ from, to, days, rate, base, interest, vat, perception, type: `betweenDueDates`/`late`/`index`/`check`/`punitive` }] | Sí | `IT_PAGSO_INTERES_TRAMAS`. |
 | `settledUntilBefore` / `settledUntilAfter` | Date | Sí | Marca de interés liquidado. |
 | `operationRef` | { module, id } | Sí | Recibo, corrida, convenio. |
@@ -812,13 +814,13 @@ Validación: sin superposición de `[from, to]` para el mismo `serviceId` + `vou
 
 ### 7.7 `deferredInterests` — Intereses diferidos
 
-**Origen:** `INT_DIFE`, `DEUDAVTA` (`TPCUOTA = 1`). Campos: `accountId` (Sí), `contractId` (No; V2 #2828), `sourceReceiptRef` (Sí; `COD_REC/SUC_REC/NUM_REC`), `sourceDocumentRefs` ([…], Sí), `calculationId` (Sí), `netAmount` (Decimal128, Sí), `direction` (`debit`/`credit`), `billableItemId` (antes `pendingChargeId`) (ObjectId [M05], Sí), `billedDocumentRef` (No; `COD_COMF/SUC_COMF/NUM_COMF`), `status` (`pending`, `billed`, `cancelled`). Índice `{tenantId, accountId, status}`.
+**Origen:** `INT_DIFE`, `DEUDAVTA` (`TPCUOTA = 1`). Campos: `accountId` (Sí), `contractId` (No; V2 #2828), `sourceReceiptRef` (Sí; `COD_REC/SUC_REC/NUM_REC`), `sourceDocumentRefs` ([…], Sí), `calculationId` (Sí), `netAmount` (DECIMAL(18,4), Sí), `direction` (`debit`/`credit`), `billableItemId` (antes `pendingChargeId`) (uniqueidentifier [M05], Sí), `billedDocumentRef` (No; `COD_COMF/SUC_COMF/NUM_COMF`), `status` (`pending`, `billed`, `cancelled`). Índice `{tenantId, accountId, status}`.
 
 ### 7.8 `interestBillingRuns` e `interestBillingRunItems` — Corridas de intereses a facturar
 
 `interestBillingRuns`: `number` (Int, Sí), `filters` (Object, Sí: `voucherTypeIds`, `dateFrom`, `dateTo`, `accountId`, `holderId`, `groupIds`, `groupMode` include/exclude, `dailyRate`, `onlyConnected`, `processPaymentsBetweenDates`, `excludePreviousInterest`, `conceptId`, `serviceId`, `onlyUnpaid`, `onlyCharges`, `valuesDeferral`, `punitiveOnce`), `variant` (`standard`, `values`, `punitive`, `chargesOnly`), `status` (§8.4), `progress` ({ total, processed, failed, checkpoint }), `totals` ({ documents, accounts, net, vat }), `approvedBy`, `jobId`, `idempotencyKey`.
 
-`interestBillingRunItems`: `runId`, `accountId`, `documentRef`, `tranches[]` (como `interestCalculations.tranches` + `selected: Boolean`), `selected` (Boolean), `interestNet`, `interestVat`, `days`, `chargeRequestId` (ObjectId [M05]), `status` (`preview`, `excluded`, `charged`, `failed`), `error`. Índices `{tenantId, runId, accountId}`; `{tenantId, documentRef.id, status}`.
+`interestBillingRunItems`: `runId`, `accountId`, `documentRef`, `tranches[]` (como `interestCalculations.tranches` + `selected: Boolean`), `selected` (Boolean), `interestNet`, `interestVat`, `days`, `chargeRequestId` (uniqueidentifier [M05]), `status` (`preview`, `excluded`, `charged`, `failed`), `error`. Índices `{tenantId, runId, accountId}`; `{tenantId, documentRef.id, status}`.
 
 ### 7.9 `holdReasons` y `documentHolds` — Bloqueos
 
@@ -835,11 +837,11 @@ Validación: sin superposición de `[from, to]` para el mismo `serviceId` + `vou
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
 | `code`, `name` | String | Sí | |
-| `scope.serviceId` | ObjectId [M02] | Sí | Una política por servicio (y categorías). |
-| `scope.categoryIds` | [ObjectId] | No | |
+| `scope.serviceId` | uniqueidentifier [M02] | Sí | Una política por servicio (y categorías). |
+| `scope.categoryIds` | [uniqueidentifier] | No | |
 | `accountMode` | Enum | Sí | `separate`, `unified` (CTA-001). |
 | `eligibleBalance` | { includeCapital: true, includeAuthorizedCharges: Boolean, excludeConceptIds, excludeAgreementInstallmentsNotDue: true, netCredits: Boolean, thirdPartyConcepts (`exclude`/`includeIfAgreement`, default `exclude`; RN-MOR-142, HUECO-TAS-02) } | Sí | "Saldo elegible". |
-| `candidate` | { daysAfterDueDate (Int), dueDateReference (`vto1`/`lastVto`), minDebt (Decimal128), minDocuments (Int), voucherTypeIds } | Sí | |
+| `candidate` | { daysAfterDueDate (Int), dueDateReference (`vto1`/`lastVto`), minDebt (DECIMAL(18,4)), minDocuments (Int), voucherTypeIds } | Sí | |
 | `minimumPayment` | { enabled, kind (`amount`/`percent`/`exigibleObligations`/`formula`), value, purpose (`avoidSuspension`/`avoidDelinquency`/`agreement`) } | No | CTA-002 (PA-MOR-09). |
 | `stages[]` | [{ stageId, order, waitDays, channels[], noticeModelId, evidenceRequired (Boolean), evidenceTypes[], autoAdvance (Boolean), includeOverdueDebt (Boolean), holdReasonId, debtDocument (Boolean), costEnabled (Boolean) }] | Sí | Secuencia de instancias. |
 | `finalAction` | { type (`suspend`/`restrict`/`disconnect`/`changeCategory`/`claim`/`none`), targetStateCode, targetCategoryId, requiresApproval (Boolean), administrativeTerminationAllowed (Boolean), terminationAfterDays (Int), serviceMode (`restricted`/`interrupted`), restrictionProfile ({ kind: `outgoingBarred`/`minimumLineup`/`reducedFlow`/`speedReduction`, lineupPackageId [M02], minFlow, unit }) } | Sí | `serviceMode` y `restrictionProfile` por servicio: TEL RN-MOR-137, TV RN-MOR-138, AG RN-MOR-139; deben estar entre los `allowedModes` de la matriz (§7.18). |
@@ -867,29 +869,29 @@ Campos: `number` (Int, Sí; `LOTE`, secuencia por tenant), `operation` (`generat
 
 | Campo | Tipo | Obl. | Descripción (origen) |
 |---|---|---|---|
-| `delinquencyBatchId` / `batchNumber` | ObjectId / Int | Sí | `LOTE`. `delinquencyBatchId` → `delinquencyBatches`; nombre canónico de T05 §7.2 (antes `batchId`). |
-| `accountId` | ObjectId [M01] | Sí | `COD_SUM`. |
-| `holderId` | ObjectId [M01] | Sí | `COD_SOC`. |
-| `contractIds` | [ObjectId] | No | Servicios de la deuda. |
-| `stageId` | ObjectId | Sí | `COD_INS`. |
+| `delinquencyBatchId` / `batchNumber` | uniqueidentifier / Int | Sí | `LOTE`. `delinquencyBatchId` → `delinquencyBatches`; nombre canónico de T05 §7.2 (antes `batchId`). |
+| `accountId` | uniqueidentifier [M01] | Sí | `COD_SUM`. |
+| `holderId` | uniqueidentifier [M01] | Sí | `COD_SOC`. |
+| `contractIds` | [uniqueidentifier] | No | Servicios de la deuda. |
+| `stageId` | uniqueidentifier | Sí | `COD_INS`. |
 | `date` | Date | Sí | `FECHA`. |
 | `dueDate` | Date | Sí | `VTO_CIR`. |
-| `noticeModelId` / `noticeModelVersion` | ObjectId / Int | Sí | `COD_PLA`. |
+| `noticeModelId` / `noticeModelVersion` | uniqueidentifier / Int | Sí | `COD_PLA`. |
 | `channel` | Enum | Sí | `printed`, `email`, `sms`, `whatsapp`, `push`, `phoneCall`, `paymentStub`. `phoneCall` se envía a T09 como canal `ivr_export` (exportación al discador o conexión FI-INT-66; DEC-104). |
 | `recipients[]` | [{ personId, role (`holder`/`guarantor`/`codebtor`/`responsible`), address, verified }] | Sí | `RESPONSA_NOTIFICA` (responsables), garantes. |
 | `items[]` | [{ documentRef, balanceAtNotice, voucherTypeId, settled (Boolean) }] | Sí | `COMPNOTI` (`ID_FAC`, `SALDO`, `COD_TPFC`). |
-| `debt` | Decimal128 | Sí | `DEUDA`. |
-| `debtUpdated` | Decimal128 | Sí | `DEUDA_AC`. |
+| `debt` | DECIMAL(18,4) | Sí | `DEUDA`. |
+| `debtUpdated` | DECIMAL(18,4) | Sí | `DEUDA_AC`. |
 | `delivery` | { status (`pending`/`queued`/`accepted`/`delivered`/`read`/`failed`/`bounced`/`manualDelivered`), deliveredAt, evidence[]: [{ type (`providerAck`/`readReceipt`/`signature`/`postalReceipt`/`courierReport`/`manual`), storedFileId, externalRef, recordedBy }], messageIds [T09] } | Sí | `RECIBIO`, `FEC_REC` + AGR-024. |
 | `evidenceSatisfied` | Boolean | Sí | Según `stages[].evidenceRequired`. |
 | `promise` | { date, amount, registeredAt, registeredBy, channel, status (`active`/`kept`/`broken`) } | No | `PROMESA`. |
 | `rating` | Enum | Sí | `unrated`, `good`, `regular`, `bad` (`CALIFICA`). |
 | `resolution` | { status, at, byUserId, reasonId } | Sí | `RESUELTA`, `FEC_RES`, `USU_RES`, `COD_CAU`. |
-| `previousNoticeId` / `nextNoticeId` | ObjectId | No | Encadenamiento entre instancias. |
-| `costChargeRequestId` | ObjectId [M05] | No | Costo de envío. |
+| `previousNoticeId` / `nextNoticeId` | uniqueidentifier | No | Encadenamiento entre instancias. |
+| `costChargeRequestId` | uniqueidentifier [M05] | No | Costo de envío. |
 | `debtDocumentRef` | Object | No | Comprobante de deuda notificada. |
-| `holdIds` | [ObjectId] | No | Bloqueos aplicados. |
-| `interruptionCaseIds` | [ObjectId] | No | Casos derivados (`TECNICA.CNT_NOT`). |
+| `holdIds` | [uniqueidentifier] | No | Bloqueos aplicados. |
+| `interruptionCaseIds` | [uniqueidentifier] | No | Casos derivados (`TECNICA.CNT_NOT`). |
 | `warnings` | [`settled`, `compositionChanged`] | No | V2 #53. |
 | `observation` | String | No | `OBSERVA`. |
 | `cooperativeNoticeRef` | String | No | `NOTI_COOP` [VERIFICAR contenido]. |
@@ -907,15 +909,15 @@ Reemplaza `OBSERVA2`. Campos: `noticeId` (Sí), `at` (Sí), `userId` (Sí o `sys
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
 | `scope` | { accountId, holderId, personId, contractId } | Sí | Al menos uno. |
-| `reasonId` / `reasonText` | ObjectId / String | Sí | `MOTIVO`. |
+| `reasonId` / `reasonText` | uniqueidentifier / String | Sí | `MOTIVO`. |
 | `doNotClaim` | Boolean | Sí | `RECLAMAR` (no reclamar). |
 | `doNotChargeInterest` | Boolean | Sí | `RETENER` (no retener/no cobrar interés). |
 | `validUntil` | Date | No | `FECHA`. |
 | `debtBefore` | Date | No | `FEC_DEUDA` (nula = toda la cuenta). |
 | `authorization` | { status (`pending`/`authorized`/`revoked`), by, at } | Sí | `VIGENCIA`, `USU_VIG`. |
-| `cancelledAt` / `cancelledBy` | Date / ObjectId | No | `FEC_VIG`. |
+| `cancelledAt` / `cancelledBy` | Date / uniqueidentifier | No | `FEC_VIG`. |
 | `registeredBy` / `registeredAt` | | Sí | `USU_REG`, `FEC_REG`. |
-| `noteId` | ObjectId [M01] | No | Nota en la cuenta. |
+| `noteId` | uniqueidentifier [M01] | No | Nota en la cuenta. |
 
 ### 7.17 `serviceProtections` — Protecciones normativas acreditadas
 
@@ -929,7 +931,7 @@ Reemplaza `OBSERVA2`. Campos: `noticeId` (Sí), `at` (Sí), `userId` (Sí o `sys
 | `verification` | { status (`pending`/`verified`/`rejected`), by, at, source (`registry`/`document`/`regulator`) } | Sí | |
 | `normativeRef` | String | Sí | Norma o régimen invocado. |
 | `alertDaysBefore` | Int | No | Default 30. |
-| `personSensitiveDataId` | ObjectId → M01 `personSensitiveData` | No | Condición sensible acreditada (electrodependencia, salud) cuando `type` la requiere. Declarado en T05 (COL-MOR-20); no figuraba en el anexo (PA-MOR-22). |
+| `personSensitiveDataId` | uniqueidentifier → M01 `personSensitiveData` | No | Condición sensible acreditada (electrodependencia, salud) cuando `type` la requiere. Declarado en T05 (COL-MOR-20); no figuraba en el anexo (PA-MOR-22). |
 
 ### 7.18 `suspensionRestrictionRules` — Matriz de restricciones
 
@@ -960,11 +962,11 @@ Campos: `accountId` (Sí), `evaluationDate` (Sí), `policyVersions` ([{ serviceI
 |---|---|---|---|
 | `number` | Int | Sí | Secuencia por tenant. |
 | `type` | Enum | Sí | `delinquencySuspension`, `delinquencyRestriction`, `delinquencyDisconnection`, `delinquencyCategoryChange`, `delinquencyClaim`, `delinquencyTermination`, `voluntarySuspension`, `otherSuspension`, `reactivation`, `reconnection`, `noBilling`. |
-| `contractId` | ObjectId [M01/M02] | Sí | |
-| `accountId`, `holderId` | ObjectId | Sí | |
+| `contractId` | uniqueidentifier [M01/M02] | Sí | |
+| `accountId`, `holderId` | uniqueidentifier | Sí | |
 | `origin` | { kind (`delinquency`/`portal`/`crm`/`technical`/`authority`), noticeId, evaluationId, crmCaseId [M09], paymentId [M07] } | Sí | |
 | `serviceMode` / `restrictionProfile` | Enum / Object | No | Copia de `finalAction` al crear el caso (`restricted` con `outgoingBarred`, `minimumLineup` o `reducedFlow`; `interrupted`). RN-MOR-137 a RN-MOR-139. |
-| `parentCaseId` | ObjectId | No | Reconexión → caso de corte que revierte. |
+| `parentCaseId` | uniqueidentifier | No | Reconexión → caso de corte que revierte. |
 | `requestedAt` / `requestedEffectiveDate` / `durationDays` | Date / Date / Int | Sí / No / No | Suspensión voluntaria. |
 | `evaluation` | { decision, reasons[], restrictionRuleIds, protectionIds, evaluatedAt } | Sí | |
 | `approval` | { required, workflowInstanceId [T11], status, by, at } | No | |
@@ -1000,7 +1002,7 @@ Campos: `accountId` (Sí), `evaluationDate` (Sí), `policyVersions` ([{ serviceI
 | `amortizationMethod` | Enum | Sí | `noInterest` (1), `direct` (2), `french` (3), `german` (4), `american` (5), `balanceInstallments` (6) — `COD_CAL` |
 | `financeableAmount` | { min, max, minToModify } | No | `MIN_VTA`, `MAX_VTA`, `MOD_VTA` |
 | `downPayment` | { minPercent (≤ 100), onTotalWithVat (Boolean), dueDays } | No | `MIN_ENT`, `ENTMIN_IVATOTAL` |
-| `stampTaxPerMille` | Decimal128 | No | `TASASELLADO` |
+| `stampTaxPerMille` | DECIMAL(18,4) | No | `TASASELLADO` |
 | `discounts` | { previousInterestPercent, lateInterestPercent, lateDiscountScope (`current`/`all`), conditional (Boolean) } | No | `QUITA_INTR`, `QUITA_INTM` |
 | `ownLateRate` | { enabled, dailyRate } | No | `MORA_PARTI`, `REC_DIAMF` |
 | `indexAdjustment` | { currencyCode, economicIndexSeriesId [T04] (antes `indexTableId`, CTR-DAT-29), conceptId, lagMonths (default 2) } | No | `COD_MON_AJUSTE`, `COD_TAB`, `COD_PRO_INFLACION` |
@@ -1033,9 +1035,9 @@ Campos: `accountId`, `requestedBy` (usuario o socio), `channel` (`admin`, `porta
 |---|---|---|---|
 | `number` | Int | Sí | `NRO_REF`. |
 | `kind` | Enum | Sí | `regularization`, `refinancing` (`PPAGOS` y `REC_CON` unificados). |
-| `accountId` / `targetAccountId` | ObjectId | Sí / No | Cuenta de origen y destino (V2 #2634). |
-| `holderId`, `personId` | ObjectId | Sí | `COD_SOC`, `COD_PER`. |
-| `planId` / `planSnapshot` | ObjectId / Object | Sí | Condiciones congeladas. |
+| `accountId` / `targetAccountId` | uniqueidentifier | Sí / No | Cuenta de origen y destino (V2 #2634). |
+| `holderId`, `personId` | uniqueidentifier | Sí | `COD_SOC`, `COD_PER`. |
+| `planId` / `planSnapshot` | uniqueidentifier / Object | Sí | Condiciones congeladas. |
 | `date` | Date | Sí | `FECHA`. |
 | `amounts` | { capital (`CAP_A_REF`), previousInterest (`INT_A_REF`), lateInterestToDate (`INT_A_FEC`), financingInterest (`INT_X_REF`), discounts, stampTax, downPayment, totalDebt (`DEU_REF`), totalToPay } | Sí | |
 | `rates` | { periodRate, tem (`INT_TEM`), tna (`INT_TNA`), tea, cft, cftWithVat } | Sí | |
@@ -1044,8 +1046,8 @@ Campos: `accountId`, `requestedBy` (usuario o socio), `channel` (`admin`, `porta
 | `templateId` / `documentStoredFileId` (antes `documentFileId`) / `documentHash` | | Sí | PDF del convenio. |
 | `signers[]` | [{ personId, role (`holder`/`codebtor`/`guarantor`/`representative`), required (Boolean) }] | Sí | `PPAGOS_FIRMANTES`, `COD_GAR`. |
 | `signatures[]` | [{ signerIndex, method (`inPersonTablet`/`electronicOtp`/`digitalCertificate`/`wetScanned`), signedAt, evidence { ip, device, otpRef, storedFileId, hash } }] | No | `PPAGOS_FIRMAS`. |
-| `signatureRequestId` | ObjectId → T11 `signatureRequests` | No | Pedido de firma de los firmantes. Declarado en T05 (COL-MOR-29); no figuraba en el anexo (PA-MOR-22). |
-| `guaranteeIds` | [ObjectId] | No | |
+| `signatureRequestId` | uniqueidentifier → T11 `signatureRequests` | No | Pedido de firma de los firmantes. Declarado en T05 (COL-MOR-29); no figuraba en el anexo (PA-MOR-22). |
+| `guaranteeIds` | [uniqueidentifier] | No | |
 | `approval` | { required, workflowInstanceId, status, by, at, reasons[] } | No | Condiciones especiales. |
 | `status` | Enum | Sí | §8.8 (`ESTADO`). |
 | `default` | { triggeredAt, reason, exigibleAmount, noticeId } | No | Caducidad. |
@@ -1118,19 +1120,19 @@ Corrección de consistencia (categorías 2, 3 y 4 de `_trabajo/correccion-incons
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `base.taxIds` | ObjectId[] | → M06 `taxDefinitions` (T05 §7.2.1, `taxIds`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `base.excludedTaxIds` | ObjectId[] | → M06 `taxDefinitions` (T05 §7.2.1, `taxIds`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `adminFee.amount` | Decimal128 | No es referencia: importe del cargo administrativo (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `base.taxIds` | uniqueidentifier[] | → M06 `taxDefinitions` (T05 §7.2.1, `taxIds`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `base.excludedTaxIds` | uniqueidentifier[] | → M06 `taxDefinitions` (T05 §7.2.1, `taxIds`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `adminFee.amount` | DECIMAL(18,4) | No es referencia: importe del cargo administrativo (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `adminFee.admissibilityRef` | string | No es referencia: cita normativa de admisibilidad (texto) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `fiscal.defaultVatSituationId` | ObjectId | → M06 `vatConditionSettings` (condición IVA por defecto, COL-FIS-15) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `values.dailyRate` | Decimal128 | No es referencia: tasa diaria (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `publishedVersionId` | ObjectId | → T04 `configVersions` (versión publicada del paquete de configuración, COL-CFG-03) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `fiscal.defaultVatSituationId` | uniqueidentifier | → M06 `vatConditionSettings` (condición IVA por defecto, COL-FIS-15) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `values.dailyRate` | DECIMAL(18,4) | No es referencia: tasa diaria (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `publishedVersionId` | uniqueidentifier | → T04 `configVersions` (versión publicada del paquete de configuración, COL-CFG-03) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.37.2 `interestRateTables` (COL-MOR-02) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `rates[].rateId` | ObjectId | No es referencia: identificador del tramo dentro de la tabla (`COD_MOT`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `rates[].rateId` | uniqueidentifier | No es referencia: identificador del tramo dentro de la tabla (`COD_MOT`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.37.3 `interestIndexTables` (COL-MOR-03)
 
@@ -1142,7 +1144,7 @@ Lista original: §7.3.
 | `name` | string | [VERIFICAR] | `NOM_TAB` | — |
 | `purpose` | enum | [VERIFICAR] | Enum: `lateInterest`, `installmentAdjustment`, `guaranteeAdjustment` — los dos últimos reemplazados por `economicIndexSeries` de T04, CTR-DAT-29 | — |
 | `periodicity` | enum | [VERIFICAR] | Enum: `daily`, `monthly` | — |
-| `voucherTypeIds` | array | [VERIFICAR] | [ObjectId]; `TABMORA.TIPO_FAC` | `voucherTypes` (M05) |
+| `voucherTypeIds` | array | [VERIFICAR] | [uniqueidentifier]; `TABMORA.TIPO_FAC` | `voucherTypes` (M05) |
 | `sourceRef` | string | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `active`, `inactive` (§8.15; PA-MOR-22); antes sin valores. | — |
 
@@ -1152,16 +1154,16 @@ Lista original: §7.3.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `tableId` | ObjectId | Sí | Sí | → M08 `interestIndexTables` (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `tableId` | uniqueidentifier | Sí | Sí | → M08 `interestIndexTables` (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `date` | Date | Sí | de `DIA_TAB`/`MES_TAB`/`ANO_TAB` o `FECHA` | — |
-| `value` | Decimal128 | Sí | `IND_TAB` | — |
-| `importBatchId` | ObjectId | No | (ObjectId, No). Índice único `{tenantId, tableId, date}` | → T04 `masterImportJobs` (importación de índices desde planilla; T05 §7.2.1) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (lote de importación)") |
+| `value` | DECIMAL(18,4) | Sí | `IND_TAB` | — |
+| `importBatchId` | uniqueidentifier | No | (uniqueidentifier, No). Índice único `{tenantId, tableId, date}` | → T04 `masterImportJobs` (importación de índices desde planilla; T05 §7.2.1) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (lote de importación)") |
 
 #### 7.37.5 `dueDateSurchargeSchemes` (COL-MOR-05) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `scope.cycleIds` | ObjectId[] | → M05 `billingCycles` (ciclo de facturación, COL-FAC-01) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `scope.cycleIds` | uniqueidentifier[] | → M05 `billingCycles` (ciclo de facturación, COL-FAC-01) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.37.6 `earlyPaymentDiscountRules` (COL-MOR-06)
 
@@ -1169,12 +1171,12 @@ Lista original: §7.5.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `voucherTypeId` | ObjectId | Sí | — | `voucherTypes` (M05) |
+| `voucherTypeId` | uniqueidentifier | Sí | — | `voucherTypes` (M05) |
 | `dayFrom` | int | Sí | `DIA_DESDE` | — |
 | `dayTo` | int | Sí | `DIA_HASTA` | — |
-| `percent` | Decimal128 | Sí | Sí, 0 < p ≤ 100 | — |
+| `percent` | DECIMAL(18,4) | Sí | Sí, 0 < p ≤ 100 | — |
 | `membersOnly` | bool | [VERIFICAR] | default `true` | — |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1183,9 +1185,9 @@ Lista original: §7.5.
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `policyId` | ObjectId | `interestPolicies` (M08); antes implícita por el nombre |
+| `policyId` | uniqueidentifier | `interestPolicies` (M08); antes implícita por el nombre |
 | `policyVersion` | int | No es referencia: número de versión de `interestPolicies` usado en el cálculo (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `operationRef` | ObjectId | `operations` (T11); antes implícita por el nombre |
+| `operationRef` | uniqueidentifier | `operations` (T11); antes implícita por el nombre |
 
 #### 7.37.8 `deferredInterests` (COL-MOR-08)
 
@@ -1193,17 +1195,17 @@ Lista original: §7.7.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
-| `contractId` | ObjectId | No | V2 #2828 | `serviceContracts` (M02) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
+| `contractId` | uniqueidentifier | No | V2 #2828 | `serviceContracts` (M02) |
 | `sourceReceiptRef` | string | Sí | `COD_REC/SUC_REC/NUM_REC` | `receipts` (M07) |
 | `sourceDocumentRefs` | array | Sí | […], Sí | — |
-| `calculationId` | ObjectId | Sí | — | `interestCalculations` (M08); antes implícita por el nombre |
-| `netAmount` | Decimal128 | Sí | Sí | — |
+| `calculationId` | uniqueidentifier | Sí | — | `interestCalculations` (M08); antes implícita por el nombre |
+| `netAmount` | DECIMAL(18,4) | Sí | Sí | — |
 | `direction` | enum | [VERIFICAR] | `debit`/`credit` | — |
-| `billableItemId` | ObjectId | Sí | ObjectId [M05], Sí | → M05 `billableItems`. Nombre canónico de T05 §7.2.1 `billableItemId` (antes `pendingChargeId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `billableItemId` | uniqueidentifier | Sí | uniqueidentifier [M05], Sí | → M05 `billableItems`. Nombre canónico de T05 §7.2.1 `billableItemId` (antes `pendingChargeId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `billedDocumentRef` | string | No | `COD_COMF/SUC_COMF/NUM_COMF` | `documents` (T11) |
 | `status` | enum | [VERIFICAR] | `pending`, `billed`, `cancelled` | — |
-| `billableItemId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `billableItems` (M05); antes implícita por el nombre |
+| `billableItemId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `billableItems` (M05); antes implícita por el nombre |
 
 #### 7.37.9 `interestBillingRuns` (COL-MOR-09)
 
@@ -1217,8 +1219,8 @@ Lista original: §7.8.
 | `status` | [VERIFICAR] | [VERIFICAR] | §8.4 | — |
 | `progress` | object | [VERIFICAR] | { total, processed, failed, checkpoint } | — |
 | `totals` | object | [VERIFICAR] | { documents, accounts, net, vat } | — |
-| `approvedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `jobId` | ObjectId | [VERIFICAR] | — | → T01 `jobRuns` (ejecución del job) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `approvedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `jobId` | uniqueidentifier | [VERIFICAR] | — | → T01 `jobRuns` (ejecución del job) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `idempotencyKey` | string | [VERIFICAR] | — | — |
 
 #### 7.37.10 `interestBillingRunItems` (COL-MOR-10)
@@ -1227,15 +1229,15 @@ Lista original: §7.8.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `runId` | ObjectId | [VERIFICAR] | — | `interestBillingRuns` (M08); antes implícita por el nombre |
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
+| `runId` | uniqueidentifier | [VERIFICAR] | — | `interestBillingRuns` (M08); antes implícita por el nombre |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
 | `documentRef` | string | [VERIFICAR] | — | — |
 | `tranches` | array | [VERIFICAR] | como `interestCalculations.tranches` + `selected: Boolean` | — |
 | `selected` | bool | [VERIFICAR] | — | — |
 | `interestNet` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `interestVat` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `days` | int | [VERIFICAR] | — | — |
-| `chargeRequestId` | ObjectId | [VERIFICAR] | Cargo pedido a M05. | → M05 `billableItems` (cargo pendiente; T05 §7.2.1, `pendingChargeId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `chargeRequestId` | uniqueidentifier | [VERIFICAR] | Cargo pedido a M05. | → M05 `billableItems` (cargo pendiente; T05 §7.2.1, `pendingChargeId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `status` | enum | [VERIFICAR] | `preview`, `excluded`, `charged`, `failed` | — |
 | `error` | [VERIFICAR] | [VERIFICAR] | — | — |
 
@@ -1261,16 +1263,16 @@ Lista original: §7.9.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `documentRef` | string | Sí | — | — |
-| `reasonId` | ObjectId | Sí | Mismo dato que `holdReasonId` (nombre de T05, fila final); se usa `holdReasonId`. | → M08 `holdReasons` (T05 §7.2.1, `reasonId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `reasonId` | uniqueidentifier | Sí | Mismo dato que `holdReasonId` (nombre de T05, fila final); se usa `holdReasonId`. | → M08 `holdReasons` (T05 §7.2.1, `reasonId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `origin` | enum | [VERIFICAR] | `manual`, `notice`, `stateChangeOrder`, `legalCase`, `system` | — |
 | `originRef` | string | [VERIFICAR] | — | — |
 | `appliedAt` | Date | [VERIFICAR] | — | — |
-| `appliedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `appliedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `releasedAt` | Date | [VERIFICAR] | — | — |
-| `releasedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `releaseCalculationId` | ObjectId | [VERIFICAR] | — | `interestCalculations` (M08); antes implícita por el nombre |
+| `releasedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `releaseCalculationId` | uniqueidentifier | [VERIFICAR] | — | `interestCalculations` (M08); antes implícita por el nombre |
 | `status` | enum | [VERIFICAR] | `active`, `released`). Historial = documentos sucesivos (nunca se edita uno liberado | — |
-| `holdReasonId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `holdReasons` (M08); antes implícita por el nombre |
+| `holdReasonId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `holdReasons` (M08); antes implícita por el nombre |
 
 #### 7.37.13 `delinquencyStages` (COL-MOR-14)
 
@@ -1286,7 +1288,7 @@ Lista original: §7.11.
 | `flags` | object | [VERIFICAR] | { isCandidates, isInitial, isSensitive, isCut } | — |
 | `regulatoryCode` | string | [VERIFICAR] | ej. `R/C` | — |
 | `status` | enum | [VERIFICAR] | `active`, `inactive`; catálogo | — |
-| `policyId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `delinquencyPolicies` (M08); antes implícita por el nombre |
+| `policyId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `delinquencyPolicies` (M08); antes implícita por el nombre |
 
 #### 7.37.14 `delinquencyNoticeModels` (COL-MOR-15)
 
@@ -1296,10 +1298,10 @@ Lista original: §7.12.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `serviceIds` | ObjectId[] | [VERIFICAR] | — | `tenantServices` (M02) |
-| `stageIds` | ObjectId[] | [VERIFICAR] | — | `delinquencyStages` (M08); antes implícita por el nombre |
+| `serviceIds` | uniqueidentifier[] | [VERIFICAR] | — | `tenantServices` (M02) |
+| `stageIds` | uniqueidentifier[] | [VERIFICAR] | — | `delinquencyStages` (M08); antes implícita por el nombre |
 | `minDebtType` | [VERIFICAR] | [VERIFICAR] | `TDEUDA` | — |
-| `minDebt` | Decimal128 | [VERIFICAR] | `DEUDA` | — |
+| `minDebt` | DECIMAL(18,4) | [VERIFICAR] | `DEUDA` | — |
 | `includeAdherents` | bool | [VERIFICAR] | `ADHER` | — |
 | `signatures` | object | [VERIFICAR] | { manager: Boolean, auditor: Boolean }; `FIR_GTE`, `FIR_AUD` | — |
 | `serviceDetail` | bool | [VERIFICAR] | Boolean; `DET_SER` | — |
@@ -1307,11 +1309,11 @@ Lista original: §7.12.
 | `variables` | array | [VERIFICAR] | [String]: cuenta, titular, domicilio, deuda, deuda actualizada, detalle de documentos, servicios, vencimiento de la notificación, fecha estimada de suspensión, medios… | — |
 | `ignoreNullServiceInfo` | [VERIFICAR] | [VERIFICAR] | V2 #2359 | — |
 | `includeSummary` | bool | [VERIFICAR] | V2 #2322 | — |
-| `costAmount` | Decimal128 | No | opcional; V2 #296 por plantilla | — |
+| `costAmount` | DECIMAL(18,4) | No | opcional; V2 #296 por plantilla | — |
 | `legalText` | string | [VERIFICAR] | texto normativo obligatorio por servicio | — |
 | `version` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | `draft`, `published`, `retired`; catálogo versionado, §8.1 | — |
-| `templateVersionId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `templateVersions` (T11); antes implícita por el nombre |
+| `templateVersionId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `templateVersions` (T11); antes implícita por el nombre |
 
 #### 7.37.15 `delinquencyBatches` (COL-MOR-16)
 
@@ -1321,30 +1323,30 @@ Lista original: §7.13.
 |---|---|---|---|---|
 | `number` | int | Sí | `LOTE`, secuencia por tenant | — |
 | `operation` | enum | [VERIFICAR] | `generate`, `process` | — |
-| `stageId` | ObjectId | Sí | — | `delinquencyStages` (M08); antes implícita por el nombre |
-| `policyId` | ObjectId | [VERIFICAR] | — | `delinquencyPolicies` (M08); antes implícita por el nombre |
+| `stageId` | uniqueidentifier | Sí | — | `delinquencyStages` (M08); antes implícita por el nombre |
+| `policyId` | uniqueidentifier | [VERIFICAR] | — | `delinquencyPolicies` (M08); antes implícita por el nombre |
 | `filters` | object | [VERIFICAR] | Object | — |
 | `noticeCount` | int | [VERIFICAR] | — | — |
-| `totalDebt` | Decimal128 | [VERIFICAR] | — | — |
+| `totalDebt` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | `running`, `completed`, `failed`, `annulled` | — |
 | `exclusions` | array | [VERIFICAR] | ([{ accountId, reason: `exception`/`alreadyNotified`/`alreadyCandidate`/`sameType`/`zeroDebt`/`agreement`/`claim`/`legalCase`/`noRecipient` }]) — reemplaza… | — |
-| `previousBatchIds` | ObjectId[] | [VERIFICAR] | — | `delinquencyBatches` (M08); antes implícita por el nombre |
-| `jobId` | ObjectId | [VERIFICAR] | — | → T01 `jobRuns` (ejecución del job) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `previousBatchIds` | uniqueidentifier[] | [VERIFICAR] | — | `delinquencyBatches` (M08); antes implícita por el nombre |
+| `jobId` | uniqueidentifier | [VERIFICAR] | — | → T01 `jobRuns` (ejecución del job) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `idempotencyKey` | string | [VERIFICAR] | — | — |
 
 #### 7.37.16 `delinquencyNotices` (COL-MOR-17) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `delinquencyBatchId` | ObjectId | → M08 `delinquencyBatches`. Nombre canónico de T05 §7.2 (antes `batchId`; antes "`delinquencyBatches` (M08); antes implícita por el nombre") |
-| `stageId` | ObjectId | `delinquencyStages` (M08); antes implícita por el nombre |
-| `noticeModelId` | ObjectId | `delinquencyNoticeModels` (M08); antes implícita por el nombre |
+| `delinquencyBatchId` | uniqueidentifier | → M08 `delinquencyBatches`. Nombre canónico de T05 §7.2 (antes `batchId`; antes "`delinquencyBatches` (M08); antes implícita por el nombre") |
+| `stageId` | uniqueidentifier | `delinquencyStages` (M08); antes implícita por el nombre |
+| `noticeModelId` | uniqueidentifier | `delinquencyNoticeModels` (M08); antes implícita por el nombre |
 | `noticeModelVersion` | int | No es referencia: número de versión de `delinquencyNoticeModels` usado (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `previousNoticeId` | ObjectId | `delinquencyNotices` (M08); antes implícita por el nombre |
-| `nextNoticeId` | ObjectId | `delinquencyNotices` (M08); antes implícita por el nombre |
-| `costChargeRequestId` | ObjectId | → M05 `billableItems` (cargo del costo de envío; T05 §7.2.1, `pendingChargeId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `holdIds` | ObjectId | `documentHolds` (M08); antes implícita por el nombre |
-| `interruptionCaseIds` | ObjectId | `interruptionCases` (M08); antes implícita por el nombre |
+| `previousNoticeId` | uniqueidentifier | `delinquencyNotices` (M08); antes implícita por el nombre |
+| `nextNoticeId` | uniqueidentifier | `delinquencyNotices` (M08); antes implícita por el nombre |
+| `costChargeRequestId` | uniqueidentifier | → M05 `billableItems` (cargo del costo de envío; T05 §7.2.1, `pendingChargeId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `holdIds` | uniqueidentifier | `documentHolds` (M08); antes implícita por el nombre |
+| `interruptionCaseIds` | uniqueidentifier | `interruptionCases` (M08); antes implícita por el nombre |
 
 #### 7.37.17 `delinquencyNoticeEvents` (COL-MOR-18)
 
@@ -1352,9 +1354,9 @@ Lista original: §7.15.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `noticeId` | ObjectId | Sí | — | `delinquencyNotices` (M08); antes implícita por el nombre |
+| `noticeId` | uniqueidentifier | Sí | — | `delinquencyNotices` (M08); antes implícita por el nombre |
 | `at` | [VERIFICAR] | Sí | — | — |
-| `userId` | ObjectId | Sí | Sí o `system` | `memberships` (T02) |
+| `userId` | uniqueidentifier | Sí | Sí o `system` | `memberships` (T02) |
 | `process` | enum | [VERIFICAR] | `generate`, `process`, `delivery`, `promise`, `rating`, `exclude`, `close`, `annulBatch`, `payment`, `technical`, `note` | — |
 | `fromStatus` | enum | No | Valores de `delinquencyNotices.status` (§8.6): `open`, `processed`, `paid`, `excluded`, `inTechnical`, `closed`, `annulled`; nulo en el alta (§8.15; PA-MOR-22); antes sin valores. | — |
 | `toStatus` | enum | Sí | Mismos valores que `fromStatus` (§8.15; PA-MOR-22); antes sin valores. | — |
@@ -1365,9 +1367,9 @@ Lista original: §7.15.
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `reasonId` | ObjectId | `delinquencyReasons` (M08); antes implícita por el nombre |
+| `reasonId` | uniqueidentifier | `delinquencyReasons` (M08); antes implícita por el nombre |
 | `reasonText` | string | No es referencia: motivo en texto libre (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `noteId` | ObjectId | `notes` (M01); antes implícita por el nombre |
+| `noteId` | uniqueidentifier | `notes` (M01); antes implícita por el nombre |
 
 #### 7.37.19 `suspensionRestrictionRules` (COL-MOR-21) — referencias declaradas
 
@@ -1393,7 +1395,7 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
 | `evaluationDate` | Date | Sí | — | — |
 | `policyVersions` | array | [VERIFICAR] | [{ serviceId, policyId, version }] | — |
 | `obligations` | array | [VERIFICAR] | [{ documentRef, contractId, dueDate, balance, eligible (Boolean), excludedReason }] | — |
@@ -1418,7 +1420,7 @@ Lista original: §7.22.
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
 | `caseType` | enum | [VERIFICAR] | `reactivation`, `reconnection`, `voluntarySuspension`, `otherSuspension` | — |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `filters` | object | [VERIFICAR] | { memberActive, delinquent, prepaid, zoneIds, localityIds, categoryIds, classIds, statusCodes, ownership } | — |
 | `conceptId` | array | [VERIFICAR] | [M04] | `billableConcepts` (M02) |
 | `timing` | enum | [VERIFICAR] | `before`, `after` | — |
@@ -1426,7 +1428,7 @@ Lista original: §7.22.
 | `free` | bool | [VERIFICAR] | — | — |
 | `admissibility` | object | [VERIFICAR] | { basis (`regulation`/`contract`/`tariffResolution`), reference, approvedBy, approvedAt, productionEnabled (Boolean) } | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `eventChargeId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `eventCharges` (M04); antes implícita por el nombre |
+| `eventChargeId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `eventCharges` (M04); antes implícita por el nombre |
 
 #### 7.37.24 `financingInstitutionPlans` (COL-MOR-27)
 
@@ -1436,7 +1438,7 @@ Lista original: §7.24.
 |---|---|---|---|---|
 | `financialInstitutionId` | array | [VERIFICAR] | [M14] (antes `code`, `name`, `kind` (`card`, `bank`, `finance`) propios) | `financialInstitutions` (M14); antes implícita por el nombre |
 | `plans` | array | [VERIFICAR] | [{ installments, coefficient, entityRate, cft, commissionPercent, settlementDays }] | — |
-| `collectionEntityId` | ObjectId | [VERIFICAR] | Ente recaudador de M07 cuando la entidad también cobra (antes tipo `array`). | → M07 `collectionAgencies` (ente recaudador, no `debtCollectionAgencies` de M08; PA-MOR-22; antes "`collectionAgencies` (M07); antes implícita por el nombre") |
+| `collectionEntityId` | uniqueidentifier | [VERIFICAR] | Ente recaudador de M07 cuando la entidad también cobra (antes tipo `array`). | → M07 `collectionAgencies` (ente recaudador, no `debtCollectionAgencies` de M08; PA-MOR-22; antes "`collectionAgencies` (M07); antes implícita por el nombre") |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | `active`, `inactive`; catálogo | — |
@@ -1447,28 +1449,28 @@ Lista original: §7.25.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
-| `requestedBy` | ObjectId | [VERIFICAR] | usuario o socio | `memberships` (T02) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
+| `requestedBy` | uniqueidentifier | [VERIFICAR] | usuario o socio | `memberships` (T02) |
 | `channel` | enum | [VERIFICAR] | `admin`, `portal` | — |
-| `planId` | ObjectId | [VERIFICAR] | — | `servicePlans` (M02) |
+| `planId` | uniqueidentifier | [VERIFICAR] | — | `servicePlans` (M02) |
 | `obligations` | array | [VERIFICAR] | documentRef, capital, betweenDueDateInterest, lateInterest | — |
 | `inputs` | object | [VERIFICAR] | { downPayment, installments, targetInstallmentAmount, firstDueDate, discounts, rateOverride } | — |
 | `result` | object | [VERIFICAR] | { schedule[], totals, cft, tea, tem, tna, warnings[] } | — |
-| `calculationIds` | ObjectId[] | [VERIFICAR] | — | `interestCalculations` (M08); antes implícita por el nombre |
+| `calculationIds` | uniqueidentifier[] | [VERIFICAR] | — | `interestCalculations` (M08); antes implícita por el nombre |
 | `expiresAt` | Date | [VERIFICAR] | fin del día | — |
-| `convertedAgreementId` | ObjectId | [VERIFICAR] | . TTL de 90 días para simulaciones no convertidas (se conservan las convertidas) | `agreements` (M08); antes implícita por el nombre |
+| `convertedAgreementId` | uniqueidentifier | [VERIFICAR] | . TTL de 90 días para simulaciones no convertidas (se conservan las convertidas) | `agreements` (M08); antes implícita por el nombre |
 
 #### 7.37.26 `agreements` (COL-MOR-29) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `targetAccountId` | ObjectId | → M01 `accounts` (cuenta de destino, V2 #2634; T05 §7.2.1) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `targetAccountId` | uniqueidentifier | → M01 `accounts` (cuenta de destino, V2 #2634; T05 §7.2.1) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `planSnapshot` | object | No es referencia: condiciones del plan congeladas (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `templateId` | ObjectId | → T11 `documentTemplates` (plantilla del convenio; T05 §7.2.1) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `guaranteeIds` | ObjectId[] | `guarantees` (M08); antes implícita por el nombre |
-| `refinancedByAgreementId` | ObjectId | `agreements` (M08); antes implícita por el nombre |
-| `refinancesAgreementIds` | ObjectId[] | `agreements` (M08); antes implícita por el nombre |
-| `signatureRequestId` | ObjectId | → T11 `signatureRequests` (pedido de firma de `signers[]`; COL-WFL-48 cita los convenios de M08). Declarado en T05; no figuraba en el anexo (PA-MOR-22). |
+| `templateId` | uniqueidentifier | → T11 `documentTemplates` (plantilla del convenio; T05 §7.2.1) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `guaranteeIds` | uniqueidentifier[] | `guarantees` (M08); antes implícita por el nombre |
+| `refinancedByAgreementId` | uniqueidentifier | `agreements` (M08); antes implícita por el nombre |
+| `refinancesAgreementIds` | uniqueidentifier[] | `agreements` (M08); antes implícita por el nombre |
+| `signatureRequestId` | uniqueidentifier | → T11 `signatureRequests` (pedido de firma de `signers[]`; COL-WFL-48 cita los convenios de M08). Declarado en T05; no figuraba en el anexo (PA-MOR-22). |
 
 #### 7.37.27 `agreementObligations` (COL-MOR-30)
 
@@ -1476,21 +1478,21 @@ Lista original: §7.27.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agreementId` | ObjectId | [VERIFICAR] | — | `agreements` (M08); antes implícita por el nombre |
+| `agreementId` | uniqueidentifier | [VERIFICAR] | — | `agreements` (M08); antes implícita por el nombre |
 | `documentRef` | string | [VERIFICAR] | — | — |
 | `sign` | [VERIFICAR] | [VERIFICAR] | +1/−1 créditos | — |
 | `dueDate` | Date | [VERIFICAR] | `VTO` | — |
 | `capital` | [VERIFICAR] | [VERIFICAR] | `CAP_A_REF` | — |
 | `recharge` | [VERIFICAR] | [VERIFICAR] | `INT_A_REF` | — |
-| `total` | Decimal128 | [VERIFICAR] | `TOT_COM` | — |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | `TOT_COM` | — |
 | `betweenDueDateInterest` | [VERIFICAR] | [VERIFICAR] | `INT_23` | — |
 | `lateInterest` | [VERIFICAR] | [VERIFICAR] | `INT_FT` | — |
 | `isInstallmentOf` | object | [VERIFICAR] | { agreementId, number, of }; `NRO_CUO`, `DE_CUO` | — |
 | `installmentBreakdown` | object | [VERIFICAR] | { capital (`CAP_CUO`), currentInterest, previousInterest (`INT_CUO`), lateInterest } | — |
-| `originalBalance` | Decimal128 | [VERIFICAR] | — | — |
+| `originalBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `originalBalanceDate` | Date | [VERIFICAR] | para revertir | — |
 | `status` | enum | [VERIFICAR] | `included`, `restored` | — |
-| `obligationId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `obligations` (M07) |
+| `obligationId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `obligations` (M07) |
 
 #### 7.37.28 `agreementInstallments` (COL-MOR-31)
 
@@ -1498,19 +1500,19 @@ Lista original: §7.28.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agreementId` | ObjectId | [VERIFICAR] | o `saleRef` [M11] para venta | `agreements` (M08); antes implícita por el nombre |
+| `agreementId` | uniqueidentifier | [VERIFICAR] | o `saleRef` [M11] para venta | `agreements` (M08); antes implícita por el nombre |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | 0 = anticipo | — |
 | `of` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `dueDate` | Date | [VERIFICAR] | — | — |
 | `components` | object | [VERIFICAR] | { capital (`CAP_FIN`), previousInterest (`IAN_FIN`), lateInterest (`IAF_FIN`), financingInterest (`INT_CUO`), vat [{ rate, net, vat, interestType }], iibb, stampTax, i… | — |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
-| `remainingPlanBalance` | Decimal128 | [VERIFICAR] | `CAP_RES`/`Saldo` | — |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `remainingPlanBalance` | DECIMAL(18,4) | [VERIFICAR] | `CAP_RES`/`Saldo` | — |
 | `mode` | enum | [VERIFICAR] | `monthlyInvoice`/`ownDocument` | — |
 | `billableItemId` | array | [VERIFICAR] | [M05] o `documentRef` [M05] | → M05 `billableItems`. Nombre canónico de T05 §7.2.1 `billableItemId` (antes `pendingChargeId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `billedAt` | Date | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | `scheduled`, `billed`, `due`, `paid`, `partiallyPaid`, `overdue`, `accelerated`, `cancelledEarly`, `annulled`, `refinanced` (transiciones en §8.14) | — |
 | `paidAt` | Date | [VERIFICAR] | — | — |
-| `billableItemId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `billableItems` (M05); antes implícita por el nombre |
+| `billableItemId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `billableItems` (M05); antes implícita por el nombre |
 
 #### 7.37.29 `guarantees` (COL-MOR-32)
 
@@ -1521,7 +1523,7 @@ Lista original: §7.29.
 | `kind` | enum | [VERIFICAR] | `guarantor`, `securityDeposit`, `promissoryNote`, `suretyInsurance`, `bankGuarantee`, `other` | — |
 | `guarantorPersonId` | array | [VERIFICAR] | [M01] (si `guarantor`) | `persons` (M01) |
 | `securedRef` | object | [VERIFICAR] | { type: `serviceContract`/`agreement`/`account`, id } | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `currency` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `economicIndexSeriesId` | array | [VERIFICAR] | [T04] (actualización; antes `indexTableId`, CTR-DAT-29) | `economicIndexSeries` (T04); antes implícita por el nombre |
 | `documents` | array | [VERIFICAR] | [storedFileId] | — |
@@ -1529,10 +1531,10 @@ Lista original: §7.29.
 | `validTo` | Date | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | `requested`, `active`, `executed`, `applied`, `refunded`, `released`, `expired` | — |
 | `liquidation` | object | [VERIFICAR] | { at, appliedToDebt, refundAmount, refundMode (`accountCredit`/`treasury`, default `accountCredit`; HUECO-OTR-04), treasuryRef [M14] } | — |
-| `requirementRuleId` | ObjectId | [VERIFICAR] | — | `guaranteeRequirementRules` (M08); antes implícita por el nombre |
+| `requirementRuleId` | uniqueidentifier | [VERIFICAR] | — | `guaranteeRequirementRules` (M08); antes implícita por el nombre |
 | `sourceRef` | object | [VERIFICAR] | { module: `soc`, loanId } para el depósito del préstamo ortopédico de M18 | — |
-| `agreementId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `agreements` (M08); antes implícita por el nombre |
-| `personId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `persons` (M01) |
+| `agreementId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `agreements` (M08); antes implícita por el nombre |
+| `personId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `persons` (M01) |
 
 #### 7.37.30 `guaranteeRequirementRules` (COL-MOR-33)
 
@@ -1540,12 +1542,12 @@ Lista original: §7.30.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
-| `categoryIds` | ObjectId[] | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
+| `categoryIds` | uniqueidentifier[] | [VERIFICAR] | — | `serviceCategories` (M02) |
 | `condition` | enum | [VERIFICAR] | `tenantOccupant`, `largeUser`, `debtHistory`, `custom` | — |
 | `kind` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `amountFormula` | enum | [VERIFICAR] | `fixed`/`monthsOfAverageBill` | — |
-| `value` | Decimal128 | [VERIFICAR] | — | — |
+| `value` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
@@ -1557,12 +1559,12 @@ Lista original: §7.31.
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | — | — |
 | `kind` | enum | [VERIFICAR] | `lawFirm`, `collectionAgency` | — |
-| `taxId` | string | [VERIFICAR] | CUIT del estudio o agencia (antes tipo `ObjectId`). | No es referencia (T05 §7.2.1, `taxId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `taxId` | string | [VERIFICAR] | CUIT del estudio o agencia (antes tipo `uniqueidentifier`). | No es referencia (T05 §7.2.1, `taxId`) (PA-MOR-22; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `contacts` | array | [VERIFICAR] | — | — |
-| `commissionPercent` | Decimal128 | [VERIFICAR] | — | — |
+| `commissionPercent` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `apiClientId` | array | [VERIFICAR] | [T02] (acceso `/api/v1/ext`) | `apiClients` (T02); antes implícita por el nombre |
 | `status` | enum | Sí | Valores: `active`, `suspended`, `inactive` (§8.15; PA-MOR-22); antes sin valores. | — |
-| `supplierId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `suppliers` (M12) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `suppliers` (M12) |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.32 `collectionCases` (COL-MOR-35)
@@ -1573,9 +1575,9 @@ Lista original: §7.32.
 |---|---|---|---|---|
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `kind` | enum | [VERIFICAR] | `external`, `judicial`, `extrajudicial` | — |
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
-| `holderId` | ObjectId | [VERIFICAR] | — | `holders` (M01) |
-| `debtCollectionAgencyId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `agencyId` en este anexo. | `debtCollectionAgencies` (M08); antes implícita por el nombre |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
+| `holderId` | uniqueidentifier | [VERIFICAR] | — | `holders` (M01) |
+| `debtCollectionAgencyId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `agencyId` en este anexo. | `debtCollectionAgencies` (M08); antes implícita por el nombre |
 | `documents` | array | [VERIFICAR] | [{ documentRef, balanceAtAssignment }] | — |
 | `assignedAt` | Date | [VERIFICAR] | — | — |
 | `court` | object | [VERIFICAR] | { jurisdiction, courtName, caseNumber }) (judicial | — |
@@ -1584,7 +1586,7 @@ Lista original: §7.32.
 | `costs` | array | [VERIFICAR] | [{ at, kind (`courtFee`/`fees`/`expenses`), amount, chargeableToDebtor (Boolean), titleRef, chargeRequestId }] | — |
 | `recoveries` | array | [VERIFICAR] | [{ paymentRef [M07], amount }] | — |
 | `closure` | object | [VERIFICAR] | { at, reasonId } | — |
-| `dossierId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `dossiers` (T11); antes implícita por el nombre |
+| `dossierId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `dossiers` (T11); antes implícita por el nombre |
 
 #### 7.37.33 `writeOffs` (COL-MOR-36)
 
@@ -1593,16 +1595,16 @@ Lista original: §7.33.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
 | `documents` | array | [VERIFICAR] | [{ documentRef, balance }] | — |
 | `criteria` | enum | [VERIFICAR] | `age`, `exhaustedCollection`, `amountBelowCost`, `deceased`, `insolvency`, `prescribed`, `other` | — |
 | `proposal` | object | [VERIFICAR] | { by, at, notes } | — |
 | `approval` | object | [VERIFICAR] | { workflowInstanceId, by, at } | — |
 | `status` | enum | [VERIFICAR] | `proposed`, `approved`, `rejected`, `partiallyRecovered`, `reverted` | — |
-| `accountingEventIds` | ObjectId[] | [VERIFICAR] | — | `accountingEvents` (M15); antes implícita por el nombre |
+| `accountingEventIds` | uniqueidentifier[] | [VERIFICAR] | — | `accountingEvents` (M15); antes implícita por el nombre |
 | `recoveries` | array | [VERIFICAR] | — | — |
-| `obligationIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `obligations` (M07) |
-| `journalEntryId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `journalEntries` (M15); antes implícita por el nombre |
+| `obligationIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `obligations` (M07) |
+| `journalEntryId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `journalEntries` (M15); antes implícita por el nombre |
 
 #### 7.37.34 `prescriptionRules` (COL-MOR-37)
 
@@ -1614,13 +1616,13 @@ Lista original: §7.34.
 | `termMonths` | [VERIFICAR] | [VERIFICAR] | V2 #104 | — |
 | `computeFrom` | enum | [VERIFICAR] | `issueDate`, `vto1` | — |
 | `interruptionEvents` | array | [VERIFICAR] | [`agreementSigned`, `partialPayment`, `signedPromise`, `lawsuitFiled`] | — |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
-| `ledgerAccountId` | ObjectId | [VERIFICAR] | V2 #2158, M15 | `ledgerAccounts` (M15) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `ledgerAccountId` | uniqueidentifier | [VERIFICAR] | V2 #2158, M15 | `ledgerAccounts` (M15) |
 | `alertDaysBefore` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `normativeRef` | string | [VERIFICAR] | — | — |
 | `validationStatus` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `serviceId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `tenantServices` (M02) |
 | `validFrom` | Date | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.37.35 `prescriptionRuns` (COL-MOR-38)
@@ -1630,7 +1632,7 @@ Lista original: §7.34.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `cutoffDate` | Date | [VERIFICAR] | — | — |
-| `prescriptionRuleIds` | ObjectId[] | [VERIFICAR] | Nombre de T05; antes `ruleIds` en este anexo. | `prescriptionRules` (M08); antes implícita por el nombre |
+| `prescriptionRuleIds` | uniqueidentifier[] | [VERIFICAR] | Nombre de T05; antes `ruleIds` en este anexo. | `prescriptionRules` (M08); antes implícita por el nombre |
 | `items` | array | [VERIFICAR] | [{ accountId, documentRef, balance, computedFrom, eligible, interruptedBy }] | — |
 | `proposal` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `approval` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1644,14 +1646,14 @@ Lista original: §7.35.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
 | `segment` | object | [VERIFICAR] | { ageBucket, amountBucket, situation } | — |
-| `assignedToUserId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `assignedToUserId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `contacts` | array | [VERIFICAR] | [{ at, channel, result, commitment, nextStepAt, by }] | — |
 | `nextStep` | object | [VERIFICAR] | { action, dueAt } | — |
 | `requiresHumanReview` | bool | [VERIFICAR] | motivo | — |
 | `status` | enum | [VERIFICAR] | (`open`, `closed`). Se integra con la agenda de actividades de M09 | — |
-| `crmCaseId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmCases` (M09) |
+| `crmCaseId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmCases` (M09) |
 
 ### 7.38 Residuales del 5-11-2026: referencias, nombres canónicos y valores de estado (PA-MOR-22)
 
@@ -1659,27 +1661,27 @@ Ronda de residuales detectados al regenerar los entregables (categorías 1, 2 y 
 
 | Colección | Campo | Tipo | Referencia | Antes |
 |---|---|---|---|---|
-| `interestPolicies` | `base.taxIds`, `base.excludedTaxIds` | ObjectId[] | → M06 `taxDefinitions` | sin destino |
-| `interestPolicies` | `fiscal.defaultVatSituationId` | ObjectId | → M06 `vatConditionSettings` | sin destino |
-| `interestPolicies` | `publishedVersionId` | ObjectId | → T04 `configVersions` | sin destino |
-| `interestPolicies` | `adminFee.amount`, `adminFee.admissibilityRef`, `values.dailyRate` | Decimal128 / string / Decimal128 | No es referencia | sin destino |
-| `interestRateTables` | `rates[].rateId` | ObjectId | No es referencia (identificador del tramo) | sin destino |
-| `dueDateSurchargeSchemes` | `scope.cycleIds` | ObjectId[] | → M05 `billingCycles` | sin destino |
+| `interestPolicies` | `base.taxIds`, `base.excludedTaxIds` | uniqueidentifier[] | → M06 `taxDefinitions` | sin destino |
+| `interestPolicies` | `fiscal.defaultVatSituationId` | uniqueidentifier | → M06 `vatConditionSettings` | sin destino |
+| `interestPolicies` | `publishedVersionId` | uniqueidentifier | → T04 `configVersions` | sin destino |
+| `interestPolicies` | `adminFee.amount`, `adminFee.admissibilityRef`, `values.dailyRate` | DECIMAL(18,4) / string / DECIMAL(18,4) | No es referencia | sin destino |
+| `interestRateTables` | `rates[].rateId` | uniqueidentifier | No es referencia (identificador del tramo) | sin destino |
+| `dueDateSurchargeSchemes` | `scope.cycleIds` | uniqueidentifier[] | → M05 `billingCycles` | sin destino |
 | `interestCalculations` | `policyVersion` | int | No es referencia (número de versión) | sin destino |
-| `interestBillingRunItems` | `chargeRequestId` | ObjectId | → M05 `billableItems` | sin destino |
-| `documentHolds` | `reasonId` (usar `holdReasonId`) | ObjectId | → M08 `holdReasons` | `[VERIFICAR]` |
-| `delinquencyNotices` | `delinquencyBatchId` | ObjectId | → M08 `delinquencyBatches` | `batchId` |
+| `interestBillingRunItems` | `chargeRequestId` | uniqueidentifier | → M05 `billableItems` | sin destino |
+| `documentHolds` | `reasonId` (usar `holdReasonId`) | uniqueidentifier | → M08 `holdReasons` | `[VERIFICAR]` |
+| `delinquencyNotices` | `delinquencyBatchId` | uniqueidentifier | → M08 `delinquencyBatches` | `batchId` |
 | `delinquencyNotices` | `noticeModelVersion` | int | No es referencia (número de versión) | sin destino |
-| `delinquencyNotices` | `costChargeRequestId` | ObjectId | → M05 `billableItems` | sin destino |
+| `delinquencyNotices` | `costChargeRequestId` | uniqueidentifier | → M05 `billableItems` | sin destino |
 | `delinquencyExceptions` | `reasonText` | string | No es referencia | sin destino |
-| `financingInstitutionPlans` | `collectionEntityId` | ObjectId | → M07 `collectionAgencies` | tipo `array` |
-| `agreements` | `targetAccountId` | ObjectId | → M01 `accounts` | sin destino |
-| `agreements` | `templateId` | ObjectId | → T11 `documentTemplates` | sin destino |
+| `financingInstitutionPlans` | `collectionEntityId` | uniqueidentifier | → M07 `collectionAgencies` | tipo `array` |
+| `agreements` | `targetAccountId` | uniqueidentifier | → M01 `accounts` | sin destino |
+| `agreements` | `templateId` | uniqueidentifier | → T11 `documentTemplates` | sin destino |
 | `agreements` | `planSnapshot` | object | No es referencia | sin destino |
-| `agreements` | `signatureRequestId` | ObjectId | → T11 `signatureRequests` | solo en T05 |
-| `serviceProtections` | `personSensitiveDataId` | ObjectId | → M01 `personSensitiveData` | solo en T05 |
+| `agreements` | `signatureRequestId` | uniqueidentifier | → T11 `signatureRequests` | solo en T05 |
+| `serviceProtections` | `personSensitiveDataId` | uniqueidentifier | → M01 `personSensitiveData` | solo en T05 |
 | `suspensionRestrictionRules` | `code` | string | — (único por tenant) | solo en T05 |
-| `debtCollectionAgencies` | `taxId` | string | No es referencia (CUIT) | tipo `ObjectId` |
+| `debtCollectionAgencies` | `taxId` | string | No es referencia (CUIT) | tipo `uniqueidentifier` |
 
 Campos que T05 cita con otro nombre (prevalece el anexo; T05 debe reflejarlo): `interestRateTables.policyId` no existe (la relación es `interestPolicies.lateInterest.rateTableId`) y `validFrom` es la vigencia por tramo `rates[].from`; `delinquencyPolicies.scope` = `scope.serviceId` y `scope.categoryIds`; `delinquencyExceptions.accountId`/`contractId` = `scope.accountId`/`scope.contractId`; `serviceProtections.contractId` = `scope.contractId`; `interruptionCases.noticeId` = `origin.noticeId`, `workOrderId` = `execution.workOrderId` y `provisioningCommandId` = `execution.remoteActionIds` (→ M10 `provisioningCommands`, que ejecuta T06; antes "[T06]"); `paymentPlans.financialInstitutionId` corresponde a `financingInstitutionPlans` (COL-MOR-27), no a `paymentPlans`. Valores de estado agregados: `interestIndexTables` (`active`, `inactive`), `debtCollectionAgencies` (`active`, `suspended`, `inactive`) y los de historial de `delinquencyNoticeEvents` (§8.15).
 

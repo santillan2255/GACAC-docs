@@ -516,6 +516,8 @@ Se crean **256 PRM** (213 Migrar + 33 Migrar-servicio + 10 Plataforma parametriz
 - **2708 (M02/M10):** vender ciertos productos (por ejemplo, la recarga de telefonía prepaga) genera automáticamente una orden de trabajo.
 
 ## 7. Preguntas abiertas
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### PA-CFG-P2-01 — Alcance de los 114 parámetros sin lectura directa en el código
 - **Pregunta:** ¿Se implementan todos los parámetros catalogados que ProCoop no lee en sus fuentes descompilados, o solo los que alguna cooperativa tiene configurados con un valor distinto del default?

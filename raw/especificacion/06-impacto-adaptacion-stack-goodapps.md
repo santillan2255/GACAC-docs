@@ -4,7 +4,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | 2.12 |
+| Versión | 2.32 |
 | Fecha | 19-11-2026 |
 | Fuentes | PDF GoodApps (6 páginas); informe naming CoopApps; especificación `00`–`05` y anexos |
 | Respaldo | `OLD/2026-11-19-pre-naming-coopapps/` (especificación + presentación) |
@@ -18,7 +18,7 @@
 | Aspecto | Norma vigente | DEC | Siguiente paso en docs |
 |---|---|---|---|
 | **Paradigma** | **Azure SQL**; **EF Core**; tablas con **PK, FK y constraints**; historial temporal donde aplique | DEC-111 | Alinear anexos hacia `07-*` |
-| **Modelo físico** | **ER completo** en documento aparte **`07-modelo-relacional-azure-sql.md`**: entidades por módulo, **4FN** donde corresponda, integridad referencial explícita | DEC-117 | Completar tablas por módulo (v0.1 creado) |
+| **Modelo físico** | **ER completo** en **`07-modelo-relacional-azure-sql.md`**: §2.0–§2.28 + catálogo enlazado; **1.058** tablas en capa A/C | DEC-117 | Refinar columnas puntuales (opcional); C-05 anexos incremental |
 | **Multitenancy** | **Base compartida** con **`TenantId`**; catálogo en **T01**; subdominio por cooperativa | DEC-110 | T01, T07 migración |
 | **Aislamiento** | Lógico por tenant + roles plataforma; sin cruces de negocio entre cooperativas en sesión de tenant | DEC-110, DEC-116 | — |
 | **Acceso entre módulos** | Monolito modular: dueño de esquema; APIs y eventos entre módulos | DEC-111, DEC-003 | `07-*` |
@@ -252,14 +252,14 @@ Estado: `Pendiente` | `En curso` | `Hecho` | `No aplica`.
 | `01-registro-decisiones.md` | D-01, D-02… | DEC-110–119 redacción afirmativa | Hecho (19-11) |
 | `02-preguntas-abiertas.md` | D-02, D-08 | Bloque PA-STACK-* | Parcial |
 | `03-plan-de-olas-y-prompts.md` | DEC-118 | Banner histórico + mapa olas | Hecho (19-11) |
-| `07-modelo-relacional-azure-sql.md` + `07-catalogo-tablas-sql.md` + `07-ddl/` | DEC-117 | Capa B §2.0–2.5 (núcleo transversal + `uxd`) ~165 tablas | **Capa C hecha**; B incremental por olas |
+| `07-modelo-relacional-azure-sql.md` + `07-catalogo-tablas-sql.md` + `07-ddl/` | DEC-117 | Capa **A** 1.058; **B** §2.0–§2.28 (29 esquemas); **C** `deploy-coopapps-full.sql` | **Hecho** (19-11-2026) |
 | `T05-DAT` | D-02, D-11 | §6.1 + §7.0 → `07-*`; catálogo 1.058 | **Parcial hecho** (§7.1 cuerpo histórico) |
 | `T04` / `T04b` | D-05, DEC-114 | §7.0 + capa B `07` §2.3; T04b catálogo sin mover | **Parcial hecho** (cuerpo §7 incremental) |
 | `T01` | DIR-04, D-03 | §7.0 + §7.11→`pla` §2.0; §7.1–7.10 histórico | **Parcial hecho** |
 | `T02` | D-08, D-11 | §7.0 OpenIddict + `iam.*`; CTR-IAM-02; PA-STACK-02 pendiente | **Parcial hecho** |
 | `T03` | D-04, DEC-109 | §7.B.0 + capa B `07` §2.5; tokens en código | **Parcial hecho** |
-| `T07` | DIR-04, D-02 | §7.0 pipeline Azure SQL/Blob; origen ProCoop intacto | **Parcial hecho** |
-| `entregables-analisis-diseno/` | D-06, C-10 | Política §12.3 + cabeceras clave | **Parcial hecho** |
+| `T07` | DIR-04, D-02 | §7.0 pipeline Azure SQL/Blob; `mig.*` en `07` §2.27; origen ProCoop en texto | **Parcial hecho** (reglas RF/RN; C-05 cuerpo) |
+| `entregables-analisis-diseno/` | D-06, C-10 | Política §12.3 + `00-C10-CIERRE-STACK.md` + auditoría 13b | **Hecho** (19-11-2026) |
 | `presentacion-stakeholders/` | D-02–D-04, DIR-13 | **IMG-F** (`img-f-lotes/`); **IMG-N** (`img-n-lotes/`); modelo IMG-MD/T | En curso (generación slides en Claude) |
 | M01 + T02 export | D-10, §9 | Banners; inventario ayuda; glosario §9 | En curso |
 | T03 ayuda + M09 IA | §6.1, DIR-12 | T03b **60/60** M01+T02; revisión `dict:` | En curso (contenido base hecho) |
@@ -275,7 +275,7 @@ Estado: `Pendiente` | `En curso` | `Hecho` | `No aplica`.
 2. **D-01 → D-12** volcados en §10, `01`, `02`.  
 3. **M01 + T02** + glosario §9 (D-10, D-11).  
 3b. **Ayuda + IA (§6.1–6.2, DIR-12):** matriz ScreenHelp, FAQ M19/M09.  
-4. **T05** + **`07-*`** trazado físico módulo a módulo.  
+4. **T05** + **`07-*`** trazado físico — **capa B/C cerradas**; seguir **C-05** en cuerpo de anexos.  
 5. **T04** motor + T04b (**DEC-114**).  
 6. **T03** React + DIR-13 en presentación.  
 7. **Export coodo** (DEC-118).
@@ -359,6 +359,26 @@ _Completar después del cuestionario interactivo (fecha, responsable, opción el
 | 2.10 | 19-11-2026 | **C-04:** `07` §2.11 esquema `mor` (39 tablas M08). |
 | 2.11 | 19-11-2026 | **C-04:** `07` §2.12 esquema `crm` (42 tablas M09). |
 | 2.12 | 19-11-2026 | **C-04:** `07` §2.13 esquema `tec` (75 tablas M10). |
+| 2.13 | 19-11-2026 | **C-04:** `07` §2.14 esquema `tes` (42 tablas M14). |
+| 2.14 | 19-11-2026 | **C-04:** `07` §2.15 esquema `ven` (14 tablas M11). |
+| 2.15 | 19-11-2026 | **C-04:** `07` §2.16 esquema `cmp` (23 tablas M12). |
+| 2.16 | 19-11-2026 | **C-04:** `07` §2.17 esquema `stk` (39 tablas M13). |
+| 2.17 | 19-11-2026 | **C-04:** `07` §2.18 esquema `con` (36 tablas M15). |
+| 2.18 | 19-11-2026 | **C-04:** `07` §2.19 esquema `sue` (59 tablas M16). |
+| 2.19 | 19-11-2026 | **C-04:** `07` §2.20 esquema `ins` (35 tablas M17). |
+| 2.20 | 19-11-2026 | **C-04:** `07` §2.21 esquema `soc` (53 tablas M18). |
+| 2.21 | 19-11-2026 | **C-04:** `07` §2.22 esquema `por` (14 tablas M19); **olas M01–M19** en capa B. |
+| 2.22 | 19-11-2026 | **C-04:** `07` §2.23 esquema `com` (55 tablas T09). |
+| 2.23 | 19-11-2026 | **C-04:** `07` §2.24 esquema `int` (18 tablas T06). |
+| 2.24 | 19-11-2026 | **C-04:** `07` §2.25 esquema `wfl` (51 tablas activas T11). |
+| 2.25 | 19-11-2026 | **C-04:** `07` §2.26 esquema `nfr` (17 tablas activas T08). |
+| 2.26 | 19-11-2026 | **C-04:** `07` §2.27 esquema `mig` (20 tablas T07). |
+| 2.27 | 19-11-2026 | **C-04:** `07` §2.28 esquema `bia` (67 tablas activas T10); **capa B por esquema cerrada**. |
+| 2.28 | 19-11-2026 | **C-04:** cierre §2.1 `per` + enlaces absorbidas; **capa B ~100 %**. |
+| 2.29 | 19-11-2026 | **Auditoría de coherencia:** matriz §7 y C-04 alineados a §2.0–§2.28; catálogo pla/iam/per → §2.0/2.1/2.2; regenerado `13-auditoria-impacto-stack.md`. |
+| 2.30 | 19-11-2026 | **Segunda pasada:** §12.4 OLD vs vigente; C-04 checklist **Hecho**; catálogo sin `Capa B: pendiente`; `07-ddl/README` totales 31+1.027. |
+| 2.31 | 19-11-2026 | **C-10 cerrado** (`00-C10-CIERRE-STACK.md`); **C-05** barrido §7 en anexos vía `barrido_c05_anexo_sec7.py`. |
+| 2.32 | 19-11-2026 | **C-05 fino** tipos SQL en §7 (`barrido_c05_fino_sec7.py`); T12 §7 puente; sync portal. |
 ---
 
 ## 12. Checklist de alineación documental
@@ -371,15 +391,15 @@ _Completar después del cuestionario interactivo (fecha, responsable, opción el
 | **¿Qué es el checklist §12?** | Criterios **Hecho / Pendiente** para saber si cada capa documental ya dice solo la norma vigente en export (DIR-13). No es un plan de slides ni de implementación en código. |
 | **¿Qué es la matriz §7?** | Estado **por artefacto** (T05, T04, entregables…) con acciones concretas; puede ir «En curso» aunque varios ítems del §12 estén hechos. |
 | **¿Qué NO cuenta como impacto?** | Generar PNG/HTML en Claude (IMG-F, IMG-N, IMG-MD): apoya **C-07 presentación**, no cierra el checklist de spec. |
-| **¿Dónde miro el progreso hoy?** | Tablero §12.1 + auditoría `13-auditoria-impacto-stack.md` (anexos) y `13-auditoria-impacto-entregables.md` (C-10). |
+| **¿Dónde miro el progreso hoy?** | Tablero §12.1 + [§12.4 coherencia](#124-coherencia-old-vs-norma-vigente-19-11-2026) + `13-auditoria-impacto-stack.md` (C-10: entregables). |
 
 ### 12.1 Tablero (próximo trabajo checklist)
 
 | Prioridad | Ítem | Estado | Siguiente paso concreto |
 |:---:|---|---|---|
-| 1 | **C-10** entregables + OpenAPI | **Parcial hecho** | Política §12.3; 6 cabeceras; barrido CP solo si GoodApps lo pide por ola. |
-| 2 | **C-05** cuerpo anexos | Hecho (banner); **barrido** incremental | Por módulo: reemplazar norma Mongo en cuerpo §5–§7 o nota «histórico»; ver `13-auditoria`. |
-| 3 | **C-04** capa B `07` | Capa C hecha | Volcar siguiente módulo en `07-modelo-relacional` §2 (`iam`, `cfg`…). |
+| 1 | **C-05** cuerpo anexos | **Hecho** | Nota §7 + tipos `uniqueidentifier`/`DECIMAL` en tablas §7; T12 con §7 puente; ver `13-auditoria`. |
+| 2 | **C-10** entregables + OpenAPI | **Hecho** | `00-C10-CIERRE-STACK.md`; auditoría `13-auditoria-impacto-entregables.md`. |
+| 3 | **C-04** capa B `07` | **Hecho** | §2.0–§2.28; catálogo sin `Capa B: pendiente`. |
 | 4 | Matriz **T05** | **Parcial hecho** | §6.1 + §7.0 inventario 07; barrido Mongo en §7.1.x incremental (como C-05). |
 | 5 | Matriz **T07** | **Parcial hecho** | §7.0 destino Azure; §1 sin Mongo; §7.1+ lógico incremental. |
 | 5b | Matriz **T04** | **Parcial hecho** | §7.0 DEC-114 + `cfg` en `07`; §7.1+ lógico incremental. |
@@ -396,7 +416,22 @@ _Completar después del cuestionario interactivo (fecha, responsable, opción el
 | 5m | Capa B **`mor`** | **Hecho** | §2.11 (39 tablas M08). |
 | 5n | Capa B **`crm`** | **Hecho** | §2.12 (42 tablas M09). |
 | 5o | Capa B **`tec`** | **Hecho** | §2.13 (75 tablas M10). |
-| 5p | Capa B **`tes`…** | Pendiente | Resto olas M11–M19. |
+| 5p | Capa B **`tes`** | **Hecho** | §2.14 (42 tablas M14). |
+| 5q | Capa B **`ven`** | **Hecho** | §2.15 (14 tablas M11). |
+| 5r | Capa B **`cmp`** | **Hecho** | §2.16 (23 tablas M12). |
+| 5s | Capa B **`stk`** | **Hecho** | §2.17 (39 tablas M13). |
+| 5t | Capa B **`con`** | **Hecho** | §2.18 (36 tablas M15). |
+| 5u | Capa B **`sue`** | **Hecho** | §2.19 (59 tablas M16). |
+| 5v | Capa B **`ins`** | **Hecho** | §2.20 (35 tablas M17). |
+| 5w | Capa B **`soc`** | **Hecho** | §2.21 (53 tablas M18). |
+| 5x | Capa B **`por`** | **Hecho** | §2.22 (14 tablas M19). |
+| 5y | Capa B **`com`** (T09) | **Hecho** | §2.23 (55 tablas). |
+| 5z | Capa B **`int`** (T06) | **Hecho** | §2.24 (18 tablas). |
+| 5zb | Capa B **`wfl`** (T11) | **Hecho** | §2.25 (51 tablas activas). |
+| 5zc | Capa B **`nfr`** (T08) | **Hecho** | §2.26 (17 tablas activas). |
+| 5zd | Capa B **`mig`** (T07) | **Hecho** | §2.27 (20 tablas). |
+| 5ze | Capa B **`bia`** (T10) | **Hecho** | §2.28 (67 tablas activas). |
+| 5zf | Cierre **`per`** §2.1 + absorbidas | **Hecho** | Índice/sensibles; pla/per→iam/soc. |
 | 6 | **C-09** dict ayuda | Hecho T03b | Claves `dict:` en publicación O1 (no bloquea checklist core). |
 
 Marcar **Hecho** en la tabla §12 cuando el criterio de cada fila se cumpla en export.
@@ -406,7 +441,7 @@ Marcar **Hecho** en la tabla §12 cuando el criterio de cada fila se cumpla en e
 1. **OpenAPI** (`18-contratos-api`, `18-openapi/`): contrato de **diseño** en GACAC (D-06); implementación ASP.NET Core; esquemas = entidades lógicas → tablas `07-ddl`.
 2. **Arquitectura / amenazas / pruebas** (C4, STRIDE, estrategia): diagramas y menciones Mongo/Node = análisis Connectia; **norma objetivo** = Azure SQL + .NET + React (bloques citados en índice y cabeceras).
 3. **5.710 CP**: no se reescriben en bloque; el **comportamiento** aceptado es el del RF/RN; el motor físico en ejecución es el de DEC-111. Nuevos CP y regeneraciones deben usar redacción Azure/EF/Playwright.
-4. **Cierre C-10** = política publicada + auditoría estable; reescritura línea a línea solo si GoodApps lo exige por módulo en export.
+4. **Cierre C-10** = política publicada + auditoría estable; **cerrado 19-11-2026** en `entregables/00-C10-CIERRE-STACK.md`. Reescritura línea a línea solo si GoodApps lo exige por módulo en export.
 
 ### 12.2 Ítems del checklist
 
@@ -415,13 +450,26 @@ Marcar **Hecho** en la tabla §12 cuando el criterio de cada fila se cumpla en e
 | C-01 | `00` §3.0, §5, §14, §16 | Tabla de reemplazo DEC-001→111; stack Azure en §5 | Hecho (§3 fila histórica conservada) |
 | C-02 | `01` DEC-110–118 | DEC-001/004 marcadas reemplazadas | Hecho |
 | C-03 | `03` encabezado | Mapa de olas; no como guía de build | Hecho |
-| C-04 | `07-*` A/B/C + catálogo | A=1.058; B=§2 núcleo; **C=`07-ddl` 1.058 tablas** (`deploy-coopapps-full.sql`); enriquecer B sigue opcional | **Capa C hecha** (B incremental) |
-| C-05 | Todos los anexos M/T | Banner DEC-111 (36+ T01); T05 §7.0 | Hecho (cuerpo anexos: barrido incremental) |
+| C-04 | `07-*` A/B/C + catálogo | A=1.058; **B=§2.0–§2.28** enlazadas; **C=`07-ddl` 1.058** (`deploy-coopapps-full.sql`) | **Hecho** |
+| C-05 | Todos los anexos M/T | Banner; nota §7 + **barrido fino** tipos SQL (`barrido_c05_fino_sec7.py`) | **Hecho** |
 | C-06 | T03 | React (banner DEC-113); referencias CNX `.vue` = benchmark; T03b ayuda | Hecho (RF sin prescripción Vue) |
 | C-07 | `presentacion-stakeholders` stack/datos | Azure, SQL, React en IMG-T05/MD02; tablas 1.058 (no Mongo en export) | Hecho (barrido menor en `documento-base` hecho 19-11 v1.2) |
-| C-08 | Anexos Mxx (físico) | Colección → tabla en `07-ddl` (**1.027/1.027 con §7**, 0 fallback) | **Hecho** |
+| C-08 | Anexos Mxx (físico) | Colección → tabla en `07-ddl` (**1.058 tablas** en catálogo; 0 fallback) | **Hecho** |
 | C-09 | §6.1–6.2 ayuda/FAQ | Paquete T03b **60 artículos** M01/T02 + inventario sincronizado | Hecho (dict pendiente) |
-| C-10 | `entregables-analisis-diseno` | OpenAPI diseño (D-06); política §12.3 + cabeceras; físico `07-ddl` | **Parcial hecho** (política documentada; CP histórico aceptado; barrido opcional) |
+| C-10 | `entregables-analisis-diseno` | OpenAPI diseño (D-06); política §12.3 + `00-C10-CIERRE-STACK.md`; físico `07-ddl` | **Hecho** (19-11-2026) |
+
+### 12.4 Coherencia OLD vs norma vigente (19-11-2026)
+
+| Área | Estado | Qué hacer |
+|---|---|---|
+| **`07-*` A/B/C** | **Cerrado** | Catálogo: cero `Capa B: pendiente`; enlaces §2.0–§2.28 (absorbidas → canónica). |
+| **`06` matriz §7 + §12** | **Alineado** | C-04/C-05/C-10 hechos; opcional barrido fino anexos §7.1.x; ayuda **dict:**. |
+| **Anexos §5–§7** | **Parcial** | ~3.5k líneas con token Mongo en cuerpo (ver `13-auditoria`); **banner + §7.0** marcan norma Azure/EF; no borrar RF/RN. |
+| **`00` / `01` DEC-001** | **Esperado** | Tabla de reemplazo DEC-001→DEC-111 (histórico citado, no stack vigente). |
+| **`OLD/`** | **Aislado** | No cuenta para export (DIR-02, DIR-13). |
+| **Presentación / entregables** | **C-10 cerrado** | Entregables inventariados en `00-C10-CIERRE-STACK.md`; presentación IMG = benchmark hasta regenerar. |
+
+**No es incoherencia:** `ObjectId`, tablas comparativas T01 «antes Node» u homólogos dentro de anexos **con banner**, siempre que `07-ddl` y `07` §2.x prevalezcan.
 
 ---
 
@@ -435,6 +483,8 @@ python docs/especificacion/_trabajo/apply_anexo_banners.py
 python docs/especificacion/_trabajo/generate_t03_screenhelp_annex.py
 python docs/especificacion/_trabajo/sync_inventario_screenhelp.py
 python docs/especificacion/_trabajo/audit_entregables_stack.py
+python docs/especificacion/_trabajo/barrido_c05_anexo_sec7.py
+python docs/especificacion/_trabajo/barrido_c05_fino_sec7.py
 ```
 
 | Informe | Ámbito |

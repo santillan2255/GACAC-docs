@@ -502,6 +502,8 @@ Diferenciales que ningún proveedor relevado publica con este detalle (BASE §99
 ---
 
 ## 7. Arquitectura de referencia, stack y modelo de datos de plataforma
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 > Adaptación de las secciones 7–15 a un anexo transversal: la sección 7 contiene la arquitectura técnica completa (7.1–7.10) y el modelo de datos de las colecciones propiedad de PLA (7.11).
 
@@ -635,7 +637,7 @@ goodapps-coop/
 ├─ packages/
 │  ├─ shared/
 │  │  ├─ schemas/<cod>/           # Zod compartidos backend/frontend (contratos de API y de eventos)
-│  │  ├─ money/                   # decimal.js, redondeo por concepto, Decimal128 <-> Decimal
+│  │  ├─ money/                   # decimal.js, redondeo por concepto, DECIMAL(18,4) <-> Decimal
 │  │  ├─ dates/                   # UTC, zona del tenant, dd-mm-yyyy, calendarios
 │  │  ├─ enums/                   # operationStatus, estados comunes, clases de archivo
 │  │  ├─ capabilities/            # catálogo de capabilities generado desde manifiestos
@@ -755,7 +757,7 @@ Nota: se agregan `uxd` y `mig` al listado de directorios del maestro §5.2 porqu
 1. El servicio del módulo hace el cambio y llama `publish()` con la misma `session`: se inserta en `outboxEvents` (`status: pending`).
 2. `outbox-relay` (proceso del worker, instancia única por elección de líder con lock Redis) escucha el change stream de `outboxEvents` y, de respaldo, sondea cada `PRM-PLA-029` ms los `pending` con `nextAttemptAt <= now`.
 3. Por cada suscriptor registrado para el `type`, encola en la cola `events` un job con `jobId = <eventId>:<consumer>` (deduplicación de BullMQ) y marca el evento `published`.
-4. El handler del consumidor corre con el contexto del evento (`tenantId`, `correlationId`, `causationId = eventId`), aplica su efecto e inserta `inboxReceipts {consumer, eventId}` en la misma transacción; si ya existía, termina sin efecto.
+4. El handler del consumidor corre con el contexto del evento (`TenantId`, `correlationId`, `causationId = eventId`), aplica su efecto e inserta `inboxReceipts {consumer, eventId}` en la misma transacción; si ya existía, termina sin efecto.
 5. Fallos: reintento con backoff exponencial y jitter (`PRM-PLA-027`); agotado → `deadLetters` + alerta `PLA-ALR-06`.
 
 **Colas (clase de carga) y prioridades:**
@@ -794,31 +796,31 @@ Nota: se agregan `uxd` y `mig` al listado de directorios del maestro §5.2 porqu
 | Superficie | Mecanismo | Prueba obligatoria (§17.2) |
 |---|---|---|
 | Token | Claim `tid` (tenantId), `tcode`, `mv` (modulesVersion), `act` (actorType), `sgid` (supportGrantId si aplica). | Token alterado → 401. |
-| Request | `tenantContext` toma `tid`; prohíbe `tenantId` en body/query salvo rutas `/api/platform` que lo reciben como **objeto de gestión** (no como contexto). | Body con `tenantId` ajeno ignorado. |
+| Request | `tenantContext` toma `tid`; prohíbe `TenantId` en body/query salvo rutas `/api/platform` que lo reciben como **objeto de gestión** (no como contexto). | Body con `TenantId` ajeno ignorado. |
 | Público | `/api/public/:tenantSlug/*` resuelve tenant por slug/host; solo datos `public` (branding, servicios publicados, noticias públicas). | Slug inexistente → 404 genérico. |
 | Mongoose | Plugin de tenancy (RF-PLA-020). | Consulta sin contexto → error. |
-| Agregaciones | Filtro inyectado como primer `$match`; `$lookup`/`$unionWith`/`$graphLookup` deben incluir `tenantId` (lint + verificación en runtime en desarrollo). | Pipeline sin filtro en `$lookup` falla en CI. |
-| Índices | Primer campo `tenantId` (RF-PLA-018). | `check:indexes`. |
+| Agregaciones | Filtro inyectado como primer `$match`; `$lookup`/`$unionWith`/`$graphLookup` deben incluir `TenantId` (lint + verificación en runtime en desarrollo). | Pipeline sin filtro en `$lookup` falla en CI. |
+| Índices | Primer campo `TenantId` (RF-PLA-018). | `check:indexes`. |
 | Transacciones | La sesión hereda el contexto; una transacción no puede mezclar tenants (verificación en `withTransaction`). | Escritura de dos tenants en una sesión → error. |
-| Outbox/eventos | `tenantId` obligatorio en el sobre; el consumidor ejecuta con ese contexto. | Evento sin tenant (salvo `scope: platform`) rechazado. |
-| Jobs | `tenantId` en payload; semáforo por tenant. | Job de A no lee B. |
+| Outbox/eventos | `TenantId` obligatorio en el sobre; el consumidor ejecuta con ese contexto. | Evento sin tenant (salvo `scope: platform`) rechazado. |
+| Jobs | `TenantId` en payload; semáforo por tenant. | Job de A no lee B. |
 | Archivos | Prefijo + `storedFiles.tenantId`. | URL de B con token de A → 404. |
 | Caché | Prefijo `t:<tenantId>:`. | Colisión de ids. |
 | Exportaciones | Job + prefijo + permiso. | Descarga cruzada. |
 | Búsquedas | Filtro de tenant en helper. | “Pérez” cruzado. |
 | IA | Contexto armado solo con datos del tenant; sin caché compartida; `aiUsage` por tenant. | Inspección del prompt. |
-| Logs/métricas | `tenantId` en cada línea; sin PII. | Escáner de logs. |
+| Logs/métricas | `TenantId` en cada línea; sin PII. | Escáner de logs. |
 | Rate limit | Claves por IP, por tenant y por token. | 429 independiente por tenant. |
 | Notificaciones | Remitente, plantillas y credenciales por tenant (T09/T06). | Plantilla de A no usable en B. |
 | Webhooks | Ruta firmada por tenant (T06). | Firma de A en ruta de B rechazada. |
-| Backups/restore | Backup lógico y restauración por `tenantId` (§9.7). | Hash de B inalterado tras restaurar A. |
+| Backups/restore | Backup lógico y restauración por `TenantId` (§9.7). | Hash de B inalterado tras restaurar A. |
 | BI/analytics | Réplica `analytics` con el mismo plugin; ningún cubo mezcla tenants salvo métricas técnicas de plataforma agregadas sin PII. | Consulta BI de A no devuelve B. |
 
 ### 7.9. Tenant `PLATFORM`
 
 - Documento `tenants` con `kind: 'platform'`, `code: 'platform'`, creado por la migración `0001-platform-tenant.js`; no puede suspenderse, cerrarse ni purgarse.
 - Sus usuarios (T02) se autentican en el admin con el código de tenant `platform`; el AdminShell carga la estética diferenciada y las rutas `meta.platformOnly` (maestro §10).
-- Las colecciones de PLA con `tenantId` (licencias, activaciones, checklists, contratos, casos, grants, alertas de tenant, backups lógicos, exportaciones) guardan en `tenantId` el **tenant gestionado** y se marcan `ownerScope: 'platform'`: solo rutas `/api/platform` las escriben; las rutas `/api/admin/pla/*` del tenant leen únicamente sus propios documentos y solo los campos permitidos (proyección explícita).
+- Las colecciones de PLA con `TenantId` (licencias, activaciones, checklists, contratos, casos, grants, alertas de tenant, backups lógicos, exportaciones) guardan en `TenantId` el **tenant gestionado** y se marcan `ownerScope: 'platform'`: solo rutas `/api/platform` las escriben; las rutas `/api/admin/pla/*` del tenant leen únicamente sus propios documentos y solo los campos permitidos (proyección explícita).
 - `PLATFORM` puede usar módulos funcionales para su propia gestión (RF-PLA-040, PA-PLA-08) como un tenant más.
 
 ### 7.10. Docker, entornos y despliegue (DEC-004)
@@ -855,7 +857,7 @@ Nota: se agregan `uxd` y `mig` al listado de directorios del maestro §5.2 porqu
 
 **Físico vigente:** tablas `pla.*` en Azure SQL (§7.0; inventario §2.0 en `07-modelo-relacional-azure-sql.md`). Las subsecciones 7.11.x describen **semántica lógica** (nombres de colección, tipos documento).
 
-Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:* `tenantId` ObjectId en tablas siguientes; no se repiten en cada subsección.
+Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:* `TenantId` uniqueidentifier en tablas siguientes; no se repiten en cada subsección.
 
 #### 7.11.1. `tenants` (global)
 
@@ -883,10 +885,10 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 | `environmentKind` | enum = ambiente | Sí | Ambiente en el que vive el documento. |
 | `productionTenantRef` | {environment, tenantId, code} | Si `sandbox` | Gemelo productivo. |
 | `sandboxes` | array {environment, tenantId, status, lastPackageSyncAt} | No | Sandboxes asociados. |
-| `saasContractId` | ObjectId → `saasContracts` | Desde Listo para habilitar | Contrato vigente. |
+| `saasContractId` | uniqueidentifier → `saasContracts` | Desde Listo para habilitar | Contrato vigente. |
 | `modulesVersion` | int | Sí | Se incrementa ante cambios de licencias/activaciones. |
 | `onboarding` | objeto {draftId, assignedImplementerId, startedAt, completedAt} | No | — |
-| `brandingRef` | ObjectId → `tenantBrandings` (T03) | No | Referencia a T03 (nombre de la colección corregido por CTR-DAT-51). |
+| `brandingRef` | uniqueidentifier → `tenantBrandings` (T03) | No | Referencia a T03 (nombre de la colección corregido por CTR-DAT-51). |
 | `isDemo` | bool | Sí | true solo en `demo`. |
 
 Índices: `{ code: 1 }` único; `{ cuit: 1, kind: 1, environmentKind: 1 }` único parcial (status ≠ `purged`, kind `cooperative`); `{ status: 1 }`; `{ 'domains.host': 1 }` único. Mapeo ProCoop: `Configuracion*.pro` + variables 518–527 y 709; `EMPRESAS` → `legalEntities` de T04 (DEC-064, PA-PLA-14).
@@ -955,7 +957,7 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 |---|---|---|---|
 | `moduleCode` | string → `moduleCatalog.code` | Sí | Módulo licenciado. |
 | `source` | enum `plan`, `addon`, `trial`, `courtesy`, `pilot` | Sí | Origen. |
-| `saasContractId` | ObjectId | Si `plan`/`addon` | Contrato. |
+| `saasContractId` | uniqueidentifier | Si `plan`/`addon` | Contrato. |
 | `validFrom` / `validTo` | Date | Sí / No | Vigencia. |
 | `quotaOverrides` | [{dimension, soft, hard}] | No | Cupos específicos. |
 | `status` | enum `active`, `expired`, `revoked` | Sí | — |
@@ -973,7 +975,7 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 
 #### 7.11.7. `onboardingDrafts`
 
-`step` (enum `identity`, `contacts`, `brand`, `modules`, `domain`, `admin`, `review`), `data` (objeto del asistente validado por Zod por paso), `aiProposal` {logoFileIds, palette {primary, secondary, accent, contrastReport}, shortName, slugSuggestions, splashFileId, dictionarySuggestions [{key, value}], model, promptVersion, aiUsageId}, `acceptedProposal` (lo confirmado por la persona), `status` (`draft`, `proposed`, `confirmed`, `discarded`, `expired`), `tenantId` (nulo hasta confirmar; se guarda con `tenantId = PLATFORM` mientras es borrador), `expiresAt`. Índice `{ tenantId: 1, status: 1 }`.
+`step` (enum `identity`, `contacts`, `brand`, `modules`, `domain`, `admin`, `review`), `data` (objeto del asistente validado por Zod por paso), `aiProposal` {logoFileIds, palette {primary, secondary, accent, contrastReport}, shortName, slugSuggestions, splashFileId, dictionarySuggestions [{key, value}], model, promptVersion, aiUsageId}, `acceptedProposal` (lo confirmado por la persona), `status` (`draft`, `proposed`, `confirmed`, `discarded`, `expired`), `TenantId` (nulo hasta confirmar; se guarda con `tenantId = PLATFORM` mientras es borrador), `expiresAt`. Índice `{ tenantId: 1, status: 1 }`.
 
 #### 7.11.8. `saasContracts`
 
@@ -991,17 +993,17 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 | `exitTerms` | {exportWindowDays, readOnlyDays, retentionDays, fiscalCustody: `tenant`\|`platform`} | Sí | PA-PLA-12. |
 | `status` | enum `draft`, `pendingApproval`, `active`, `suspended`, `terminated`, `expired` | Sí | §8.4. |
 | `versions` | [{version, validFrom, changes, approvedBy, approvedAt}] | Sí | RF-PLA-085. |
-| `signedDocumentFileId` | ObjectId → `storedFiles` | Para `active` | Contrato firmado. |
+| `signedDocumentFileId` | uniqueidentifier → `storedFiles` | Para `active` | Contrato firmado. |
 
-Índices: `{ tenantId: 1, status: 1 }`, `{ number: 1 }` único (global vía `tenantId` + number).
+Índices: `{ tenantId: 1, status: 1 }`, `{ number: 1 }` único (global vía `TenantId` + number).
 
 #### 7.11.9. `usageSnapshots`
 
-`day` (fecha del tenant), `dimension`, `value` (Decimal128 para GB; int para el resto), `quotaSoft`, `quotaHard`, `pct`. Índice único `{ tenantId: 1, dimension: 1, day: 1 }`.
+`day` (fecha del tenant), `dimension`, `value` (DECIMAL(18,4) para GB; int para el resto), `quotaSoft`, `quotaHard`, `pct`. Índice único `{ tenantId: 1, dimension: 1, day: 1 }`.
 
 #### 7.11.10. `supportCases` y `supportCaseMessages`
 
-`supportCases`: `number` (`SUP-AAAA-NNNNN`), `title`, `module` (moduleCode), `impact` (`blocking`, `high`, `medium`, `low`), `priority` (`P1`–`P4`), `status` (§8.5), `channel` (`admin`, `email`, `phone`, `platform`), `reportedBy` (userId del tenant), `assigneeId` (usuario de `PLATFORM`), `queue` (`N1`, `N2`, `ops`, `security`), `context` {requestId, appVersion, route, userAgent}, `evidenceFileIds`, `incidentId`, `grantIds` (→ `supportAccessGrants`), `sla` {firstResponseDue, resolutionDue, firstResponseAt, resolvedAt, breached}, `satisfaction` {score 1–5, comment}, `tags`. Índices: `{ tenantId: 1, number: 1 }` único, `{ tenantId: 1, status: 1, priority: 1 }`, `{ tenantId: 1, assigneeId: 1, status: 1 }`. La bandeja global de soporte consulta con `runAsPlatform` sobre el índice `{ status: 1, priority: 1, tenantId: 1 }`, única excepción al prefijo `tenantId` admitida para colecciones `ownerScope: platform` y registrada en la lista blanca de índices de plataforma (igual que el índice del relay de outbox).
+`supportCases`: `number` (`SUP-AAAA-NNNNN`), `title`, `module` (moduleCode), `impact` (`blocking`, `high`, `medium`, `low`), `priority` (`P1`–`P4`), `status` (§8.5), `channel` (`admin`, `email`, `phone`, `platform`), `reportedBy` (userId del tenant), `assigneeId` (usuario de `PLATFORM`), `queue` (`N1`, `N2`, `ops`, `security`), `context` {requestId, appVersion, route, userAgent}, `evidenceFileIds`, `incidentId`, `grantIds` (→ `supportAccessGrants`), `sla` {firstResponseDue, resolutionDue, firstResponseAt, resolvedAt, breached}, `satisfaction` {score 1–5, comment}, `tags`. Índices: `{ tenantId: 1, number: 1 }` único, `{ tenantId: 1, status: 1, priority: 1 }`, `{ tenantId: 1, assigneeId: 1, status: 1 }`. La bandeja global de soporte consulta con `runAsPlatform` sobre el índice `{ status: 1, priority: 1, tenantId: 1 }`, única excepción al prefijo `TenantId` admitida para colecciones `ownerScope: platform` y registrada en la lista blanca de índices de plataforma (igual que el índice del relay de outbox).
 
 `supportCaseMessages`: `caseId`, `authorType` (`tenantUser`, `platformAgent`, `system`), `authorId`, `body` (texto con detector de secretos), `visibility` (`public`, `internal` — internal solo plataforma), `attachmentFileIds`. Índice `{ tenantId: 1, caseId: 1, createdAt: 1 }`.
 
@@ -1011,8 +1013,8 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `caseId` | ObjectId | Sí | Caso que lo justifica. |
-| `agentUserId` | ObjectId (usuario `PLATFORM`) | Sí | Agente. |
+| `caseId` | uniqueidentifier | Sí | Caso que lo justifica. |
+| `agentUserId` | uniqueidentifier (usuario `PLATFORM`) | Sí | Agente. |
 | `mode` | enum `observe`, `operate`, `config` | Sí | Modo. |
 | `piiAccess` | bool | Sí | Ver datos personales sin enmascarar. |
 | `scope` | {modules[], capabilities[], entityRefs [{type, id}]} | Sí | Alcance mínimo. |
@@ -1035,7 +1037,7 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 
 `number` (`INC-AAAA-NNNN`), `title`, `severity` (`SEV1`–`SEV4`), `status` (§8.7), `affectedTenantIds` (vacío = todos), `affectedModules`, `startedAt`, `identifiedAt`, `resolvedAt`, `publicMessage` (dictKey o texto por idioma), `updates` [{at, message, public}], `linkedCaseIds` (→ `supportCases`), `postmortemFileId`. Índice `{ tenantId: 1, status: 1, startedAt: -1 }`.
 
-#### 7.11.14. `alertRules` (global para ámbito plataforma; con `tenantId` para reglas de tenant)
+#### 7.11.14. `alertRules` (global para ámbito plataforma; con `TenantId` para reglas de tenant)
 
 `code`, `scope` (`platform`, `tenant`), `ownerModule`, `conditionType` (`metricThreshold`, `eventMatch`, `jobFailure`, `checklistIncomplete`, `expiry`, `quota`, `heartbeat`), `params` (objeto validado por tipo), `severity` (`info`, `warning`, `critical`), `recipients` [{type: `role`\|`user`\|`channel`, ref}], `channels` (`inApp`, `email`, `push`, `webhook`), `dedupeKeyTemplate`, `cooldownMinutes`, `escalation` [{afterMinutes, recipients}], `enabled`. Reglas precargadas:
 
@@ -1066,7 +1068,7 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 
 #### 7.11.17. `backupRuns`
 
-`policyCode`, `type`, `scope` (`cluster`, `tenant`), `tenantId` (tenant respaldado; `PLATFORM` para cluster), `startedAt`, `finishedAt`, `status` (`running`, `completed`, `failed`, `verified`), `sizeBytes`, `objectCount`, `collectionsCount`, `checksum` (SHA-256 del manifiesto), `locationRef`, `retentionUntil`, `verifiedAt`, `error`. Índice `{ tenantId: 1, type: 1, startedAt: -1 }`.
+`policyCode`, `type`, `scope` (`cluster`, `tenant`), `TenantId` (tenant respaldado; `PLATFORM` para cluster), `startedAt`, `finishedAt`, `status` (`running`, `completed`, `failed`, `verified`), `sizeBytes`, `objectCount`, `collectionsCount`, `checksum` (SHA-256 del manifiesto), `locationRef`, `retentionUntil`, `verifiedAt`, `error`. Índice `{ tenantId: 1, type: 1, startedAt: -1 }`.
 
 #### 7.11.18. `restoreRequests`
 
@@ -1087,7 +1089,7 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 
 #### 7.11.19. `restoreTests`
 
-`tenantId` (tenant muestreado), `scheduledAt`, `executedAt`, `pointInTime`, `result` (`passed`, `failed`), `checks` [{code: `dataRestored`\|`documentHashes`\|`externalReconciliation`\|`secretsDecrypt`\|`rtoWithinTarget`, status, detail}], `rtoActualMinutes`, `reportFileId`.
+`TenantId` (tenant muestreado), `scheduledAt`, `executedAt`, `pointInTime`, `result` (`passed`, `failed`), `checks` [{code: `dataRestored`\|`documentHashes`\|`externalReconciliation`\|`secretsDecrypt`\|`rtoWithinTarget`, status, detail}], `rtoActualMinutes`, `reportFileId`.
 
 #### 7.11.20. `tenantExports`
 
@@ -1113,7 +1115,7 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 
 | Campo | Tipo | Obligatorio | Descripción | Referencia |
 |---|---|---|---|---|
-| `tenantId` | ObjectId | Sí | Tenant del job (`PLATFORM` para jobs de plataforma). | `tenants` (T01) |
+| `TenantId` | uniqueidentifier | Sí | Tenant del job (`PLATFORM` para jobs de plataforma). | `tenants` (T01) |
 | `jobName` | String | Sí | Nombre `<modulo>:<proceso>` (12.3 de cada anexo). | — |
 | `jobKey` | String | Sí | Clave de idempotencia de negocio (ej. `fac:emitir-lote:<batchId>`). | — |
 | `jobId` | String | No | Identificador del job en BullMQ (nombre canónico de T05; antes `bullJobId`); nulo para JOB-PLA-01 (proceso dedicado). | — |
@@ -1122,7 +1124,7 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 | `progress` | Object `{ done, total }` | No | Avance para la barra de progreso. | — |
 | `cursor` | Object | No | Punto de reanudación. | — |
 | `cancelRequested` | Boolean | Sí | Cancelación cooperativa pedida (default `false`). | — |
-| `requestedBy` | ObjectId | No | Usuario que lanzó el job; nulo si lo lanzó el `scheduler` o un evento. | `identities` (T02) |
+| `requestedBy` | uniqueidentifier | No | Usuario que lanzó el job; nulo si lo lanzó el `scheduler` o un evento. | `identities` (T02) |
 | `startedAt`, `finishedAt` | Date | No | Inicio y fin. | — |
 | `summary` | Object | No | Totales del resultado. | — |
 | `error` | Object `{ code, message }` | No | Error final, sin secretos. | — |
@@ -1142,11 +1144,11 @@ Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:
 
 #### 7.11.27. `healthSnapshots` (tenantId = `PLATFORM` o tenant)
 
-`at`, `component` (`api`, `worker:<cola>`, `sql`, `redis`, `storage`, `connector:<code>`), `status` (`up`, `degraded`, `down`), `metrics` {p95Ms, errorRate, queueDepth, oldestJobAgeS, outboxLagS}, `tenantId` (si la medición es por tenant, p. ej. uptime sintético). TTL `PRM-PLA-044` días.
+`at`, `component` (`api`, `worker:<cola>`, `sql`, `redis`, `storage`, `connector:<code>`), `status` (`up`, `degraded`, `down`), `metrics` {p95Ms, errorRate, queueDepth, oldestJobAgeS, outboxLagS}, `TenantId` (si la medición es por tenant, p. ej. uptime sintético). TTL `PRM-PLA-044` días.
 
 #### 7.11.28. `schemaMigrations` (global)
 
-Registro de las migraciones de esquema aplicadas por despliegue (T05 COL-PLA-32 y §7.1.14; hasta esta versión T05 la tenía como `N`, propuesta sin declarar en T01). Es una colección técnica **global** (sin `tenantId`, como `tenants` y `releases`; T05 §7.1.3): la ejecuta el pipeline de despliegue (§7.10, §9.11) antes de arrancar la nueva versión de la API y los workers. Los rellenos por tenant que una migración dispara corren como jobs BullMQ reanudables y se registran en `jobRuns` con `migrationName`.
+Registro de las migraciones de esquema aplicadas por despliegue (T05 COL-PLA-32 y §7.1.14; hasta esta versión T05 la tenía como `N`, propuesta sin declarar en T01). Es una colección técnica **global** (sin `TenantId`, como `tenants` y `releases`; T05 §7.1.3): la ejecuta el pipeline de despliegue (§7.10, §9.11) antes de arrancar la nueva versión de la API y los workers. Los rellenos por tenant que una migración dispara corren como jobs BullMQ reanudables y se registran en `jobRuns` con `migrationName`.
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
@@ -1155,7 +1157,7 @@ Registro de las migraciones de esquema aplicadas por despliegue (T05 COL-PLA-32 
 | `phase` | enum `expand`, `backfill`, `contract` | Sí | Paso del patrón expandir/contraer (T05 §7.1.14). |
 | `collections[]` | [String] | Sí | Colecciones e índices que toca. |
 | `checksum` | String (SHA-256 del archivo) | Sí | Si cambia una migración ya aplicada, el despliegue se detiene. |
-| `releaseId` | ObjectId → `releases` | Sí | Versión que la aplicó (§7.11.21). |
+| `releaseId` | uniqueidentifier → `releases` | Sí | Versión que la aplicó (§7.11.21). |
 | `appliedAt` | Date | Sí | Fin de la aplicación. |
 | `durationMs` | Int | Sí | Duración. |
 | `status` | enum `applied`, `failed`, `rolledBack` | Sí | `failed` bloquea el despliegue; `rolledBack` solo para pasos de la fase de expansión de `phase` sin datos escritos (antes "pasos `expand`": `expand` es un valor de `phase`, no de `status`). |
@@ -1177,7 +1179,7 @@ Destino de los campos `*Id` que el texto anterior nombraba sin colección (corre
 
 ### 7.12 Tablas de campos de las colecciones definidas en texto
 
-Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `tenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-PLA-15 (Asumida, DEC-072).
+Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `TenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-PLA-15 (Asumida, DEC-072).
 
 **`platformPlans`** — Packs y complementos comerciales (DEC-065) (COL-PLA-03; definición en texto en §7.11.3)
 
@@ -1202,9 +1204,9 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `mode` | enum | No | — | enum `off`, `test`, `production`, `historyReadOnly` |
 | `newSalesBlocked` | bool | No | — | bool, servicios verticales |
 | `status` | enum | Sí | — | enum `ok`, `pendingChecklist`, `blocked` |
-| `checklistSnapshotId` | ObjectId | No | `tenantChecklists` (T01) | destino → `tenantChecklists` |
+| `checklistSnapshotId` | uniqueidentifier | No | `tenantChecklists` (T01) | destino → `tenantChecklists` |
 | `activatedAt` | Date | No | — | Según la definición en texto del §7 |
-| `activatedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `activatedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `reason` | string | No | — | Según la definición en texto del §7 |
 | `history` | string | No | — | Según la definición en texto del §7 |
 
@@ -1237,7 +1239,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `day` | Date | No | — | fecha del tenant |
 | `dimension` | string | No | — | Según la definición en texto del §7 |
-| `value` | Decimal128 | No | — | Decimal128 para GB; int para el resto |
+| `value` | DECIMAL(18,4) | No | — | DECIMAL(18,4) para GB; int para el resto |
 | `quotaSoft` | string | No | — | Según la definición en texto del §7 |
 | `quotaHard` | string | No | — | Según la definición en texto del §7 |
 | `pct` | string | No | — | Según la definición en texto del §7 |
@@ -1255,35 +1257,35 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `priority` | int | No | — | `P1`–`P4` |
 | `status` | enum | Sí | — | §8.5 |
 | `channel` | enum | No | — | `admin`, `email`, `phone`, `platform` |
-| `reportedBy` | ObjectId | No | `memberships` (T02) | userId del tenant; destino → `memberships` |
-| `assigneeId` | ObjectId | No | `memberships` (T02) | usuario de `PLATFORM`; destino → `memberships` |
+| `reportedBy` | uniqueidentifier | No | `memberships` (T02) | userId del tenant; destino → `memberships` |
+| `assigneeId` | uniqueidentifier | No | `memberships` (T02) | usuario de `PLATFORM`; destino → `memberships` |
 | `queue` | enum | No | — | `N1`, `N2`, `ops`, `security` |
 | `context` | string | No | — | Según la definición en texto del §7 |
-| `evidenceFileIds` | array de ObjectId | No | `storedFiles` (T01) | destino → `storedFiles` |
-| `incidentId` | ObjectId | No | `platformIncidents` (T01) | destino → `platformIncidents` |
-| `grantIds` | array de ObjectId | No | `supportAccessGrants` (T02) | destino → `supportAccessGrants` |
+| `evidenceFileIds` | array de uniqueidentifier | No | `storedFiles` (T01) | destino → `storedFiles` |
+| `incidentId` | uniqueidentifier | No | `platformIncidents` (T01) | destino → `platformIncidents` |
+| `grantIds` | array de uniqueidentifier | No | `supportAccessGrants` (T02) | destino → `supportAccessGrants` |
 | `sla` | string | No | — | Según la definición en texto del §7 |
 | `satisfaction` | string | No | — | Según la definición en texto del §7 |
 | `tags` | array | No | — | Según la definición en texto del §7 |
-| `openedBy` | ObjectId | Sí | `memberships` (T02) | destino → `memberships` |
+| `openedBy` | uniqueidentifier | Sí | `memberships` (T02) | destino → `memberships` |
 
 **`supportCaseMessages`** — Mensajes del caso (COL-PLA-11; definición en texto en §7.11.10)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `supportCaseId` | ObjectId | Sí | `supportCases` (T01) | antes `caseId` en el texto del §7 (nombre canónico de T05); destino → `supportCases` |
+| `supportCaseId` | uniqueidentifier | Sí | `supportCases` (T01) | antes `caseId` en el texto del §7 (nombre canónico de T05); destino → `supportCases` |
 | `authorType` | enum | No | — | `tenantUser`, `platformAgent`, `system` |
-| `authorId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `authorId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `body` | string | No | — | texto con detector de secretos |
 | `visibility` | string | No | — | `public`, `internal` — internal solo plataforma |
-| `attachmentFileIds` | array de ObjectId | No | `storedFiles` (T01) | destino → `storedFiles` |
+| `attachmentFileIds` | array de uniqueidentifier | No | `storedFiles` (T01) | destino → `storedFiles` |
 
 **`supportSessions`** — Sesiones de soporte con acceso temporal (COL-PLA-13; definición en texto en §7.11.12)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `supportAccessGrantId` | ObjectId | No | `supportAccessGrants` (T02) | antes `grantId` en el texto del §7 (nombre canónico de T05); destino → `supportAccessGrants` |
-| `agentUserId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `supportAccessGrantId` | uniqueidentifier | No | `supportAccessGrants` (T02) | antes `grantId` en el texto del §7 (nombre canónico de T05); destino → `supportAccessGrants` |
+| `agentUserId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `tokenJti` | string | No | — | Según la definición en texto del §7 |
 | `startedAt` | Date | No | — | Según la definición en texto del §7 |
 | `endedAt` | Date | No | — | Según la definición en texto del §7 |
@@ -1299,15 +1301,15 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `title` | string | No | — | Según la definición en texto del §7 |
 | `severity` | enum | No | — | `SEV1`–`SEV4` |
 | `status` | enum | Sí | — | §8.7 |
-| `affectedTenantIds` | array de ObjectId | No | `tenants` (T01) | vacío = todos; destino → `tenants` |
+| `affectedTenantIds` | array de uniqueidentifier | No | `tenants` (T01) | vacío = todos; destino → `tenants` |
 | `affectedModules` | array | No | — | Según la definición en texto del §7 |
 | `startedAt` | Date | No | — | Según la definición en texto del §7 |
 | `identifiedAt` | Date | No | — | Según la definición en texto del §7 |
 | `resolvedAt` | Date | No | — | Según la definición en texto del §7 |
 | `publicMessage` | string | No | — | dictKey o texto por idioma |
 | `updates` | array | No | — | Según la definición en texto del §7 |
-| `linkedCaseIds` | array de ObjectId | No | `supportCases` (T01) | destino → `supportCases` |
-| `postmortemFileId` | ObjectId | No | `storedFiles` (T01) | destino → `storedFiles` |
+| `linkedCaseIds` | array de uniqueidentifier | No | `supportCases` (T01) | destino → `supportCases` |
+| `postmortemFileId` | uniqueidentifier | No | `storedFiles` (T01) | destino → `storedFiles` |
 
 **`alertRules`** — Reglas de alerta operativas y de SLO (COL-PLA-15; definición en texto en §7.11.14)
 
@@ -1325,7 +1327,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `cooldownMinutes` | int | No | — | Según la definición en texto del §7 |
 | `escalation` | string | No | — | Según la definición en texto del §7 |
 | `enabled` | bool | No | — | Según la definición en texto del §7 |
-| `sloDefinitionId` | ObjectId | Sí | `sloDefinitions` (T08) | destino → `sloDefinitions` |
+| `sloDefinitionId` | uniqueidentifier | Sí | `sloDefinitions` (T08) | destino → `sloDefinitions` |
 
 **`alerts`** — Alertas disparadas (absorbe alertEvents de T08) (COL-PLA-16; definición en texto en §7.11.15)
 
@@ -1341,14 +1343,14 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `lastAt` | Date | No | — | Según la definición en texto del §7 |
 | `title` | string | No | — | dictKey + parámetros |
 | `objectRef` | string | No | — | Según la definición en texto del §7 |
-| `ackBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `ackBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `ackAt` | Date | No | — | Según la definición en texto del §7 |
-| `resolvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `resolvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `resolvedAt` | Date | No | — | Según la definición en texto del §7 |
 | `resolution` | string | No | — | Según la definición en texto del §7 |
 | `silencedUntil` | string | No | — | Según la definición en texto del §7 |
 | `notifiedChannels` | array | No | — | Según la definición en texto del §7 |
-| `alertRuleId` | ObjectId | Sí | `alertRules` (T01) | destino → `alertRules` |
+| `alertRuleId` | uniqueidentifier | Sí | `alertRules` (T01) | destino → `alertRules` |
 
 **`backupPolicies`** — Políticas de respaldo (COL-PLA-17; definición en texto en §7.11.16)
 
@@ -1381,7 +1383,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `retentionUntil` | string | No | — | Según la definición en texto del §7 |
 | `verifiedAt` | Date | No | — | Según la definición en texto del §7 |
 | `error` | string | No | — | Según la definición en texto del §7 |
-| `backupPolicyId` | ObjectId | Sí | `backupPolicies` (T01) | destino → `backupPolicies` |
+| `backupPolicyId` | uniqueidentifier | Sí | `backupPolicies` (T01) | destino → `backupPolicies` |
 
 **`restoreTests`** — Simulacros de restauración (absorbe restoreDrills de T08) (COL-PLA-20; definición en texto en §7.11.19)
 
@@ -1393,8 +1395,8 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `result` | enum | No | — | `passed`, `failed` |
 | `checks` | array | No | — | Según la definición en texto del §7 |
 | `rtoActualMinutes` | int | No | — | Según la definición en texto del §7 |
-| `reportFileId` | ObjectId | No | `storedFiles` (T01) | destino → `storedFiles` |
-| `backupRunId` | ObjectId | Sí | `backupRuns` (T01) | destino → `backupRuns` |
+| `reportFileId` | uniqueidentifier | No | `storedFiles` (T01) | destino → `storedFiles` |
+| `backupRunId` | uniqueidentifier | Sí | `backupRuns` (T01) | destino → `backupRuns` |
 
 **`tenantExports`** — Exportaciones completas del tenant (COL-PLA-21; definición en texto en §7.11.20)
 
@@ -1404,11 +1406,11 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `scope` | string | No | — | `full` o lista de módulos |
 | `format` | string | No | — | `jsonl+csv+docs` |
 | `status` | enum | Sí | — | `queued`, `running`, `ready`, `downloaded`, `expired`, `failed` |
-| `jobRunId` | ObjectId | No | `jobRuns` (T01) | destino → `jobRuns` |
+| `jobRunId` | uniqueidentifier | No | `jobRuns` (T01) | destino → `jobRuns` |
 | `files` | array | No | — | Según la definición en texto del §7; cada parte con `storedFileId` → `storedFiles` (T01) (antes `fileId`; nombre canónico de T05 COL-PLA-21, PA-DAT-04) |
-| `storedFileId` | ObjectId | Sí | `storedFiles` (T01) | antes `manifestFileId` en el texto del §7 (nombre canónico de T05); destino → `storedFiles` |
+| `storedFileId` | uniqueidentifier | Sí | `storedFiles` (T01) | antes `manifestFileId` en el texto del §7 (nombre canónico de T05); destino → `storedFiles` |
 | `expiresAt` | Date | No | — | Según la definición en texto del §7 |
-| `requestedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `requestedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `downloads` | array | No | — | Según la definición en texto del §7 |
 
 **`releases`** — Versiones desplegadas y notas (COL-PLA-22; definición en texto en §7.11.21)
@@ -1473,7 +1475,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `lastError` | string | No | — | sin secretos |
 | `payloadSummary` | string | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `open`, `reprocessed`, `discarded` |
-| `resolvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `resolvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `resolution` | string | No | — | Según la definición en texto del §7 |
 | `businessImpact` | bool | No | — | bool; si true se muestra en bandeja del tenant, T11 |
 | `eventId` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
@@ -1506,7 +1508,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `scanStatus` | enum | No | — | `pending`, `clean`, `infected`, `failed` |
 | `retentionUntil` | string | No | — | Según la definición en texto del §7 |
 | `legalHold` | string | No | — | Según la definición en texto del §7 |
-| `uploadedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `uploadedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `storageKey` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`aiUsage`** — Consumo agregado de IA por tenant y período (cupo) (COL-PLA-30; definición en texto en §7.11.26)
@@ -1520,8 +1522,8 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `inputTokens` | array | No | — | Según la definición en texto del §7 |
 | `outputTokens` | array | No | — | Según la definición en texto del §7 |
 | `costRef` | string | No | — | opcional |
-| `requestId` | ObjectId | No | `restoreRequests` (T01) | destino → `restoreRequests` |
-| `userId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `requestId` | uniqueidentifier | No | `restoreRequests` (T01) | destino → `restoreRequests` |
+| `userId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `outcome` | enum | No | — | `proposed`, `accepted`, `rejected`, `error` |
 | `period` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 

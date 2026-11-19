@@ -728,6 +728,8 @@ PRM-ID emitidos por código de anexo: TEC 75 · CMP 59 · CON 67 · TES 43 · ME
 - **V2 473 (M07, M05)**: la factura emitida en la caja de cobranza toma el punto de venta de la caja o del usuario, no el del tenant.
 
 ## 7. Preguntas abiertas
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### PA-CFG-P4-01 — Módem GSM local para SMS
 - **Pregunta:** ¿CoopApps tiene que soportar el envío de SMS por un módem GSM conectado a un puesto de la cooperativa, como ProCoop (V2 2047–2049)?

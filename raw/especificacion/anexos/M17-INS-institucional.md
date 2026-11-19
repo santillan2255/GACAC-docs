@@ -356,8 +356,10 @@ Reglas de separación de tareas (AGR-008): quien registra un rescate no puede ap
 | RN-INS-054 | **Base de capital (DEC-095).** La base de capital de una entidad a una fecha sale solo de `capitalMovements` confirmados de esa entidad con `effectiveDate ≤ asOf`; con cierre de capital en `asOf` se usa la copia congelada del cierre. La reapertura de un cierre no borra la copia anterior: la conserva en el historial del cierre y publica `ins.capitalBase.reopened`. | ProCoop no expone base de capital; `CAPITAL_RES` da suscripto y vendido. | **Adoptar**. | PRM-INS-029 | PA-FIS-25 (componente de base que usa cada contribución) |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Todas las colecciones llevan además `tenantId` (ObjectId, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, cuando aplica, `recordedAt` y `deletedAt`. Los movimientos económicos (`capitalMovements`, `capitalRefunds`, `surplusAllocations`, `institutionalFeeSettlements`) **nunca se borran**: se revierten o anulan. Importes en `Decimal128` con `decimal.js`.
+
+Todas las colecciones llevan además `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, cuando aplica, `recordedAt` y `deletedAt`. Los movimientos económicos (`capitalMovements`, `capitalRefunds`, `surplusAllocations`, `institutionalFeeSettlements`) **nunca se borran**: se revierten o anulan. Importes en `DECIMAL(18,4)` con `decimal.js`.
 
 > **Corrección 05-11-2026 (tablas de campos):** las colecciones que este §7 describía solo en texto corrido o en tablas resumen tienen ahora su tabla de campos (Campo, Tipo, Oblig., Descripción, Referencia), debajo de su descripción original, que se conserva. Tipos y obligatoriedad se deducen del texto del anexo y de T05 §7.7; donde no se pueden deducir figura `[VERIFICAR]`. La columna Referencia declara la colección destino y su anexo dueño. Cuando T05 usa otro nombre para el campo, la tabla usa el de T05 y anota "Antes `x`". Las tablas de campos que ya existían incorporan también la columna Referencia.
 
@@ -367,27 +369,27 @@ Nombre de colección canónico de T05 (CTR-DAT-09): `memberships` queda para la 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `personId` | ObjectId → M01 `persons` | Sí | Persona física o jurídica. | `persons` (M01) |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica con la que existe la relación institucional (cooperativa, mutual u otra del tenant con PRM-INS-058 = `true`); inmutable (RN-INS-053; DEC-096). En migración, la entidad por defecto salvo indicación de la cooperativa. | `legalEntities` (T04) |
+| `personId` | uniqueidentifier → M01 `persons` | Sí | Persona física o jurídica. | `persons` (M01) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica con la que existe la relación institucional (cooperativa, mutual u otra del tenant con PRM-INS-058 = `true`); inmutable (RN-INS-053; DEC-096). En migración, la entidad por defecto salvo indicación de la cooperativa. | `legalEntities` (T04) |
 | `memberNumber` | String | Cond. | Número visible; obligatorio desde `active`; único dentro de la entidad (RF-INS-002). | — |
 | `memberNumberAliases` | [String] | No | Números anteriores tras renumeración (RF-INS-016). | — |
 | `status` | Enum | Sí | `applicant`, `pendingApproval`, `active`, `suspended`, `withdrawalRequested`, `exclusionPending`, `withdrawn`, `excluded`, `deceased`, `rejected`, `dissolved`. | — |
 | `statusEffectiveAt` | Date | Sí | Fecha efectiva del estado actual. | — |
 | `applicationDate` | Date | Sí | Fecha de la solicitud de ingreso. | — |
 | `admissionDate` | Date | Cond. | Fecha de alta institucional (aprobación). | — |
-| `admissionMinuteId` / `admissionResolutionId` | ObjectId | Cond. | Acta y resolución que aprobaron (CAT `SOCIOS.ACTA`). | `minutes` (M17) / `resolutions` (M17) |
+| `admissionMinuteId` / `admissionResolutionId` | uniqueidentifier | Cond. | Acta y resolución que aprobaron (CAT `SOCIOS.ACTA`). | `minutes` (M17) / `resolutions` (M17) |
 | `exitDate` | Date | Cond. | Egreso (antes en una fila conjunta con `exitCause`, `exitCauseDetail` y `exitMinuteId`). | — |
 | `exitCause` | Enum | Cond. | `resignation`, `exclusion`, `death`, `dissolution`, `transferOfAllShares`, `other`. | — (valor enumerado, no es referencia) |
 | `exitCauseDetail` | String | Cond. | Detalle libre de la causa. | — (texto, no es referencia) |
-| `exitMinuteId` | ObjectId | Cond. | Acta que resolvió el egreso. | `minutes` (M17) |
+| `exitMinuteId` | uniqueidentifier | Cond. | Acta que resolvió el egreso. | `minutes` (M17) |
 | `seniorityStartDate` | Date | Cond. | Base de antigüedad (admisión o la anterior si el estatuto la conserva al reingresar). | — |
-| `reentryOfAssociateMembershipId` | ObjectId | No | Membresía anterior en reingresos. Antes `reentryOfMembershipId` (PA-INS-12, PA-INS-13). | `associateMemberships` (M17) |
-| `inaesCategoryId` | ObjectId → `inaesCategories` | No | Categoría INAES. | `inaesCategories` (M17) |
-| `electoralDistrictId` | ObjectId → `electoralDistricts` | No | Distrito electoral. | `electoralDistricts` (M17) |
+| `reentryOfAssociateMembershipId` | uniqueidentifier | No | Membresía anterior en reingresos. Antes `reentryOfMembershipId` (PA-INS-12, PA-INS-13). | `associateMemberships` (M17) |
+| `inaesCategoryId` | uniqueidentifier → `inaesCategories` | No | Categoría INAES. | `inaesCategories` (M17) |
+| `electoralDistrictId` | uniqueidentifier → `electoralDistricts` | No | Distrito electoral. | `electoralDistricts` (M17) |
 | `legalRepresentative` | { `personId`, `validFrom`, `validTo`, `documentId` } | Cond. | Obligatorio para personas jurídicas (`SOCIOS.JURIDICO`). | — |
 | `bylawsVersionAccepted` | String | Sí | Versión del estatuto aceptada en la solicitud. | — |
 | `sharesSubscribed` | Int32 | No | Cuotas sociales suscriptas (cache de `SOCIOS.ACCIONES`; la verdad está en `capitalMovements`). | — |
-| `capitalSummary` | { `subscribed`, `billed`, `committed`, `paid`, `reserved`, `refunded`, `pending`, `overdue`, `asOf` } (Decimal128) | No | Proyección recalculada por evento; nunca se edita a mano. | — |
+| `capitalSummary` | { `subscribed`, `billed`, `committed`, `paid`, `reserved`, `refunded`, `pending`, `overdue`, `asOf` } (DECIMAL(18,4)) | No | Proyección recalculada por evento; nunca se edita a mano. | — |
 | `flags` | { `isDelegate`, `isAlternateDelegate`, `hasActiveMandate` } | No | Derivados (`SOCIOS.REP_ASAMBLEA`). | — |
 | `notes` | String | No | Observaciones (sin límite de 1000 caracteres). | — |
 | `legacy` | { `codSoc`, `numSoc`, `activoBaja` } | No | Trazabilidad de migración. | — |
@@ -399,13 +401,13 @@ Origen ProCoop: `SOCIOS` (`COD_SOC`, `NUM_SOC`, `ALTA`, `BAJA`, `CAUSA`, `CAU_BA
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `associateMembershipId` | ObjectId | Sí | Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `associateMembershipId` | uniqueidentifier | Sí | Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
 | `type` | Enum | Sí | `requested`, `approved`, `rejected`, `numberAssigned`, `renumbered`, `suspended`, `reinstated`, `exitRequested`, `exclusionNotified`, `exclusionAppealed`, `exited`, `deceased`, `districtChanged`, `categoryChanged`, `representativeChanged`, `reentered`. | — |
 | `fromStatus` / `toStatus` | Enum | No | Valores de `associateMemberships.status` (§7.1); registran la transición de §8.1, sin máquina propia (PA-INS-13). | — |
 | `effectiveAt` / `recordedAt` | Date | Sí | AGR-010. | — |
-| `actorUserId` | ObjectId | Sí | — | `memberships` (T02) |
+| `actorUserId` | uniqueidentifier | Sí | — | `memberships` (T02) |
 | `reason` | String | Cond. | Obligatorio en rechazos, suspensiones, exclusiones y egresos. | — |
-| `minuteId`, `resolutionId`, `documentIds` | ObjectId / [ObjectId] | No | Evidencia (T11). | `minutes` (M17) / `resolutions` (M17) / `documents` (T11) |
+| `minuteId`, `resolutionId`, `documentIds` | uniqueidentifier / [uniqueidentifier] | No | Evidencia (T11). | `minutes` (M17) / `resolutions` (M17) / `documents` (T11) |
 | `payload` | Object | No | Datos del cambio (antes/después). | — |
 
 Índices: `{tenantId, associateMembershipId, effectiveAt}` (antes `membershipId`).
@@ -418,7 +420,7 @@ Campos: `key` (Enum: `memberNumber`, `minuteBook:board`, `minuteBook:assembly`, 
 
 ### 7.4 `electoralDistricts`
 
-Campos: `code`, `name`, `assignmentRule` { `type`: `zone`/`locality`/`manual`, `refIds`: [ObjectId] }, `delegateSeats` { `titular`, `alternate` }, `active`. Índice único `{tenantId, code}`. Origen: filtros de distrito de `frmPadronTitulares`.
+Campos: `code`, `name`, `assignmentRule` { `type`: `zone`/`locality`/`manual`, `refIds`: [uniqueidentifier] }, `delegateSeats` { `titular`, `alternate` }, `active`. Índice único `{tenantId, code}`. Origen: filtros de distrito de `frmPadronTitulares`.
 
 Campos de `electoralDistricts`:
 
@@ -426,7 +428,7 @@ Campos de `electoralDistricts`:
 |---|---|---|---|---|
 | `code` | String | Sí | — | — |
 | `name` | String | Sí | — | — |
-| `assignmentRule` | Object | [VERIFICAR] | Subcampos: `type`: `zone`/`locality`/`manual`, `refIds`: [ObjectId]. | — |
+| `assignmentRule` | Object | [VERIFICAR] | Subcampos: `type`: `zone`/`locality`/`manual`, `refIds`: [uniqueidentifier]. | — |
 | `delegateSeats` | Object | [VERIFICAR] | Subcampos: `titular`, `alternate`. | — |
 | `active` | Bool | [VERIFICAR] | — | — |
 
@@ -436,8 +438,8 @@ Campos de `electoralDistricts`:
 |---|---|---|---|---|
 | `code` | String | Sí | `RUBCAPI.COD_RCC`. | — |
 | `name` | String (dict) | Sí | `DES_RCC`. | — |
-| `ledgerAccountId` | ObjectId → M15 | — | **Reemplazado** (CTR-DAT-57 de T05): el rubro no guarda la cuenta; `COD_CTA` migra a `entityAccountAssignments` de M15 con `entityType: capitalRubric` y `entityId` = este rubro. Texto original: "Sí · `COD_CTA`." | `ledgerAccounts` (M15) |
-| `productGroupIds` | [ObjectId] → M02 rubros | No | `COD_RUB`; cada rubro de producto aparece en un solo `capitalItem` (RN-INS-012). | `accountRubrics` (M15): el mismo rubro que `billableConcepts.accountingRubricId` de M02 (ex `COD_RUB`); antes `[VERIFICAR]` (PA-INS-13) |
+| `ledgerAccountId` | uniqueidentifier → M15 | — | **Reemplazado** (CTR-DAT-57 de T05): el rubro no guarda la cuenta; `COD_CTA` migra a `entityAccountAssignments` de M15 con `entityType: capitalRubric` y `entityId` = este rubro. Texto original: "Sí · `COD_CTA`." | `ledgerAccounts` (M15) |
+| `productGroupIds` | [uniqueidentifier] → M02 rubros | No | `COD_RUB`; cada rubro de producto aparece en un solo `capitalItem` (RN-INS-012). | `accountRubrics` (M15): el mismo rubro que `billableConcepts.accountingRubricId` de M02 (ex `COD_RUB`); antes `[VERIFICAR]` (PA-INS-13) |
 | `active` | Bool | Sí | — | — |
 
 Índices: `{tenantId, code}` único; `{tenantId, productGroupIds}` único multiclave.
@@ -447,52 +449,52 @@ Campos de `electoralDistricts`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
-| `legalEntityId` | ObjectId | Sí | Entidad cuyo capital regula la regla (DEC-096). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad cuyo capital regula la regla (DEC-096). | `legalEntities` (T04) |
 | `trigger` | Enum | Sí | `admission`, `serviceActivation`, `billing`. | — |
-| `serviceId`, `categoryId`, `conceptIds` | ObjectId / [ObjectId] → M02 | Cond. | Alcance (por producto o por servicio, `abm_Capital`). | `tenantServices` (M02) / `serviceCategories` (M02) / `billableConcepts` (M02) |
+| `serviceId`, `categoryId`, `conceptIds` | uniqueidentifier / [uniqueidentifier] → M02 | Cond. | Alcance (por producto o por servicio, `abm_Capital`). | `tenantServices` (M02) / `serviceCategories` (M02) / `billableConcepts` (M02) |
 | `shares` | Int32 | Cond. | Cuotas sociales a suscribir. | — |
-| `amount` | Decimal128 | Cond. | Alternativa a `shares` (`SERSOC.IMP_CAPITAL`). | — |
+| `amount` | DECIMAL(18,4) | Cond. | Alternativa a `shares` (`SERSOC.IMP_CAPITAL`). | — |
 | `integrationPlan` | { `mode`: `upfront`/`installmentsInInvoice`/`installmentsOwnDocument`, `installments`, `minInitialPct`, `maxYears` } | Sí | Plan de integración. | — |
-| `capitalItemId` | ObjectId | Sí | Rubro. | `capitalItems` (M17) |
+| `capitalItemId` | uniqueidentifier | Sí | Rubro. | `capitalItems` (M17) |
 | `validFrom` / `validTo` | Date | Sí | Vigencia. | — |
 
 Índice: `{tenantId, legalEntityId, trigger, serviceId, validFrom}` (DEC-096; antes `{tenantId, trigger, serviceId, validFrom}`).
 
 ### 7.7 `capitalShareValues`
 
-Campos: `nominalValue` (Decimal128), `currency`, `validFrom`, `validTo`, `resolutionId`. Índice `{tenantId, validFrom}`. Sin origen ProCoop (valor implícito).
+Campos: `nominalValue` (DECIMAL(18,4)), `currency`, `validFrom`, `validTo`, `resolutionId`. Índice `{tenantId, validFrom}`. Sin origen ProCoop (valor implícito).
 
 Campos de `capitalShareValues`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad a la que corresponde el valor nominal; índice `{tenantId, legalEntityId, validFrom}` (DEC-096; antes `{tenantId, validFrom}`). | `legalEntities` (T04) |
-| `nominalValue` | Decimal128 | [VERIFICAR] | — | — |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad a la que corresponde el valor nominal; índice `{tenantId, legalEntityId, validFrom}` (DEC-096; antes `{tenantId, validFrom}`). | `legalEntities` (T04) |
+| `nominalValue` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `currency` | String | [VERIFICAR] | — | — |
 | `validFrom` | Date | Sí | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
-| `resolutionId` | ObjectId | Sí | — | `resolutions` (M17) |
+| `resolutionId` | uniqueidentifier | Sí | — | `resolutions` (M17) |
 
 ### 7.8 `capitalMovements` — libro mayor de capital
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `associateMembershipId` | ObjectId | Cond. | Obligatorio salvo movimientos de clientes no asociados (que se tratan como capital a regularizar, ver CTR-INS-06). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
-| `personId` | ObjectId | Sí | — | `persons` (M01) |
-| `accountId`, `contractId` | ObjectId → M01 / M02 | No | `COD_SUM`, `COD_SER`/`ID_SERSOC` (la cuenta es de M01 y el contrato de M02, DEC-011/012). | `accounts` (M01) / `serviceContracts` (M02) |
-| `capitalItemId` | ObjectId | Sí | Rubro. | `capitalItems` (M17) |
+| `associateMembershipId` | uniqueidentifier | Cond. | Obligatorio salvo movimientos de clientes no asociados (que se tratan como capital a regularizar, ver CTR-INS-06). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (M01) |
+| `accountId`, `contractId` | uniqueidentifier → M01 / M02 | No | `COD_SUM`, `COD_SER`/`ID_SERSOC` (la cuenta es de M01 y el contrato de M02, DEC-011/012). | `accounts` (M01) / `serviceContracts` (M02) |
+| `capitalItemId` | uniqueidentifier | Sí | Rubro. | `capitalItems` (M17) |
 | `type` | Enum | Sí | `subscribed`, `billed`, `committed`, `paid`, `adjustment`, `reversal`, `transferIn`, `transferOut`, `reserved`, `reserveReleased`, `refunded`, `surplusCapitalized`, `manual`, `migration`. | — |
-| `amount` | Decimal128 | Sí | Con signo según tipo (reversión con signo opuesto). | — |
-| `shares` | Decimal128 | No | Cuotas equivalentes. | — |
+| `amount` | DECIMAL(18,4) | Sí | Con signo según tipo (reversión con signo opuesto). | — |
+| `shares` | DECIMAL(18,4) | No | Cuotas equivalentes. | — |
 | `effectiveDate` | Date | Sí | `FECHA` / `EMISION` / `VTO1` según PRM-INS-031. | — |
 | `source` | { `kind`, `id`, `lineId`, `number` } | Sí | `kind`: `invoice`, `invoiceLine`, `salesDocument`, `payment`, `agreement`, `serviceActivation`, `admission`, `transfer`, `reserve`, `refund`, `surplus`, `manual`, `migration`, `review`. (`ID_FAC`, `COD_PRO`). | — |
 | `idempotencyKey` | String | Sí | `<kind>:<id>:<lineId>:<type>`. | — |
-| `reversesMovementId` / `reversedByMovementId` | ObjectId | No | Contramovimientos. | `capitalMovements` (M17) |
+| `reversesMovementId` / `reversedByMovementId` | uniqueidentifier | No | Contramovimientos. | `capitalMovements` (M17) |
 | `status` | Enum | Sí | `pending`, `confirmed`, `rejected`. | — |
-| `approvalId` | ObjectId → T11 | Cond. | Manuales, ajustes, transferencias. | `approvalRequests` (T11) |
+| `approvalId` | uniqueidentifier → T11 | Cond. | Manuales, ajustes, transferencias. | `approvalRequests` (T11) |
 | `accountingStatus` | Enum | Sí | `pending`, `posted`, `error`, `notApplicable`. | — |
-| `journalEntryRef` | ObjectId → M15 | No | — | `journalEntries` (M15) |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica del movimiento (T05 §7.2 y regla de `legalEntityId` obligatorio en `capitalMovements`; agregado en PA-INS-13). Debe coincidir con `associateMemberships.legalEntityId` cuando hay membresía (RN-INS-053; DEC-096). | `legalEntities` (T04) |
+| `journalEntryRef` | uniqueidentifier → M15 | No | — | `journalEntries` (M15) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica del movimiento (T05 §7.2 y regla de `legalEntityId` obligatorio en `capitalMovements`; agregado en PA-INS-13). Debe coincidir con `associateMemberships.legalEntityId` cuando hay membresía (RN-INS-053; DEC-096). | `legalEntities` (T04) |
 | `legacy` | { `codCap`, `codCapRes` } | No | — | — |
 
 Índices: `{tenantId, idempotencyKey}` único; `{tenantId, associateMembershipId, effectiveDate}` (antes `membershipId`); `{tenantId, "source.kind", "source.id"}`; `{tenantId, accountingStatus, effectiveDate}`; `{tenantId, capitalItemId, effectiveDate}`; `{tenantId, legalEntityId, status, effectiveDate}` (base de capital por entidad, RF-INS-109; DEC-095/096).
@@ -500,22 +502,22 @@ Origen ProCoop: `CAPITAL` (`COD_CAP`, `COD_SOC`, `COD_SUM`, `COD_PRO`, `COD_SER`
 
 ### 7.9 `capitalReserves`
 
-Campos: `associateMembershipId` (antes `membershipId`), `amount` (Decimal128), `purpose` (`debtApplication`, `refund`, `other`), `conceptId` (PRM-INS-021), `documentRef` { `typeId` (PRM-INS-022), `pointOfSale`, `number` }, `receiptRef` { `pointOfSale`, `number` }, `status` (`active`, `released`, `applied`, `voided`), `releasedAt`, `movementIds`. Índice `{tenantId, associateMembershipId, status}`.
+Campos: `associateMembershipId` (antes `membershipId`), `amount` (DECIMAL(18,4)), `purpose` (`debtApplication`, `refund`, `other`), `conceptId` (PRM-INS-021), `documentRef` { `typeId` (PRM-INS-022), `pointOfSale`, `number` }, `receiptRef` { `pointOfSale`, `number` }, `status` (`active`, `released`, `applied`, `voided`), `releasedAt`, `movementIds`. Índice `{tenantId, associateMembershipId, status}`.
 Origen: `CAPITAL_RES` (`COD_CAPRES`, `COD_SUM`, `COD_SOC`, `COD_SER`, `FECHA`, `SUSCRIPTO`, `VENDIDO`, `COD_COM`/`SUC_COM`/`NUM_COM`, `COD_R`/`SUC_R`/`NUM_R` y 9 columnas más) — ver CTR-INS-03.
 
 Campos de `capitalReserves`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `associateMembershipId` | ObjectId | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `associateMembershipId` | uniqueidentifier | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `purpose` | Enum | [VERIFICAR] | `debtApplication`, `refund`, `other`. | — |
-| `conceptId` | ObjectId | [VERIFICAR] | PRM-INS-021. | `billableConcepts` (M02) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | PRM-INS-021. | `billableConcepts` (M02) |
 | `documentRef` | Object | [VERIFICAR] | Subcampos: `typeId` (PRM-INS-022), `pointOfSale`, `number`. | No es referencia: número del comprobante; `typeId` → `voucherTypes` (M05) |
 | `receiptRef` | Object | [VERIFICAR] | Subcampos: `pointOfSale`, `number`. | No es referencia: número del recibo de M07 |
 | `status` | Enum | Sí | `active`, `released`, `applied`, `voided`. | — |
 | `releasedAt` | Date (fecha y hora) | Cond. | — | — |
-| `movementIds` | [ObjectId] | [VERIFICAR] | — | `capitalMovements` (M17) |
+| `movementIds` | [uniqueidentifier] | [VERIFICAR] | — | `capitalMovements` (M17) |
 
 ### 7.10 `capitalTransfers`
 
@@ -525,17 +527,17 @@ Campos de `capitalTransfers`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad de cedente y cesionario, que debe ser la misma (RN-INS-053; DEC-096). | `legalEntities` (T04) |
-| `fromAssociateMembershipId` | ObjectId | Sí | Asociado cedente; no es `memberships` de T02. Antes `fromMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
-| `toAssociateMembershipId` | ObjectId | Sí | Asociado cesionario; no es `memberships` de T02. Antes `toMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad de cedente y cesionario, que debe ser la misma (RN-INS-053; DEC-096). | `legalEntities` (T04) |
+| `fromAssociateMembershipId` | uniqueidentifier | Sí | Asociado cedente; no es `memberships` de T02. Antes `fromMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
+| `toAssociateMembershipId` | uniqueidentifier | Sí | Asociado cesionario; no es `memberships` de T02. Antes `toMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `shares` | Int | [VERIFICAR] | Cantidad de cuotas sociales [VERIFICAR] tipo. | — |
 | `transferServices` | Bool | [VERIFICAR] | — | — |
-| `contractIds` | [ObjectId] | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `contractIds` | [uniqueidentifier] | [VERIFICAR] | — | `serviceContracts` (M02) |
 | `exitTransferor` | Bool | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`, `pendingApproval`, `approved`, `executed`, `rejected`, `voided`. | — |
-| `resolutionId` | ObjectId | [VERIFICAR] | — | `resolutions` (M17) |
-| `movementIds` | [ObjectId] | [VERIFICAR] | — | `capitalMovements` (M17) |
+| `resolutionId` | uniqueidentifier | [VERIFICAR] | — | `resolutions` (M17) |
+| `movementIds` | [uniqueidentifier] | [VERIFICAR] | — | `capitalMovements` (M17) |
 | `legacy.idTrans` | String | No | — | — |
 
 ### 7.11 `capitalRefunds`
@@ -543,20 +545,20 @@ Campos de `capitalTransfers`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | String | Sí | Serie `refundRequest`. | — |
-| `legalEntityId` | ObjectId | Sí | Entidad de la membresía; la cola y el límite anual de rescates se aplican por entidad (RN-INS-053; DEC-096). | `legalEntities` (T04) |
-| `associateMembershipId` | ObjectId | Sí | Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad de la membresía; la cola y el límite anual de rescates se aplican por entidad (RN-INS-053; DEC-096). | `legalEntities` (T04) |
+| `associateMembershipId` | uniqueidentifier | Sí | Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
 | `requestDate` | Date | Sí | Orden de la cola. | — |
 | `reason` | Enum | Sí | `exit`, `death`, `exclusion`, `partialStatutory`. | — |
 | `beneficiaries` | [{ `personId`, `sharePct`, `documentIds` }] | Cond. | Derechohabientes (fallecimiento). | — |
-| `paidCapital` | Decimal128 | Sí | Integrado a la fecha de cálculo. | — |
+| `paidCapital` | DECIMAL(18,4) | Sí | Integrado a la fecha de cálculo. | — |
 | `offsets` | [{ `receivableRef`, `amount` }] | No | Compensaciones (M07). | — |
-| `refundableAmount` | Decimal128 | Sí | `paidCapital − Σ offsets`. | — |
+| `refundableAmount` | DECIMAL(18,4) | Sí | `paidCapital − Σ offsets`. | — |
 | `fiscalYear`, `queuePosition` | String / Int32 | Cond. | Cola por límite anual. | — |
-| `interestAccrued` | Decimal128 | No | Si el estatuto lo prevé. | — |
+| `interestAccrued` | DECIMAL(18,4) | No | Si el estatuto lo prevé. | — |
 | `status` | Enum | Sí | `requested`, `calculated`, `pendingApproval`, `approved`, `queued`, `scheduled`, `paid`, `rejected`, `cancelled`. | — |
-| `resolutionId` | ObjectId | Cond. | Aprobación del consejo. | `resolutions` (M17) |
+| `resolutionId` | uniqueidentifier | Cond. | Aprobación del consejo. | `resolutions` (M17) |
 | `documentRef` | { `typeId`, `number` } | Cond. | Comprobante de rescate (PRM-INS-025). | No es referencia: número del comprobante; `typeId` → `voucherTypes` (M05) |
-| `paymentOrderRef` | ObjectId → M14 | Cond. | — | `paymentOrders` (M12) |
+| `paymentOrderRef` | uniqueidentifier → M14 | Cond. | — | `paymentOrders` (M12) |
 
 Índices: `{tenantId, status, fiscalYear, queuePosition}`; `{tenantId, associateMembershipId}` (antes `membershipId`). Origen: `Rescate_Acciones` (no hay tabla propia; ProCoop emite un comprobante).
 
@@ -568,14 +570,14 @@ Campos de `capitalClosings`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad cuyo capital se cierra (RF-INS-053; DEC-096). Índice `{tenantId, legalEntityId, closingDate}` (antes `{tenantId, closingDate}`). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad cuyo capital se cierra (RF-INS-053; DEC-096). Índice `{tenantId, legalEntityId, closingDate}` (antes `{tenantId, closingDate}`). | `legalEntities` (T04) |
 | `closingDate` | Date | Sí | — | — |
-| `capitalBase` | Object | Sí | Base de capital congelada al cerrar (RF-INS-109, RN-INS-054; DEC-095): `asOf` (= `closingDate`), `subscribed`, `paid`, `pendingToPay`, `reserved`, `refundedInFiscalYear`, `refundsApprovedUnpaid`, `activeMembers` (Int), `byCapitalItem` [{ `capitalItemId`, `subscribed`, `paid`, `pendingToPay`, `reserved` }], `reconciliation` { `status` (`reconciled`, `differences`, `notRun`), `differenceTotal`, `pendingPostingCount` }, `computedAt`, `lastMovementId`. Importes en Decimal128. | `capitalItems` (M17), `capitalMovements` (M17) |
+| `capitalBase` | Object | Sí | Base de capital congelada al cerrar (RF-INS-109, RN-INS-054; DEC-095): `asOf` (= `closingDate`), `subscribed`, `paid`, `pendingToPay`, `reserved`, `refundedInFiscalYear`, `refundsApprovedUnpaid`, `activeMembers` (Int), `byCapitalItem` [{ `capitalItemId`, `subscribed`, `paid`, `pendingToPay`, `reserved` }], `reconciliation` { `status` (`reconciled`, `differences`, `notRun`), `differenceTotal`, `pendingPostingCount` }, `computedAt`, `lastMovementId`. Importes en DECIMAL(18,4). | `capitalItems` (M17), `capitalMovements` (M17) |
 | `capitalBaseHistory` | [Object] | No | Copias anteriores de `capitalBase` reemplazadas al volver a cerrar tras una reapertura, con `reopenedAt` y `reopenApprovalId` (RN-INS-054). | — |
 | `reason` | String | [VERIFICAR] | — | — |
-| `closedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `closedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `reopenedAt` | Date (fecha y hora) | Cond. | — | — |
-| `reopenApprovalId` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `reopenApprovalId` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
 | `status` | Enum | Sí | `closed`, `reopened`. | — |
 
 ### 7.13 `shareCertificates`
@@ -586,30 +588,30 @@ Campos de `shareCertificates`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad emisora; igual a la de la membresía (RN-INS-053, RF-INS-026; DEC-096). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad emisora; igual a la de la membresía (RN-INS-053, RF-INS-026; DEC-096). | `legalEntities` (T04) |
 | `number` | String | Sí | Correlativo por entidad, secuencia `ins.shareCertificate:<legalEntityCode>` (DEC-096). | — |
-| `associateMembershipId` | ObjectId | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `associateMembershipId` | uniqueidentifier | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
 | `shares` | Int | [VERIFICAR] | Cantidad de cuotas sociales [VERIFICAR] tipo. | — |
-| `nominalValue` | Decimal128 | [VERIFICAR] | — | — |
-| `integratedPct` | Decimal128 | [VERIFICAR] | — | — |
+| `nominalValue` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `integratedPct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `issueDate` | Date | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `issued`, `voided`, `replaced`. | — |
-| `replacesCertificateId` | ObjectId | [VERIFICAR] | — | `shareCertificates` (M17) |
-| `storedFileId` | ObjectId | No | PDF del título. Antes `pdfObjectKey` (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
+| `replacesCertificateId` | uniqueidentifier | [VERIFICAR] | — | `shareCertificates` (M17) |
+| `storedFileId` | uniqueidentifier | No | PDF del título. Antes `pdfObjectKey` (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
 
 ### 7.14 `surplusDistributions`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad cuyo ejercicio se distribuye; los retornos van solo a sus membresías (RF-INS-060; DEC-096). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad cuyo ejercicio se distribuye; los retornos van solo a sus membresías (RF-INS-060; DEC-096). | `legalEntities` (T04) |
 | `fiscalYear` | String | Sí | Ejercicio. | — |
-| `resultRef` | ObjectId → M15 | Sí | Resultado del ejercicio aprobado. | `reportRunResults` (T10) |
-| `surplusTotal`, `surplusFromMembers`, `surplusFromNonMembers` | Decimal128 | Sí | — | — |
+| `resultRef` | uniqueidentifier → M15 | Sí | Resultado del ejercicio aprobado. | `reportRunResults` (T10) |
+| `surplusTotal`, `surplusFromMembers`, `surplusFromNonMembers` | DECIMAL(18,4) | Sí | — | — |
 | `appropriations` | [{ `code` (`legalReserve`, `welfareFund`, `educationFund`, `shareInterest`, `specialReserve`, `other`), `pct`, `amount`, `ledgerAccountId` }] | Sí | Esquema aplicado. | — |
 | `refundCriterion` | { `basis`: `billing`/`usage`/`paidCapital`/`custom`, `serviceIds`, `periodFrom`, `periodTo` } | Sí | Base de retorno. | — |
 | `refundForm` | Enum | Sí | `capitalization`, `accountCredit`, `payment`, `mixed`. | — |
 | `status` | Enum | Sí | `draft`, `simulated`, `approved`, `executing`, `executed`, `voided`. | — |
-| `resolutionId` | ObjectId | Cond. | Obligatorio desde `approved`. | `resolutions` (M17) |
+| `resolutionId` | uniqueidentifier | Cond. | Obligatorio desde `approved`. | `resolutions` (M17) |
 | `totals` | { `members`, `refundTotal`, `roundingAdjustment` } | No | — | — |
 
 Índice `{tenantId, legalEntityId, fiscalYear}` único parcial (no anuladas) (DEC-096; antes `{tenantId, fiscalYear}`).
@@ -622,15 +624,15 @@ Campos de `surplusAllocations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `distributionId` | ObjectId | Sí | — | `surplusDistributions` (M17) |
-| `associateMembershipId` | ObjectId | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
-| `basisAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `refundAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `interestAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `distributionId` | uniqueidentifier | Sí | — | `surplusDistributions` (M17) |
+| `associateMembershipId` | uniqueidentifier | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `basisAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `refundAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `interestAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `form` | Enum | [VERIFICAR] | Forma de imputación [VERIFICAR] valores. | — |
-| `movementId` | ObjectId | [VERIFICAR] | — | `capitalMovements` (M17) |
-| `creditRef` | ObjectId | [VERIFICAR] | Crédito en cuenta corriente cuando la forma es `accountCredit`. | `creditBalances` (M07); antes `[VERIFICAR]` (PA-INS-13) |
-| `paymentOrderRef` | ObjectId | [VERIFICAR] | — | `paymentOrders` (M12) |
+| `movementId` | uniqueidentifier | [VERIFICAR] | — | `capitalMovements` (M17) |
+| `creditRef` | uniqueidentifier | [VERIFICAR] | Crédito en cuenta corriente cuando la forma es `accountCredit`. | `creditBalances` (M07); antes `[VERIFICAR]` (PA-INS-13) |
+| `paymentOrderRef` | uniqueidentifier | [VERIFICAR] | — | `paymentOrders` (M12) |
 | `status` | Enum | Sí | `pending`, `executed`, `unclaimed`, `prescribed`, `voided`. | — |
 
 ### 7.16 `governanceBodies`
@@ -641,7 +643,7 @@ Campos de `governanceBodies`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad a la que pertenece el órgano; índice `{tenantId, legalEntityId, type}` (RF-INS-067; DEC-096; antes `{tenantId, type}`). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad a la que pertenece el órgano; índice `{tenantId, legalEntityId, type}` (RF-INS-067; DEC-096; antes `{tenantId, type}`). | `legalEntities` (T04) |
 | `type` | Enum | Sí | `board`, `supervisory`, `auditCommittee`, `electoralBoard`, `committee`. | — |
 | `name` | String | Sí | — | — |
 | `positions` | [Object] | [VERIFICAR] | Lista; subcampos: `code`, `labelKey`, `titularSeats`, `alternateSeats`, `isSigner`, `signerOrder`. | — |
@@ -657,16 +659,16 @@ Campos de `bodyMandates`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Copia de `governanceBodies.legalEntityId`; igual a la de la membresía (RN-INS-053; DEC-096). | `legalEntities` (T04) |
-| `bodyId` | ObjectId | Sí | — | `governanceBodies` (M17) |
+| `legalEntityId` | uniqueidentifier | Sí | Copia de `governanceBodies.legalEntityId`; igual a la de la membresía (RN-INS-053; DEC-096). | `legalEntities` (T04) |
+| `bodyId` | uniqueidentifier | Sí | — | `governanceBodies` (M17) |
 | `positionCode` | String | [VERIFICAR] | — | — |
 | `role` | Enum | [VERIFICAR] | `titular`, `alternate`. | — |
-| `personId` | ObjectId | Sí | — | `persons` (M01) |
-| `associateMembershipId` | ObjectId | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (M01) |
+| `associateMembershipId` | uniqueidentifier | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
 | `startDate` | Date | [VERIFICAR] | — | — |
 | `endDate` | Date | [VERIFICAR] | — | — |
-| `electedAtMeetingId` | ObjectId | [VERIFICAR] | — | `meetings` (M17) |
-| `resolutionId` | ObjectId | [VERIFICAR] | — | `resolutions` (M17) |
+| `electedAtMeetingId` | uniqueidentifier | [VERIFICAR] | — | `meetings` (M17) |
+| `resolutionId` | uniqueidentifier | [VERIFICAR] | — | `resolutions` (M17) |
 | `status` | Enum | Sí | `active`, `ended`, `resigned`, `removed`, `replaced`. | — |
 | `endReason` | String | [VERIFICAR] | — | — |
 | `legacy.idCsj` | String | No | — | — |
@@ -675,9 +677,9 @@ Campos de `bodyMandates`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad de la reunión; igual a la del órgano (`bodyId`) cuando lo hay (RF-INS-072; DEC-096). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad de la reunión; igual a la del órgano (`bodyId`) cuando lo hay (RF-INS-072; DEC-096). | `legalEntities` (T04) |
 | `type` | Enum | Sí | `boardOrdinary`, `boardExtraordinary`, `supervisory`, `committee`, `assemblyOrdinary`, `assemblyExtraordinary`, `assemblyDistrict`, `assemblyDelegates`. | — |
-| `bodyId` | ObjectId | Cond. | Para reuniones de órganos. | `governanceBodies` (M17) |
+| `bodyId` | uniqueidentifier | Cond. | Para reuniones de órganos. | `governanceBodies` (M17) |
 | `number` | String | No | Número de reunión/asamblea. | — |
 | `subject` | String | Sí | `ASUNTO`. | — |
 | `registeredAt` | Date | Sí | `FECHA`. | — |
@@ -688,12 +690,12 @@ Campos de `bodyMandates`:
 | `location`, `remotePlatform`, `remoteUrl` | String | Cond. | — | — |
 | `status` | Enum | Sí | `draft`, `convened`, `inProgress`, `recess`, `closed`, `cancelled` (`ESTADO`, `EstadoReunion`). | — |
 | `reserved` | Bool | Sí | Acceso solo por `meetingPermissions`. | — |
-| `rosterId`, `electoralDistrictId` | ObjectId | Cond. | Asambleas. | `rosters` (M17) / `electoralDistricts` (M17) |
+| `rosterId`, `electoralDistrictId` | uniqueidentifier | Cond. | Asambleas. | `rosters` (M17) / `electoralDistricts` (M17) |
 | `quorum` | { `required`, `reached`, `reachedAt`, `presentCount`, `proxiesCount` } | No | — | — |
 | `notice` | { `publishedAt`, `channels`, `inaesNotifiedAt`, `localAuthorityNotifiedAt` } | No | Convocatoria. | — |
-| `dossierId` | ObjectId → T11 | No | Expediente. | `dossiers` (T11) |
+| `dossierId` | uniqueidentifier → T11 | No | Expediente. | `dossiers` (T11) |
 | `notes` | String | No | `OBSERVACION`. | — |
-| `createdByUserId` | ObjectId | Sí | `COD_USER`. | `memberships` (T02) |
+| `createdByUserId` | uniqueidentifier | Sí | `COD_USER`. | `memberships` (T02) |
 
 Índices `{tenantId, legalEntityId, type, scheduledAt}` (DEC-096; antes `{tenantId, type, scheduledAt}`), `{tenantId, status}`. Origen: `REUNIONES`.
 
@@ -705,7 +707,7 @@ Campos de `meetingAgendaItems`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
 | `order` | Int | Sí | `ORDEN_DIA`. | — |
 | `title` | String | [VERIFICAR] | — | — |
 | `description` | String | [VERIFICAR] | — | — |
@@ -714,8 +716,8 @@ Campos de `meetingAgendaItems`:
 | `treated` | Bool | [VERIFICAR] | `TRATADO`. | — |
 | `outcome` | Enum | [VERIFICAR] | `approved`, `rejected`, `deferred`, `informative`, `withdrawn`. | — |
 | `linkedRefs` | [Object] | [VERIFICAR] | Lista; subcampos: `kind`: `crmCase`, `deskFile`, `membershipBatch`, `refund`, `transfer`, `surplus`, `fee`, `tariff`, `other`; `id`. `COD_REC`. | — |
-| `votingSessionId` | ObjectId | [VERIFICAR] | — | `votingSessions` (M17) |
-| `resolutionId` | ObjectId | [VERIFICAR] | — | `resolutions` (M17) |
+| `votingSessionId` | uniqueidentifier | [VERIFICAR] | — | `votingSessions` (M17) |
+| `resolutionId` | uniqueidentifier | [VERIFICAR] | — | `resolutions` (M17) |
 
 ### 7.20 `meetingParticipants`
 
@@ -725,19 +727,19 @@ Campos de `meetingParticipants`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
 | `kind` | Enum | [VERIFICAR] | `mandate`, `employee`, `external`, `member`. | — |
-| `mandateId` | ObjectId | Sí | `ID_CSJ`. | `bodyMandates` (M17) |
-| `employeeId` | ObjectId | Sí | `COD_EMP`. | `employees` (M16) |
-| `associateMembershipId` | ObjectId | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `mandateId` | uniqueidentifier | Sí | `ID_CSJ`. | `bodyMandates` (M17) |
+| `employeeId` | uniqueidentifier | Sí | `COD_EMP`. | `employees` (M16) |
+| `associateMembershipId` | uniqueidentifier | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
 | `externalName` | String | [VERIFICAR] | `NOM_EXT`. | — |
 | `attendance` | Enum | [VERIFICAR] | `present`, `absent`, `excused`, `remote` (`ASISTIO`). | — |
 | `checkInAt` | Date (fecha y hora) | Cond. | — | — |
 | `checkOutAt` | Date (fecha y hora) | Cond. | — | — |
 | `checkInMethod` | Enum | [VERIFICAR] | `qr`, `document`, `manual`. | — |
 | `hasVote` | Bool | [VERIFICAR] | — | — |
-| `proxyIds` | [ObjectId] | [VERIFICAR] | — | `proxies` (M17) |
-| `signatureRef` | ObjectId | [VERIFICAR] | — | `signatureRequests` (T11) [VERIFICAR] |
+| `proxyIds` | [uniqueidentifier] | [VERIFICAR] | — | `proxies` (M17) |
+| `signatureRef` | uniqueidentifier | [VERIFICAR] | — | `signatureRequests` (T11) [VERIFICAR] |
 
 ### 7.21 `meetingPermissions`
 
@@ -747,31 +749,31 @@ Campos de `meetingPermissions`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
-| `userId` | ObjectId | Sí | `COD_EMP` en ProCoop referencia al empleado; se mapea al usuario vinculado. | `memberships` (T02) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
+| `userId` | uniqueidentifier | Sí | `COD_EMP` en ProCoop referencia al empleado; se mapea al usuario vinculado. | `memberships` (T02) |
 | `level` | Enum | [VERIFICAR] | `view`, `edit`. | — |
 
 ### 7.22 `minutes` — actas
 
-Campos: `bookType` (`board`, `assembly`, `supervisory`, `attendance`, `internal`, `deskFile`), `number` (`NUM_ACT`), `meetingId` (`COD_REU`), `recordedDate` (`FECHA_REG`), `contentHtml`, `pdfObjectKey` (`CONTENIDO_PDF` se migra a almacenamiento de objetos), `hash`, `signatureStatus` (`draft`, `pendingSignatures`, `signed`, `voided`) (`ESTADO_FIRMA`), `signers` [{ `personId`, `mandateId`, `required`, `signedAt`, `method` }], `signatureProfileCode` (default `SIG-ACTA-INSTITUCIONAL`, T11 §18.5, DEC-078), `signatureRequestRef` (ObjectId → T11), `correctsMinuteId`. Índice único `{tenantId, legalEntityId, bookType, number}` (DEC-096; antes `{tenantId, bookType, number}`). Origen: `ACTAS`.
+Campos: `bookType` (`board`, `assembly`, `supervisory`, `attendance`, `internal`, `deskFile`), `number` (`NUM_ACT`), `meetingId` (`COD_REU`), `recordedDate` (`FECHA_REG`), `contentHtml`, `pdfObjectKey` (`CONTENIDO_PDF` se migra a almacenamiento de objetos), `hash`, `signatureStatus` (`draft`, `pendingSignatures`, `signed`, `voided`) (`ESTADO_FIRMA`), `signers` [{ `personId`, `mandateId`, `required`, `signedAt`, `method` }], `signatureProfileCode` (default `SIG-ACTA-INSTITUCIONAL`, T11 §18.5, DEC-078), `signatureRequestRef` (uniqueidentifier → T11), `correctsMinuteId`. Índice único `{tenantId, legalEntityId, bookType, number}` (DEC-096; antes `{tenantId, bookType, number}`). Origen: `ACTAS`.
 
 Campos de `minutes`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Copia de `meetings.legalEntityId`; el acta pertenece al libro de esa entidad (RF-INS-087; DEC-096). En migración, la entidad por defecto salvo indicación de la cooperativa. | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Copia de `meetings.legalEntityId`; el acta pertenece al libro de esa entidad (RF-INS-087; DEC-096). En migración, la entidad por defecto salvo indicación de la cooperativa. | `legalEntities` (T04) |
 | `bookType` | Enum | Sí | `board`, `assembly`, `supervisory`, `attendance`, `internal`, `deskFile`. | — |
 | `number` | String | Sí | `NUM_ACT`. Correlativo por libro y entidad, secuencia `ins.minuteBook:<bookType>:<legalEntityCode>` (DEC-096). | — |
-| `meetingId` | ObjectId | Sí | `COD_REU`. | `meetings` (M17) |
+| `meetingId` | uniqueidentifier | Sí | `COD_REU`. | `meetings` (M17) |
 | `recordedDate` | Date | [VERIFICAR] | `FECHA_REG`. | — |
 | `contentHtml` | String | [VERIFICAR] | — | — |
-| `storedFileId` | ObjectId | No | PDF del acta; `CONTENIDO_PDF` se migra a almacenamiento de objetos. Antes `pdfObjectKey` (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | No | PDF del acta; `CONTENIDO_PDF` se migra a almacenamiento de objetos. Antes `pdfObjectKey` (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
 | `hash` | String | [VERIFICAR] | — | — |
 | `signatureStatus` | Enum | [VERIFICAR] | `draft`, `pendingSignatures`, `signed`, `voided` (`ESTADO_FIRMA`). | — |
 | `signers` | [Object] | [VERIFICAR] | Lista; subcampos: `personId`, `mandateId`, `required`, `signedAt`, `method`. | — |
 | `signatureProfileCode` | String | [VERIFICAR] | Default `SIG-ACTA-INSTITUCIONAL`, T11 §18.5, DEC-078. | — |
-| `signatureRequestRef` | ObjectId | [VERIFICAR] | ObjectId → T11. | `signatureRequests` (T11) |
-| `correctsMinuteId` | ObjectId | [VERIFICAR] | — | `minutes` (M17) |
+| `signatureRequestRef` | uniqueidentifier | [VERIFICAR] | uniqueidentifier → T11. | `signatureRequests` (T11) |
+| `correctsMinuteId` | uniqueidentifier | [VERIFICAR] | — | `minutes` (M17) |
 
 ### 7.23 `resolutions`
 
@@ -781,14 +783,14 @@ Campos de `resolutions`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Copia de `meetings.legalEntityId` (DEC-096). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Copia de `meetings.legalEntityId` (DEC-096). | `legalEntities` (T04) |
 | `number` | String | Sí | — | — |
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
-| `agendaItemId` | ObjectId | Sí | — | `meetingAgendaItems` (M17) |
-| `minuteId` | ObjectId | Sí | — | `minutes` (M17) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
+| `agendaItemId` | uniqueidentifier | Sí | — | `meetingAgendaItems` (M17) |
+| `minuteId` | uniqueidentifier | Sí | — | `minutes` (M17) |
 | `text` | String | [VERIFICAR] | — | — |
 | `category` | Enum | [VERIFICAR] | `admission`, `exit`, `capital`, `refund`, `surplus`, `fees`, `election`, `bylaws`, `tariff`, `other`. | — |
-| `responsibleUserId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `responsibleUserId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `dueDate` | Date | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `open`, `inProgress`, `done`, `cancelled`. | — |
 | `affectedRefs` | [Object] | [VERIFICAR] | — | Polimórfica (`{ collection, id }`) [VERIFICAR] |
@@ -803,33 +805,33 @@ Campos de `rosters`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
-| `legalEntityId` | ObjectId | Sí | Copia de `meetings.legalEntityId`; el padrón solo incluye membresías de esa entidad (RF-INS-078; DEC-096). | `legalEntities` (T04) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
+| `legalEntityId` | uniqueidentifier | Sí | Copia de `meetings.legalEntityId`; el padrón solo incluye membresías de esa entidad (RF-INS-078; DEC-096). | `legalEntities` (T04) |
 | `version` | Int | Sí | — | — |
 | `cutoffDate` | Date | [VERIFICAR] | — | — |
 | `criteria` | Object | [VERIFICAR] | Objeto versionado con: `admissionCutoffDate`, `capitalDebt` { `enabled`, `threshold`, `asOfDate` }, `previousDebt`, `noInvoiceSince`, `serviceFrom`, `serviceTo`, `excludeExitAfterCutoff`, `maxUnpaidInvoices` { `n`, `onlyMarked` }, `districtIds`, `statuses`, `onlyMembers`, `importedListId`. | — |
 | `columns` | [String] | [VERIFICAR] | Columnas exportadas [VERIFICAR]. | — |
-| `savedFilterSetId` | ObjectId | [VERIFICAR] | Conjunto de filtros guardado del padrón (PRM-INS-049). | `dataTableViews` (T03), vista compartida de la grilla del padrón; antes `[VERIFICAR] filtro guardado (T03)` (PA-INS-13) |
+| `savedFilterSetId` | uniqueidentifier | [VERIFICAR] | Conjunto de filtros guardado del padrón (PRM-INS-049). | `dataTableViews` (T03), vista compartida de la grilla del padrón; antes `[VERIFICAR] filtro guardado (T03)` (PA-INS-13) |
 | `status` | Enum | Sí | `preliminary`, `observed`, `final`, `superseded`. | — |
 | `exhibition` | Object | [VERIFICAR] | Subcampos: `from`, `to`. | — |
 | `approvedAt` | Date (fecha y hora) | Cond. | — | — |
-| `approvedBy` | ObjectId | Cond. | — | `memberships` (T02) |
-| `supersedesRosterId` | ObjectId | [VERIFICAR] | — | `rosters` (M17) |
+| `approvedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
+| `supersedesRosterId` | uniqueidentifier | [VERIFICAR] | — | `rosters` (M17) |
 | `totals` | Object | [VERIFICAR] | Subcampos: `eligible`, `excluded`. | — |
 
 **`rosterEntries`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `rosterId` | ObjectId | Sí | — | `rosters` (M17) |
-| `associateMembershipId` | ObjectId | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `rosterId` | uniqueidentifier | Sí | — | `rosters` (M17) |
+| `associateMembershipId` | uniqueidentifier | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
 | `memberNumber` | String | [VERIFICAR] | — | — |
 | `displayName` | String | [VERIFICAR] | — | — |
 | `maskedDocument` | String | [VERIFICAR] | — | — |
-| `districtId` | ObjectId | [VERIFICAR] | — | `electoralDistricts` (M17) |
+| `districtId` | uniqueidentifier | [VERIFICAR] | — | `electoralDistricts` (M17) |
 | `eligible` | Bool | [VERIFICAR] | — | — |
 | `exclusionReasons` | String | [VERIFICAR] | Lista: Enum. | — |
-| `capitalDebt` | Decimal128 | [VERIFICAR] | — | — |
+| `capitalDebt` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `claims` | [Object] | [VERIFICAR] | Lista; subcampos: `at`, `text`, `resolution`, `resolvedBy`. | — |
 
 ### 7.25 `proxies`
@@ -840,12 +842,12 @@ Campos de `proxies`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
-| `grantorAssociateMembershipId` | ObjectId | Sí | Asociado que otorga el poder; no es `memberships` de T02. Antes `grantorMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
-| `proxyAssociateMembershipId` | ObjectId | Sí | Asociado apoderado; no es `memberships` de T02. Antes `proxyMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
-| `documentId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
+| `grantorAssociateMembershipId` | uniqueidentifier | Sí | Asociado que otorga el poder; no es `memberships` de T02. Antes `grantorMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
+| `proxyAssociateMembershipId` | uniqueidentifier | Sí | Asociado apoderado; no es `memberships` de T02. Antes `proxyMembershipId` (T05 §7.2, PA-INS-12). | `associateMemberships` (M17) |
+| `documentId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `status` | Enum | Sí | `submitted`, `validated`, `rejected`, `revoked`. | — |
-| `validatedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `validatedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `rejectionReason` | String | [VERIFICAR] | — | — |
 
 ### 7.26 `electoralLists`
@@ -856,7 +858,7 @@ Campos de `electoralLists`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
 | `name` | String | Sí | — | — |
 | `number` | String | Sí | — | — |
 | `candidates` | [Object] | [VERIFICAR] | Lista; subcampos: `bodyId`, `positionCode`, `role`, `personId`. | — |
@@ -874,8 +876,8 @@ Campos de `votingSessions`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `meetingId` | ObjectId | Sí | — | `meetings` (M17) |
-| `agendaItemId` | ObjectId | Sí | — | `meetingAgendaItems` (M17) |
+| `meetingId` | uniqueidentifier | Sí | — | `meetings` (M17) |
+| `agendaItemId` | uniqueidentifier | Sí | — | `meetingAgendaItems` (M17) |
 | `type` | Enum | [VERIFICAR] | `motion`, `election`. | — |
 | `method` | Enum | [VERIFICAR] | `showOfHands`, `nominal`, `secret`, `electronic`. | — |
 | `majority` | Enum | [VERIFICAR] | `simple`, `absolute`, `twoThirds`, `custom` con `customPct`. | — |
@@ -887,11 +889,11 @@ Campos de `votingSessions`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `votingSessionId` | ObjectId | Sí | — | `votingSessions` (M17) |
+| `votingSessionId` | uniqueidentifier | Sí | — | `votingSessions` (M17) |
 | `option` | Enum | [VERIFICAR] | `yes`, `no`, `abstain`, `blank`, `null` o `listId`. | — |
 | `count` | Int | [VERIFICAR] | — | — |
 | `nominalVotes` | [Object] | [VERIFICAR] | Lista; subcampos: `associateMembershipId` (antes `membershipId`), `viaProxyId`, `option`. solo método nominal; nunca en secreto. | — |
-| `talliedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `talliedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `talliedAt` | Date (fecha y hora) | Cond. | — | — |
 
 ### 7.28 `institutionalFees` y `institutionalFeeSettlements`
@@ -903,10 +905,10 @@ Campos de `institutionalFees`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `resolutionId` | ObjectId | Sí | — | `resolutions` (M17) |
-| `bodyId` | ObjectId | Sí | — | `governanceBodies` (M17) |
+| `resolutionId` | uniqueidentifier | Sí | — | `resolutions` (M17) |
+| `bodyId` | uniqueidentifier | Sí | — | `governanceBodies` (M17) |
 | `positionCodes` | String | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `formula` | String | [VERIFICAR] | — | — |
 | `periodicity` | Enum | [VERIFICAR] | `monthly`, `perMeeting`, `annual`. | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
@@ -917,17 +919,17 @@ Campos de `institutionalFees`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad del órgano y del mandato; el honorario se contabiliza y paga en esa entidad (RN-INS-053; DEC-096). | `legalEntities` (T04) |
-| `feeId` | ObjectId | Sí | — | `institutionalFees` (M17) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad del órgano y del mandato; el honorario se contabiliza y paga en esa entidad (RN-INS-053; DEC-096). | `legalEntities` (T04) |
+| `feeId` | uniqueidentifier | Sí | — | `institutionalFees` (M17) |
 | `period` | String | [VERIFICAR] | — | — |
-| `mandateId` | ObjectId | Sí | — | `bodyMandates` (M17) |
-| `personId` | ObjectId | Sí | — | `persons` (M01) |
-| `grossAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `mandateId` | uniqueidentifier | Sí | — | `bodyMandates` (M17) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (M01) |
+| `grossAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `proratedDays` | Int | [VERIFICAR] | — | — |
 | `expenseReimbursements` | [Object] | [VERIFICAR] | Lista; subcampos: `documentId`, `amount`, `approved`. | — |
-| `withholdingRef` | ObjectId | [VERIFICAR] | M06. | `withholdingsApplied` (M06); antes "M06, colección [VERIFICAR]" (PA-INS-13) |
-| `paymentOrderRef` | ObjectId | [VERIFICAR] | M14. | `paymentOrders` (M12); M14 ejecuta el pago (antes `[VERIFICAR] (el anexo cita M14)`, PA-INS-13) |
-| `journalEntryRef` | ObjectId | [VERIFICAR] | — | `journalEntries` (M15) |
+| `withholdingRef` | uniqueidentifier | [VERIFICAR] | M06. | `withholdingsApplied` (M06); antes "M06, colección [VERIFICAR]" (PA-INS-13) |
+| `paymentOrderRef` | uniqueidentifier | [VERIFICAR] | M14. | `paymentOrders` (M12); M14 ejecuta el pago (antes `[VERIFICAR] (el anexo cita M14)`, PA-INS-13) |
+| `journalEntryRef` | uniqueidentifier | [VERIFICAR] | — | `journalEntries` (M15) |
 | `status` | Enum | Sí | `draft`, `approved`, `paid`, `voided`. | — |
 
 ### 7.29 `inaesCategories`
@@ -951,19 +953,19 @@ Campos de `inaesReports`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad presentante (matrícula INAES de `legalEntities`); índice `{tenantId, legalEntityId, reportType, period}` (RF-INS-024; DEC-096; antes `{tenantId, reportType, period}`). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad presentante (matrícula INAES de `legalEntities`); índice `{tenantId, legalEntityId, reportType, period}` (RF-INS-024; DEC-096; antes `{tenantId, reportType, period}`). | `legalEntities` (T04) |
 | `reportType` | Enum | [VERIFICAR] | `associateRegister`, `entriesAndExits`, `authorities`, `assemblyDocs`, `other`. | — |
 | `period` | String | [VERIFICAR] | — | — |
 | `dueDate` | Date | [VERIFICAR] | — | — |
-| `batchIndex` | Decimal128 | [VERIFICAR] | — | — |
+| `batchIndex` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `batchCount` | Int | [VERIFICAR] | — | — |
 | `files` | [Object] | [VERIFICAR] | Lista; subcampos: `objectKey`, `hash`. El archivo se referencia por `storedFileIds` (antes `files[].objectKey`); `hash` se conserva para control. | — |
-| `storedFileIds` | [ObjectId] | No | Archivos del lote presentado (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
+| `storedFileIds` | [uniqueidentifier] | No | Archivos del lote presentado (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
 | `validation` | Object | [VERIFICAR] | Subcampos: `errors`, `warnings`. | — |
 | `status` | Enum | Sí | `draft`, `validated`, `submitted`, `acknowledged`, `rejected`. | — |
 | `submittedAt` | Date (fecha y hora) | Cond. | — | — |
-| `submittedBy` | ObjectId | Cond. | — | `memberships` (T02) |
-| `acknowledgementRef` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `submittedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
+| `acknowledgementRef` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 
 ### 7.31 `associateRegisterEditions`
 
@@ -973,14 +975,14 @@ Campos de `associateRegisterEditions`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad dueña del libro; folios y ediciones son correlativos por entidad (secuencia `ins.registerFolio:<legalEntityCode>`, RF-INS-022); índice `{tenantId, legalEntityId, periodTo}` (RF-INS-021; DEC-096; antes `{tenantId, periodTo}`). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad dueña del libro; folios y ediciones son correlativos por entidad (secuencia `ins.registerFolio:<legalEntityCode>`, RF-INS-022); índice `{tenantId, legalEntityId, periodTo}` (RF-INS-021; DEC-096; antes `{tenantId, periodTo}`). | `legalEntities` (T04) |
 | `periodFrom` | Date | [VERIFICAR] | — | — |
 | `periodTo` | Date | [VERIFICAR] | — | — |
 | `cutoffDate` | Date | [VERIFICAR] | — | — |
 | `includePreviousCapital` | Bool | [VERIFICAR] | V2 3027. | — |
 | `folioFrom` | Date | [VERIFICAR] | — | — |
 | `folioTo` | Date | [VERIFICAR] | — | — |
-| `storedFileId` | ObjectId | No | PDF de la edición. Antes `pdfObjectKey` (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | No | PDF de la edición. Antes `pdfObjectKey` (T05 §7.2, PA-INS-13). | `storedFiles` (T01) |
 | `hash` | String | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`, `issued`, `rubricated`. | — |
 | `corrections` | [Object] | [VERIFICAR] | Lista; subcampos: `associateMembershipId` (antes `membershipId`), `text`. | — |
@@ -993,10 +995,10 @@ Campos de `memberCredentials`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `associateMembershipId` | ObjectId | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `associateMembershipId` | uniqueidentifier | Sí | Asociado (padrón de M17); no es `memberships` de T02 (ver §7.1). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
 | `issueNumber` | String | [VERIFICAR] | — | — |
 | `issuedAt` | Date (fecha y hora) | Cond. | — | — |
-| `templateId` | ObjectId | [VERIFICAR] | `Credencial_Tipo`. | `documentTemplates` (T11), según T05 §7.2.1; antes `[VERIFICAR] plantilla de credencial` (PA-INS-13) |
+| `templateId` | uniqueidentifier | [VERIFICAR] | `Credencial_Tipo`. | `documentTemplates` (T11), según T05 §7.2.1; antes `[VERIFICAR] plantilla de credencial` (PA-INS-13) |
 | `qrTokenHash` | String | Sí | — | — |
 | `channel` | Enum | [VERIFICAR] | `print`, `digital`. | — |
 | `status` | Enum | Sí | `active`, `revoked`. | — |
@@ -1007,16 +1009,16 @@ Proyección materializada del libro mayor (`capitalMovements`, §7.8) que sirve 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `associateMembershipId` | ObjectId | Cond. | Asociado (nulo para capital a regularizar de no asociados, CTR-INS-06). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
-| `personId` | ObjectId → M01 | Sí | — | `persons` (M01) |
-| `legalEntityId` | ObjectId | Sí | Entidad del saldo (la de los movimientos; RN-INS-053; DEC-096). | `legalEntities` (T04) |
-| `accountId`, `contractId` | ObjectId → M01 / M02 | No | Apertura opcional por cuenta y contrato. | `accounts` (M01) / `serviceContracts` (M02) |
-| `capitalItemId` | ObjectId | Sí | Rubro (`capitalItems`, §7.5; origen `RUBCAPI`). | `capitalItems` (M17) |
-| `subscribed`, `billed`, `committed`, `paid`, `reserved`, `refunded` | Decimal128 | Sí | Σ de movimientos confirmados por tipo. | — |
-| `pendingToPay` | Decimal128 | Sí | `subscribed − paid`. | — |
-| `overdue` | Decimal128 | Sí | Pendiente con vencimiento < `asOf`. | — |
+| `associateMembershipId` | uniqueidentifier | Cond. | Asociado (nulo para capital a regularizar de no asociados, CTR-INS-06). Antes `membershipId` (PA-INS-12). | `associateMemberships` (M17) |
+| `personId` | uniqueidentifier → M01 | Sí | — | `persons` (M01) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad del saldo (la de los movimientos; RN-INS-053; DEC-096). | `legalEntities` (T04) |
+| `accountId`, `contractId` | uniqueidentifier → M01 / M02 | No | Apertura opcional por cuenta y contrato. | `accounts` (M01) / `serviceContracts` (M02) |
+| `capitalItemId` | uniqueidentifier | Sí | Rubro (`capitalItems`, §7.5; origen `RUBCAPI`). | `capitalItems` (M17) |
+| `subscribed`, `billed`, `committed`, `paid`, `reserved`, `refunded` | DECIMAL(18,4) | Sí | Σ de movimientos confirmados por tipo. | — |
+| `pendingToPay` | DECIMAL(18,4) | Sí | `subscribed − paid`. | — |
+| `overdue` | DECIMAL(18,4) | Sí | Pendiente con vencimiento < `asOf`. | — |
 | `asOf` | Date | Sí | Fecha del último movimiento aplicado. | — |
-| `lastMovementId` | ObjectId | Sí | Control de recálculo idempotente. | `capitalMovements` (M17) |
+| `lastMovementId` | uniqueidentifier | Sí | Control de recálculo idempotente. | `capitalMovements` (M17) |
 
 Índices: `{tenantId, legalEntityId, associateMembershipId, capitalItemId, accountId, contractId}` único (DEC-096; antes `{tenantId, associateMembershipId, capitalItemId, accountId, contractId}`, y antes `membershipId`); `{tenantId, legalEntityId, capitalItemId}` (antes `{tenantId, capitalItemId}`). Origen: derivado; en migración se compara con `CAPITAL_RES.SUSCRIPTO`/`VENDIDO` (CTR-INS-03, REP-INS-05).
 

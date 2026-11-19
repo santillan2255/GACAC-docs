@@ -417,8 +417,10 @@ Separación (AGR-008): un supervisor de agua no ve expedientes de banco de sangr
 | RN-SOC-056 | **Clase de ítem facturable que origina M18** (RN-FAC-156, RF-FAC-176 de M05): cada entrada a facturar que M18 informa (API-SOC-006 `billing-inputs` o el evento que dispara el cargo) lleva `itemClass`: (1) depósito del préstamo ortopédico (RF-SOC-113) → `guaranteeDeposit` (pasivo reintegrable; garantía de M08 RF-MOR-179; RN-CON-123); (2) aporte del asociado al fondo de subsidio por fallecimiento cuando el plan se financia con fondo propio (RF-SOC-044) → `subsidyFundContribution` (M15 lo acredita al fondo `socialSubsidyFund`, RN-CON-122); (3) adquisición del derecho de sepultura (contado o cuota n/N) → `burialRightAcquisition` y mantenimiento periódico → `burialRightMaintenance` (RF-SOC-055 y EVT-SOC-05; RN-CON-124). El resto de las entradas (cuotas de servicio, adherentes, vivienda, traslados, actos) van con `standard`. M18 no decide el tratamiento fiscal ni contable: solo informa la clase. | No existe en ProCoop (el depósito, el aporte y el derecho se facturan como conceptos comunes). | **Nuevo** (pendiente de G2 fase 2; HUECO-OTR-04, HUECO-SEP-03, HUECO-CEM-04). | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Todas las colecciones llevan `tenantId` (primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` y, cuando aplica, `validFrom`/`validTo`, `recordedAt`, `deletedAt`. Ocupaciones, actos de cementerio, solicitudes, certificados y rendiciones **nunca se borran**. Importes `Decimal128`. Los campos marcados **(S)** son sensibles: cifrado en reposo a nivel de campo y lectura solo con `soc.datosSensibles.ver`.
+
+Todas las colecciones llevan `TenantId` (primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` y, cuando aplica, `validFrom`/`validTo`, `recordedAt`, `deletedAt`. Ocupaciones, actos de cementerio, solicitudes, certificados y rendiciones **nunca se borran**. Importes `DECIMAL(18,4)`. Los campos marcados **(S)** son sensibles: cifrado en reposo a nivel de campo y lectura solo con `soc.datosSensibles.ver`.
 
 > **Corrección 05-11-2026 (tablas de campos):** las colecciones que este §7 describía solo en texto corrido o en tablas resumen tienen ahora su tabla de campos (Campo, Tipo, Oblig., Descripción, Referencia), debajo de su descripción original, que se conserva. Tipos y obligatoriedad se deducen del texto del anexo y de T05 §7.7; donde no se pueden deducir figura `[VERIFICAR]`. La columna Referencia declara la colección destino y su anexo dueño. Cuando T05 usa otro nombre para el campo, la tabla usa el de T05 y anota "Antes `x`". Las tablas de campos que ya existían incorporan también la columna Referencia.
 
@@ -428,14 +430,14 @@ Todas las colecciones llevan `tenantId` (primer campo de todo índice compuesto)
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId → M02 | Sí | Contrato del servicio (`ID_SERSOC`, `COD_SUM`, `COD_SER`). Dueño M02 (HUECO-TRV-06; antes → M01). | `serviceContracts` (M02) |
-| `holderId` | ObjectId → M01 `holders` | Sí | Titular del contrato (`COD_SOC`). Nombre canónico de T05 (CTR-DAT-67; antes `holderPersonId`); la persona del titular se obtiene del titular en M01. | `holders` (M01) |
-| `personId` | ObjectId → M01 | Sí | Adherente (`COD_PER`). | `persons` (M01) |
-| `relationshipTypeId` | ObjectId → M01 | Sí | Vínculo (`COD_VIN` → `VINCULOS`). | `enumerationItems` (T04) (vínculos, CTR-DAT-12; antes `[VERIFICAR]`) |
+| `contractId` | uniqueidentifier → M02 | Sí | Contrato del servicio (`ID_SERSOC`, `COD_SUM`, `COD_SER`). Dueño M02 (HUECO-TRV-06; antes → M01). | `serviceContracts` (M02) |
+| `holderId` | uniqueidentifier → M01 `holders` | Sí | Titular del contrato (`COD_SOC`). Nombre canónico de T05 (CTR-DAT-67; antes `holderPersonId`); la persona del titular se obtiene del titular en M01. | `holders` (M01) |
+| `personId` | uniqueidentifier → M01 | Sí | Adherente (`COD_PER`). | `persons` (M01) |
+| `relationshipTypeId` | uniqueidentifier → M01 | Sí | Vínculo (`COD_VIN` → `VINCULOS`). | `enumerationItems` (T04) (vínculos, CTR-DAT-12; antes `[VERIFICAR]`) |
 | `isHolder` | Bool | Sí | Adherente titular (`TITULAR`). | — |
-| `coveragePlanId` | ObjectId | Sí | Plan vigente. | `coveragePlans` (M18) |
-| `categoryId` | ObjectId → M02 | No | Categoría (recategorización). | `serviceCategories` (M02) |
-| `assignedTariffId` | ObjectId → M04 | No | Tarifa asignada (`COD_TAD`). | `tariffCategoryRates` (M04) (tarifa por categoría; antes `[VERIFICAR]`; PA-SOC-19) |
+| `coveragePlanId` | uniqueidentifier | Sí | Plan vigente. | `coveragePlans` (M18) |
+| `categoryId` | uniqueidentifier → M02 | No | Categoría (recategorización). | `serviceCategories` (M02) |
+| `assignedTariffId` | uniqueidentifier → M04 | No | Tarifa asignada (`COD_TAD`). | `tariffCategoryRates` (M04) (tarifa por categoría; antes `[VERIFICAR]`; PA-SOC-19) |
 | `occupation` | Enum | No | `none`, `student`, `retired`, `employed`, `other` (filtros `TAR_ADHE`). | — |
 | `disabilityCertified` | Bool **(S)** | No | Excluye bajas por edad (`DISCA`). | — |
 | `startDate` / `endDate` | Date | Sí / No | `FEC_ALT` / `FEC_BAJ`. | — |
@@ -457,12 +459,12 @@ Campos de `serviceBeneficiaries`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | `ID_SERSOC`. | `serviceContracts` (M02) |
-| `holderId` | ObjectId | [VERIFICAR] | CTR-DAT-67; antes `holderPersonId`. | `holders` (M01) |
-| `personId` | ObjectId | [VERIFICAR] | — | `persons` (M01) |
-| `relationshipTypeId` | ObjectId | [VERIFICAR] | `COD_VIN`. | `enumerationItems` (T04) (vínculos `VINCULOS`, CTR-DAT-12; antes "M01, colección [VERIFICAR]") |
+| `contractId` | uniqueidentifier | Sí | `ID_SERSOC`. | `serviceContracts` (M02) |
+| `holderId` | uniqueidentifier | [VERIFICAR] | CTR-DAT-67; antes `holderPersonId`. | `holders` (M01) |
+| `personId` | uniqueidentifier | [VERIFICAR] | — | `persons` (M01) |
+| `relationshipTypeId` | uniqueidentifier | [VERIFICAR] | `COD_VIN`. | `enumerationItems` (T04) (vínculos `VINCULOS`, CTR-DAT-12; antes "M01, colección [VERIFICAR]") |
 | `benefitType` | Enum | [VERIFICAR] | `subsidy`, `insurance`, `other`; el valor `socialTariff` se retira: la tarifa social no es un beneficiario, HUECO-SEP-02. | — |
-| `sharePct` | Decimal128 | [VERIFICAR] | — | — |
+| `sharePct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `startDate` | Date | [VERIFICAR] | `FEC_ALT`. | — |
 | `endDate` | Date | [VERIFICAR] | `FEC_BAJ`. | — |
 | `endCause` | Enum | [VERIFICAR] | De cierre propio de CoopApps: `death`, `request`, `contractEnded`, `other`; ProCoop no registra causa en `BENSOC`. | — |
@@ -479,14 +481,14 @@ Campos de `dependentEvents`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `dependentId` | ObjectId | Sí | — | `serviceDependents` (M18) |
-| `beneficiaryId` | ObjectId | [VERIFICAR] | — | `serviceBeneficiaries` (M18) |
+| `dependentId` | uniqueidentifier | Sí | — | `serviceDependents` (M18) |
+| `beneficiaryId` | uniqueidentifier | [VERIFICAR] | — | `serviceBeneficiaries` (M18) |
 | `type` | Enum | [VERIFICAR] | `added`, `validated`, `observed`, `categoryChanged`, `suspended`, `restored`, `ended`, `transferred`, `majorityReached`. | — |
 | `effectiveAt` | Date (fecha y hora) | Cond. | — | — |
 | `recordedAt` | Date (fecha y hora) | Cond. | — | — |
-| `actorUserId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `actorUserId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `cause` | String | Cond. | [VERIFICAR] si es texto o catálogo. | — |
-| `batchId` | ObjectId | [VERIFICAR] | Lote de la operación masiva que generó el evento. | — (identificador del lote que agrupa eventos de esta colección; no es referencia; antes `[VERIFICAR]`) |
+| `batchId` | uniqueidentifier | [VERIFICAR] | Lote de la operación masiva que generó el evento. | — (identificador del lote que agrupa eventos de esta colección; no es referencia; antes `[VERIFICAR]`) |
 | `payload` | Object | [VERIFICAR] | — | — |
 
 ### 7.2 Planes, prestadores y convenios
@@ -495,18 +497,18 @@ Campos de `dependentEvents`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` / `categoryId` | ObjectId → M02 | Sí | Servicio y categoría. | `tenantServices` (M02) / `serviceCategories` (M02) |
+| `serviceId` / `categoryId` | uniqueidentifier → M02 | Sí | Servicio y categoría. | `tenantServices` (M02) / `serviceCategories` (M02) |
 | `kind` | Enum | Sí | `burial`, `deathSubsidy`, `bloodBank`, `ambulance`, `healthAgreement`, `orthopedic`, `insurance`, `dispenser`, `electricVehicle`, `other`. | — |
 | `benefits` | [{ `code`, `labelKey`, `included`, `limitPerPeriod`, `period`, `limitAmount` }] | Sí | Prestaciones. | — |
 | `eligibility` | [{ `relationshipTypeId`, `minAge`, `maxAge`, `occupations`, `disabilityOverridesAge` }] | Sí | Reglas por vínculo. | — |
 | `maxDependents` | Int | No | — | — |
 | `majorityAge` | Int | No | Default PRM-SOC-009. | — |
 | `waitingPeriodDays` | Int | No | Default PRM-SOC-013. | — |
-| `territorialScope` | [ObjectId] localidades/provincias | No | — | — |
+| `territorialScope` | [uniqueidentifier] localidades/provincias | No | — | — |
 | `exclusions` | [String] | No | — | — |
 | `requirements` | [{ `code`, `labelKey`, `relationshipTypeIds`, `validityMonths` }] | No | `frmRequisito_Adherentes`. | — |
-| `agreementIds` | [ObjectId] | No | Convenios. | `agreements` (M08) |
-| `regulationDocumentId` | ObjectId | No | Reglamento. | `documents` (T11) |
+| `agreementIds` | [uniqueidentifier] | No | Convenios. | `agreements` (M08) |
+| `regulationDocumentId` | uniqueidentifier | No | Reglamento. | `documents` (T11) |
 | `validFrom` / `validTo` | Date | Sí | — | — |
 | `status` | Enum | Sí | `draft`, `active`, `closedToNew`, `retired`. | — |
 
@@ -522,10 +524,10 @@ Campos de `careProviders`:
 |---|---|---|---|---|
 | `type` | Enum | [VERIFICAR] | `funeralHome`, `bloodNetwork`, `healthFacility`, `ambulanceCompany`, `builder`, `insurer`, `other`. | — |
 | `name` | String | Sí | — | — |
-| `supplierId` | ObjectId | Sí | M12. | `suppliers` (M12) |
+| `supplierId` | uniqueidentifier | Sí | M12. | `suppliers` (M12) |
 | `habilitation` | Object | [VERIFICAR] | Subcampos: `number`, `authority`, `expiresAt`. | — |
 | `contacts` | Object | [VERIFICAR] | — | — |
-| `localityId` | ObjectId | Sí | — | `localities` (T04) |
+| `localityId` | uniqueidentifier | Sí | — | `localities` (T04) |
 | `active` | Bool | [VERIFICAR] | — | — |
 
 #### `providerAgreements`
@@ -536,16 +538,16 @@ Campos de `providerAgreements`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `providerId` | ObjectId | Sí | — | `careProviders` (M18) |
-| `documentRefId` | ObjectId | [VERIFICAR] | Expediente documental en T11 (clave de T05; PA-SOC-19). | `documents` (T11) |
-| `planIds` | [ObjectId] | [VERIFICAR] | — | `servicePlans` (M02) |
+| `providerId` | uniqueidentifier | Sí | — | `careProviders` (M18) |
+| `documentRefId` | uniqueidentifier | [VERIFICAR] | Expediente documental en T11 (clave de T05; PA-SOC-19). | `documents` (T11) |
+| `planIds` | [uniqueidentifier] | [VERIFICAR] | — | `servicePlans` (M02) |
 | `scope` | Enum | [VERIFICAR] | — | — |
 | `conditions` | Object | [VERIFICAR] | — | — |
 | `fundingMode` | Enum | [VERIFICAR] | `cooperativeFunded`, `memberContribution`, `freeToMember`. | — |
 | `costModel` | Object | [VERIFICAR] | Subcampos: `type`: `fixedMonthly`/`perCase`/`perCapita`, `amount`. | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
-| `documentId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `documentId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `status` | Enum | Sí | `draft`, `active`, `ended` (valores de §8.1.6, asumidos en PA-SOC-18; antes propuestos `[VERIFICAR]` y, antes de eso, sin valores). | — |
 
 #### `medicalSpecialties` y `medicalProfessionals`
@@ -563,11 +565,11 @@ Campos de `medicalSpecialties`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `personId` | ObjectId | Sí | Persona del profesional; alta asistida de M01 con control de duplicados (DEC-097). Antes: "M01, opcional." | `persons` (M01) |
+| `personId` | uniqueidentifier | Sí | Persona del profesional; alta asistida de M01 con control de duplicados (DEC-097). Antes: "M01, opcional." | `persons` (M01) |
 | `name` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.displayName` (M01); `DES_MED` solo alimenta la búsqueda o creación de la persona en la migración. Fila anterior: "`name` · String · Sí · `DES_MED`." | — |
-| `specialtyId` | ObjectId | Sí | `COD_ESP`. | `medicalSpecialties` (M18) |
+| `specialtyId` | uniqueidentifier | Sí | `COD_ESP`. | `medicalSpecialties` (M18) |
 | `licenseNumber` | String | [VERIFICAR] | — | — |
-| `providerId` | ObjectId | [VERIFICAR] | — | `careProviders` (M18) |
+| `providerId` | uniqueidentifier | [VERIFICAR] | — | `careProviders` (M18) |
 | `active` | Bool | [VERIFICAR] | — | — |
 
 ### 7.3 Solicitudes y prestaciones
@@ -578,19 +580,19 @@ Campos de `medicalSpecialties`:
 |---|---|---|---|---|
 | `number` | String | Sí | Serie por tipo. | — |
 | `kind` | Enum | Sí | Igual a `coveragePlans.kind` más `transport`, `hospitalization`. | — |
-| `contractId` | ObjectId | Cond. | — | `serviceContracts` (M02) |
-| `beneficiaryPersonId` | ObjectId | Sí | — | `persons` (M01) |
-| `requesterPersonId` | ObjectId | Sí | — | `persons` (M01) |
+| `contractId` | uniqueidentifier | Cond. | — | `serviceContracts` (M02) |
+| `beneficiaryPersonId` | uniqueidentifier | Sí | — | `persons` (M01) |
+| `requesterPersonId` | uniqueidentifier | Sí | — | `persons` (M01) |
 | `eventDate` | Date | Sí | Fecha del evento. | — |
 | `channel` | Enum | Sí | `desk`, `phone`, `pwa`, `bot`, `provider`. | — |
 | `coverageCheck` | { `checkedAt`, `result`: `covered`/`notCovered`/`review`, `reasons` [Enum], `planId`, `agreementId` } | Sí | Verificación a la fecha del evento. | — |
-| `providerId` | ObjectId | No | — | `careProviders` (M18) |
+| `providerId` | uniqueidentifier | No | — | `careProviders` (M18) |
 | `providerReference` | String | No | Número de autorización o referencia. | — |
-| `costs` | { `covered`, `memberCharge`, `providerCost` } Decimal128 | No | — | — |
-| `memberChargeBillingRef` / `providerInvoiceRef` | ObjectId | No | M05 / M12. | `billableItems` (M05) [VERIFICAR] / `supplierInvoices` (M12) [VERIFICAR] |
+| `costs` | { `covered`, `memberCharge`, `providerCost` } DECIMAL(18,4) | No | — | — |
+| `memberChargeBillingRef` / `providerInvoiceRef` | uniqueidentifier | No | M05 / M12. | `billableItems` (M05) [VERIFICAR] / `supplierInvoices` (M12) [VERIFICAR] |
 | `status` | Enum | Sí | `requested`, `inReview`, `approved`, `rejected`, `inProgressWithProvider`, `answered`, `completed`, `cancelled`. | — |
 | `decision` | { `by`, `at`, `reason`, `exceptionApprovalId` } | Cond. | — | — |
-| `documents` | [ObjectId] **(S)** | No | — | `documents` (T11) [VERIFICAR] |
+| `documents` | [uniqueidentifier] **(S)** | No | — | `documents` (T11) [VERIFICAR] |
 | `sensitiveNotes` | String **(S)** | No | — | — |
 
 Índices `{tenantId, kind, status, eventDate}`, `{tenantId, beneficiaryPersonId}`, `{tenantId, number}` único.
@@ -603,15 +605,15 @@ Campos de `burialServiceCases`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `requestId` | ObjectId | Sí | — | `benefitRequests` (M18) |
-| `deceasedPersonId` | ObjectId | Sí | — | `persons` (M01) |
+| `requestId` | uniqueidentifier | Sí | — | `benefitRequests` (M18) |
+| `deceasedPersonId` | uniqueidentifier | Sí | — | `persons` (M01) |
 | `deathDate` | Date | [VERIFICAR] | — | — |
 | `place` | String | [VERIFICAR] | — | — |
-| `providerId` | ObjectId | [VERIFICAR] | — | `careProviders` (M18) |
+| `providerId` | uniqueidentifier | [VERIFICAR] | — | `careProviders` (M18) |
 | `services` | [Object] | [VERIFICAR] | Lista; subcampos: `code` (`wake`, `transfer`, `burial`, `cremation`, `other`), `covered`, `amount`. | — |
-| `cemeteryActId` | ObjectId | [VERIFICAR] | — | `cemeteryActs` (M18) |
-| `tripId` | ObjectId | [VERIFICAR] | — | `transportTrips` (M18) |
-| `deathCertificateDocumentId` | ObjectId | [VERIFICAR] | **(S)**. | `storedFiles` (T01) |
+| `cemeteryActId` | uniqueidentifier | [VERIFICAR] | — | `cemeteryActs` (M18) |
+| `tripId` | uniqueidentifier | [VERIFICAR] | — | `transportTrips` (M18) |
+| `deathCertificateDocumentId` | uniqueidentifier | [VERIFICAR] | **(S)**. | `storedFiles` (T01) |
 | `status` | Enum | Sí | `open`, `coordinated`, `completed`, `cancelled`. | — |
 | `providerConformityAt` | Date (fecha y hora) | Cond. | — | — |
 
@@ -623,14 +625,14 @@ Campos de `deathSubsidyCases`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `requestId` | ObjectId | Sí | — | `benefitRequests` (M18) |
-| `deceasedPersonId` | ObjectId | Sí | — | `persons` (M01) |
+| `requestId` | uniqueidentifier | Sí | — | `benefitRequests` (M18) |
+| `deceasedPersonId` | uniqueidentifier | Sí | — | `persons` (M01) |
 | `regulationVersion` | String | [VERIFICAR] | — | — |
 | `fund` | Enum | [VERIFICAR] | `ownFund`, `thirdPartyInsurer`. | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `beneficiaries` | [Object] | [VERIFICAR] | Lista; subcampos: `personId`, `sharePct`, `amount`, `paymentOrderRef`, `status`. | — |
 | `claimDeadline` | Date | [VERIFICAR] | — | — |
-| `approvalId` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `approvalId` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
 | `status` | Enum | Sí | `draft`, `pendingApproval`, `approved`, `paid`, `rejected`, `expired`. | — |
 
 #### `bloodCoverageRequests`
@@ -641,9 +643,9 @@ Campos de `bloodCoverageRequests`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `requestId` | ObjectId | Sí | — | `benefitRequests` (M18) |
-| `agreementId` | ObjectId | Sí | — | `providerAgreements` (M18) |
-| `facilityId` | ObjectId | [VERIFICAR] | — | `careProviders` (M18) [VERIFICAR] |
+| `requestId` | uniqueidentifier | Sí | — | `benefitRequests` (M18) |
+| `agreementId` | uniqueidentifier | Sí | — | `providerAgreements` (M18) |
+| `facilityId` | uniqueidentifier | [VERIFICAR] | — | `careProviders` (M18) [VERIFICAR] |
 | `providerReference` | String | [VERIFICAR] | — | — |
 | `requestedUnitsNote` | String | [VERIFICAR] | Texto administrativo, sin datos clínicos. | — |
 | `responseAt` | Date (fecha y hora) | Cond. | — | — |
@@ -659,18 +661,18 @@ Campos de `donationCampaigns`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
-| `agreementId` | ObjectId | Sí | — | `providerAgreements` (M18) |
+| `agreementId` | uniqueidentifier | Sí | — | `providerAgreements` (M18) |
 | `dates` | Date | [VERIFICAR] | — | — |
 | `place` | String | [VERIFICAR] | — | — |
-| `capacity` | Decimal128 | [VERIFICAR] | — | — |
+| `capacity` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `planned`, `open`, `closed`, `cancelled` (valores de §8.1.7, asumidos en PA-SOC-18; antes propuestos `[VERIFICAR]` y, antes de eso, sin valores). | — |
 
 **`donationAppointments`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `campaignId` | ObjectId | Sí | — | `donationCampaigns` (M18) |
-| `personId` | ObjectId | Sí | — | `persons` (M01) |
+| `campaignId` | uniqueidentifier | Sí | — | `donationCampaigns` (M18) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (M01) |
 | `slotAt` | Date (fecha y hora) | Cond. | — | — |
 | `status` | Enum | Sí | `booked`, `attended`, `noShow`, `cancelled`. | — |
 
@@ -682,14 +684,14 @@ Campos de `healthAuthorizations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `requestId` | ObjectId | Sí | — | `benefitRequests` (M18) |
+| `requestId` | uniqueidentifier | Sí | — | `benefitRequests` (M18) |
 | `type` | Enum | [VERIFICAR] | `hospitalization`, `practice`, `other`. | — |
-| `providerId` | ObjectId | Sí | — | `careProviders` (M18) |
+| `providerId` | uniqueidentifier | Sí | — | `careProviders` (M18) |
 | `admissionDate` | Date | [VERIFICAR] | — | — |
 | `dischargeDate` | Date | [VERIFICAR] | — | — |
 | `authorizationNumber` | String | [VERIFICAR] | — | — |
 | `coveredDays` | Int | [VERIFICAR] | — | — |
-| `cost` | Decimal128 | [VERIFICAR] | — | — |
+| `cost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `requested`, `authorized`, `rejected`, `closed`. | — |
 
 #### `transportTrips` y `tripLegs`
@@ -698,21 +700,21 @@ Campos de `healthAuthorizations`:
 |---|---|---|---|---|
 | `number` | String | Sí | `COD_AMB`. | — |
 | `kind` | Enum | Sí | `sanitary`, `general`, `freight`. | — |
-| `requestId` | ObjectId | No | Solicitud de prestación. | `benefitRequests` (M18) |
-| `passengerPersonId` / `beneficiaryId` | ObjectId | Cond. | `COD_PER` / `COD_BEN`. | `persons` (M01) / `serviceBeneficiaries` (M18) |
+| `requestId` | uniqueidentifier | No | Solicitud de prestación. | `benefitRequests` (M18) |
+| `passengerPersonId` / `beneficiaryId` | uniqueidentifier | Cond. | `COD_PER` / `COD_BEN`. | `persons` (M01) / `serviceBeneficiaries` (M18) |
 | `passengerSnapshot` | { `name`, `sex`, `ageAtTrip`, `isMember` } | Sí | `APELLIDOS`, `SEXO`. | — |
 | `requestedAt` / `tripDate` | Date | Sí | `FEC_PRE` / `FEC_TRA`. | — |
 | `origin` / `destination` | { `localityId`, `facilityId`, `address` } | Sí | `COD_ORI` / `COD_DES`, nosocomio. | — |
-| `companyProviderId` | ObjectId | No | Empresa. | `careProviders` (M18) [VERIFICAR] |
-| `vehicleId` / `driverId` | ObjectId | No | Móvil / chofer. | `fleetVehicles` (M18) / `drivers` (M18) |
-| `professionalIds` | [ObjectId] | No | `AMBUMED`. | `medicalProfessionals` (M18) |
-| `characteristicId` | ObjectId | No | `AMBUCARACTE`. | `tripCharacteristics` (M18) |
+| `companyProviderId` | uniqueidentifier | No | Empresa. | `careProviders` (M18) [VERIFICAR] |
+| `vehicleId` / `driverId` | uniqueidentifier | No | Móvil / chofer. | `fleetVehicles` (M18) / `drivers` (M18) |
+| `professionalIds` | [uniqueidentifier] | No | `AMBUMED`. | `medicalProfessionals` (M18) |
+| `characteristicId` | uniqueidentifier | No | `AMBUCARACTE`. | `tripCharacteristics` (M18) |
 | `reasonCategory` | Enum | No | Categoría administrativa. | — |
 | `reasonText` | String **(S)** | No | `CAUSA`. | — |
-| `km` | Decimal128 | No | `CANT_KM`. | — |
-| `amount` | Decimal128 | No | `IMPORTE`. | — |
-| `billingRef` | ObjectId | No | M05. | `billableItems` (M05) [VERIFICAR] |
-| `parentTripId` | ObjectId | No | `COD_AMB_ORIG`. | `transportTrips` (M18) |
+| `km` | DECIMAL(18,4) | No | `CANT_KM`. | — |
+| `amount` | DECIMAL(18,4) | No | `IMPORTE`. | — |
+| `billingRef` | uniqueidentifier | No | M05. | `billableItems` (M05) [VERIFICAR] |
+| `parentTripId` | uniqueidentifier | No | `COD_AMB_ORIG`. | `transportTrips` (M18) |
 | `schedule` | { `pickupAt`, `returnAt` } | No | — | — |
 | `status` | Enum | Sí | `requested`, `scheduled`, `inProgress`, `completed`, `cancelled`, `derived`. | — |
 
@@ -722,11 +724,11 @@ Campos de `healthAuthorizations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `tripId` | ObjectId | Sí | — | `transportTrips` (M18) |
+| `tripId` | uniqueidentifier | Sí | — | `transportTrips` (M18) |
 | `order` | Int | Sí | — | — |
 | `origin` | Object | [VERIFICAR] | — | — |
 | `destination` | Object | [VERIFICAR] | — | — |
-| `km` | Decimal128 | [VERIFICAR] | — | — |
+| `km` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `startedAt` | Date (fecha y hora) | Cond. | — | — |
 | `endedAt` | Date (fecha y hora) | Cond. | — | — |
 
@@ -740,7 +742,7 @@ Campos de `tripCharacteristics`:
 |---|---|---|---|---|
 | `code` | String | Sí | `COD_CAR`. | — |
 | `name` | String | Sí | `DES_CAR`. | — |
-| `tariffModifier` | Decimal128 | [VERIFICAR] | — | — |
+| `tariffModifier` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 
 ### 7.4 Cementerio parque
 
@@ -769,19 +771,19 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cemeteryId` | ObjectId | Sí | — | `cemeteries` (M18) |
+| `cemeteryId` | uniqueidentifier | Sí | — | `cemeteries` (M18) |
 | `version` | Int | [VERIFICAR] | — | — |
-| `documentId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
-| `documentRefId` | ObjectId | [VERIFICAR] | Expediente documental en T11 (clave de T05; PA-SOC-19). | `documents` (T11) |
+| `documentId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
+| `documentRefId` | uniqueidentifier | [VERIFICAR] | Expediente documental en T11 (clave de T05; PA-SOC-19). | `documents` (T11) |
 | `validFrom` | Date | Sí | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
-| `approvalRef` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `approvalRef` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
 
 **`burialUnits`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cemeteryId` | ObjectId | Sí | — | `cemeteries` (M18) |
+| `cemeteryId` | uniqueidentifier | Sí | — | `cemeteries` (M18) |
 | `code` | String | Sí | — | — |
 | `hierarchy` | Object | [VERIFICAR] | Subcampos: `sector`, `block`, `row`, `number`. | — |
 | `type` | Enum | [VERIFICAR] | `plot`, `niche`, `urnNiche`, `ossuary`, `other`. | — |
@@ -789,23 +791,23 @@ Campos de `tripCharacteristics`:
 | `geo` | GeoJSON | No | GeoJSON opcional. | — |
 | `availability` | Enum | [VERIFICAR] | `available`, `reserved`, `assigned`, `blocked`. | — |
 | `occupiedLevels` | Int | [VERIFICAR] | — | — |
-| `currentRightId` | ObjectId | Sí | — | `burialRights` (M18) |
+| `currentRightId` | uniqueidentifier | Sí | — | `burialRights` (M18) |
 
 **`burialRights`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | String | Sí | — | — |
-| `unitId` | ObjectId | Sí | — | `burialUnits` (M18) |
+| `unitId` | uniqueidentifier | Sí | — | `burialUnits` (M18) |
 | `regulationVersion` | String | [VERIFICAR] | — | — |
 | `modality` | Enum | [VERIFICAR] | `perpetual`, `temporary`, `use`. | — |
 | `holders` | [Object] | [VERIFICAR] | Lista; subcampos: `personId`, `sharePct`, `role`: `holder`/`coHolder`. | — |
-| `contractorPersonId` | ObjectId | [VERIFICAR] | — | `persons` (M01) |
-| `payerAccountId` | ObjectId | Sí | — | `accounts` (M01) |
+| `contractorPersonId` | uniqueidentifier | [VERIFICAR] | — | `persons` (M01) |
+| `payerAccountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
 | `authorizedPersons` | [Object] | [VERIFICAR] | Lista; subcampos: `personId`, `scope`, `validTo`. | — |
-| `instrumentDocumentId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `instrumentDocumentId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `acquisition` | Object | [VERIFICAR] | Subcampos: `mode`: `cash`/`financed`, `billingRef`. | — |
-| `maintenanceContractId` | ObjectId | Sí | M02; HUECO-TRV-06, antes M01. | `serviceContracts` (M02) |
+| `maintenanceContractId` | uniqueidentifier | Sí | M02; HUECO-TRV-06, antes M01. | `serviceContracts` (M02) |
 | `startDate` | Date | [VERIFICAR] | — | — |
 | `endDate` | Date | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `reserved`, `pendingDocumentation`, `active`, `inTransfer`, `extinguished`, `cancelledReservation`. | — |
@@ -815,25 +817,25 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `rightId` | ObjectId | Sí | — | `burialRights` (M18) |
+| `rightId` | uniqueidentifier | Sí | — | `burialRights` (M18) |
 | `type` | Enum | [VERIFICAR] | `reserved`, `formalized`, `holderChanged`, `ceded`, `inherited`, `payerChanged`, `authorizedChanged`, `extinguished`. | — |
 | `effectiveAt` | Date (fecha y hora) | Cond. | — | — |
-| `approvalId` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
-| `documentIds` | [ObjectId] | [VERIFICAR] | — | `storedFiles` (T01) |
+| `approvalId` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `documentIds` | [uniqueidentifier] | [VERIFICAR] | — | `storedFiles` (T01) |
 | `payload` | Object | [VERIFICAR] | — | — |
 
 **`burialOccupancies`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `unitId` | ObjectId | Sí | — | `burialUnits` (M18) |
+| `unitId` | uniqueidentifier | Sí | — | `burialUnits` (M18) |
 | `level` | Enum | [VERIFICAR] | — | — |
-| `deceasedPersonId` | ObjectId | Sí | — | `persons` (M01) |
+| `deceasedPersonId` | uniqueidentifier | Sí | — | `persons` (M01) |
 | `deceasedSnapshot` | Object | [VERIFICAR] | Subcampos: `name`, `deathDate`. | — |
-| `intermentActId` | ObjectId | [VERIFICAR] | — | `cemeteryActs` (M18) |
+| `intermentActId` | uniqueidentifier | [VERIFICAR] | — | `cemeteryActs` (M18) |
 | `startDate` | Date | [VERIFICAR] | — | — |
 | `endDate` | Date | [VERIFICAR] | Por exhumación/traslado. | — |
-| `endActId` | ObjectId | [VERIFICAR] | — | `cemeteryActs` (M18) |
+| `endActId` | uniqueidentifier | [VERIFICAR] | — | `cemeteryActs` (M18) |
 | `status` | Enum | Sí | `occupied`, `reduced`, `transferredOut`. | — |
 
 **`cemeteryActs`** — campos:
@@ -842,18 +844,18 @@ Campos de `tripCharacteristics`:
 |---|---|---|---|---|
 | `number` | String | Sí | — | — |
 | `type` | Enum | [VERIFICAR] | `interment`, `exhumation`, `reduction`, `internalTransfer`, `externalTransferIn`, `externalTransferOut`. | — |
-| `unitId` | ObjectId | Sí | — | `burialUnits` (M18) |
-| `targetUnitId` | ObjectId | [VERIFICAR] | — | `burialUnits` (M18) |
-| `rightId` | ObjectId | Sí | — | `burialRights` (M18) |
-| `deceasedPersonId` | ObjectId | [VERIFICAR] | — | `persons` (M01) |
+| `unitId` | uniqueidentifier | Sí | — | `burialUnits` (M18) |
+| `targetUnitId` | uniqueidentifier | [VERIFICAR] | — | `burialUnits` (M18) |
+| `rightId` | uniqueidentifier | Sí | — | `burialRights` (M18) |
+| `deceasedPersonId` | uniqueidentifier | [VERIFICAR] | — | `persons` (M01) |
 | `authorizedBy` | Object | Cond. | Subcampos: `personId`, `basis`. | — |
 | `permit` | Object | [VERIFICAR] | Subcampos: `number`, `authority`, `documentId`. | — |
 | `scheduledAt` | Date (fecha y hora) | Cond. | — | — |
 | `performedAt` | Date (fecha y hora) | Cond. | — | — |
-| `responsibleEmployeeId` | ObjectId | [VERIFICAR] | — | `employees` (M16) |
+| `responsibleEmployeeId` | uniqueidentifier | [VERIFICAR] | — | `employees` (M16) |
 | `origin` | Object | [VERIFICAR] | — | — |
 | `destination` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `billingRef` | ObjectId | [VERIFICAR] | — | `billableItems` (M05) [VERIFICAR] |
+| `billingRef` | uniqueidentifier | [VERIFICAR] | — | `billableItems` (M05) [VERIFICAR] |
 | `status` | Enum | Sí | `requested`, `documentationPending`, `scheduled`, `performed`, `cancelled`. | — |
 
 ### 7.5 Otros servicios
@@ -873,16 +875,16 @@ Campos de `tripCharacteristics`:
 | `type` | Enum | [VERIFICAR] | — | — |
 | `description` | String | [VERIFICAR] | — | — |
 | `condition` | Enum | [VERIFICAR] | `available`, `onLoan`, `maintenance`, `retired`. | — |
-| `fixedAssetId` | ObjectId | Sí | M13. | `fixedAssets` (M13) |
-| `branchId` | ObjectId | Sí | — | `branches` (T04) |
+| `fixedAssetId` | uniqueidentifier | Sí | M13. | `fixedAssets` (M13) |
+| `branchId` | uniqueidentifier | Sí | — | `branches` (T04) |
 
 **`orthopedicLoans`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `itemId` | ObjectId | Sí | — | `orthopedicItems` (M18) |
-| `requestId` | ObjectId | [VERIFICAR] | — | `benefitRequests` (M18) |
-| `borrowerPersonId` | ObjectId | Sí | — | `persons` (M01) |
+| `itemId` | uniqueidentifier | Sí | — | `orthopedicItems` (M18) |
+| `requestId` | uniqueidentifier | [VERIFICAR] | — | `benefitRequests` (M18) |
+| `borrowerPersonId` | uniqueidentifier | Sí | — | `persons` (M01) |
 | `startDate` | Date | [VERIFICAR] | — | — |
 | `dueDate` | Date | [VERIFICAR] | — | — |
 | `returnedAt` | Date (fecha y hora) | Cond. | — | — |
@@ -894,19 +896,19 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | — | `serviceContracts` (M02) |
-| `personId` | ObjectId | Sí | — | `persons` (M01) |
-| `liters` | Decimal128 | [VERIFICAR] | — | — |
+| `contractId` | uniqueidentifier | Sí | — | `serviceContracts` (M02) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (M01) |
+| `liters` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `withdrawnAt` | Date (fecha y hora) | Cond. | — | — |
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
-| `operatorId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `monthlyAccumulated` | Decimal128 | [VERIFICAR] | — | — |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
+| `operatorId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `monthlyAccumulated` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 
 **`contractRegistrations`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | → M02. | `serviceContracts` (M02) |
+| `contractId` | uniqueidentifier | Sí | → M02. | `serviceContracts` (M02) |
 | `type` | Enum | Sí | `electricVehicle`, `device`, `other`. | — |
 | `vehicle` | Object | Cond. | Subcampos: `plate`, `make`, `model`, `chargingPowerKw`. si `electricVehicle`. | — |
 | `device` | Object | Cond. | Subcampos: `kind`, `make`, `model`, `serialNumber`. si `device`. | — |
@@ -941,7 +943,7 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
 | `name` | String | Sí | — | — |
 | `typologies` | [Object] | [VERIFICAR] | Lista; subcampos: `categoryId` (`COD_CATSER`), `name` (`DES_VIV`), `notes` (`OBSERVA`), `inventoryItemId` (antes `productId`; PA-SOC-16) (`COD_PRO`), `minContributionBeforeAllocationPct` (`MINIMO_AA`), `minContributionAfterAllocationPct` (`MINIMO_DA`), `minContributionBeforeDeliveryPct` (`MINIMO_AE`), `minContributionAfterDeliveryPct` (`MINIMO_DE`), `maxAnnualAdvancePct` (`MAXIMO_APA`), `newValueDate` (`FECHA_NVO`), `theoreticalContributionDate` (`FECHA_APORTE_TEORICO`), `useDeliveryDate` (`UTILIZAR_FECHA_ENTREGA`). | — |
 | `settings` | Object | [VERIFICAR] | Parámetros §14 por plan. | — |
@@ -951,23 +953,23 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `planId` | ObjectId | Sí | — | `servicePlans` (M02) |
-| `categoryId` | ObjectId | Sí | — | `serviceCategories` (M02) |
+| `planId` | uniqueidentifier | Sí | — | `servicePlans` (M02) |
+| `categoryId` | uniqueidentifier | Sí | — | `serviceCategories` (M02) |
 | `date` | Date | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`, `approved`. | — |
-| `approvalId` | ObjectId | Sí | — | `approvalRequests` (T11) |
-| `batchId` | ObjectId | Sí | Lote de actualización de precios. | — (identificador del lote que agrupa precios de esta colección; no es referencia; antes `[VERIFICAR]`) |
+| `approvalId` | uniqueidentifier | Sí | — | `approvalRequests` (T11) |
+| `batchId` | uniqueidentifier | Sí | Lote de actualización de precios. | — (identificador del lote que agrupa precios de esta colección; no es referencia; antes `[VERIFICAR]`) |
 
 **`housingUnits`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | `ID_SERSOC`. | `serviceContracts` (M02) |
-| `holderId` | ObjectId | Sí | `COD_SOC`; CTR-DAT-67, antes `holderPersonId`. | `holders` (M01) |
-| `accountId` | ObjectId | Sí | `COD_SUM`. | `accounts` (M01) |
-| `planId` | ObjectId | Sí | `CODPLAN`. | `servicePlans` (M02) |
-| `categoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `contractId` | uniqueidentifier | Sí | `ID_SERSOC`. | `serviceContracts` (M02) |
+| `holderId` | uniqueidentifier | Sí | `COD_SOC`; CTR-DAT-67, antes `holderPersonId`. | `holders` (M01) |
+| `accountId` | uniqueidentifier | Sí | `COD_SUM`. | `accounts` (M01) |
+| `planId` | uniqueidentifier | Sí | `CODPLAN`. | `servicePlans` (M02) |
+| `categoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
 | `enrollmentDate` | Date | [VERIFICAR] | `FECINSC`. | — |
 | `allocationDate` | Date | [VERIFICAR] | `FECADJU`. | — |
 | `allocationMethod` | Enum | [VERIFICAR] | `FORMADJU`. | — |
@@ -977,9 +979,9 @@ Campos de `tripCharacteristics`:
 | `deliveryDate` | Date | [VERIFICAR] | `ENTREGA`. | — |
 | `constructionStart` | Date | [VERIFICAR] | `INICONST`. | — |
 | `constructionEnd` | Date | [VERIFICAR] | `FINCONST`. | — |
-| `pctToBill` | Decimal128 | [VERIFICAR] | — | — |
-| `pctBilled` | Decimal128 | [VERIFICAR] | — | — |
-| `pctPaid` | Decimal128 | [VERIFICAR] | — | — |
+| `pctToBill` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `pctBilled` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `pctPaid` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `lot` | Object | [VERIFICAR] | Subcampos: `localityId`, `districtId`, `address`. | — |
 | `status` | Enum | Sí | `enrolled`, `allocated`, `underConstruction`, `partiallyDelivered`, `delivered`, `terminated`, `transferred` (fila Vivienda del §8; antes sin valores). | — |
 
@@ -987,12 +989,12 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `unitId` | ObjectId | Sí | — | `housingUnits` (M18) |
+| `unitId` | uniqueidentifier | Sí | — | `housingUnits` (M18) |
 | `period` | String | Sí | — | — |
-| `pct` | Decimal128 | [VERIFICAR] | — | — |
-| `priceUsed` | Decimal128 | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `invoiceId` | ObjectId | [VERIFICAR] | Antes `invoiceRef` (nombre de T05; PA-SOC-19). | `invoices` (M05) |
+| `pct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `priceUsed` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `invoiceId` | uniqueidentifier | [VERIFICAR] | Antes `invoiceRef` (nombre de T05; PA-SOC-19). | `invoices` (M05) |
 | `status` | Enum | Sí | `billed`, `paid`, `voided`. | — |
 | `source` | Enum | Sí | `regular`, `eventual`, `advance`. | — |
 
@@ -1000,8 +1002,8 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `planId` | ObjectId | Sí | — | `servicePlans` (M02) |
-| `categoryId` | ObjectId | Sí | — | `serviceCategories` (M02) |
+| `planId` | uniqueidentifier | Sí | — | `servicePlans` (M02) |
+| `categoryId` | uniqueidentifier | Sí | — | `serviceCategories` (M02) |
 | `code` | String | Sí | `COD_ETA`. | — |
 | `name` | String | Sí | `DES_ETA`. | — |
 | `order` | Int | Sí | `ORDEN`. | — |
@@ -1010,73 +1012,73 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `stageId` | ObjectId | Sí | — | `housingStages` (M18) |
+| `stageId` | uniqueidentifier | Sí | — | `housingStages` (M18) |
 | `code` | String | Sí | `COD_ACT`. | — |
 | `name` | String | Sí | `DES_ACT`. | — |
-| `hours` | Decimal128 | [VERIFICAR] | `CAN_HORA`. | — |
-| `hourPrice` | Decimal128 | [VERIFICAR] | `PRE_HORA`. | — |
-| `cost` | Decimal128 | [VERIFICAR] | — | — |
+| `hours` | DECIMAL(18,4) | [VERIFICAR] | `CAN_HORA`. | — |
+| `hourPrice` | DECIMAL(18,4) | [VERIFICAR] | `PRE_HORA`. | — |
+| `cost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `order` | Int | Sí | — | — |
 
 **`housingActivityMaterials`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `activityId` | ObjectId | Sí | — | `housingActivities` (M18) |
-| `inventoryItemId` | ObjectId | [VERIFICAR] | M02/M13. Antes `productId` (PA-SOC-16). | `inventoryItems` (M13) (antes con `[VERIFICAR]`; T05 ya la nombraba `inventoryItemId`) |
-| `quantity` | Decimal128 | [VERIFICAR] | — | — |
+| `activityId` | uniqueidentifier | Sí | — | `housingActivities` (M18) |
+| `inventoryItemId` | uniqueidentifier | [VERIFICAR] | M02/M13. Antes `productId` (PA-SOC-16). | `inventoryItems` (M13) (antes con `[VERIFICAR]`; T05 ya la nombraba `inventoryItemId`) |
+| `quantity` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 
 **`housingProgress`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `unitId` | ObjectId | Sí | — | `housingUnits` (M18) |
-| `activityId` | ObjectId | Sí | — | `housingActivities` (M18) |
-| `supplierId` | ObjectId | [VERIFICAR] | Proveedor de la obra o del servicio (clave de T05; PA-SOC-19). | `suppliers` (M12) |
+| `unitId` | uniqueidentifier | Sí | — | `housingUnits` (M18) |
+| `activityId` | uniqueidentifier | Sí | — | `housingActivities` (M18) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | Proveedor de la obra o del servicio (clave de T05; PA-SOC-19). | `suppliers` (M12) |
 | `dateFrom` | Date | [VERIFICAR] | — | — |
 | `dateTo` | Date | [VERIFICAR] | — | — |
-| `hours` | Decimal128 | [VERIFICAR] | — | — |
-| `pct` | Decimal128 | [VERIFICAR] | — | — |
+| `hours` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `pct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `notes` | String | [VERIFICAR] | — | — |
-| `providerId` | ObjectId | [VERIFICAR] | `COD_PROV`. | `careProviders` (M18) |
-| `purchaseInvoiceRef` | ObjectId | [VERIFICAR] | `ID_IVACOM`. | `invoices` (M05) |
-| `certificateId` | ObjectId | [VERIFICAR] | `ID_CERT`. | `housingCertificates` (M18) |
-| `recordedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `providerId` | uniqueidentifier | [VERIFICAR] | `COD_PROV`. | `careProviders` (M18) |
+| `purchaseInvoiceRef` | uniqueidentifier | [VERIFICAR] | `ID_IVACOM`. | `invoices` (M05) |
+| `certificateId` | uniqueidentifier | [VERIFICAR] | `ID_CERT`. | `housingCertificates` (M18) |
+| `recordedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 
 **`housingProgressMaterials`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `progressId` | ObjectId | Sí | — | `housingProgress` (M18) |
-| `allocationId` | ObjectId | [VERIFICAR] | `COD_VMAT`. | `housingMaterialAllocations` (M18) |
-| `inventoryItemId` | ObjectId | [VERIFICAR] | Antes `productId` (PA-SOC-16). | `inventoryItems` (M13) (antes con `[VERIFICAR]`; T05 ya la nombraba `inventoryItemId`) |
-| `quantity` | Decimal128 | [VERIFICAR] | — | — |
+| `progressId` | uniqueidentifier | Sí | — | `housingProgress` (M18) |
+| `allocationId` | uniqueidentifier | [VERIFICAR] | `COD_VMAT`. | `housingMaterialAllocations` (M18) |
+| `inventoryItemId` | uniqueidentifier | [VERIFICAR] | Antes `productId` (PA-SOC-16). | `inventoryItems` (M13) (antes con `[VERIFICAR]`; T05 ya la nombraba `inventoryItemId`) |
+| `quantity` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 
 **`housingMaterialAllocations`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `unitId` | ObjectId | Sí | — | `housingUnits` (M18) |
-| `inventoryItemId` | ObjectId | [VERIFICAR] | Antes `productId` (PA-SOC-16). | `inventoryItems` (M13) (antes con `[VERIFICAR]`; T05 ya la nombraba `inventoryItemId`) |
+| `unitId` | uniqueidentifier | Sí | — | `housingUnits` (M18) |
+| `inventoryItemId` | uniqueidentifier | [VERIFICAR] | Antes `productId` (PA-SOC-16). | `inventoryItems` (M13) (antes con `[VERIFICAR]`; T05 ya la nombraba `inventoryItemId`) |
 | `description` | String | [VERIFICAR] | — | — |
-| `quantity` | Decimal128 | [VERIFICAR] | — | — |
-| `unitCost` | Decimal128 | [VERIFICAR] | `PRE_CSI`. | — |
-| `stockMovementRef` | ObjectId | Sí | `COD_MOV`, `FEC_MOV`. | `stockMovements` (M13) |
+| `quantity` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `unitCost` | DECIMAL(18,4) | [VERIFICAR] | `PRE_CSI`. | — |
+| `stockMovementRef` | uniqueidentifier | Sí | `COD_MOV`, `FEC_MOV`. | `stockMovements` (M13) |
 | `state` | Enum | Sí | `assigned`, `reserved`, `withdrawn`, `used`, `released`. | — |
 
 **`housingMaterialWithdrawals`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `unitId` | ObjectId | Sí | — | `housingUnits` (M18) |
-| `providerId` | ObjectId | [VERIFICAR] | — | `careProviders` (M18) |
+| `unitId` | uniqueidentifier | Sí | — | `housingUnits` (M18) |
+| `providerId` | uniqueidentifier | [VERIFICAR] | — | `careProviders` (M18) |
 | `date` | Date | [VERIFICAR] | — | — |
 | `voucherRef` | Object | [VERIFICAR] | Subcampos: `docTypeId` (V2 755), `pointOfSale`, `number`. | `voucherTypes` (M05) (solo `docTypeId`; `pointOfSale` y `number` son numeración) |
-| `stageId` | ObjectId | [VERIFICAR] | — | `housingStages` (M18) |
-| `warehouseId` | ObjectId | Sí | `COD_DPS`. | `warehouses` (M13) |
-| `responsibleId` | ObjectId | [VERIFICAR] | `COD_RES`. | `memberships` (T02) |
+| `stageId` | uniqueidentifier | [VERIFICAR] | — | `housingStages` (M18) |
+| `warehouseId` | uniqueidentifier | Sí | `COD_DPS`. | `warehouses` (M13) |
+| `responsibleId` | uniqueidentifier | [VERIFICAR] | `COD_RES`. | `memberships` (T02) |
 | `items` | [Object] | [VERIFICAR] | Lista; subcampos: `inventoryItemId` (antes `productId`; PA-SOC-16), `quantity` (`CAN_PRO`), `unitCost` (`PRE_CSI`). | — |
-| `stockMovementRef` | ObjectId | [VERIFICAR] | — | `stockMovements` (M13) |
+| `stockMovementRef` | uniqueidentifier | [VERIFICAR] | — | `stockMovements` (M13) |
 | `status` | Enum | Sí | `issued`, `returnedPartial`, `returned`, `voided`. | — |
 
 **`housingCertificates`** — campos:
@@ -1084,46 +1086,46 @@ Campos de `tripCharacteristics`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | String | Sí | — | — |
-| `unitId` | ObjectId | Sí | — | `housingUnits` (M18) |
-| `providerId` | ObjectId | [VERIFICAR] | — | `careProviders` (M18) |
-| `supplierId` | ObjectId | [VERIFICAR] | Proveedor de la obra o del servicio (clave de T05; PA-SOC-19). | `suppliers` (M12) |
+| `unitId` | uniqueidentifier | Sí | — | `housingUnits` (M18) |
+| `providerId` | uniqueidentifier | [VERIFICAR] | — | `careProviders` (M18) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | Proveedor de la obra o del servicio (clave de T05; PA-SOC-19). | `suppliers` (M12) |
 | `periodFrom` | Date | [VERIFICAR] | — | — |
 | `periodTo` | Date | [VERIFICAR] | — | — |
 | `type` | Enum | [VERIFICAR] | `progress`, `labor`. | — |
 | `lines` | [Object] | [VERIFICAR] | Lista; subcampos: `progressId`, `pct`, `amount`. | — |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
-| `conceptId` | ObjectId | [VERIFICAR] | V2 2276. | `billableConcepts` (M02) |
-| `purchaseRef` | ObjectId | [VERIFICAR] | — | `supplierInvoices` (M12) [VERIFICAR] |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | V2 2276. | `billableConcepts` (M02) |
+| `purchaseRef` | uniqueidentifier | [VERIFICAR] | — | `supplierInvoices` (M12) [VERIFICAR] |
 | `status` | Enum | Sí | `draft`, `saved`, `approved`, `liquidated`, `cancelled`. | — |
 
 **`housingPlanChanges`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `unitId` | ObjectId | Sí | — | `housingUnits` (M18) |
-| `fromCategoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
-| `toCategoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
-| `billedPctBefore` | Decimal128 | [VERIFICAR] | — | — |
-| `recalculatedPct` | Decimal128 | [VERIFICAR] | — | — |
-| `difference` | Decimal128 | [VERIFICAR] | — | — |
-| `templateId` | ObjectId | [VERIFICAR] | V2 419. | `documentTemplates` (T11) (antes `[VERIFICAR]`) |
-| `approvalId` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `unitId` | uniqueidentifier | Sí | — | `housingUnits` (M18) |
+| `fromCategoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `toCategoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `billedPctBefore` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `recalculatedPct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `difference` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `templateId` | uniqueidentifier | [VERIFICAR] | V2 419. | `documentTemplates` (T11) (antes `[VERIFICAR]`) |
+| `approvalId` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
 | `effectiveAt` | Date (fecha y hora) | Cond. | — | — |
 
 **`housingTerminations`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `unitId` | ObjectId | Sí | — | `housingUnits` (M18) |
+| `unitId` | uniqueidentifier | Sí | — | `housingUnits` (M18) |
 | `type` | Enum | [VERIFICAR] | `voluntary`, `rescission`. | — |
-| `contributedAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `commissionPct` | Decimal128 | [VERIFICAR] | — | — |
-| `commissionAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `differenceAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `refundAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `documentRef` | ObjectId | [VERIFICAR] | V2 415. | `storedFiles` (T01) |
-| `templateId` | ObjectId | [VERIFICAR] | V2 418. | `documentTemplates` (T11) (antes `[VERIFICAR]`) |
-| `approvalId` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `contributedAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `commissionPct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `commissionAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `differenceAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `refundAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `documentRef` | uniqueidentifier | [VERIFICAR] | V2 415. | `storedFiles` (T01) |
+| `templateId` | uniqueidentifier | [VERIFICAR] | V2 418. | `documentTemplates` (T11) (antes `[VERIFICAR]`) |
+| `approvalId` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
 | `status` | Enum | Sí | `draft`, `approved`, `executed`, `cancelled`. | — |
 
 ### 7.7 Flota y GPS
@@ -1149,17 +1151,17 @@ Campos de `tripCharacteristics`:
 | `plate` | String | Sí | `DOMINIO`. | — |
 | `type` | Enum | [VERIFICAR] | `TIPO_VEHICULO`: `ambulance`, `truck`, `pickup`, `car`, `crane`, `motorcycle`, `other`. | — |
 | `owned` | Bool | [VERIFICAR] | `PROPIO`. | — |
-| `providerId` | ObjectId | [VERIFICAR] | `COD_PROV`. | `careProviders` (M18) |
-| `initialKm` | Decimal128 | [VERIFICAR] | `KM_INICIAL`. | — |
-| `currentKm` | Decimal128 | [VERIFICAR] | — | — |
-| `expectedKmPerLiter` | Decimal128 | [VERIFICAR] | `RENDIMIENTO`. | — |
-| `payloadKg` | Decimal128 | [VERIFICAR] | `KG`. | — |
-| `costPerKm` | Decimal128 | [VERIFICAR] | `COSTO`. | — |
-| `shortTripPrice` | Decimal128 | [VERIFICAR] | `PRE_VIAJESCORTOS`. | — |
-| `fuelTypeId` | ObjectId | [VERIFICAR] | — | `fuelTypes` (M18) |
-| `fixedAssetId` | ObjectId | Sí | M13. | `fixedAssets` (M13) |
-| `costCenterId` | ObjectId | Sí | M15. | `costCenters` (M15) |
-| `gpsDeviceId` | ObjectId | Sí | `NOM_AVL`. | `gpsDevices` (M18) |
+| `providerId` | uniqueidentifier | [VERIFICAR] | `COD_PROV`. | `careProviders` (M18) |
+| `initialKm` | DECIMAL(18,4) | [VERIFICAR] | `KM_INICIAL`. | — |
+| `currentKm` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `expectedKmPerLiter` | DECIMAL(18,4) | [VERIFICAR] | `RENDIMIENTO`. | — |
+| `payloadKg` | DECIMAL(18,4) | [VERIFICAR] | `KG`. | — |
+| `costPerKm` | DECIMAL(18,4) | [VERIFICAR] | `COSTO`. | — |
+| `shortTripPrice` | DECIMAL(18,4) | [VERIFICAR] | `PRE_VIAJESCORTOS`. | — |
+| `fuelTypeId` | uniqueidentifier | [VERIFICAR] | — | `fuelTypes` (M18) |
+| `fixedAssetId` | uniqueidentifier | Sí | M13. | `fixedAssets` (M13) |
+| `costCenterId` | uniqueidentifier | Sí | M15. | `costCenters` (M15) |
+| `gpsDeviceId` | uniqueidentifier | Sí | `NOM_AVL`. | `gpsDevices` (M18) |
 | `status` | Enum | Sí | `available`, `inUse`, `maintenance`, `unfit`, `retired`. | — |
 
 **`drivers`** — campos:
@@ -1168,8 +1170,8 @@ Campos de `tripCharacteristics`:
 |---|---|---|---|---|
 | `code` | String | Sí | `COD_CHO`. | — |
 | `name` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.displayName` (M01); `DES_CHO` solo alimenta la búsqueda o creación de la persona en la migración. Fila anterior: "`name` · String · Sí · `DES_CHO`." | — |
-| `personId` | ObjectId | Sí | Persona del chofer; alta asistida de M01 con control de duplicados (DEC-097). | `persons` (M01) |
-| `employeeId` | ObjectId | No | M16; obligatorio solo si el chofer es empleado (RF-SOC-119 admite choferes externos). Antes: "Sí". | `employees` (M16) |
+| `personId` | uniqueidentifier | Sí | Persona del chofer; alta asistida de M01 con control de duplicados (DEC-097). | `persons` (M01) |
+| `employeeId` | uniqueidentifier | No | M16; obligatorio solo si el chofer es empleado (RF-SOC-119 admite choferes externos). Antes: "Sí". | `employees` (M16) |
 | `license` | Object | [VERIFICAR] | Subcampos: `number`, `classes`, `expiresAt`. | — |
 | `active` | Bool | [VERIFICAR] | — | — |
 
@@ -1177,45 +1179,45 @@ Campos de `tripCharacteristics`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `vehicleId` | ObjectId | Sí | — | `fleetVehicles` (M18) |
-| `documentRefId` | ObjectId | [VERIFICAR] | Expediente documental en T11 (clave de T05; PA-SOC-19). | `documents` (T11) |
+| `vehicleId` | uniqueidentifier | Sí | — | `fleetVehicles` (M18) |
+| `documentRefId` | uniqueidentifier | [VERIFICAR] | Expediente documental en T11 (clave de T05; PA-SOC-19). | `documents` (T11) |
 | `type` | Enum | [VERIFICAR] | `insurance`, `technicalInspection`, `sanitaryHabilitation`, `registration`, `other`. | — |
 | `number` | String | Sí | — | — |
 | `issuer` | String | [VERIFICAR] | — | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
-| `documentId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `documentId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 
 **`vehicleMaintenances`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `vehicleId` | ObjectId | Sí | — | `fleetVehicles` (M18) |
-| `supplierId` | ObjectId | [VERIFICAR] | Proveedor de la obra o del servicio (clave de T05; PA-SOC-19). | `suppliers` (M12) |
+| `vehicleId` | uniqueidentifier | Sí | — | `fleetVehicles` (M18) |
+| `supplierId` | uniqueidentifier | [VERIFICAR] | Proveedor de la obra o del servicio (clave de T05; PA-SOC-19). | `suppliers` (M12) |
 | `type` | Enum | [VERIFICAR] | `preventive`, `corrective`. | — |
 | `trigger` | Object | [VERIFICAR] | Subcampos: `km`, `date`. | — |
 | `performedAt` | Date (fecha y hora) | Cond. | — | — |
-| `km` | Decimal128 | [VERIFICAR] | — | — |
-| `providerId` | ObjectId | [VERIFICAR] | — | `careProviders` (M18) |
-| `cost` | Decimal128 | [VERIFICAR] | — | — |
-| `purchaseRef` | ObjectId | [VERIFICAR] | — | `supplierInvoices` (M12) [VERIFICAR] |
+| `km` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `providerId` | uniqueidentifier | [VERIFICAR] | — | `careProviders` (M18) |
+| `cost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `purchaseRef` | uniqueidentifier | [VERIFICAR] | — | `supplierInvoices` (M12) [VERIFICAR] |
 | `status` | Enum | Sí | `planned`, `inProgress`, `done`, `cancelled`. | — |
 
 **`vehicleUsages`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `vehicleId` | ObjectId | Sí | — | `fleetVehicles` (M18) |
-| `driverId` | ObjectId | Sí | — | `drivers` (M18) |
+| `vehicleId` | uniqueidentifier | Sí | — | `fleetVehicles` (M18) |
+| `driverId` | uniqueidentifier | Sí | — | `drivers` (M18) |
 | `source` | Object | [VERIFICAR] | Subcampos: `kind`: `workOrder`/`trip`/`internal`, `id`. | — |
 | `startAt` | Date (fecha y hora) | Cond. | — | — |
 | `endAt` | Date (fecha y hora) | Cond. | — | — |
-| `startKm` | Decimal128 | [VERIFICAR] | — | — |
-| `endKm` | Decimal128 | [VERIFICAR] | — | — |
-| `km` | Decimal128 | [VERIFICAR] | — | — |
-| `hours` | Decimal128 | [VERIFICAR] | — | — |
-| `cost` | Decimal128 | [VERIFICAR] | — | — |
-| `costCenterId` | ObjectId | [VERIFICAR] | — | `costCenters` (M15) |
+| `startKm` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `endKm` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `km` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `hours` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `cost` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `costCenterId` | uniqueidentifier | [VERIFICAR] | — | `costCenters` (M15) |
 
 **`fuelTypes`** — campos:
 
@@ -1223,22 +1225,22 @@ Campos de `tripCharacteristics`:
 |---|---|---|---|---|
 | `code` | String | Sí | — | — |
 | `name` | String | Sí | — | — |
-| `vatRateId` | ObjectId (antes Enum) | Sí (antes [VERIFICAR]; todo combustible liquida IVA, T05 PA-DAT-05) | Antes `vatRate` (Enum); referencia a la alícuota con el nombre de T05 (PA-SOC-19). Canónica; absorbe el tipo `fuel` de `purchaseLookups` de M12, CTR-DAT-54. | `vatRates` (M06) |
+| `vatRateId` | uniqueidentifier (antes Enum) | Sí (antes [VERIFICAR]; todo combustible liquida IVA, T05 PA-DAT-05) | Antes `vatRate` (Enum); referencia a la alícuota con el nombre de T05 (PA-SOC-19). Canónica; absorbe el tipo `fuel` de `purchaseLookups` de M12, CTR-DAT-54. | `vatRates` (M06) |
 
 **`fuelLoads`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `vehicleId` | ObjectId | Sí | `COD_MOV`. | `fleetVehicles` (M18) |
-| `fuelTypeId` | ObjectId | Sí | `ID_COMBUST`. | `fuelTypes` (M18) |
-| `liters` | Decimal128 | [VERIFICAR] | `LTS`. | — |
-| `km` | Decimal128 | [VERIFICAR] | `KM`. | — |
+| `vehicleId` | uniqueidentifier | Sí | `COD_MOV`. | `fleetVehicles` (M18) |
+| `fuelTypeId` | uniqueidentifier | Sí | `ID_COMBUST`. | `fuelTypes` (M18) |
+| `liters` | DECIMAL(18,4) | [VERIFICAR] | `LTS`. | — |
+| `km` | DECIMAL(18,4) | [VERIFICAR] | `KM`. | — |
 | `loadedAt` | Date (fecha y hora) | Cond. | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `supplierInvoiceId` | ObjectId | [VERIFICAR] | `ID_IVACOM`. Antes `purchaseInvoiceRef` → `invoices` (M05); la factura de combustible es de compra (nombre de T05; PA-SOC-19). | `supplierInvoices` (M12) |
-| `tripSettlementId` | ObjectId | [VERIFICAR] | — | `tripSettlements` (M18) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `supplierInvoiceId` | uniqueidentifier | [VERIFICAR] | `ID_IVACOM`. Antes `purchaseInvoiceRef` → `invoices` (M05); la factura de combustible es de compra (nombre de T05; PA-SOC-19). | `supplierInvoices` (M12) |
+| `tripSettlementId` | uniqueidentifier | [VERIFICAR] | — | `tripSettlements` (M18) |
 | `source` | Enum | [VERIFICAR] | `purchaseInvoice`, `manual`, `fieldApp`. | — |
-| `ticketStoredFileId` | ObjectId | [VERIFICAR] | → `storedFiles` de T01; antes `ticketPhotoId`. | `storedFiles` (T01) |
+| `ticketStoredFileId` | uniqueidentifier | [VERIFICAR] | → `storedFiles` de T01; antes `ticketPhotoId`. | `storedFiles` (T01) |
 | `status` | Enum | Sí | `active`, `voided`. | — |
 
 **`tripSettlements`** — campos:
@@ -1248,23 +1250,23 @@ Campos de `tripCharacteristics`:
 | `number` | String | Sí | — | — |
 | `source` | Object | [VERIFICAR] | Subcampos: `kind`: `salesDocument`/`trip`/`workOrder`, `id`. `ID_COMPV` → comprobante de venta de M11 con `kind = salesDocument`; canónica, absorbe `freightSettlements` de M11, CTR-DAT-53. | — |
 | `date` | Date | [VERIFICAR] | `FECHA`. | — |
-| `estimatedKm` | Decimal128 | [VERIFICAR] | — | — |
-| `actualKm` | Decimal128 | [VERIFICAR] | `KM_REALES`. | — |
-| `actualFreight` | Decimal128 | [VERIFICAR] | `FLETE_REAL`. | — |
+| `estimatedKm` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `actualKm` | DECIMAL(18,4) | [VERIFICAR] | `KM_REALES`. | — |
+| `actualFreight` | DECIMAL(18,4) | [VERIFICAR] | `FLETE_REAL`. | — |
 | `freightType` | Enum | [VERIFICAR] | `TIPO_FLETE`. | — |
-| `tolls` | Decimal128 | [VERIFICAR] | `PEAJES`. | — |
-| `perDiem` | Decimal128 | [VERIFICAR] | `VIATICOS`. | — |
+| `tolls` | DECIMAL(18,4) | [VERIFICAR] | `PEAJES`. | — |
+| `perDiem` | DECIMAL(18,4) | [VERIFICAR] | `VIATICOS`. | — |
 | `items` | [Object] | [VERIFICAR] | Lista; subcampos: `stationNumber` (`NUM_PUESTO`), `voucherNumber` (`NUM_COM`), `liters` (`LITROS`), `pricePerLiter` (`PRELITRO`), `loadedDuringTrip` (`CARGADOENVIAJE`). | — |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
-| `vehicleId` | ObjectId | Sí | — | `fleetVehicles` (M18) |
-| `driverId` | ObjectId | Sí | — | `drivers` (M18) |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `vehicleId` | uniqueidentifier | Sí | — | `fleetVehicles` (M18) |
+| `driverId` | uniqueidentifier | Sí | — | `drivers` (M18) |
 | `status` | Enum | Sí | `draft`, `submitted`, `approved`, `rejected`, `posted`. | — |
 
 **`gpsDevices`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `vehicleId` | ObjectId | Sí | — | `fleetVehicles` (M18) |
+| `vehicleId` | uniqueidentifier | Sí | — | `fleetVehicles` (M18) |
 | `providerAdapter` | Enum | Sí | `discar`, `generic`. | — |
 | `externalUnitId` | String | Sí | `UNIT`. Identificador de la unidad en el proveedor GPS (externo). | — (identificador externo del proveedor GPS; no es referencia) |
 | `active` | Bool | [VERIFICAR] | — | — |
@@ -1278,8 +1280,8 @@ Campos de `tripCharacteristics`:
 | `statusText` | String | [VERIFICAR] | `DSTATUS`. | — |
 | `event` | String | [VERIFICAR] | `EVENTO`. | — |
 | `location` | GeoJSON | [VERIFICAR] | GeoJSON (`LATITUD`, `LONGITUD`). | — |
-| `speed` | Decimal128 | [VERIFICAR] | — | — |
-| `odometer` | Decimal128 | [VERIFICAR] | — | — |
+| `speed` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `odometer` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 
 ## 8. Estados y transiciones
 

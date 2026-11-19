@@ -193,6 +193,8 @@ Convertir **cada** parámetro `Busca_V2_*` de ProCoop de los módulos SISTEMA, C
 | 3170 | VAR | Lógico | Permitir desconexión desde el Integra sin confirmar la OT | clsProcoop_Integra_Tecnica.Desconectar | Migrar: permitir corte remoto (aprovisionamiento/telegestión) sin OT confirmada | PRM-TEC-P1-004 | tec.corte.permitirRemotoSinConfirmarOt | boolean | tenant / servicio | false | M10 / M08 |
 
 ## 7. Módulo TITULARES (312 parámetros)
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 | V2 # | Tabla/canal | Tipo | Descripción ProCoop | Uso en código (resumido) | Decisión | PRM-ID | Clave nueva | Tipo nuevo | Ámbito | Default sugerido | Anexo destino |
 |---:|---|---|---|---|---|---|---|---|---|---|---|

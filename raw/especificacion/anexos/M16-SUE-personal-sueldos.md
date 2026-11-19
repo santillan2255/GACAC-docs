@@ -533,8 +533,10 @@ Decisión: **Replicar** (igual que ProCoop), **Mejorar** (misma intención con c
 | RN-SUE-095 | Tareas extra: total = cantidad × unitario; se generan como novedad del ejecutor en el período de la tarea. | `SU_TAREAS_EXTRAS_EMPLEADOS` | Replicar | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-**Campos comunes** (no se repiten en cada tabla): `_id` ObjectId, `tenantId` ObjectId obligatorio, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista). Los documentos con vigencia llevan `validFrom`/`validTo` (fecha efectiva) y `recordedAt` (fecha de registro, AGR-010). Los maestros usan `status` (`active`, `inactive`) y `deletedAt` para borrado lógico; **los documentos económicos (recibos, liquidaciones, solicitudes de pago, presentaciones) nunca se borran**. Importes en `Decimal128` con `currency` (`ARS`). Todos los índices empiezan por `tenantId`. Los campos marcados **(S)** son sensibles: cifrado a nivel de campo y lectura solo con `sue.datosSensibles.ver` (RN-SUE-093).
+
+**Campos comunes** (no se repiten en cada tabla): `_id` uniqueidentifier, `TenantId` uniqueidentifier obligatorio, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista). Los documentos con vigencia llevan `validFrom`/`validTo` (fecha efectiva) y `recordedAt` (fecha de registro, AGR-010). Los maestros usan `status` (`active`, `inactive`) y `deletedAt` para borrado lógico; **los documentos económicos (recibos, liquidaciones, solicitudes de pago, presentaciones) nunca se borran**. Importes en `DECIMAL(18,4)` con `currency` (`ARS`). Todos los índices empiezan por `TenantId`. Los campos marcados **(S)** son sensibles: cifrado a nivel de campo y lectura solo con `sue.datosSensibles.ver` (RN-SUE-093).
 
 > **Corrección 05-11-2026 (tablas de campos):** las colecciones que este §7 describía solo en texto corrido o en tablas resumen tienen ahora su tabla de campos (Campo, Tipo, Oblig., Descripción, Referencia), debajo de su descripción original, que se conserva. Tipos y obligatoriedad se deducen del texto del anexo y de T05 §7.7; donde no se pueden deducir figura `[VERIFICAR]`. La columna Referencia declara la colección destino y su anexo dueño. Cuando T05 usa otro nombre para el campo, la tabla usa el de T05 y anota "Antes `x`". Las tablas de campos que ya existían incorporan también la columna Referencia.
 
@@ -549,7 +551,7 @@ Origen: `SU_EMPRESAS`, `SU_TIPOEMPLEADOR` (tabla oficial), P518/P519.
 | `code` | string | Sí | Código interno único en el tenant. | — |
 | `legalName` | string | Sí | Razón social. | — |
 | `cuit` | string(11) | Sí | CUIT con dígito verificador validado; único en el tenant. | — |
-| `personId` | ObjectId | No | Persona jurídica en M01, si existe. | `persons` (M01) |
+| `personId` | uniqueidentifier | No | Persona jurídica en M01, si existe. | `persons` (M01) |
 | `fiscalAddress`, `workplaceAddresses[]` | objeto domicilio (M01) | Sí / No | Domicilio fiscal y de explotación (calle, número, piso, depto, barrio, localidad, provincia, código postal). | — |
 | `employerTypeCode` | string | Sí | Código oficial de tipo de empleador. | — |
 | `mainActivityCode` | string | Sí | Actividad principal (CLAE/SICOSS). | — |
@@ -558,7 +560,7 @@ Origen: `SU_EMPRESAS`, `SU_TIPOEMPLEADOR` (tabla oficial), P518/P519.
 | `workRiskInsurance` | `{ insurerCode, contractNumber, fixedAmount, variableRate, validFrom, validTo }` | Sí | ART contratada. | — |
 | `lifeInsurance` | `{ insurerName, policyNumber, amountPerEmployee }` | Sí | Seguro de vida obligatorio. | — |
 | `incomeTaxAgent` | boolean | Sí | Actúa como agente de retención de Ganancias. | — |
-| `payslipVoucherTypeId`, `payslipNumbering` | ObjectId / `{ prefix, next }` | Sí | Comprobante y numeración de recibos (P2751). | `voucherTypes` (M05) [VERIFICAR] |
+| `payslipVoucherTypeId`, `payslipNumbering` | uniqueidentifier / `{ prefix, next }` | Sí | Comprobante y numeración de recibos (P2751). | `voucherTypes` (M05) [VERIFICAR] |
 | `payslipSigner` | `{ userId, position, signatureProfileCode }` | No | Responsable de firma del empleador; debe estar habilitado como firmante en el perfil de T11 (PAN-WFL-19). | — |
 | `bankAgreements[]` | `{ bankCode, treasuryAccountId, originCbu, companyIdAtBank, agreementCode, useEmployeeAccount, layoutId }` | No | Convenios de pago (PRM-SUE-003 a 027). | — |
 | `lsdSettings` | `{ enabled, referenceData }` | No | Datos del registro 01 del LSD. | — |
@@ -572,22 +574,22 @@ Origen: `SU_EMPLEADOS` (57 columnas), `SU_EMPLEADOS_SUMSOC` (en `serviceAccountL
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `personId` | ObjectId | Sí | Persona M01 (nombre, documento, CUIL, nacimiento, sexo, nacionalidad, estado civil, domicilio, contacto). Sigue RN-PER-135 de M01 (DEC-097): se obtiene del alta asistida (`per.findOrCreatePerson`, RF-PER-174), la identidad se lee con `per.getPersonIdentity` y solo cambia por fusión de personas en M01 (RN-SUE-002). | `persons` (M01) |
-| `legalEntityId` | ObjectId → `legalEntities` (T04) | Sí | Empresa empleadora: entidad jurídica con subdocumento `employer` (reemplaza `employerId`; CTR-DAT-06, DEC-064). | `legalEntities` (T04) |
+| `personId` | uniqueidentifier | Sí | Persona M01 (nombre, documento, CUIL, nacimiento, sexo, nacionalidad, estado civil, domicilio, contacto). Sigue RN-PER-135 de M01 (DEC-097): se obtiene del alta asistida (`per.findOrCreatePerson`, RF-PER-174), la identidad se lee con `per.getPersonIdentity` y solo cambia por fusión de personas en M01 (RN-SUE-002). | `persons` (M01) |
+| `legalEntityId` | uniqueidentifier → `legalEntities` (T04) | Sí | Empresa empleadora: entidad jurídica con subdocumento `employer` (reemplaza `employerId`; CTR-DAT-06, DEC-064). | `legalEntities` (T04) |
 | `fileNumber` | string | Sí | Legajo; único por empresa (RN-SUE-001). | — |
 | `cuil` | string(11) | Sí | Copia validada del CUIL de la persona para presentaciones. | — |
 | `hireDate` | date | Sí | Fecha de ingreso. | — |
 | `seniorityDate` | date | Sí | Fecha de antigüedad reconocida. | — |
 | `probationEndDate` | date | No | Fin del período de prueba. | — |
 | `contractEndDate` | date | No | Fin de contrato a plazo. | — |
-| `terminationDate`, `terminationId` | date / ObjectId | No | Egreso. | `terminations` (M16) |
+| `terminationDate`, `terminationId` | date / uniqueidentifier | No | Egreso. | `terminations` (M16) |
 | `status` | enum `preHire`, `active`, `onLeave`, `suspended`, `terminated` | Sí | Estado del legajo (§8.1). | — |
-| `current` | objeto | Sí | Proyección de la asignación vigente (§7.3): `laborAgreementId`, `unionId`, `unionMember`, `categoryId`, `positionId`, `workAreaId`, `workplace`, `workdayType`, `weeklyHours`, `contractModeCode`, `conditionCode`, `activityCode`, `zoneCode`, `payFrequency` (`monthly`, `biweekly`, `daily`, `hourly`), `outOfAgreementBasic` Decimal128. | — |
+| `current` | objeto | Sí | Proyección de la asignación vigente (§7.3): `laborAgreementId`, `unionId`, `unionMember`, `categoryId`, `positionId`, `workAreaId`, `workplace`, `workdayType`, `weeklyHours`, `contractModeCode`, `conditionCode`, `activityCode`, `zoneCode`, `payFrequency` (`monthly`, `biweekly`, `daily`, `hourly`), `outOfAgreementBasic` DECIMAL(18,4). | — |
 | `socialSecurity` | `{ healthInsurerCode, healthPlan, dependentsCount, pensionRegime, reducedContributionBenefitCode, workAccidentCode }` | Sí | Obra social, adherentes, régimen previsional, beneficio SICOSS, siniestrado. | — |
 | `incomeTax` | `{ designatedAgent: boolean, otherEmployments: boolean, exempt: boolean, exemptReason }` | Sí | Ganancias. | — |
 | `registration` | `{ altaNumber, altaDate, bajaNumber, bajaDate }` | No | Simplificación registral (RF-SUE-124). | — |
 | `serviceAccountLinks[]` | `{ accountId, authorizationDocumentId, authorizedAt }` | No | Cuentas de servicio (RF-SUE-014). | — |
-| `userAccountId` | ObjectId | No | Cuenta T02 vinculada al perfil empleado. | `memberships` (T02) |
+| `userAccountId` | uniqueidentifier | No | Cuenta T02 vinculada al perfil empleado. | `memberships` (T02) |
 | `disability` **(S)** | `{ hasCud, validTo }` | No | Discapacidad (beneficios y cuota). | — |
 
 Índices: `{tenantId, legalEntityId, fileNumber}` único; `{tenantId, personId, legalEntityId}` único parcial para legajos no egresados (RN-SUE-001, M01 RN-PER-135; DEC-097; antes no único); `{tenantId, status}`; `{tenantId, "current.workAreaId"}`.
@@ -600,28 +602,28 @@ Campos de `employeeAssignments`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | Sí. | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | Sí. | `employees` (M16) |
 | `validFrom` | Date | Sí | Sí. | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
 | `recordedAt` | Date (fecha y hora) | Cond. | Sí, los mismos campos que `employees.current`. | — |
 | `reason` | Enum | [VERIFICAR] | (`hire`, `promotion`, `seniority`, `agreementChange`, `correction`, `transfer`). | — |
-| `previousCategoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
-| `approvalId` | ObjectId | [VERIFICAR] | T11. | `approvalRequests` (T11) |
+| `previousCategoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `approvalId` | uniqueidentifier | [VERIFICAR] | T11. | `approvalRequests` (T11) |
 | `notes` | String | [VERIFICAR] | — | — |
 
 ### 7.4. `employeeCostAllocations` — Distribución por centros de costo
 
-Origen: `SU_EMPLEADOS_SEC`. Campos: `employeeId`, `validFrom`, `validTo`, `allocations[]` `{ costCenterId (M15), serviceId (M02, opcional), percent Decimal128 }` (suma 100), `recordedAt`. Índice `{tenantId, employeeId, validFrom}` único.
+Origen: `SU_EMPLEADOS_SEC`. Campos: `employeeId`, `validFrom`, `validTo`, `allocations[]` `{ costCenterId (M15), serviceId (M02, opcional), percent DECIMAL(18,4) }` (suma 100), `recordedAt`. Índice `{tenantId, employeeId, validFrom}` único.
 
 Campos de `employeeCostAllocations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `validFrom` | Date | Sí | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
-| `allocations` | [Object] | No | `{ costCenterId (M15), serviceId (M02, opcional), percent Decimal128 }` (suma 100). | — |
-| `costCenterId` | ObjectId | — | Clave de T05: es `allocations[].costCenterId`, no un campo de primer nivel (PA-SUE-18). | `costCenters` (M15) |
+| `allocations` | [Object] | No | `{ costCenterId (M15), serviceId (M02, opcional), percent DECIMAL(18,4) }` (suma 100). | — |
+| `costCenterId` | uniqueidentifier | — | Clave de T05: es `allocations[].costCenterId`, no un campo de primer nivel (PA-SUE-18). | `costCenters` (M15) |
 | `recordedAt` | Date (fecha y hora) | Cond. | — | — |
 
 ### 7.5. `employeeFamilyMembers` — Familiares a cargo
@@ -632,8 +634,8 @@ Campos de `employeeFamilyMembers`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | Sí. | `employees` (M16) |
-| `personId` | ObjectId | Sí | Sí, M01. | `persons` (M01) |
+| `employeeId` | uniqueidentifier | Sí | Sí. | `employees` (M16) |
+| `personId` | uniqueidentifier | Sí | Sí, M01. | `persons` (M01) |
 | `relationship` | Enum | [VERIFICAR] | (`spouse`, `cohabitant`, `child`, `stepchild`, `childUnderGuardianship`, `parent`, `sibling`, `grandchild`, `other`). | — |
 | `birthDate` | Date | [VERIFICAR] | — | — |
 | `dependentFrom` | Date | [VERIFICAR] | — | — |
@@ -643,13 +645,13 @@ Campos de `employeeFamilyMembers`:
 
 ### 7.6. `employeePayAccounts` — Cuentas de acreditación
 
-Origen: `SU_EMP_CBU`. Campos: `employeeId`, `bankCode`, `branchCode`, `accountType` (`savings`, `checking`, `cvu`), `accountNumber`, `cbu` (22 dígitos validados), `holderName`, `isPayrollAccount` (Ley 26.590), `originBankCode` (BANCO_ORIGEN), `splitPercent` Decimal128 o `splitAmount`, `isRemainder` boolean, `priority`, `validFrom`, `validTo`, `status`, `cbuHmac` (HMAC del CBU cifrado, para unicidad y búsqueda). Índice `{tenantId, employeeId, cbuHmac}` único (antes `{tenantId, employeeId, cbu}`; clave de T05 COL-SUE-06, PA-DAT-04).
+Origen: `SU_EMP_CBU`. Campos: `employeeId`, `bankCode`, `branchCode`, `accountType` (`savings`, `checking`, `cvu`), `accountNumber`, `cbu` (22 dígitos validados), `holderName`, `isPayrollAccount` (Ley 26.590), `originBankCode` (BANCO_ORIGEN), `splitPercent` DECIMAL(18,4) o `splitAmount`, `isRemainder` boolean, `priority`, `validFrom`, `validTo`, `status`, `cbuHmac` (HMAC del CBU cifrado, para unicidad y búsqueda). Índice `{tenantId, employeeId, cbuHmac}` único (antes `{tenantId, employeeId, cbu}`; clave de T05 COL-SUE-06, PA-DAT-04).
 
 Campos de `employeePayAccounts`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `bankCode` | String | [VERIFICAR] | — | — |
 | `branchCode` | String | [VERIFICAR] | — | — |
 | `accountType` | Enum | [VERIFICAR] | `savings`, `checking`, `cvu`. | — |
@@ -659,7 +661,7 @@ Campos de `employeePayAccounts`:
 | `holderName` | String | [VERIFICAR] | — | — |
 | `isPayrollAccount` | Bool | [VERIFICAR] | Ley 26.590. | — |
 | `originBankCode` | String | [VERIFICAR] | BANCO_ORIGEN. | — |
-| `splitPercent` | Decimal128 | [VERIFICAR] | O `splitAmount`. | — |
+| `splitPercent` | DECIMAL(18,4) | [VERIFICAR] | O `splitAmount`. | — |
 | `isRemainder` | Bool | [VERIFICAR] | Boolean. | — |
 | `priority` | Int | [VERIFICAR] | — | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
@@ -674,15 +676,15 @@ Campos de `employeeDocuments`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `documentTypeCode` | String | [VERIFICAR] | Catálogo del tenant: DNI, CUIL, título, licencia de conducir, apto médico (S), certificado de antecedentes, constancia de CBU, alta temprana, contrato, otros. | — |
-| `fileRefs` | [ObjectId] | [VERIFICAR] | Almacenamiento privado. | `storedFiles` (T01) |
-| `documentRefId` | ObjectId | [VERIFICAR] | Expediente del documento en T11 (clave de T05; PA-SUE-18). | `documents` (T11) |
-| `uploadedBy` | ObjectId | Cond. | `employee` \| `staff`. | `memberships` (T02) |
+| `fileRefs` | [uniqueidentifier] | [VERIFICAR] | Almacenamiento privado. | `storedFiles` (T01) |
+| `documentRefId` | uniqueidentifier | [VERIFICAR] | Expediente del documento en T11 (clave de T05; PA-SUE-18). | `documents` (T11) |
+| `uploadedBy` | uniqueidentifier | Cond. | `employee` \| `staff`. | `memberships` (T02) |
 | `registeredAt` | Date (fecha y hora) | Cond. | — | — |
 | `expiresAt` | Date (fecha y hora) | Cond. | — | — |
 | `status` | Enum | Sí | `pending`, `authorized`, `rejected`, `expired`. | — |
-| `reviewedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `reviewedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `reviewedAt` | Date (fecha y hora) | Cond. | — | — |
 | `rejectionReason` | String | [VERIFICAR] | — | — |
 | `sensitive` | Bool | [VERIFICAR] | Boolean. | — |
@@ -695,11 +697,11 @@ Campos de `employeeNotes`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `date` | Date | [VERIFICAR] | — | — |
 | `text` | String | [VERIFICAR] | — | — |
 | `category` | Enum | [VERIFICAR] | `general`, `sensitive`. | — |
-| `authorId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `authorId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 
 ### 7.9. `supervisionLinks` — Encargado y operarios
 
@@ -709,8 +711,8 @@ Campos de `supervisionLinks`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `supervisorEmployeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `supervisorEmployeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `scope` | [Enum] | [VERIFICAR] | `leaves`, `novelties`, `evaluations`. | — |
 | `validFrom` | Date | Sí | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
@@ -727,15 +729,15 @@ Campos de `shifts`:
 | `name` | String | Sí | — | — |
 | `notes` | String | [VERIFICAR] | — | — |
 | `items` | [Object] | [VERIFICAR] | `{ dayFrom (1-7), dayTo, timeFrom, timeTo, crossesMidnight }`. | — |
-| `weeklyHours` | Decimal128 | [VERIFICAR] | — | — |
+| `weeklyHours` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `active`, `inactive` (convención de maestros del §7; §8.12.11; antes sin valores, PA-SUE-18). | — |
 
 **`employeeShiftAssignments`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `shiftId` | ObjectId | Sí | — | `shifts` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `shiftId` | uniqueidentifier | Sí | — | `shifts` (M16) |
 | `validFrom` | Date | Sí | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
 
@@ -747,12 +749,12 @@ Campos de `employmentStatusPeriods`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `statusCode` | String | [VERIFICAR] | Oficial. | — |
 | `validFrom` | Date | Sí | Día de inicio. | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
 | `source` | Enum | [VERIFICAR] | `manual`, `leave`, `accident`, `suspension`, `hire`, `termination`. | — |
-| `sourceRef` | ObjectId | [VERIFICAR] | — | Polimórfica según `source`: `leaveRequests` (M16), `workAccidents` (M16), `disciplinaryActions` (M16) o `terminations` (M16); `manual` y `hire` sin referencia (antes `[VERIFICAR]`) |
+| `sourceRef` | uniqueidentifier | [VERIFICAR] | — | Polimórfica según `source`: `leaveRequests` (M16), `workAccidents` (M16), `disciplinaryActions` (M16) o `terminations` (M16); `manual` y `hire` sin referencia (antes `[VERIFICAR]`) |
 
 ### 7.12. `extraGroups`, `extraItems`, `employeeExtras` — Extras y adicionales
 
@@ -773,46 +775,46 @@ Campos de `extraGroups`:
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
 | `code` | String | Sí | Código único por tenant (clave de T05; PA-SUE-18). | — |
-| `groupId` | ObjectId | [VERIFICAR] | — | `extraGroups` (M16) |
-| `defaultAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `groupId` | uniqueidentifier | [VERIFICAR] | — | `extraGroups` (M16) |
+| `defaultAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 
 **`employeeExtras`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `extraItemId` | ObjectId | Sí | — | `extraItems` (M16) |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `extraItemId` | uniqueidentifier | Sí | — | `extraItems` (M16) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `validFrom` | Date | Sí | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
 | `origin` | Object | [VERIFICAR] | `manual`, `termination`, `increase`. | — |
-| `terminationId` | ObjectId | [VERIFICAR] | — | `terminations` (M16) |
+| `terminationId` | uniqueidentifier | [VERIFICAR] | — | `terminations` (M16) |
 
 ### 7.13. `deductionPlans` — Embargos, cuotas alimentarias, préstamos y adelantos
 
-Origen: novedades de embargo/préstamo/anticipo en `SU_EMP_NOVEDADES` (`ID_ANTICIPO`, `NRO_CUO`, `ID_IVACOM`). Campos: `employeeId`, `type` (`garnishment`, `alimony`, `loan`, `advance`, `unionLoan`, `other`), `legal` **(S)** `{ court, caseNumber, caseTitle, notifiedAt, officeDocumentId }`, `beneficiary` `{ name, cuit, depositAccount (CBU judicial) }`, `calculation` (`legalScale`, `percent`, `fixedAmount`, `installments`), `percent`, `installmentAmount`, `totalAmount`, `balance` Decimal128, `installmentsTotal`, `installmentsPaid`, `priority` (fecha de notificación), `startPeriod`, `status` (`active`, `suspended`, `completed`, `cancelled`), `treasuryPaymentRef` (adelanto pagado por M14), `movements[]` `{ payslipId, amount, at }`. Índice `{tenantId, employeeId, status}`.
+Origen: novedades de embargo/préstamo/anticipo en `SU_EMP_NOVEDADES` (`ID_ANTICIPO`, `NRO_CUO`, `ID_IVACOM`). Campos: `employeeId`, `type` (`garnishment`, `alimony`, `loan`, `advance`, `unionLoan`, `other`), `legal` **(S)** `{ court, caseNumber, caseTitle, notifiedAt, officeDocumentId }`, `beneficiary` `{ name, cuit, depositAccount (CBU judicial) }`, `calculation` (`legalScale`, `percent`, `fixedAmount`, `installments`), `percent`, `installmentAmount`, `totalAmount`, `balance` DECIMAL(18,4), `installmentsTotal`, `installmentsPaid`, `priority` (fecha de notificación), `startPeriod`, `status` (`active`, `suspended`, `completed`, `cancelled`), `treasuryPaymentRef` (adelanto pagado por M14), `movements[]` `{ payslipId, amount, at }`. Índice `{tenantId, employeeId, status}`.
 
 Campos de `deductionPlans`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `type` | Enum | [VERIFICAR] | `garnishment`, `alimony`, `loan`, `advance`, `unionLoan`, `other`. | — |
 | `legal` | Object | [VERIFICAR] | **(S)** `{ court, caseNumber, caseTitle, notifiedAt, officeDocumentId }`. | — |
 | `beneficiary` | Object | [VERIFICAR] | `{ name, cuit, depositAccount (CBU judicial) }`. | — |
 | `calculation` | Enum | [VERIFICAR] | `legalScale`, `percent`, `fixedAmount`, `installments`. | — |
-| `percent` | Decimal128 | [VERIFICAR] | — | — |
-| `installmentAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `totalAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `balance` | Decimal128 | [VERIFICAR] | — | — |
-| `installmentsTotal` | Decimal128 | [VERIFICAR] | — | — |
+| `percent` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `installmentAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `totalAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `balance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `installmentsTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `installmentsPaid` | Int | [VERIFICAR] | — | — |
 | `priority` | Int | [VERIFICAR] | Fecha de notificación. | — |
 | `startPeriod` | String | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `active`, `suspended`, `completed`, `cancelled`. | — |
-| `treasuryPaymentRef` | ObjectId | [VERIFICAR] | Adelanto pagado por M14. | `treasuryMovements` (M14) [VERIFICAR] |
+| `treasuryPaymentRef` | uniqueidentifier | [VERIFICAR] | Adelanto pagado por M14. | `treasuryMovements` (M14) [VERIFICAR] |
 | `movements` | [Object] | [VERIFICAR] | `{ payslipId, amount, at }`. | — |
 
 ### 7.14. `unions` — Sindicatos
@@ -826,15 +828,15 @@ Campos de `unions`:
 | `name` | String | Sí | — | — |
 | `code` | String | Sí | Código único por tenant (clave de T05; PA-SUE-18). | — |
 | `cuit` | String | [VERIFICAR] | — | — |
-| `retentionPercent` | Decimal128 | [VERIFICAR] | — | — |
-| `retentionAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `employerContributionPercent` | Decimal128 | [VERIFICAR] | — | — |
-| `employerContributionAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `retentionPercent` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `retentionAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `employerContributionPercent` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `employerContributionAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `categoryReviewMonths` | Int | [VERIFICAR] | `MES_CAT`. | — |
-| `generalAccountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
-| `chargesAccountId` | ObjectId | [VERIFICAR] | M15. | `ledgerAccounts` (M15) |
+| `generalAccountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
+| `chargesAccountId` | uniqueidentifier | [VERIFICAR] | M15. | `ledgerAccounts` (M15) |
 | `depositInfo` | Object | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
-| `fileLayoutId` | ObjectId | [VERIFICAR] | — | `fileLayouts` (T06) |
+| `fileLayoutId` | uniqueidentifier | [VERIFICAR] | — | `fileLayouts` (T06) |
 | `validFrom` | Date | [VERIFICAR] | Porcentajes versionados en `rates[]` `{ validFrom, retentionPercent, retentionAmount, employerContributionPercent, employerContributionAmount }`. | — |
 | `status` | Enum | Sí | `active`, `inactive` (§8.12.7; antes sin valores). | — |
 
@@ -848,11 +850,11 @@ Campos de `laborAgreements`:
 |---|---|---|---|---|
 | `code` | String | Sí | Ej. «CCT 36/75». | — |
 | `name` | String | Sí | — | — |
-| `unionId` | ObjectId | Sí | — | `unions` (M16) |
+| `unionId` | uniqueidentifier | Sí | — | `unions` (M16) |
 | `scope` | Enum | [VERIFICAR] | — | — |
-| `normalWeeklyHours` | Decimal128 | [VERIFICAR] | — | — |
+| `normalWeeklyHours` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `seniorityRule` | Enum | [VERIFICAR] | `percentPerYear`, `scaleTable`, `fixedPerYear`. | — |
-| `seniorityScaleId` | ObjectId | [VERIFICAR] | — | `seniorityScales` (M16) |
+| `seniorityScaleId` | uniqueidentifier | [VERIFICAR] | — | `seniorityScales` (M16) |
 | `onCallRegimes` | [Object] | [VERIFICAR] | `{ code, type (passive\|active), valuation (hours\|amount\|percent), value }`. | — |
 | `specialLeaves` | [Object] | [VERIFICAR] | Referencias a `leaveCauses`. | — |
 | `severanceCap` | Object | [VERIFICAR] | `{ averageAmount, validFrom }`. | — |
@@ -863,19 +865,19 @@ Campos de `laborAgreements`:
 
 ### 7.16. `salaryCategories` y `salaryScales` — Categorías y escalas
 
-Origen: `SU_CATE` (`DES_CAT`, `TIP_CAT`, `IMPORTE`, `HRS_TRB`, `HRS_MIN`, `DIAS_MIN`, `ADICIONAL`, `ADICIONAL1`, `ADICIONAL2`, `COD_SIN`). `salaryCategories`: `laborAgreementId`, `code`, `name`, `type` (`monthly`, `daily`, `hourly`), `workHours`, `minHours`, `minDays`, `order`, `status`. `salaryScales`: `laborAgreementId`, `name` (ej. «Paritaria 2026-04»), `validFrom`, `recordedAt`, `agreementReference`, `status` (`draft`, `approved`, `published`, `superseded`), `items[]` `{ categoryId, basic Decimal128, additional, additional1, additional2, others[] { code, amount } }`, `origin` (`manual`, `increase`, `import`), `increaseBatchId`, `approvalId`. Índice `{tenantId, laborAgreementId, validFrom, status}`.
+Origen: `SU_CATE` (`DES_CAT`, `TIP_CAT`, `IMPORTE`, `HRS_TRB`, `HRS_MIN`, `DIAS_MIN`, `ADICIONAL`, `ADICIONAL1`, `ADICIONAL2`, `COD_SIN`). `salaryCategories`: `laborAgreementId`, `code`, `name`, `type` (`monthly`, `daily`, `hourly`), `workHours`, `minHours`, `minDays`, `order`, `status`. `salaryScales`: `laborAgreementId`, `name` (ej. «Paritaria 2026-04»), `validFrom`, `recordedAt`, `agreementReference`, `status` (`draft`, `approved`, `published`, `superseded`), `items[]` `{ categoryId, basic DECIMAL(18,4), additional, additional1, additional2, others[] { code, amount } }`, `origin` (`manual`, `increase`, `import`), `increaseBatchId`, `approvalId`. Índice `{tenantId, laborAgreementId, validFrom, status}`.
 
 Campos de `salaryCategories`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `laborAgreementId` | ObjectId | Sí | — | `laborAgreements` (M16) |
+| `laborAgreementId` | uniqueidentifier | Sí | — | `laborAgreements` (M16) |
 | `code` | String | Sí | — | — |
 | `name` | String | Sí | — | — |
 | `type` | Enum | [VERIFICAR] | `monthly`, `daily`, `hourly`. | — |
-| `workHours` | Decimal128 | [VERIFICAR] | — | — |
-| `minHours` | Decimal128 | [VERIFICAR] | — | — |
-| `minDays` | Decimal128 | [VERIFICAR] | — | — |
+| `workHours` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `minHours` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `minDays` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `order` | Int | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `active`, `inactive` (§8.12.7; antes sin valores). | — |
 
@@ -883,17 +885,17 @@ Campos de `salaryCategories`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `laborAgreementId` | ObjectId | [VERIFICAR] | — | `laborAgreements` (M16) |
-| `salaryCategoryId` | ObjectId | Sí | Categoría de la escala; `{salaryCategoryId, validFrom}` único (T05; PA-SUE-18). | `salaryCategories` (M16) |
+| `laborAgreementId` | uniqueidentifier | [VERIFICAR] | — | `laborAgreements` (M16) |
+| `salaryCategoryId` | uniqueidentifier | Sí | Categoría de la escala; `{salaryCategoryId, validFrom}` único (T05; PA-SUE-18). | `salaryCategories` (M16) |
 | `name` | String | Sí | Ej. «Paritaria 2026-04». | — |
 | `validFrom` | Date | Sí | — | — |
 | `recordedAt` | Date (fecha y hora) | Cond. | — | — |
 | `agreementReference` | String | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`, `approved`, `published`, `superseded`. | — |
-| `items` | [Object] | [VERIFICAR] | `{ categoryId, basic Decimal128, additional, additional1, additional2, others[] { code, amount } }`. | — |
+| `items` | [Object] | [VERIFICAR] | `{ categoryId, basic DECIMAL(18,4), additional, additional1, additional2, others[] { code, amount } }`. | — |
 | `origin` | Object | [VERIFICAR] | `manual`, `increase`, `import`. | — |
-| `increaseBatchId` | ObjectId | [VERIFICAR] | — | `salaryIncreaseBatches` (M16) |
-| `approvalId` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `increaseBatchId` | uniqueidentifier | [VERIFICAR] | — | `salaryIncreaseBatches` (M16) |
+| `approvalId` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
 
 ### 7.17. `seniorityScales` — Antigüedad y días de vacaciones
 
@@ -903,9 +905,9 @@ Campos de `seniorityScales`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `laborAgreementId` | ObjectId | Sí | — | `laborAgreements` (M16) |
-| `unionId` | ObjectId | [VERIFICAR] | — | `unions` (M16) |
-| `categoryId` | ObjectId | No | Opcional. | `serviceCategories` (M02) |
+| `laborAgreementId` | uniqueidentifier | Sí | — | `laborAgreements` (M16) |
+| `unionId` | uniqueidentifier | [VERIFICAR] | — | `unions` (M16) |
+| `categoryId` | uniqueidentifier | No | Opcional. | `serviceCategories` (M02) |
 | `rows` | [Object] | [VERIFICAR] | `{ yearsFrom, yearsTo, percent, amount, vacationDays }`. | — |
 | `validFrom` | Date | Sí | — | — |
 
@@ -928,10 +930,10 @@ Campos de `positions`:
 |---|---|---|---|---|
 | `code` | String | Sí | — | — |
 | `name` | String | Sí | — | — |
-| `costCenterId` | ObjectId | Sí | M15, Sí. | `costCenters` (M15) |
-| `serviceIds` | [ObjectId] | [VERIFICAR] | M02. | `tenantServices` (M02) |
-| `managerEmployeeId` | ObjectId | [VERIFICAR] | — | `employees` (M16) |
-| `parentId` | ObjectId | [VERIFICAR] | — | `workAreas` (M16) |
+| `costCenterId` | uniqueidentifier | Sí | M15, Sí. | `costCenters` (M15) |
+| `serviceIds` | [uniqueidentifier] | [VERIFICAR] | M02. | `tenantServices` (M02) |
+| `managerEmployeeId` | uniqueidentifier | [VERIFICAR] | — | `employees` (M16) |
+| `parentId` | uniqueidentifier | [VERIFICAR] | — | `workAreas` (M16) |
 
 ### 7.19. `healthInsurerAdoptions` — Obras sociales del tenant
 
@@ -975,7 +977,7 @@ Campos de `payrollVariables`:
 | `formula` | String | [VERIFICAR] | Texto DSL. | — |
 | `compiledAst` | Object | [VERIFICAR] | Generado. | — |
 | `dependencies` | [String] | [VERIFICAR] | Variables de las que depende [VERIFICAR]. | — |
-| `configVersionId` | ObjectId | Sí | — | `payrollConfigVersions` (M16) |
+| `configVersionId` | uniqueidentifier | Sí | — | `payrollConfigVersions` (M16) |
 | `status` | Enum | Sí | `active`, `inactive` (§8.12.7; antes sin valores). | — |
 
 ### 7.22. `payrollConcepts` — Conceptos
@@ -997,11 +999,11 @@ Origen: `SU_CONCEPTOS` (26 columnas), `SU_CONCEPTO_TIPO` (`COD_TIPO`, `COD_CON`,
 | `sicossClassification` | string | Sí | Código de la tabla oficial. | — |
 | `subsystems` | `{ sipa, inssjp, healthInsurance, fsr, renatre, familyAllowances, fne, lrt, differentialRegime, specialRegime }` booleanos | Sí | Bases por subsistema. | — |
 | `arcaConceptCode` | string | Sí si la empresa genera LSD | Código ARCA del concepto (LSD). | — |
-| `accountId` | ObjectId | No | Cuenta contable del concepto (M15). | `accounts` (M01) |
+| `accountId` | uniqueidentifier | No | Cuenta contable del concepto (M15). | `accounts` (M01) |
 | `payrollTypes[]` | `{ payrollTypeId, hiddenOnPayslip }` | Sí | Tipos de liquidación donde aplica. | — |
 | `printOnPayslip`, `printQuantity`, `unit` | boolean / boolean / string | Sí | Presentación. | — |
 | `isSensitive` | boolean | Sí | Oculta el nombre del concepto a quien no tiene permiso (ej. «embargo»). | — |
-| `configVersionId` | ObjectId | Sí | Versión a la que pertenece. | `configVersions` (T04) |
+| `configVersionId` | uniqueidentifier | Sí | Versión a la que pertenece. | `configVersions` (T04) |
 | `status` | enum `draft`, `published`, `retired` | Sí | — | — |
 
 Índices: `{tenantId, configVersionId, code}` único; `{tenantId, status, calcOrder}`.
@@ -1022,7 +1024,7 @@ Campos de `payrollTypes`:
 | `incomeTaxProration` | Enum | [VERIFICAR] | `none`, `twelfths`. | — |
 | `skipAdvanceDeduction` | Bool | [VERIFICAR] | — | — |
 | `incomeTaxScaleType` | Enum | [VERIFICAR] | — | — |
-| `voucherTypeId` | ObjectId | [VERIFICAR] | — | `voucherTypes` (M05) |
+| `voucherTypeId` | uniqueidentifier | [VERIFICAR] | — | `voucherTypes` (M05) |
 | `isSac` | Bool | [VERIFICAR] | — | — |
 | `isVacation` | Bool | [VERIFICAR] | — | — |
 | `lsdLiquidationType` | Enum | [VERIFICAR] | Código oficial. | — |
@@ -1040,13 +1042,13 @@ Campos de `payrollConfigVersions`:
 | `name` | String | Sí | — | — |
 | `effectiveFrom` | Date | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`, `inReview`, `published`, `superseded`, `discarded`. | — |
-| `basedOnVersionId` | ObjectId | [VERIFICAR] | — | `payrollConfigVersions` (M16) |
+| `basedOnVersionId` | uniqueidentifier | [VERIFICAR] | — | `payrollConfigVersions` (M16) |
 | `changes` | [Object] | [VERIFICAR] | `{ entity, entityId, changeType, summary }`. | — |
 | `validationReport` | Object | [VERIFICAR] | `{ errors[], warnings[] }`. | — |
-| `simulationRunId` | ObjectId | [VERIFICAR] | — | `simulationRuns` (M04) |
-| `diffReportRef` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
-| `reviewedBy` | ObjectId | Cond. | — | `memberships` (T02) |
-| `publishedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `simulationRunId` | uniqueidentifier | [VERIFICAR] | — | `simulationRuns` (M04) |
+| `diffReportRef` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
+| `reviewedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
+| `publishedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `publishedAt` | Date (fecha y hora) | Cond. | — | — |
 | `scope` | Enum | [VERIFICAR] | `calculation`, `presentation`. | — |
 
@@ -1063,8 +1065,8 @@ Campos de `noveltyTypes`:
 | `valueKind` | Enum | [VERIFICAR] | `quantity`, `amount`, `days`, `hours`. | — |
 | `behavior` | Enum | [VERIFICAR] | `overtime50`, `overtime100`, `onCall`, `absence`, `leave`, `vacation`, `advance`, `garnishment`, `alimony`, `loan`, `otherEmployment`, `provincialPensionEmployment`, `incomeTaxOverride`, `extraTask`, `general`. | — |
 | `siradigCode` | String | [VERIFICAR] | — | — |
-| `annualCap` | Decimal128 | [VERIFICAR] | — | — |
-| `netIncomePercentCap` | Decimal128 | [VERIFICAR] | — | — |
+| `annualCap` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `netIncomePercentCap` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `isIncomeTaxPrepayment` | Bool | [VERIFICAR] | — | — |
 | `affectsCedularTax` | Bool | [VERIFICAR] | — | — |
 | `requiresSupervisorApproval` | Bool | [VERIFICAR] | — | — |
@@ -1077,20 +1079,20 @@ Origen: `SU_EMP_NOVEDADES` (`COD_TIPO`, `COD_EMP`, `FECHA`, `CANTIDAD`, `OBSE`, 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `noveltyTypeId` | ObjectId | Sí | — | `noveltyTypes` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `noveltyTypeId` | uniqueidentifier | Sí | — | `noveltyTypes` (M16) |
 | `date` | date | Sí | Fecha del hecho. | — |
 | `periodKey` | string `YYYY-MM[-Q]` | Sí | Período en que se liquida. | — |
 | `accrualPeriodKey` | string | Sí | Período de devengamiento (complementarias). | — |
-| `quantity`, `amount` | Decimal128 | Según tipo | — | — |
+| `quantity`, `amount` | DECIMAL(18,4) | Según tipo | — | — |
 | `installment` | `{ number, of, parentId }` | No | Cuotas. | — |
 | `vacationYear` | int | No | Año de goce (FEC_VACACION). | — |
 | `source` | enum `manual`, `excel`, `workOrder`, `crewTimesheet`, `fleet`, `timeClock`, `extraTask`, `leave`, `siradig`, `deductionPlan`, `treasuryAdvance`, `migration` | Sí | Origen. | — |
 | `sourceRef` | string | Sí si no es manual | Clave idempotente del origen (ej. `ot:<id>:emp:<id>:2026-03-14:ot50`). | — (clave idempotente del origen, texto; no es referencia) |
-| `leaveRequestId`, `deductionPlanId`, `importBatchId` | ObjectId | No | Vínculos. | `leaveRequests` (M16) / `deductionPlans` (M16) / `noveltyImportBatches` (M16) |
+| `leaveRequestId`, `deductionPlanId`, `importBatchId` | uniqueidentifier | No | Vínculos. | `leaveRequests` (M16) / `deductionPlans` (M16) / `noveltyImportBatches` (M16) |
 | `status` | enum `draft`, `pendingApproval`, `approved`, `rejected`, `settled`, `voided` | Sí | §8.4. | — |
 | `approvals[]` | `{ step, userId, decision, at, comment }` | No | — | — |
-| `settledPayslipId` | ObjectId | No | Recibo que la tomó. | `payslips` (M16) |
+| `settledPayslipId` | uniqueidentifier | No | Recibo que la tomó. | `payslips` (M16) |
 | `notes` | string | No | — | — |
 
 Índices: `{tenantId, employeeId, periodKey, status}`; `{tenantId, sourceRef}` único parcial (si existe).
@@ -1104,16 +1106,16 @@ Campos de `noveltyImportBatches`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `source` | Enum | [VERIFICAR] | `excel`, `workOrders`, `fleet`, `timeClock`, `advances`, `siradigOtherEmployment`. | — |
-| `legalEntityId` | ObjectId | [VERIFICAR] | — | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | — | `legalEntities` (T04) |
 | `periodKey` | String | [VERIFICAR] | — | — |
-| `fileRef` | ObjectId | [VERIFICAR] | T05 lo nombra `storedFileId` (clave de COL-SUE; PA-SUE-18); `fileRef` queda como alias. | `storedFiles` (T01) |
+| `fileRef` | uniqueidentifier | [VERIFICAR] | T05 lo nombra `storedFileId` (clave de COL-SUE; PA-SUE-18); `fileRef` queda como alias. | `storedFiles` (T01) |
 | `fileHash` | String | Sí | — | — |
 | `rows` | Int | [VERIFICAR] | Filas leídas [VERIFICAR] (el anexo no lo detalla). | — |
 | `accepted` | Int | [VERIFICAR] | Filas aceptadas [VERIFICAR]. | — |
 | `rejected` | Int | [VERIFICAR] | Filas rechazadas [VERIFICAR]. | — |
 | `errors` | [Object] | [VERIFICAR] | `{ row, field, message }`. | — |
 | `status` | Enum | Sí | `uploaded`, `validated`, `confirmed`, `failed`. | — |
-| `jobId` | ObjectId | [VERIFICAR] | — | `jobRuns` (T01) |
+| `jobId` | uniqueidentifier | [VERIFICAR] | — | `jobRuns` (T01) |
 
 ### 7.28. `timePunches` — Fichadas
 
@@ -1123,14 +1125,14 @@ Campos de `timePunches`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `at` | Date (fecha y hora) | Sí | UTC. | — |
 | `direction` | Enum | [VERIFICAR] | `in`, `out`, `unknown`. | — |
-| `deviceId` | String | Sí | Identificador del lector de fichadas (antes "[VERIFICAR] si existe colección de dispositivos"; T05 §7.2, PA-DAT-04). | — (identificador del dispositivo embebido en `localAgents.devices[]` (T06); no es ObjectId de colección, T05 §7.2) |
+| `deviceId` | String | Sí | Identificador del lector de fichadas (antes "[VERIFICAR] si existe colección de dispositivos"; T05 §7.2, PA-DAT-04). | — (identificador del dispositivo embebido en `localAgents.devices[]` (T06); no es uniqueidentifier de colección, T05 §7.2) |
 | `manual` | Bool | [VERIFICAR] | Boolean. | — |
 | `processed` | Bool | [VERIFICAR] | Boolean. | — |
 | `processedDayKey` | String | [VERIFICAR] | — | — |
-| `importBatchId` | ObjectId | [VERIFICAR] | — | `noveltyImportBatches` (M16) |
+| `importBatchId` | uniqueidentifier | [VERIFICAR] | — | `noveltyImportBatches` (M16) |
 
 ### 7.29. `extraTasks` — Tareas extra
 
@@ -1141,14 +1143,14 @@ Campos de `extraTasks`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `taskType` | Enum | [VERIFICAR] | `reading`, `cut`, `reconnection`, `delivery`, `other`. | — |
-| `accountId` | ObjectId | No | Antes `serviceConnectionId` (nombre de T05). Opcional. Suministro (`COD_SUM`). | `accounts` (M01) |
-| `sourceRef` | ObjectId | [VERIFICAR] | Orden de trabajo que originó la tarea; T05 la nombra `workOrderId` (clave de COL-SUE) y este anexo conserva `sourceRef` como alias. | `workOrders` (M10) (antes `[VERIFICAR]`; PA-SUE-18) |
+| `accountId` | uniqueidentifier | No | Antes `serviceConnectionId` (nombre de T05). Opcional. Suministro (`COD_SUM`). | `accounts` (M01) |
+| `sourceRef` | uniqueidentifier | [VERIFICAR] | Orden de trabajo que originó la tarea; T05 la nombra `workOrderId` (clave de COL-SUE) y este anexo conserva `sourceRef` como alias. | `workOrders` (M10) (antes `[VERIFICAR]`; PA-SUE-18) |
 | `notes` | String | [VERIFICAR] | — | — |
 | `dateFrom` | Date | [VERIFICAR] | — | — |
 | `dateTo` | Date | [VERIFICAR] | — | — |
 | `workers` | [Object] | [VERIFICAR] | `{ employeeId, quantity, unitAmount, total }`. | — |
-| `employeeId` | ObjectId | — | Clave de T05: es `workers[].employeeId`, no un campo de primer nivel (PA-SUE-18). | `employees` (M16) |
-| `noveltyIds` | [ObjectId] | [VERIFICAR] | — | `novelties` (M16) |
+| `employeeId` | uniqueidentifier | — | Clave de T05: es `workers[].employeeId`, no un campo de primer nivel (PA-SUE-18). | `employees` (M16) |
+| `noveltyIds` | [uniqueidentifier] | [VERIFICAR] | — | `novelties` (M16) |
 | `status` | Enum | Sí | `draft`, `confirmed`, `voided` (§8.12.12; antes sin valores, PA-SUE-18). | — |
 
 ### 7.30. `leaveCauses` y `leaveRequests` — Licencias
@@ -1166,7 +1168,7 @@ Campos de `leaveCauses`:
 | `legalBasis` | Enum | [VERIFICAR] | `lct`, `agreement`, `company`. | — |
 | `paid` | Bool | [VERIFICAR] | Boolean. | — |
 | `isVacation` | Bool | [VERIFICAR] | — | — |
-| `noveltyTypeId` | ObjectId | [VERIFICAR] | — | `noveltyTypes` (M16) |
+| `noveltyTypeId` | uniqueidentifier | [VERIFICAR] | — | `noveltyTypes` (M16) |
 | `daysPerPeriod` | Int | [VERIFICAR] | 0 = sin límite. | — |
 | `dayCounting` | Enum | [VERIFICAR] | `calendar`, `business`. | — |
 | `periodUnit` | Enum | [VERIFICAR] | `year`, `event`, `month`. | — |
@@ -1183,23 +1185,23 @@ Campos de `leaveCauses`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `leaveCauseId` | ObjectId | Sí | — | `leaveCauses` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `leaveCauseId` | uniqueidentifier | Sí | — | `leaveCauses` (M16) |
 | `requestedAt` | Date (fecha y hora) | Cond. | — | — |
 | `vacationYear` | Int | [VERIFICAR] | — | — |
 | `requestedFrom` | Date | [VERIFICAR] | — | — |
 | `requestedTo` | Date | [VERIFICAR] | — | — |
 | `requestedDays` | Int | [VERIFICAR] | — | — |
-| `previousBalance` | Decimal128 | [VERIFICAR] | `DIAS_ANTER`. | — |
+| `previousBalance` | DECIMAL(18,4) | [VERIFICAR] | `DIAS_ANTER`. | — |
 | `authorizedFrom` | Date | [VERIFICAR] | — | — |
 | `authorizedTo` | Date | [VERIFICAR] | — | — |
 | `authorizedDays` | Int | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `requested`, `approvedBySupervisor`, `approved`, `rejected`, `cancelled`, `interrupted`. | — |
 | `decisions` | [Object] | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
 | `rejectionReason` | String | [VERIFICAR] | — | — |
-| `attachments` | [ObjectId] | Cond. | **(S si causa sensible)**. | `storedFiles` (T01) |
+| `attachments` | [uniqueidentifier] | Cond. | **(S si causa sensible)**. | `storedFiles` (T01) |
 | `diagnosis` | String | No | **(S, opcional, nunca obligatorio)**. | — |
-| `noveltyIds` | [ObjectId] | [VERIFICAR] | — | `novelties` (M16) |
+| `noveltyIds` | [uniqueidentifier] | [VERIFICAR] | — | `novelties` (M16) |
 
 ### 7.31. `vacationBalances` — Saldos de vacaciones
 
@@ -1209,7 +1211,7 @@ Campos de `vacationBalances`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `vacationYear` | Int | Sí | — | — |
 | `entitledDays` | Int | [VERIFICAR] | — | — |
 | `ruleApplied` | Enum | [VERIFICAR] | `lct150`, `lct151Proportional`, `agreement`. | — |
@@ -1227,11 +1229,11 @@ Campos de `payPeriods`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | — | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | — | `legalEntities` (T04) |
 | `periodKey` | String | Sí | — | — |
 | `frequency` | Enum | Sí | — | — |
 | `status` | Enum | Sí | `open`, `inPayroll`, `closed`, `reopened`. | — |
-| `closedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `closedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `closedAt` | Date (fecha y hora) | Cond. | — | — |
 | `reopenings` | [Object] | [VERIFICAR] | `{ by, at, reason, approvalId }`. | — |
 | `lsdFiled` | Bool | [VERIFICAR] | Boolean. | — |
@@ -1241,24 +1243,24 @@ Campos de `payPeriods`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | string | Sí | Ej. `LIQ-2026-03-M-01`. | — |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica empleadora (DEC-064). | `legalEntities` (T04) |
-| `payrollTypeId` | ObjectId | Sí | — | `payrollTypes` (M16) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica empleadora (DEC-064). | `legalEntities` (T04) |
+| `payrollTypeId` | uniqueidentifier | Sí | — | `payrollTypes` (M16) |
 | `periodKey`, `accrualPeriodKey` | string | Sí | Período liquidado y de devengamiento. | — |
 | `mode` | enum `real`, `simulation` | Sí | Simulación sin efectos (RF-SUE-070). | — |
-| `configVersionId` | ObjectId | Sí | Versión de configuración usada. | `configVersions` (T04) |
+| `configVersionId` | uniqueidentifier | Sí | Versión de configuración usada. | `configVersions` (T04) |
 | `universe` | `{ filters, employeeIds[] }` | Sí | Universo. | — |
 | `paymentDate` | date | Sí en real | Fecha de pago prevista. | — |
 | `lastContributionDeposit` | `{ period, date, bank }` | Sí en real | Constancia art. 140 inc. j. | — |
 | `status` | enum (§8.5) | Sí | — | — |
 | `progress` | `{ total, done, failed }` | Sí | Avance del job. | — |
-| `totals` | `{ remunerative, nonRemunerative, deductions, withholdings, employerContributions, net, employees }` Decimal128 | Sí | — | — |
+| `totals` | `{ remunerative, nonRemunerative, deductions, withholdings, employerContributions, net, employees }` DECIMAL(18,4) | Sí | — | — |
 | `checks` | `{ blocking[], warnings[] }` | Sí | RF-SUE-071. | — |
 | `comparisonRef` | string | No | Comparativo con período anterior. | — (clave del comparativo calculado por el job; no es referencia) |
-| `correctsRunId`, `complementsRunId` | ObjectId | No | Rectificativa / complementaria. | `payrollRuns` (M16) |
-| `calculatedBy`, `submittedBy`, `approvedBy`, `closedBy`, `voidedBy` | ObjectId | No | Separación de funciones. | `memberships` (T02) |
-| `approvalId` | ObjectId | No | T11. | `approvalRequests` (T11) |
+| `correctsRunId`, `complementsRunId` | uniqueidentifier | No | Rectificativa / complementaria. | `payrollRuns` (M16) |
+| `calculatedBy`, `submittedBy`, `approvedBy`, `closedBy`, `voidedBy` | uniqueidentifier | No | Separación de funciones. | `memberships` (T02) |
+| `approvalId` | uniqueidentifier | No | T11. | `approvalRequests` (T11) |
 | `accountingEntryRefs[]` | `{ planId, entryId }` | No | Asientos de M15. | — |
-| `paymentRequestId` | ObjectId | No | — | `payrollPaymentRequests` (M16) |
+| `paymentRequestId` | uniqueidentifier | No | — | `payrollPaymentRequests` (M16) |
 
 Índices: `{tenantId, legalEntityId, periodKey, payrollTypeId, mode, status}`; `{tenantId, number}` único.
 
@@ -1268,7 +1270,7 @@ Origen: `SU_SUELDOS` (21 columnas: `COD_EMP`, `COD_COM`, `SUC_COM`, `NUM_COM`, `
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `payrollRunId`, `employeeId`, `legalEntityId`, `payrollTypeId` | ObjectId | Sí | — | `payrollRuns` (M16) / `employees` (M16) / `legalEntities` (T04) / `payrollTypes` (M16) |
+| `payrollRunId`, `employeeId`, `legalEntityId`, `payrollTypeId` | uniqueidentifier | Sí | — | `payrollRuns` (M16) / `employees` (M16) / `legalEntities` (T04) / `payrollTypes` (M16) |
 | `periodKey`, `accrualPeriodKey` | string | Sí | — | — |
 | `number` | `{ voucherTypeId, pointOfSale, number }` | Sí al emitir | Numeración (COD_COM, SUC_COM, NUM_COM). | — |
 | `snapshot` | objeto | Sí | Datos del legajo y la empresa a la fecha: categoría, calificación, ingreso, antigüedad, convenio, obra social, CUIL, básico, centro de costo. | — |
@@ -1276,14 +1278,14 @@ Origen: `SU_SUELDOS` (21 columnas: `COD_EMP`, `COD_COM`, `SUC_COM`, `NUM_COM`, `
 | `hiddenIncomeTaxLines[]` | igual | No | Conceptos ocultos con efecto en Ganancias (RN-08 §11.3). | — |
 | `totals` | `{ remunerative, nonRemunerative, deductions, withholdings, employerContributions, net, netInWords, rounding }` | Sí | — | — |
 | `contributionBases` | `{ sipa, inssjp, healthInsurance, lrt, ... }` | Sí | Bases topeadas por subsistema. | — |
-| `incomeTaxCalculationId` | ObjectId | No | — | `incomeTaxCalculations` (M16) |
+| `incomeTaxCalculationId` | uniqueidentifier | No | — | `incomeTaxCalculations` (M16) |
 | `paymentSplit[]` | `{ payAccountId, amount, status (pending, sent, credited, rejected), treasuryRef }` | Sí | — | — |
 | `paymentDate`, `paidAt` | date | Sí / No | FEC_PAG. | — |
 | `status` | enum (§8.6) | Sí | — | — |
 | `pdfRef`, `pdfHash` | string | Sí al emitir | — | `storedFiles` (T01) (solo `pdfRef`; `pdfHash` es texto) |
 | `signature` | `{ signatureRequestId, employerStatus, employerSignedAt, employeeStatus (pending, signed, signedWithDisagreement, rejectedTechnical), employeeSignedAt, disagreementNote, batchId }` | Sí | RF-SUE-105. Proyección del estado de la solicitud de firma de T11; la evidencia (OTP, hash, sello de tiempo, certificado) la guarda T11. | — |
 | `delivery` | `{ notifiedAt, viewedAt, acknowledgedAt, reminders }` | Sí | RF-SUE-106. | — |
-| `replacesPayslipId`, `replacedByPayslipId` | ObjectId | No | Rectificativa. | `payslips` (M16) |
+| `replacesPayslipId`, `replacedByPayslipId` | uniqueidentifier | No | Rectificativa. | `payslips` (M16) |
 | `voidReason` | string | No | — | — |
 
 Índices: `{tenantId, employeeId, periodKey, payrollTypeId, legalEntityId}` único parcial (`status ≠ voided` y sin `replacesPayslipId`); `{tenantId, payrollRunId}`; `{tenantId, "signature.employeeStatus"}`.
@@ -1296,17 +1298,17 @@ Campos de `incomeTaxCalculations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `payslipId` | ObjectId | Sí | — | `payslips` (M16) |
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `payslipId` | uniqueidentifier | Sí | — | `payslips` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `fiscalYear` | Int | [VERIFICAR] | — | — |
 | `month` | Int | [VERIFICAR] | — | — |
 | `kind` | Enum | [VERIFICAR] | `monthly`, `annual`, `final`. | — |
 | `lines` | [Object] | [VERIFICAR] | `{ code (ganancia bruta, SAC, otros empleos, aportes, obra social, cuota sindical, seguros, intereses hipotecarios, alquileres, servicio doméstico, honorarios médicos, donaciones, gastos de sepelio, movilidad, ganancia no imponible, deducción especial, cónyuge, hijos, ganancia neta sujeta, impuesto determinado, retenciones anteriores, pagos a cuenta, retención del mes, devolución ...), amount }`. | — |
 | `scaleTableVersion` | String | [VERIFICAR] | — | — |
 | `deductionTableVersion` | String | [VERIFICAR] | — | — |
-| `overrideNoveltyId` | ObjectId | [VERIFICAR] | — | `novelties` (M16) |
-| `withheldAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `refundAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `overrideNoveltyId` | uniqueidentifier | [VERIFICAR] | — | `novelties` (M16) |
+| `withheldAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `refundAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 
 ### 7.36. `incomeTaxDeclarations` — F.572 web / SIRADIG
 
@@ -1316,12 +1318,12 @@ Campos de `incomeTaxDeclarations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `legalEntityId` | ObjectId | [VERIFICAR] | — | `legalEntities` (T04) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | — | `legalEntities` (T04) |
 | `fiscalYear` | Int | Sí | — | — |
 | `formVersion` | String | Sí | — | — |
 | `submittedAt` | Date (fecha y hora) | Cond. | — | — |
-| `fileRef` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `fileRef` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `fileHash` | String | [VERIFICAR] | — | — |
 | `familyCharges` | [Object] | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
 | `deductions` | [Object] | [VERIFICAR] | `{ type, period, amount, providerCuit }`. | — |
@@ -1338,22 +1340,22 @@ Campos de `statutoryFilings`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | — | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | — | `legalEntities` (T04) |
 | `periodKey` | String | Sí | — | — |
 | `kind` | Enum | Sí | `lsd`, `sicoss`, `sicoreWages`, `f1357`, `f1359`, `unionFile`, `artPayroll`, `bankPayrollReport`. | — |
-| `layoutId` | ObjectId | [VERIFICAR] | — | `externalPayrollLayouts` (M16) |
+| `layoutId` | uniqueidentifier | [VERIFICAR] | — | `externalPayrollLayouts` (M16) |
 | `layoutVersion` | String | [VERIFICAR] | — | — |
-| `payrollRunIds` | [ObjectId] | [VERIFICAR] | — | `payrollRuns` (M16) |
-| `fileRef` | ObjectId | [VERIFICAR] | T05 lo nombra `storedFileId` (PA-SUE-18); `fileRef` queda como alias. | `storedFiles` (T01) |
+| `payrollRunIds` | [uniqueidentifier] | [VERIFICAR] | — | `payrollRuns` (M16) |
+| `fileRef` | uniqueidentifier | [VERIFICAR] | T05 lo nombra `storedFileId` (PA-SUE-18); `fileRef` queda como alias. | `storedFiles` (T01) |
 | `fileHash` | String | [VERIFICAR] | — | — |
 | `totals` | Object | [VERIFICAR] | — | — |
 | `controls` | [Object] | [VERIFICAR] | `{ differences[] }`. | — |
 | `status` | Enum | Sí | `generated`, `approved`, `filed`, `rectified`, `voided`. | — |
 | `filedAt` | Date (fecha y hora) | Cond. | — | — |
-| `acknowledgementRef` | ObjectId | [VERIFICAR] | Acuse. | `storedFiles` (T01) |
-| `vepRef` | ObjectId | [VERIFICAR] | M14. | `paymentExecutions` (M14) (pago del VEP; antes "M14, colección [VERIFICAR]"; PA-SUE-18) |
-| `generatedBy` | ObjectId | Cond. | — | `memberships` (T02) |
-| `approvedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `acknowledgementRef` | uniqueidentifier | [VERIFICAR] | Acuse. | `storedFiles` (T01) |
+| `vepRef` | uniqueidentifier | [VERIFICAR] | M14. | `paymentExecutions` (M14) (pago del VEP; antes "M14, colección [VERIFICAR]"; PA-SUE-18) |
+| `generatedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 
 ### 7.38. `payrollPaymentRequests` — Solicitudes de pago de haberes
 
@@ -1363,16 +1365,16 @@ Campos de `payrollPaymentRequests`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `payrollRunId` | ObjectId | Cond. | Alternativo a `externalImportId`. | `payrollRuns` (M16) |
-| `externalImportId` | ObjectId | Cond. | Alternativo a `payrollRunId`. | `externalPayrollImports` (M16) |
-| `legalEntityId` | ObjectId | [VERIFICAR] | — | `legalEntities` (T04) |
+| `payrollRunId` | uniqueidentifier | Cond. | Alternativo a `externalImportId`. | `payrollRuns` (M16) |
+| `externalImportId` | uniqueidentifier | Cond. | Alternativo a `payrollRunId`. | `externalPayrollImports` (M16) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | — | `legalEntities` (T04) |
 | `kind` | Enum | [VERIFICAR] | `netWages`, `socialSecurity`, `union`, `garnishmentDeposit`, `lifeInsurance`, `other`. | — |
 | `paymentDate` | Date | [VERIFICAR] | — | — |
 | `method` | Enum | [VERIFICAR] | `transfer`, `check`, `cash`. | — |
 | `items` | [Object] | [VERIFICAR] | `{ payslipId, employeeId, payAccountId, amount, status, treasuryItemRef, rejectionReason }`. | — |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `idempotencyKey` | String | Sí | — | — |
-| `treasuryRequestId` | ObjectId | Sí | Lote de pago de sueldos creado en Tesorería. | `payrollPaymentBatches` (M14) |
+| `treasuryRequestId` | uniqueidentifier | Sí | Lote de pago de sueldos creado en Tesorería. | `payrollPaymentBatches` (M14) |
 | `status` | Enum | Sí | §8.7. | — |
 
 ### 7.39. `payrollAccountingRules` — Imputación contable
@@ -1384,14 +1386,14 @@ Campos de `payrollAccountingRules`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
-| `payrollConceptId` | ObjectId | [VERIFICAR] | Concepto de liquidación al que aplica la regla (clave de T05; PA-SUE-18). | `payrollConcepts` (M16) |
+| `payrollConceptId` | uniqueidentifier | [VERIFICAR] | Concepto de liquidación al que aplica la regla (clave de T05; PA-SUE-18). | `payrollConcepts` (M16) |
 | `code` | String | Sí | Código único por tenant (clave de T05; PA-SUE-18). | — |
 | `description` | String | [VERIFICAR] | — | — |
 | `priority` | Int | [VERIFICAR] | — | — |
 | `filters` | [Object] | [VERIFICAR] | `{ legalEntityIds, unionIds, categoryIds, employeeIds, costCenterIds, positionIds, workAreaIds, conceptIds, conceptTypes }`. | — |
-| `debitAccountId` | ObjectId | [VERIFICAR] | — | `ledgerAccounts` (M15) |
-| `creditAccountId` | ObjectId | [VERIFICAR] | — | `ledgerAccounts` (M15) |
-| `accountingPlanId` | ObjectId | [VERIFICAR] | Planes múltiples. | `servicePlans` (M02) |
+| `debitAccountId` | uniqueidentifier | [VERIFICAR] | — | `ledgerAccounts` (M15) |
+| `creditAccountId` | uniqueidentifier | [VERIFICAR] | — | `ledgerAccounts` (M15) |
+| `accountingPlanId` | uniqueidentifier | [VERIFICAR] | Planes múltiples. | `servicePlans` (M02) |
 | `entryFormat` | Enum | [VERIFICAR] | `summaryByAccount`, `byCostCenter`, `byEmployee`. | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `active`, `inactive` (§8.12.7; antes sin valores). | — |
@@ -1404,20 +1406,20 @@ Campos de `terminations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `terminationReasonId` | ObjectId | Sí | — | `terminationReasons` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `terminationReasonId` | uniqueidentifier | Sí | — | `terminationReasons` (M16) |
 | `noticeGivenAt` | Date (fecha y hora) | Cond. | — | — |
 | `lastWorkedDay` | Date | [VERIFICAR] | — | — |
 | `terminationDate` | Date | [VERIFICAR] | — | — |
 | `noticeMode` | Enum | [VERIFICAR] | `worked`, `paidInLieu`, `none`. | — |
-| `bestMonthlyWage` | Decimal128 | [VERIFICAR] | — | — |
+| `bestMonthlyWage` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `seniorityPeriods` | String | [VERIFICAR] | — | — |
 | `capApplied` | Object | [VERIFICAR] | `{ agreementAverage, cap, floor }`. | — |
-| `finalPayrollRunId` | ObjectId | [VERIFICAR] | — | `payrollRuns` (M16) |
+| `finalPayrollRunId` | uniqueidentifier | [VERIFICAR] | — | `payrollRuns` (M16) |
 | `checklist` | [Object] | [VERIFICAR] | `{ item, owner, status, doneAt }`. | — |
-| `certificatesIds` | [ObjectId] | [VERIFICAR] | — | `storedFiles` (T01) |
+| `certificatesIds` | [uniqueidentifier] | [VERIFICAR] | — | `storedFiles` (T01) |
 | `status` | Enum | Sí | `draft`, `calculated`, `approved`, `settled`, `cancelled`. | — |
-| `approvalId` | ObjectId | [VERIFICAR] | — | `approvalRequests` (T11) |
+| `approvalId` | uniqueidentifier | [VERIFICAR] | — | `approvalRequests` (T11) |
 
 ### 7.41. `employmentCertificates` — Certificados y constancias
 
@@ -1427,13 +1429,13 @@ Campos de `employmentCertificates`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `kind` | Enum | [VERIFICAR] | `art80Work`, `art80ServicesAndWages`, `workConstancy`, `wageConstancy`, `contributionConstancy`. | — |
 | `requestedAt` | Date (fecha y hora) | Cond. | — | — |
-| `requestedBy` | ObjectId | Cond. | `employee`, `staff`. | `memberships` (T02) |
+| `requestedBy` | uniqueidentifier | Cond. | `employee`, `staff`. | `memberships` (T02) |
 | `dueAt` | Date (fecha y hora) | Cond. | — | — |
 | `issuedAt` | Date (fecha y hora) | Cond. | — | — |
-| `fileRef` | ObjectId | [VERIFICAR] | T05 lo nombra `storedFileId` (PA-SUE-18); `fileRef` queda como alias. | `storedFiles` (T01) |
+| `fileRef` | uniqueidentifier | [VERIFICAR] | T05 lo nombra `storedFileId` (PA-SUE-18); `fileRef` queda como alias. | `storedFiles` (T01) |
 | `verificationCode` | String | [VERIFICAR] | — | — |
 | `delivery` | Object | [VERIFICAR] | `{ at, channel, acknowledgedAt }`. | — |
 | `status` | Enum | Sí | `requested`, `issued`, `delivered`. | — |
@@ -1446,9 +1448,9 @@ Campos de `payslipNotifications`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `payslipId` | ObjectId | Sí | — | `payslips` (M16) |
-| `signatureRequestId` | ObjectId | Cond. | Solicitud de firma del recibo (clave de T05; PA-SUE-18). | `signatureRequests` (T11) |
-| `employeeId` | ObjectId | [VERIFICAR] | — | `employees` (M16) |
+| `payslipId` | uniqueidentifier | Sí | — | `payslips` (M16) |
+| `signatureRequestId` | uniqueidentifier | Cond. | Solicitud de firma del recibo (clave de T05; PA-SUE-18). | `signatureRequests` (T11) |
+| `employeeId` | uniqueidentifier | [VERIFICAR] | — | `employees` (M16) |
 | `kind` | Enum | [VERIFICAR] | `available`, `signatureRequest`, `reminder`, `signed`, `disagreement`. | — |
 | `sentAt` | Date (fecha y hora) | Cond. | — | — |
 | `channels` | [Enum] | [VERIFICAR] | [VERIFICAR] valores (el anexo no los detalla). | — |
@@ -1456,7 +1458,7 @@ Campos de `payslipNotifications`:
 | `signedAt` | Date (fecha y hora) | Cond. | — | — |
 | `status` | Enum | Sí | `sent`, `viewed`, `signed`, `disagreed` (valores de §8.12.8, asumidos en PA-SUE-17; antes propuestos `[VERIFICAR]` y, antes de eso, sin valores). | — |
 | `note` | String | [VERIFICAR] | — | — |
-| `pdfRef` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `pdfRef` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 
 ### 7.43. Gestión de RRHH
 
@@ -1485,7 +1487,7 @@ Campos de `payslipNotifications`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
-| `templateId` | ObjectId | Sí | — | `performanceTemplates` (M16) |
+| `templateId` | uniqueidentifier | Sí | — | `performanceTemplates` (M16) |
 | `from` | Date | [VERIFICAR] | — | — |
 | `to` | Date | [VERIFICAR] | — | — |
 | `population` | Object | [VERIFICAR] | Filtros. | — |
@@ -1495,10 +1497,10 @@ Campos de `payslipNotifications`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cycleId` | ObjectId | Sí | — | `performanceCycles` (M16) |
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `cycleId` | uniqueidentifier | Sí | — | `performanceCycles` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `evaluations` | [Object] | [VERIFICAR] | `{ evaluatorEmployeeId, type, scores[], comments, submittedAt }`. | — |
-| `finalScore` | Decimal128 | [VERIFICAR] | — | — |
+| `finalScore` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `feedbackAt` | Date (fecha y hora) | Cond. | — | — |
 | `employeeAcknowledgedAt` | Date (fecha y hora) | Cond. | — | — |
 | `status` | Enum | Sí | `draft`, `inEvaluation`, `completed`, `acknowledged` (valores de §8.12.9, asumidos en PA-SUE-17; antes propuestos `[VERIFICAR]` y, antes de eso, sin valores). | — |
@@ -1507,22 +1509,22 @@ Campos de `payslipNotifications`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
-| `workAreaId` | ObjectId | [VERIFICAR] | — | `workAreas` (M16) |
-| `cycleId` | ObjectId | Sí | — | `performanceCycles` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
+| `workAreaId` | uniqueidentifier | [VERIFICAR] | — | `workAreas` (M16) |
+| `cycleId` | uniqueidentifier | Sí | — | `performanceCycles` (M16) |
 | `title` | String | [VERIFICAR] | — | — |
 | `indicator` | String | [VERIFICAR] | — | — |
-| `target` | Decimal128 | [VERIFICAR] | — | — |
-| `weight` | Decimal128 | [VERIFICAR] | — | — |
+| `target` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `weight` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `progress` | [Object] | [VERIFICAR] | `{ at, value, note }`. | — |
-| `finalAchievement` | Decimal128 | [VERIFICAR] | — | — |
+| `finalAchievement` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`, `active`, `closed`, `cancelled` (valores de §8.12.10, asumidos en PA-SUE-17; antes propuestos `[VERIFICAR]` y, antes de eso, sin valores). | — |
 
 **`disciplinaryActions`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `type` | Enum | [VERIFICAR] | `warning`, `suspension`. | — |
 | `facts` | String | [VERIFICAR] | — | — |
 | `occurredAt` | Date (fecha y hora) | [VERIFICAR] | — | — |
@@ -1530,31 +1532,31 @@ Campos de `payslipNotifications`:
 | `suspensionDays` | Int | [VERIFICAR] | — | — |
 | `suspensionFrom` | Date | [VERIFICAR] | — | — |
 | `defenseText` | String | [VERIFICAR] | — | — |
-| `inquiryId` | ObjectId | [VERIFICAR] | — | `administrativeInquiries` (M16) |
-| `documentRefs` | [ObjectId] | [VERIFICAR] | — | `storedFiles` (T01) |
+| `inquiryId` | uniqueidentifier | [VERIFICAR] | — | `administrativeInquiries` (M16) |
+| `documentRefs` | [uniqueidentifier] | [VERIFICAR] | — | `storedFiles` (T01) |
 | `status` | Enum | Sí | `draft`, `notified`, `disputed`, `firm`, `annulled`. | — |
 
 **`administrativeInquiries`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeIds` | [ObjectId] | [VERIFICAR] | — | `employees` (M16) |
+| `employeeIds` | [uniqueidentifier] | [VERIFICAR] | — | `employees` (M16) |
 | `number` | String | Sí | Número del sumario, único por tenant (T05; PA-SUE-18). | — |
 | `openedAt` | Date (fecha y hora) | [VERIFICAR] | — | — |
-| `investigatorUserId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `investigatorUserId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `facts` | String | [VERIFICAR] | — | — |
 | `stages` | [Object] | [VERIFICAR] | `{ name, at, notes, documentRefs }`. | — |
 | `defenseAt` | Date (fecha y hora) | Cond. | — | — |
 | `resolution` | String | [VERIFICAR] | — | — |
 | `resolvedAt` | Date (fecha y hora) | Cond. | — | — |
-| `resultingActionIds` | [ObjectId] | [VERIFICAR] | — | `disciplinaryActions` (M16) (antes `[VERIFICAR]`) |
+| `resultingActionIds` | [uniqueidentifier] | [VERIFICAR] | — | `disciplinaryActions` (M16) (antes `[VERIFICAR]`) |
 | `status` | Enum | Sí | `open`, `inDefense`, `resolved`, `archived`. | — |
 
 **`workAccidents`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | — | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | — | `employees` (M16) |
 | `number` | String | Sí | Número de la denuncia interna, único por tenant (T05; PA-SUE-18). | — |
 | `kind` | Enum | [VERIFICAR] | `workplace`, `inItinere`, `occupationalDisease`. | — |
 | `occurredAt` | Date (fecha y hora) | [VERIFICAR] | — | — |
@@ -1564,31 +1566,31 @@ Campos de `payslipNotifications`:
 | `artClaimNumber` | String | [VERIFICAR] | — | — |
 | `reportedToArtAt` | Date (fecha y hora) | Cond. | — | — |
 | `sicossAccidentCode` | String | [VERIFICAR] | — | — |
-| `leaveRequestIds` | [ObjectId] | [VERIFICAR] | — | `leaveRequests` (M16) |
+| `leaveRequestIds` | [uniqueidentifier] | [VERIFICAR] | — | `leaveRequests` (M16) |
 | `iltDays` | Int | [VERIFICAR] | — | — |
 | `artReimbursements` | [Object] | [VERIFICAR] | `{ period, amount, receivedAt }`. | — |
 | `medicalDischargeAt` | Date (fecha y hora) | Cond. | — | — |
-| `permanentDisabilityPercent` | Decimal128 | [VERIFICAR] | — | — |
+| `permanentDisabilityPercent` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `reported`, `inTreatment`, `discharged`, `closed`, `rejectedByArt`. | — |
 
 **`laborLawsuits`** — campos:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `employeeId` | ObjectId | Sí | O ex empleado. | `employees` (M16) |
+| `employeeId` | uniqueidentifier | Sí | O ex empleado. | `employees` (M16) |
 | `number` | String | Sí | Número interno del juicio, único por tenant (T05; PA-SUE-18). | — |
-| `dossierId` | ObjectId | [VERIFICAR] | Expediente documental del juicio (clave de T05; PA-SUE-18). | `documents` (T11) |
+| `dossierId` | uniqueidentifier | [VERIFICAR] | Expediente documental del juicio (clave de T05; PA-SUE-18). | `documents` (T11) |
 | `caseNumber` | String | [VERIFICAR] | — | — |
 | `caseTitle` | String | [VERIFICAR] | — | — |
 | `court` | String | [VERIFICAR] | — | — |
 | `plaintiffLawFirm` | String | [VERIFICAR] | — | — |
 | `ownLawFirm` | String | [VERIFICAR] | — | — |
-| `claimedAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `provisionAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `claimedAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `provisionAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `provisionHistory` | [Object] | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
 | `hearings` | [Object] | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
 | `procedureStatus` | Enum | [VERIFICAR] | — | — |
-| `judicialCaseId` | ObjectId | [VERIFICAR] | M08 MER-006. | `collectionCases` (M08) [VERIFICAR] |
+| `judicialCaseId` | uniqueidentifier | [VERIFICAR] | M08 MER-006. | `collectionCases` (M08) [VERIFICAR] |
 | `status` | Enum | Sí | `active`, `settled`, `judgment`, `archived`. | — |
 
 ### 7.44. Otras colecciones del módulo
@@ -1606,7 +1608,7 @@ Campos de `payslipNotifications`:
 | `name` | String | Sí | — | — |
 | `code` | String | Sí | Código único por tenant (clave de T05; PA-SUE-18). | — |
 | `code` | String | Sí | Código único por tenant (clave de T05; PA-SUE-18). | — |
-| `conceptIds` | [ObjectId] | [VERIFICAR] | Para gráficos y reportes agrupados. | `billableConcepts` (M02) |
+| `conceptIds` | [uniqueidentifier] | [VERIFICAR] | Para gráficos y reportes agrupados. | `billableConcepts` (M02) |
 
 **`salaryIncreaseBatches`** — campos:
 
@@ -1614,13 +1616,13 @@ Campos de `payslipNotifications`:
 |---|---|---|---|---|
 | `target` | Object | [VERIFICAR] | `unionId`, `laborAgreementId`, `categoryIds[]`, `extraGroupId`. | — |
 | `number` | String | Sí | Número del lote, único por tenant (T05; PA-SUE-18). | — |
-| `salaryScaleIds` | [ObjectId] | [VERIFICAR] | Escalas afectadas (clave de T05; PA-SUE-18). | `salaryScales` (M16) |
+| `salaryScaleIds` | [uniqueidentifier] | [VERIFICAR] | Escalas afectadas (clave de T05; PA-SUE-18). | `salaryScales` (M16) |
 | `mode` | Enum | [VERIFICAR] | `percent`, `amount`. | — |
-| `value` | Decimal128 | [VERIFICAR] | — | — |
+| `value` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `effectiveFrom` | Date | [VERIFICAR] | — | — |
 | `rounding` | Object | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
 | `preview` | [Object] | [VERIFICAR] | `{ categoryId\|extraItemId, current, pureBasic, new }`. | — |
-| `resultingScaleId` | ObjectId | [VERIFICAR] | — | `salaryScales` (M16) |
+| `resultingScaleId` | uniqueidentifier | [VERIFICAR] | — | `salaryScales` (M16) |
 | `status` | Enum | Sí | `draft`, `applied`, `discarded`. | — |
 
 **`externalPayrollImports`** — campos:
@@ -1629,21 +1631,21 @@ Campos de `payslipNotifications`:
 |---|---|---|---|---|
 | `reference` | String | Sí | Ej. `NOM-DEMO-2026-11`. | — |
 | `origin` | Object | [VERIFICAR] | — | — |
-| `legalEntityId` | ObjectId | Sí | — | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | — | `legalEntities` (T04) |
 | `periodKey` | String | Sí | — | — |
 | `payrollKind` | Enum | Sí | — | — |
-| `fileRef` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `fileRef` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `fileHash` | String | Sí | — | — |
-| `layoutId` | ObjectId | Sí | — | `externalPayrollLayouts` (M16) |
-| `declaredTotal` | Decimal128 | [VERIFICAR] | — | — |
-| `computedTotal` | Decimal128 | [VERIFICAR] | — | — |
+| `layoutId` | uniqueidentifier | Sí | — | `externalPayrollLayouts` (M16) |
+| `declaredTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `computedTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `lines` | [Object] | [VERIFICAR] | `{ externalConceptCode, mappedAccountId, costCenterId, serviceId, amount }`. | — |
 | `employees` | [Object] | No | `{ cuil, fileNumber, net, cbu }` (opcional). | — |
 | `status` | Enum | Sí | `uploaded`, `validated`, `rejected`, `approved`, `posted`, `paid`, `voided`. | — |
 | `errors` | [Object] | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
-| `approvedBy` | ObjectId | Cond. | — | `memberships` (T02) |
-| `accountingEntryRef` | ObjectId | [VERIFICAR] | — | `journalEntries` (M15) |
-| `paymentRequestId` | ObjectId | [VERIFICAR] | — | `payrollPaymentRequests` (M16) |
+| `approvedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
+| `accountingEntryRef` | uniqueidentifier | [VERIFICAR] | — | `journalEntries` (M15) |
+| `paymentRequestId` | uniqueidentifier | [VERIFICAR] | — | `payrollPaymentRequests` (M16) |
 
 **`externalPayrollLayouts`** — campos:
 
@@ -1651,7 +1653,7 @@ Campos de `payslipNotifications`:
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
 | `format` | Enum | [VERIFICAR] | `csv`, `xlsx`, `json`. | — |
-| `fileLayoutId` | ObjectId | [VERIFICAR] | Layout declarativo del motor de T06 (clave de T05; PA-SUE-18). | `fileLayouts` (T06) |
+| `fileLayoutId` | uniqueidentifier | [VERIFICAR] | Layout declarativo del motor de T06 (clave de T05; PA-SUE-18). | `fileLayouts` (T06) |
 | `columns` | [Object] | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
 | `conceptMappings` | [Object] | [VERIFICAR] | `{ externalCode, accountId, conceptType }`. | — |
 

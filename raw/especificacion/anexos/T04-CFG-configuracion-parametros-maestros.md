@@ -451,6 +451,8 @@ Proveer a CoopApps un **motor de configuración único, tipado, versionado y aud
 | RN-CFG-055 | La entidad jurídica no es un ámbito del motor de parámetros: lo que varía por entidad se configura en el dueño (M06 perfil fiscal, M15 planes, M16 `employer`) o por servicio (PRM-CFG-040). | — | Adoptar. | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Mapeo lógico → físico y motor (DEC-111, DEC-114, DEC-110)
 
@@ -466,9 +468,9 @@ Proveer a CoopApps un **motor de configuración único, tipado, versionado y aud
 | **Secreos** | `secretRef` → **Key Vault** por tenant (T06) | Sin valores en filas de parámetro |
 | **Geografía embebida** | Subdocumento lógico `geoReference` → columnas normalizadas + JSON complementario según `07` | Consumido por M01/M09/M10 |
 
-Traducción lógica → física (misma tabla que T05 §7.0): colección → tabla `cfg.*`; `tenantId` ObjectId → `TenantId`; FK → constraints en `07-ddl`; índices parciales `isDeleted` → índices filtrados SQL.
+Traducción lógica → física (misma tabla que T05 §7.0): colección → tabla `cfg.*`; `TenantId` uniqueidentifier → `TenantId`; FK → constraints en `07-ddl`; índices parciales `isDeleted` → índices filtrados SQL.
 
-Convenciones comunes (**vigente**): `TenantId`, auditoría, `version` (concurrencia optimista), vigencias bitemporales cuando aplique. **Histórico en §7.1–7.18:** tipos `ObjectId`, «plugin de tenancy» y nombres de colección = contrato lógico sin cambiar RF/RN.
+Convenciones comunes (**vigente**): `TenantId`, auditoría, `version` (concurrencia optimista), vigencias bitemporales cuando aplique. **Histórico en §7.1–7.18:** tipos `uniqueidentifier`, «plugin de tenancy» y nombres de colección = contrato lógico sin cambiar RF/RN.
 
 ### 7.1 `parameterDefinitions` (plataforma; sincronizada desde código)
 
@@ -476,7 +478,7 @@ Propósito: catálogo de definiciones. Reemplaza la declaración de `clsVariable
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | Siempre `PLATFORM`. |
+| `TenantId` | uniqueidentifier | Sí | Siempre `PLATFORM`. |
 | `key` | String | Sí | Clave semántica (§14.2). Única. |
 | `module` | String | Sí | Código de anexo dueño en minúsculas (`fac`, `cob`, …). |
 | `group` | String | Sí | Agrupador funcional dentro del módulo (`vencimientos`, `pagos360`). |
@@ -513,15 +515,15 @@ Propósito: valores por ámbito con historia bitemporal. Reemplaza las columnas 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | Tenant o `PLATFORM` (defaults de plataforma). |
+| `TenantId` | uniqueidentifier | Sí | Tenant o `PLATFORM` (defaults de plataforma). |
 | `key` | String | Sí | Clave. |
-| `scope` | Object | Sí | `{ type: platform|tenant|legalEntity|branch|service|category|user, refId: ObjectId|null }`. Con `legalEntity`, `refId` → `legalEntities` (DEC-096). |
-| `value` | Mixed | Sí | Validado contra la definición; importes como `Decimal128`; `secretRef` como `{ vaultId, secretName }`. |
+| `scope` | Object | Sí | `{ type: platform|tenant|legalEntity|branch|service|category|user, refId: uniqueidentifier|null }`. Con `legalEntity`, `refId` → `legalEntities` (DEC-096). |
+| `value` | Mixed | Sí | Validado contra la definición; importes como `DECIMAL(18,4)`; `secretRef` como `{ vaultId, secretName }`. |
 | `validFrom` | Date | Sí | Fecha efectiva desde (UTC, interpretada en zona del tenant). |
 | `validTo` | Date | No | Fecha efectiva hasta (exclusiva). |
 | `recordedAt` | Date | Sí | Cuándo se registró (publicación). |
 | `supersededAt` | Date | No | Cuándo fue reemplazado como conocimiento (corrección). |
-| `configVersionId` | ObjectId | Sí | Versión que lo publicó. |
+| `configVersionId` | uniqueidentifier | Sí | Versión que lo publicó. |
 | `origin` | Enum | Sí | `manual`, `import`, `copy`, `seed`, `migration`, `platform`, `rollback`. |
 | `reason` | String | No | Motivo. |
 | `status` | Enum | Sí | `published`, `superseded`, `closed`. |
@@ -548,9 +550,9 @@ Propósito: conjunto coherente de cambios con ciclo de vida de publicación (AGR
 | `validationReport` | Object | No | Errores/avisos por ítem. |
 | `simulationReport` | Object | No | Resultados por contributor (sin efectos). |
 | `diffBaseAt` | Date | No | Momento contra el que se calculó el diff (rebase). |
-| `workflowInstanceId` | ObjectId | No | Revisión en T11. |
+| `workflowInstanceId` | uniqueidentifier | No | Revisión en T11. |
 | `approvals` | [Object] | No | `{ userId, decision, at, comment }`. |
-| `publishedAt`, `publishedBy` | Date/ObjectId | No | — |
+| `publishedAt`, `publishedBy` | Date/uniqueidentifier | No | — |
 | `cancelReason`, `rejectReason` | String | No | — |
 
 Índices: `{ tenantId, number }` único; `{ tenantId, status, scheduledAt }`; `{ tenantId, 'items.target.key' }`.
@@ -577,7 +579,7 @@ Propósito: conjunto coherente de cambios con ciclo de vida de publicación (AGR
 
 `enumerations`: `code` (único), `ownerModule`, `kind` (`system`, `extensible`, `tenant`, `platform`), `labelKey`, `itemAttributes` ([FieldDef]), `hierarchical` (Boolean), `legacy` (`{ table | confCtrl }`).
 
-`enumerationItems`: `tenantId` (PLATFORM o tenant), `enumCode`, `code` (String inmutable), `labelKey` o `label` (si es del tenant, se registra en diccionario), `order`, `color`, `icon`, `parentCode`, `active`, `validFrom`, `validTo`, `attributes` (Mixed validado), `externalCodes` (`{ arca, inaes, enargas, oceba, ersep, enacom, sen }`), `isSystem`. Índice único `{ tenantId, enumCode, code }`.
+`enumerationItems`: `TenantId` (PLATFORM o tenant), `enumCode`, `code` (String inmutable), `labelKey` o `label` (si es del tenant, se registra en diccionario), `order`, `color`, `icon`, `parentCode`, `active`, `validFrom`, `validTo`, `attributes` (Mixed validado), `externalCodes` (`{ arca, inaes, enargas, oceba, ersep, enacom, sen }`), `isSystem`. Índice único `{ tenantId, enumCode, code }`.
 
 ### 7.6 Geografía
 
@@ -615,7 +617,7 @@ Propósito: conjunto coherente de cambios con ciclo de vida de publicación (AGR
 
 | Colección | Campos principales | Índices | Origen |
 |---|---|---|---|
-| `calendars` | `tenantId` (PLATFORM o tenant), `code`, `name`, `kind` (`national`, `provincial`, `municipal`, `tenant`, `service`), `provinceCode`, `localityCode`, `parentCalendarCodes` [String], `weekendDays` [0–6], `timezone` | `{tenantId, code}` único | — |
+| `calendars` | `TenantId` (PLATFORM o tenant), `code`, `name`, `kind` (`national`, `provincial`, `municipal`, `tenant`, `service`), `provinceCode`, `localityCode`, `parentCalendarCodes` [String], `weekendDays` [0–6], `timezone` | `{tenantId, code}` único | — |
 | `holidays` | `calendarCode`, `date` (fecha civil), `recurring` (`{ day, month }` si sin año), `year`, `kind` (`fixed`, `movable`, `bridge`, `nonWorking`, `local`, `leave`), `name`/`labelKey`, `sourceRef` (norma), `status`, `recordedAt` | `{tenantId, calendarCode, date}` | `FERIADOS` |
 | `calendarAssignments` (en `parameterValues`) | Clave `cfg.calendario.calendariosAplicables` por ámbito tenant/sucursal/servicio | — | — |
 
@@ -623,8 +625,8 @@ Propósito: conjunto coherente de cambios con ciclo de vida de publicación (AGR
 
 | Colección | Campos principales | Índices | Origen |
 |---|---|---|---|
-| `economicIndexSeries` | `tenantId` (PLATFORM o tenant), `code`, `name`/`labelKey`, `kind` (`inflation`, `exchangeRate`, `interestRate`, `lateFeeIndex`, `other`), `frequency` (`daily`, `monthly`, `intraday`), `unit` (`index`, `percentMonthly`, `percentAnnual`, `percentDaily`, `ARSperUnit`), `currencyCode`, `rateSide` (`buy`, `sell`, `mid`), `source` (`{ name, url, integrationId }`), `adoptable`, `status`, `legacy` (`TABINFL.COD_TAB`, `TABMORA.COD_TAB` o `TIPO_FAC`; antes `legacyRefs`) | `{tenantId, code}` único | `TABINFL`, `TABMORA`, `COT_DOL` |
-| `economicIndexValues` | `seriesId` (antes `seriesCode`; nombre de T05 COL-CFG-22), `date` o `period` (`YYYY-MM`), `time` (intradía), `value` (Decimal128), `status` (`provisional`, `definitive`), `publishedAt`, `recordedAt`, `supersededAt`, `revisionOf`, `source` | `{tenantId, seriesId, date, recordedAt}` | `INFLACIO`, `INDICESMORA`, `COT_DOL` |
+| `economicIndexSeries` | `TenantId` (PLATFORM o tenant), `code`, `name`/`labelKey`, `kind` (`inflation`, `exchangeRate`, `interestRate`, `lateFeeIndex`, `other`), `frequency` (`daily`, `monthly`, `intraday`), `unit` (`index`, `percentMonthly`, `percentAnnual`, `percentDaily`, `ARSperUnit`), `currencyCode`, `rateSide` (`buy`, `sell`, `mid`), `source` (`{ name, url, integrationId }`), `adoptable`, `status`, `legacy` (`TABINFL.COD_TAB`, `TABMORA.COD_TAB` o `TIPO_FAC`; antes `legacyRefs`) | `{tenantId, code}` único | `TABINFL`, `TABMORA`, `COT_DOL` |
+| `economicIndexValues` | `seriesId` (antes `seriesCode`; nombre de T05 COL-CFG-22), `date` o `period` (`YYYY-MM`), `time` (intradía), `value` (DECIMAL(18,4)), `status` (`provisional`, `definitive`), `publishedAt`, `recordedAt`, `supersededAt`, `revisionOf`, `source` | `{tenantId, seriesId, date, recordedAt}` | `INFLACIO`, `INDICESMORA`, `COT_DOL` |
 | `currencies` | `isoCode`, `arcaCode`, `name`, `symbol`, `decimals`; atributos de tenant: `divisible`, `rounding`, `perceptionPercent`, `allowChange`, `allowedForCollection`, `isSystem` | `{tenantId, isoCode}` | `TIP_MON` |
 
 ### 7.9 Tablas fiscales y padrones
@@ -634,18 +636,18 @@ Propósito: conjunto coherente de cambios con ciclo de vida de publicación (AGR
 | Colección | Campos principales | Índices | Origen |
 |---|---|---|---|
 | `vatConditions` | `code`, `labelKey`, `arcaReceiverConditionId`, `suggestedVoucherLetter` (A/B/C/E/M), `isRegistered`, `isExempt`, `isFinalConsumer`, `validFrom`, `validTo`, `sourceRef`, `legacy` (`SITIVA.COD_SIT`) | `{tenantId, code, validFrom}` | `SITIVA` |
-| `vatRates` | `code`, `percent` (Decimal128), `arcaId`, `validFrom`, `validTo`, `sourceRef`; atributos tenant (M15): `salesAccountId`, `purchaseAccountId`, `perceptionSalesAccountId` | `{tenantId, code, validFrom}` | `ALI_IVA` |
+| `vatRates` | `code`, `percent` (DECIMAL(18,4)), `arcaId`, `validFrom`, `validTo`, `sourceRef`; atributos tenant (M15): `salesAccountId`, `purchaseAccountId`, `perceptionSalesAccountId` | `{tenantId, code, validFrom}` | `ALI_IVA` |
 | `grossIncomeConditions` | `code`, `labelKey`, `isExempt`, `taxBaseRule`, `regime` (`local`, `multilateral`, `simplified`), `validFrom`, `validTo`, `legacy` | `{tenantId, code}` | `SITIBR` |
 | `grossIncomeRates` | `jurisdictionCode` (provincia), `activityCode` (NAES/actividad provincial), `percent`, `mustRemit`, `taxCode`, `taxGroup`, `validFrom`, `validTo`, `sourceRef`, `legacy` | `{tenantId, jurisdictionCode, activityCode, validFrom}` | `ALI_IBR` |
 | `identityDocumentTypes` | `code`, `labelKey`, `arcaCode`, `inaesCode`, `enargasCode`, `senCode`, `validation` (regex, dígito verificador), `appliesTo` (`person`, `company`) | `{tenantId, code}` | `DOCUMENT` |
-| `taxRegistries` | `tenantId` (PLATFORM o tenant), `code` (`arca-padron`, `iibb-cba`, `iibb-arba`, `iibb-agip`, `sircreb`…), `jurisdictionCode`, `regimes` [String], `source`, `requiresTenantCredentials`, `lastImportAt`, `status` | `{tenantId, code}` | — |
-| `taxRegistryEntries` | `registryCode`, `cuit`, `regime`, `rate` (Decimal128), `group`, `publishedAt`, `validFrom`, `validTo`, `importJobId`, `raw` (campos del archivo) | `{tenantId, registryCode, cuit, validFrom}` | `IIBB_LUA` |
+| `taxRegistries` | `TenantId` (PLATFORM o tenant), `code` (`arca-padron`, `iibb-cba`, `iibb-arba`, `iibb-agip`, `sircreb`…), `jurisdictionCode`, `regimes` [String], `source`, `requiresTenantCredentials`, `lastImportAt`, `status` | `{tenantId, code}` | — |
+| `taxRegistryEntries` | `registryCode`, `cuit`, `regime`, `rate` (DECIMAL(18,4)), `group`, `publishedAt`, `validFrom`, `validTo`, `importJobId`, `raw` (campos del archivo) | `{tenantId, registryCode, cuit, validFrom}` | `IIBB_LUA` |
 
 ### 7.10 Tablas de plataforma: publicaciones y adopciones
 
 `platformTableReleases`: `tableCode` o `seriesId` (antes `seriesCode`), `releaseNumber`, `summary`, `items` (altas, cambios, bajas con antes/después), `sourceRef` (norma/URL/fecha), `effectiveAt`, `affectsCalculation` (Boolean), `status` (`draft`, `published`, `superseded`), `publishedBy`, `publishedAt`.
 
-`platformTableAdoptions`: `tenantId`, `tableCode`/`seriesId` (antes `seriesCode`), `mode` (`follow`, `pinned`, `copy`), `pinnedReleaseNumber`, `pendingReleases` [Number], `acknowledgedBy`, `acknowledgedAt`, `purpose` (para series: `inflation`, `exchangeRateUSD`, `lateFee`).
+`platformTableAdoptions`: `TenantId`, `tableCode`/`seriesId` (antes `seriesCode`), `mode` (`follow`, `pinned`, `copy`), `pinnedReleaseNumber`, `pendingReleases` [Number], `acknowledgedBy`, `acknowledgedAt`, `purpose` (para series: `inflation`, `exchangeRateUSD`, `lateFee`).
 
 ### 7.11 Campos extra, formularios y vistas
 
@@ -665,13 +667,13 @@ Entidades con campos extra (valores del enum `entity`) y anexo dueño de cada un
 
 `formCustomizations`: `formKey` (de un registro de formularios personalizables publicado por cada módulo), `fieldKey`, `hidden`, `required`, `readOnly`, `defaultValue`, `labelKey`, `helpKey`, `order`, `allowedEnumCodes` [String], `status` (`active`, `superseded`; §8.10; antes sin valores), `configVersionId`, `legacy` (`FORMULARIOS_PERSONALIZACIONES.ID_FORM`, `ABM_VALIDACIONES.COD_ABM`). Índice `{ tenantId, formKey, fieldKey }` único por vigente.
 
-**Reemplazado por `dataTableViews` de T03 (CTR-DAT-11).** `savedViews`: `screenKey`, `ownerUserId` (null si compartida), `shareScope` (`private`, `role`, `tenant`), `roleIds` [ObjectId], `name`, `columns` [{ key, width, visible, order }], `filters` (estructura validada por la pantalla), `sort`, `groupBy`, `totals`, `conditionalFormats` [{ column, condition, style }], `pageSize`, `isDefault`, `legacy` (`ENTIDACOU.COD_CON`, `ENTIDADES.COD_ENT`). Índice `{ tenantId, screenKey, ownerUserId }`.
+**Reemplazado por `dataTableViews` de T03 (CTR-DAT-11).** `savedViews`: `screenKey`, `ownerUserId` (null si compartida), `shareScope` (`private`, `role`, `tenant`), `roleIds` [uniqueidentifier], `name`, `columns` [{ key, width, visible, order }], `filters` (estructura validada por la pantalla), `sort`, `groupBy`, `totals`, `conditionalFormats` [{ column, condition, style }], `pageSize`, `isDefault`, `legacy` (`ENTIDACOU.COD_CON`, `ENTIDADES.COD_ENT`). Índice `{ tenantId, screenKey, ownerUserId }`.
 
 ### 7.12 Importaciones, semillas y equivalencias
 
 `masterImportJobs`: `targetTableCode`, `fileRef` (almacenamiento privado), `format` (`xlsx`, `csv`, `fixedWidth`), `layoutRef` (T06 si es ancho fijo), `mapping`, `mode` (`insertOnly`, `upsert`, `replaceValidity`), `status` (§8.6), `counters` (`total`, `valid`, `errors`, `inserted`, `updated`, `closed`), `errorFileRef`, `configVersionId` o `platformTableReleaseId`, `idempotencyKey`.
 
-`seedPacks` (plataforma): `code` (`demo-base-s39`), `version`, `description`, `contents` (lista de bloques por colección/contributor), `demoOnly`. `seedApplications`: `tenantId`, `seedPackCode`, `version`, `appliedAt`, `appliedBy`, `configVersionId`, `createdRecordRefs` (para retiro), `status` (`applied`, `removed`).
+`seedPacks` (plataforma): `code` (`demo-base-s39`), `version`, `description`, `contents` (lista de bloques por colección/contributor), `demoOnly`. `seedApplications`: `TenantId`, `seedPackCode`, `version`, `appliedAt`, `appliedBy`, `configVersionId`, `createdRecordRefs` (para retiro), `status` (`applied`, `removed`).
 
 `legacyParameterMappings` (plataforma): `legacyTable` (`VARIABLE`, `VARIABLE_PMOVIL`), `modVar` (1 CoopOnline, 2 PMovil/Captor, 3 PWeb), `codVar`, `legacyName` (`NOM_VAR`), `legacyModule` (`COD_MOD`), `legacyType`, `directUse` (Boolean, de RN-09), `destinationKind` (`parameter`, `dictionary`, `tenantProfile`, `secret`, `env`, `discarded`, `replacedBy`, `toValidate`), `keys` [String], `transform` (`identity`, `invertBoolean`, `fkMap:<tabla>`, `enumMap`, `split`, `textDate→date`), `prmId`, `notes`. Índice único `{ legacyTable, modVar, codVar }`.
 
@@ -710,7 +712,7 @@ Entidades con campos extra (valores del enum `entity`) y anexo dueño de cada un
 
 ### 7.14 `legalEntities` (tenant; COL-CFG-41; DEC-064; O0)
 
-Entidades jurídicas emisoras del tenant. Campos comunes de T05 (`tenantId`, auditoría, `version`).
+Entidades jurídicas emisoras del tenant. Campos comunes de T05 (`TenantId`, auditoría, `version`).
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
@@ -740,8 +742,8 @@ Los nombres de REQ-DEC-064 (`cuit`, `ivaCondition`, `iibbRegime`, `activityStart
 |---|---|---|---|
 | `code` | string | Sí | Código único en el tenant (ej. `SUC-01`). |
 | `name` | string | Sí | Nombre visible (por diccionario si el tenant lo traduce). |
-| `legalEntityId` | ObjectId → `legalEntities` | Sí | Entidad jurídica de la sucursal (RN-CFG-054). |
-| `localityId` | ObjectId → `localities` | Sí | Localidad. |
+| `legalEntityId` | uniqueidentifier → `legalEntities` | Sí | Entidad jurídica de la sucursal (RN-CFG-054). |
+| `localityId` | uniqueidentifier → `localities` | Sí | Localidad. |
 | `address` | subdocumento domicilio con `geoReference` | Sí | Domicilio de la sucursal. |
 | `uses` | array enum `attention`, `cashier`, `warehouse`, `pointOfSale`, `technicalBase` | Sí | Usos habilitados; los dueños (M07 cajas, M13 depósitos, M06 puntos de venta, M09 turnero) validan contra estos usos. |
 | `isHeadquarters` | boolean | Sí | Casa central (una por entidad). |
@@ -778,7 +780,7 @@ Tenant `PLATFORM`, con `source` (norma, resolución, URL), `validFrom`, `validTo
 
 ### 7.18 Tablas de campos de las colecciones definidas en texto
 
-Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `tenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-CFG-15 (Asumida, DEC-072).
+Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `TenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-CFG-15 (Asumida, DEC-072).
 
 **`enumerationItems`** — Ítems de enumeraciones y tablas maestras simples (COL-CFG-06; definición en texto en §7.5)
 
@@ -798,7 +800,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `attributes` | array | No | — | Mixed validado |
 | `externalCodes` | object | No | — | `{ arca, inaes, enargas, oceba, ersep, enacom, sen }` |
 | `isSystem` | bool | No | — | Según la definición en texto del §7 |
-| `enumerationId` | ObjectId | Sí | `enumerations` (T04) | destino → `enumerations` |
+| `enumerationId` | uniqueidentifier | Sí | `enumerations` (T04) | destino → `enumerations` |
 
 **`countries`** — Países (COL-CFG-07; definición en texto en §7.6)
 
@@ -821,7 +823,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `isoCode` | string | No | — | AR-X |
 | `externalCodes` | enum | No | — | `arca`, `inaes`, `enargas`, `sen` |
 | `centroid` | string | No | — | Según la definición en texto del §7 |
-| `countryId` | ObjectId | Sí | `countries` (T04) | destino → `countries` |
+| `countryId` | uniqueidentifier | Sí | `countries` (T04) | destino → `countries` |
 
 **`departments`** — Departamentos/partidos (COL-CFG-09; definición en texto en §7.6)
 
@@ -833,7 +835,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `kind` | enum | No | — | departamento/partido/comuna |
 | `externalCodes` | enum | No | — | `inaes`, `enargas`, `oceba` |
 | `geometryRef` | string | No | — | Según la definición en texto del §7 |
-| `provinceId` | ObjectId | Sí | `provinces` (T04) | destino → `provinces` |
+| `provinceId` | uniqueidentifier | Sí | `provinces` (T04) | destino → `provinces` |
 
 **`localities`** — Localidades (COL-CFG-10; definición en texto en §7.6)
 
@@ -852,7 +854,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `tenantAttributes` | array | No | — | `kmToHeadquarters`, … |
 | `isTenantOwned` | bool | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | Según la definición en texto del §7 |
-| `departmentId` | ObjectId | Sí | `departments` (T04) | destino → `departments` |
+| `departmentId` | uniqueidentifier | Sí | `departments` (T04) | destino → `departments` |
 
 **`postalCodes`** — Códigos postales (COL-CFG-11; definición en texto en §7.6)
 
@@ -863,7 +865,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `localityCodes` | array de string | No | — | Según la definición en texto del §7 |
 | `provinceCode` | string | No | — | Según la definición en texto del §7 |
 | `source` | string | No | — | Según la definición en texto del §7 |
-| `localityId` | ObjectId | Sí | `localities` (T04) | destino → `localities` |
+| `localityId` | uniqueidentifier | Sí | `localities` (T04) | destino → `localities` |
 
 **`streets`** — Calles con tramos (COL-CFG-12; definición en texto en §7.6)
 
@@ -873,7 +875,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `normalizedName` | string | No | — | Según la definición en texto del §7 |
 | `departmentCode` | string | No | — | Según la definición en texto del §7 |
 | `provinceCode` | string | No | — | Según la definición en texto del §7 |
-| `sourceId` | ObjectId | No | — | Según la definición en texto del §7 |
+| `sourceId` | uniqueidentifier | No | — | Según la definición en texto del §7 |
 | `name` | string | Sí | — | Según la definición en texto del §7 |
 | `kind` | enum | No | — | calle, avenida, pasaje, ruta, camino |
 | `heights` | array | No | — | `{ startLeft, endLeft, startRight, endRight }` |
@@ -883,7 +885,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `status` | enum | Sí | — | `active`, `pendingValidation`, `merged`, `inactive` |
 | `mergedInto` | string | No | — | Según la definición en texto del §7 |
 | `geometryRef` | string | No | — | Según la definición en texto del §7 |
-| `localityId` | ObjectId | Sí | `localities` (T04) | destino → `localities` |
+| `localityId` | uniqueidentifier | Sí | `localities` (T04) | destino → `localities` |
 | `code` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`streetAliases`** — Alias de calles (COL-CFG-13; definición en texto en §7.6)
@@ -891,7 +893,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `normalizedAlias` | array | No | — | Según la definición en texto del §7 |
-| `streetId` | ObjectId | Sí | `streets` (T04) | destino → `streets` |
+| `streetId` | uniqueidentifier | Sí | `streets` (T04) | destino → `streets` |
 | `alias` | array | Sí | — | Según la definición en texto del §7 |
 | `kind` | enum | No | — | histórico, popular, legacy |
 
@@ -900,13 +902,13 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `status` | enum | Sí | — | Según la definición en texto del §7 |
-| `streetId` | ObjectId | No | `streets` (T04) | local; destino → `streets` |
-| `proposedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `streetId` | uniqueidentifier | No | `streets` (T04) | local; destino → `streets` |
+| `proposedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `evidence` | string | No | — | adjuntos T11 |
-| `decisionBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `decisionBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `decisionAt` | Date | No | — | Según la definición en texto del §7 |
-| `platformStreetId` | ObjectId | No | `streets` (T04) | destino → `streets` |
-| `localityId` | ObjectId | Sí | `localities` (T04) | destino → `localities` |
+| `platformStreetId` | uniqueidentifier | No | `streets` (T04) | destino → `streets` |
+| `localityId` | uniqueidentifier | Sí | `localities` (T04) | destino → `localities` |
 
 **`neighborhoods`** — Barrios (COL-CFG-15; definición en texto en §7.6)
 
@@ -917,7 +919,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `name` | string | Sí | — | Según la definición en texto del §7 |
 | `polygon` | string | No | — | GeoJSON, opcional |
 | `status` | enum | Sí | — | Según la definición en texto del §7 |
-| `localityId` | ObjectId | Sí | `localities` (T04) | destino → `localities` |
+| `localityId` | uniqueidentifier | Sí | `localities` (T04) | destino → `localities` |
 
 **`zones`** — Zonas operativas y geográficas (COL-CFG-16; definición en texto en §7.6)
 
@@ -928,7 +930,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `kind` | enum | No | — | lectura, operación, cobranza, comercial |
 | `localityCodes` | array de string | No | — | Según la definición en texto del §7 |
 | `polygon` | string | No | — | Según la definición en texto del §7 |
-| `branchId` | ObjectId | No | `branches` (T04) | destino → `branches` |
+| `branchId` | uniqueidentifier | No | `branches` (T04) | destino → `branches` |
 | `status` | enum | Sí | — | Según la definición en texto del §7 |
 | `geometry` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
@@ -941,7 +943,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `localityCode` | string | No | — | Según la definición en texto del §7 |
 | `description` | string | No | — | Según la definición en texto del §7 |
 | `externalCodes` | array | No | — | Según la definición en texto del §7 |
-| `localityId` | ObjectId | Sí | `localities` (T04) | destino → `localities` |
+| `localityId` | uniqueidentifier | Sí | `localities` (T04) | destino → `localities` |
 | `code` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`geocodeRequests`** — Pedidos de geocodificación; TTL (COL-CFG-18; definición en texto en §7.6)
@@ -951,7 +953,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `status` | enum | Sí | — | Según la definición en texto del §7 |
 | `nextAttemptAt` | Date | No | — | Según la definición en texto del §7 |
 | `subjectType` | string | No | — | Según la definición en texto del §7 |
-| `subjectId` | ObjectId | No | — | Según la definición en texto del §7 |
+| `subjectId` | uniqueidentifier | No | — | Según la definición en texto del §7 |
 | `inputText` | string | No | — | Según la definición en texto del §7 |
 | `provider` | enum | Sí | — | `georef`, `google` |
 | `candidates.Object` | string | No | — | Según la definición en texto del §7 |
@@ -987,7 +989,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `sourceRef` | string | No | — | norma |
 | `status` | enum | Sí | — | Según la definición en texto del §7 |
 | `recordedAt` | Date | No | — | Según la definición en texto del §7 |
-| `calendarId` | ObjectId | Sí | `calendars` (T04) | destino → `calendars` |
+| `calendarId` | uniqueidentifier | Sí | `calendars` (T04) | destino → `calendars` |
 
 **`economicIndexSeries`** — Series de índices (IPC, CER, UVA, tasas BCRA, inflación contable) (COL-CFG-21; definición en texto en §7.8)
 
@@ -1008,12 +1010,12 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `seriesId` | ObjectId | Sí | `economicIndexSeries` (T04) | destino → `economicIndexSeries` |
+| `seriesId` | uniqueidentifier | Sí | `economicIndexSeries` (T04) | destino → `economicIndexSeries` |
 | `date` | Date | Sí | — | Según la definición en texto del §7 |
 | `recordedAt` | Date | No | — | Según la definición en texto del §7 |
 | `date.o.period` | string | No | — | Según la definición en texto del §7 |
 | `time` | string | No | — | intradía |
-| `value` | string | No | — | Decimal128 |
+| `value` | string | No | — | DECIMAL(18,4) |
 | `status` | enum | Sí | — | `provisional`, `definitive` |
 | `publishedAt` | Date | No | — | Según la definición en texto del §7 |
 | `supersededAt` | Date | No | — | Según la definición en texto del §7 |
@@ -1053,7 +1055,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `tableCode` | string | Sí | — | Según la definición en texto del §7 |
-| `seriesId` | ObjectId | No | `economicIndexSeries` (T04) | antes `seriesCode`; destino → `economicIndexSeries` |
+| `seriesId` | uniqueidentifier | No | `economicIndexSeries` (T04) | antes `seriesCode`; destino → `economicIndexSeries` |
 | `releaseNumber` | int | No | — | Según la definición en texto del §7 |
 | `summary` | string | No | — | Según la definición en texto del §7 |
 | `items` | array | No | — | altas, cambios, bajas con antes/después |
@@ -1061,7 +1063,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `effectiveAt` | Date | No | — | Según la definición en texto del §7 |
 | `affectsCalculation` | bool | No | — | Boolean |
 | `status` | enum | Sí | — | `draft`, `published`, `superseded` |
-| `publishedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `publishedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `publishedAt` | Date | No | — | Según la definición en texto del §7 |
 
 **`platformTableAdoptions`** — Adopción por tenant (absorbe officialTableAdoptions de M16) (COL-CFG-32; definición en texto en §7.10)
@@ -1069,14 +1071,14 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `tableCode` | string | Sí | — | Según la definición en texto del §7 |
-| `seriesId` | ObjectId | No | `economicIndexSeries` (T04) | antes `seriesCode`; destino → `economicIndexSeries` |
+| `seriesId` | uniqueidentifier | No | `economicIndexSeries` (T04) | antes `seriesCode`; destino → `economicIndexSeries` |
 | `mode` | enum | No | — | `follow`, `pinned`, `copy` |
 | `pinnedReleaseNumber` | int | No | — | Según la definición en texto del §7 |
 | `pendingReleases` | array | No | — | Según la definición en texto del §7 |
-| `acknowledgedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `acknowledgedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `acknowledgedAt` | Date | No | — | Según la definición en texto del §7 |
 | `purpose` | string | No | — | para series: `inflation`, `exchangeRateUSD`, `lateFee` |
-| `releaseId` | ObjectId | Sí | `platformTableReleases` (T04) | destino → `platformTableReleases` |
+| `releaseId` | uniqueidentifier | Sí | `platformTableReleases` (T04) | destino → `platformTableReleases` |
 | `effectiveFrom` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`customFieldDefinitions`** — Campos extra por entidad (COL-CFG-33; definición en texto en §7.11)
@@ -1115,7 +1117,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `order` | int | No | — | Según la definición en texto del §7 |
 | `allowedEnumCodes` | array | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `active`, `superseded`; §8.10; antes sin valores |
-| `configVersionId` | ObjectId | No | `configVersions` (T04) | destino → `configVersions` |
+| `configVersionId` | uniqueidentifier | No | `configVersions` (T04) | destino → `configVersions` |
 | `screenCode` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`masterImportJobs`** — Importaciones de maestros desde Excel (COL-CFG-36; definición en texto en §7.12)
@@ -1131,10 +1133,10 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `status` | enum | Sí | — | §8.6 |
 | `counters` | enum | No | — | `total`, `valid`, `errors`, `inserted`, `updated`, `closed` |
 | `errorFileRef` | string | No | — | Según la definición en texto del §7 |
-| `configVersionId` | ObjectId | No | `configVersions` (T04) | destino → `configVersions` |
-| `platformTableReleaseId` | ObjectId | No | `platformTableReleases` (T04) | destino → `platformTableReleases` |
+| `configVersionId` | uniqueidentifier | No | `configVersions` (T04) | destino → `configVersions` |
+| `platformTableReleaseId` | uniqueidentifier | No | `platformTableReleases` (T04) | destino → `platformTableReleases` |
 | `idempotencyKey` | string | No | — | Según la definición en texto del §7 |
-| `storedFileId` | ObjectId | Sí | `storedFiles` (T01) | destino → `storedFiles` |
+| `storedFileId` | uniqueidentifier | Sí | `storedFiles` (T01) | destino → `storedFiles` |
 
 **`seedPacks`** — Paquetes de precarga de demostración (COL-CFG-37; definición en texto en §7.12)
 
@@ -1151,11 +1153,11 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `seedPackCode` | string | No | — | Según la definición en texto del §7 |
 | `appliedAt` | Date | No | — | Según la definición en texto del §7 |
-| `appliedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `configVersionId` | ObjectId | No | `configVersions` (T04) | destino → `configVersions` |
+| `appliedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `configVersionId` | uniqueidentifier | No | `configVersions` (T04) | destino → `configVersions` |
 | `createdRecordRefs` | array | No | — | para retiro |
 | `status` | enum | Sí | — | `applied`, `removed` |
-| `seedPackId` | ObjectId | Sí | `seedPacks` (T04) | destino → `seedPacks` |
+| `seedPackId` | uniqueidentifier | Sí | `seedPacks` (T04) | destino → `seedPacks` |
 
 **`legacyParameterMappings`** — Mapa VARIABLE/V2 → PRM (COL-CFG-39; definición en texto en §7.12)
 
@@ -1181,9 +1183,9 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `code` | string | Sí | — | único en el tenant |
 | `name` | string | Sí | — | Según la definición en texto del §7 |
-| `branchId` | ObjectId | No | `branches` (T04) | → `branches` |
+| `branchId` | uniqueidentifier | No | `branches` (T04) | → `branches` |
 | `kind` | enum | No | — | `counter`, `cashier`, `office`, `kiosk`, `field` |
-| `localAgentId` | ObjectId | No | `localAgents` (T06) | agente local de M09, opcional; destino → `localAgents` |
+| `localAgentId` | uniqueidentifier | No | `localAgents` (T06) | agente local de M09, opcional; destino → `localAgents` |
 | `devices` | array | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `active`, `inactive` |
 

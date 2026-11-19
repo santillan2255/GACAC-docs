@@ -13,7 +13,9 @@ Estado de cada artefacto:
 
 **Cooperativa piloto:** **Laguna Larga** (`LAG`) (DEC-088, que reemplaza a DEC-081). Opera servicios medidos (electricidad, gas y prepago), por lo que su primera migración real ocurre después de la ola O7 (PA-MIG-17), con el prepago disponible, y el corte avanza por etapas hasta O11 (DEC-068).
 
-Versión del índice: 1.5 (05-11-2026; consolidación de las dos series de entregables: una sola versión por tema, la menos completa movida a `_descartados/` sin borrarla, y alta de los artefactos 4.3, 4.6, 4.7, 5.3, 5.6 y 9.3 como documentos 25–29; antes 1.4, regenerado tras la ronda de residuales y la sincronización de la especificación; antes 1.3, regenerado tras la corrección de inconsistencias; antes 1.2, y antes 1.1 sin la ampliación a cobertura completa ni los documentos 17-24). Cada entregable cierra con su tabla de cobertura contra el universo de la especificación; resumen en la sección "Cobertura de los entregables".
+**C-10 cerrado** (19-11-2026): [`00-C10-CIERRE-STACK.md`](00-C10-CIERRE-STACK.md).
+
+Versión del índice: 1.6 (19-11-2026: cierre C-10 stack; antes 1.5, 05-11-2026; consolidación de las dos series de entregables: una sola versión por tema, la menos completa movida a `_descartados/` sin borrarla, y alta de los artefactos 4.3, 4.6, 4.7, 5.3, 5.6 y 9.3 como documentos 25–29; antes 1.4, regenerado tras la ronda de residuales y la sincronización de la especificación; antes 1.3, regenerado tras la corrección de inconsistencias; antes 1.2, y antes 1.1 sin la ampliación a cobertura completa ni los documentos 17-24). Cada entregable cierra con su tabla de cobertura contra el universo de la especificación; resumen en la sección "Cobertura de los entregables".
 
 ## 1. Documentos de gestión del entregable
 

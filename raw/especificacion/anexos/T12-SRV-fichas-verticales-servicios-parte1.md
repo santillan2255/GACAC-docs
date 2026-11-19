@@ -15,6 +15,8 @@
 >
 > **Lectura:** «colección» en este anexo = **entidad lógica**; tablas, columnas y FK en `07-*`. RF/RN/CU del anexo **no cambian** por el stack.
 
+> **Barrido C-05 (DEC-111).** T12 no es dueño de tablas SQL; los capítulos «7.» por servicio son fichas de trazabilidad. Modelo físico: anexos M/T dueños citados en cada ficha y `07-*`.
+
 
 ## 0.1 Propósito
 

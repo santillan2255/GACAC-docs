@@ -666,8 +666,10 @@ Cada ficha es la **plantilla de capacidad** que la plataforma ofrece (`serviceCa
 | Dispositivos registrables | Servicios con perfil "dispositivos" o "dispositivos y adherentes" registran cada equipo en `contractRegistrations` de M18 (RF-SOC-148, tipo `device`); el tipo combinado se compone con `serviceDependents`. | RF-SOC-148 | O10 |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Convenciones comunes a todas las colecciones (no se repiten): `_id` ObjectId; `tenantId` ObjectId obligatorio (en catálogo de plataforma = tenant `PLATFORM`); `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista); `deletedAt` solo en configuración no publicada (los contratos y documentos económicos nunca se borran). Todo índice compuesto empieza por `tenantId`. Etiquetas por `labelKey` (`dict:`). Importes en `Decimal128`.
+
+Convenciones comunes a todas las colecciones (no se repiten): `_id` uniqueidentifier; `TenantId` uniqueidentifier obligatorio (en catálogo de plataforma = tenant `PLATFORM`); `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista); `deletedAt` solo en configuración no publicada (los contratos y documentos económicos nunca se borran). Todo índice compuesto empieza por `TenantId`. Etiquetas por `labelKey` (`dict:`). Importes en `DECIMAL(18,4)`.
 
 Nombres canónicos de T05 §7.2 (CTR-DAT-30): `serviceId` → `tenantServices` (antes `tenantServiceId` en todo este anexo, incluidos payloads de eventos y API); `holderId` → `holders` (antes `holderPersonId`, CTR-DAT-67); `servicePointId` → `servicePoints` y `premiseId` → `premises` de M01 (antes `serviceAddress.propertyId`, CTR-DAT-66); `inventoryItemId` y `serialUnitId` → M13 (antes `stockItemId` y `stockUnitId`); `credentialRef` → `integrationSecrets` de T06 (DEC-074). `propertyId` se conserva solo cuando apunta a `serviceProperties` (propiedades del servicio, 7.13), nunca al inmueble. Los datos de migración van en el subdocumento `legacy` de T05 §19.1 (CTR-DAT-32), no en `migration`.
 
@@ -699,7 +701,7 @@ Propósito: servicio habilitado/ofertado por el tenant y su perfil. Origen: `SER
 
 | Campo | Tipo | Oblig. | Descripción / origen |
 |---|---|---|---|
-| `capabilityId` | ObjectId | Sí | → `serviceCapabilities`. |
+| `capabilityId` | uniqueidentifier | Sí | → `serviceCapabilities`. |
 | `code` | string | Sí | Código del tenant (ej. "INT"); ex `COD_SER`. |
 | `labelKey` | string | Sí | ex `DES_SER`. |
 | `serviceTypeCode` | string | No | Agrupador de reporte; ex `TIP_SERVI`. |
@@ -707,7 +709,7 @@ Propósito: servicio habilitado/ofertado por el tenant y su perfil. Origen: `SER
 | `enablement` | object | Sí | `{status: enabled\|disabled, validFrom, validTo, enabledBy, licenseCheckAt}`. |
 | `offerStatus` | enum | Sí | `notPublished`, `open`, `closed`. |
 | `operationStatus` | enum | Sí | `operating`, `windingDown`, `closed`. |
-| `currentConfigVersionId` | ObjectId | No | Versión publicada vigente. |
+| `currentConfigVersionId` | uniqueidentifier | No | Versión publicada vigente. |
 | `profile` | object | Sí | 13 dimensiones (6.B). Incluye `profile.billing.publicServiceSettlement` (bool, obligatorio, default `false`; ex `SERVICIO.LIQ_AFIP`): el servicio liquida como servicio público ante ARCA (LQSP) y sus conceptos tarifarios van al comprobante de clase LQSP, nunca mezclados con los de factura común (DEC-093; RF-CAT-117; RN-FAC-040 de M05; RF-FIS-072 y RF-FIS-076 de M06). |
 | `registrationProfile` | enum | Sí | ex `TIP_REG`/`TipoRegistracion`. |
 | `calculationType` | int | Sí | ex `TIP_CAL`. |
@@ -718,11 +720,11 @@ Propósito: servicio habilitado/ofertado por el tenant y su perfil. Origen: `SER
 | `consumptionSplitMode` | enum | No | `none`, `generalPeriod`, `periodAndSequence` (ex `DIVISION_CONSUMO` 1/2). |
 | `members` | object | No | Tras HUECO-TRV-01 M02 conserva solo `allowsAdherents` y `allowsBeneficiaries` ("admite miembros"); el resto de las marcas: Reemplazado por PRM-SOC-001 a PRM-SOC-013 y los planes de cobertura de M18 (RF-SOC-001). Texto original: `{allowsAdherents (ADHER), allowsBeneficiaries (BENEF), adherentPricing (PRE_C_AD, ADH_PRE), excludeUnderOneYear (MENORES), excludeOlder (MAYORES), excludeDisability (DISCAPA), excludeRetired (JUBILAD), waitingPeriodDays (CARENCIA), requireHolderAdherent (V2 109), cascade: cascade\|ask\|none (V2 2401), allowDuplicateInService (V2 2400), askRemoveDuplicate (V2 2521), controlMemberDebt (V2 2545)}`. |
 | `registrations` | object | No | `{allowsBeneficiaries (`serviceBeneficiaries` de M18, DEC-086), registrationTypes[]: electricVehicle\|device\|other}`: qué tipos de registración del contrato acepta el servicio en `contractRegistrations` de M18 (RF-SOC-148). Vacío = ninguno. M18 rechaza una registración de un tipo no declarado aquí. |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica del tenant que presta y factura el servicio (`legalEntities` de T04; DEC-064). Un tenant con una sola entidad la toma por defecto. |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica del tenant que presta y factura el servicio (`legalEntities` de T04; DEC-064). Un tenant con una sola entidad la toma por defecto. |
 | `defaultOperationalStatus` | object | Sí | `{onActivation, onTermination, onReconnection, onMeterChange, onTransfer, onDisconnected}` → `serviceStatuses` (ex `COD_EST_ALTA`, `COD_EST_BAJA`, `COD_EST_RECONEXION`, `COD_EST_CAMBIOMEDIDOR`, `COD_EST_TRANSFERENCIA`, `COD_CON_DESCONECTADO`); `autoSelectPrincipal` (V2 2435). |
 | `workOrderTypes` | object | No | `{activation (COD_TRAN_ALTA), categoryChange (V2 2330), transfer (COD_TRAN_TRANSFERENCIA), statusChange[] (V2 3194)}` → tipos de OT de TEC. |
 | `transfer` | object | No | `{conditionAfter (CONDICION_TRANSFERENCIA), markOriginalSuperseded (V2 2541), memberMode (V2 2291), allowTerminated (V2 2599), chargeConcepts (V2 2782), markPrincipal (V2 3195)}`. |
-| `defaultBillingGroupId` | ObjectId | Sí | ex `GF_DEFECTO`. Referencia: `billingGroups` (M05). |
+| `defaultBillingGroupId` | uniqueidentifier | Sí | ex `GF_DEFECTO`. Referencia: `billingGroups` (M05). |
 | `phoneMobileType` | enum | No | ex `TIP_CELULAR`. |
 | `uniqueness` | object | Sí | `{supplyCodeUnique (¬V2 2250), allowSameMeteredInAccount (V2 2269), allowSameUnmeteredInAccount (V2 2715), oneSocialPerHolder (V2 2740), validateSameAddress (V2 2710)}`. |
 | `addressDebtCheck` | object | Sí | `{enabled (V2 2482), mode: warn\|requireApproval (V2 2668), overdueOnly (V2 2669)}`. |
@@ -742,18 +744,18 @@ Propósito: paquete versionado y publicable (AGR-009). Origen: `HIS_SERVICIO`, `
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `serviceId` | ObjectId | Sí | |
+| `serviceId` | uniqueidentifier | Sí | |
 | `number` | int | Sí | Correlativo por servicio. |
 | `status` | enum | Sí | `draft`, `inReview`, `approved`, `scheduled`, `published`, `superseded`, `rejected`, `discarded`. |
 | `changeKinds[]` | enum[] | Sí | `commercial`, `fiscal`, `technical`, `presentation`. |
 | `snapshot` | object | Sí | Copia inmutable de perfil + ids/versiones de productos, conceptos, planes, categorías, estados, reglas. |
 | `diffFromPrevious` | object | No | Diferencias calculadas. |
 | `validations[]` | object[] | Sí | `{code, severity: blocking\|warning, message, ref}`. |
-| `simulationRunIds[]` | ObjectId[] | No | Simulaciones TAR. |
+| `simulationRunIds[]` | uniqueidentifier[] | No | Simulaciones TAR. |
 | `effectiveFrom` | Date | Sí | Fecha efectiva. |
 | `recordedAt` | Date | Sí | Fecha de registro (AGR-010). |
 | `submittedBy`, `approvedBy`, `approvedAt`, `publishedAt` | | No | |
-| `workflowInstanceId` | ObjectId | No | T11. |
+| `workflowInstanceId` | uniqueidentifier | No | T11. |
 
 Índices: `{tenantId, serviceId, number}` único; `{tenantId, serviceId, status, effectiveFrom}`.
 
@@ -768,12 +770,12 @@ Campos de `serviceConcessions` (tabla normalizada el 05-11-2026 a partir del tex
 | `code` | string | Sí | — | — |
 | `name` | string | [VERIFICAR] | Ex `NOM_CESI` | — |
 | `grantor` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `authorityIds[]` | ObjectId[] | [VERIFICAR] | — | Autoridad concedente registrada en M01, asumida en PA-CAT-21 (DEC-072); antes [VERIFICAR] (T05 no declara colección; posible `enumerationItems` de T04) |
+| `authorityIds[]` | uniqueidentifier[] | [VERIFICAR] | — | Autoridad concedente registrada en M01, asumida en PA-CAT-21 (DEC-072); antes [VERIFICAR] (T05 no declara colección; posible `enumerationItems` de T04) |
 | `jurisdiction` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `instrumentRef` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
-| `serviceIds[]` | ObjectId[] | [VERIFICAR] | — | `tenantServices` (M02) |
+| `serviceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `tenantServices` (M02) |
 | `documents[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 
 ### 7.5 `serviceProducts`
@@ -782,13 +784,13 @@ Propósito: productos y subservicios dentro de un servicio. Origen: `PROD_SER` (
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `serviceId` | ObjectId | Sí | |
+| `serviceId` | uniqueidentifier | Sí | |
 | `code`, `labelKey` | string | Sí | |
 | `kind` | enum | Sí | `main`, `addon` (subservicio), `equipment`, `oneTimeService`, `ticAccount` (correo), `phoneService`. |
 | `tvMinimumLineup` | bool | No | Paquete de grilla mínima del servicio TV (RN-CAT-079; referenciado por PRM-MOR-200 de M08). |
 | `attributes` | object | No | Según esquema de dominio (tecnología, velocidad…). |
-| `requiresProductIds[]`, `excludesProductIds[]` | ObjectId[] | No | Compatibilidad. Referencia: → `serviceProducts` (M02, autorreferencia). |
-| `inventoryItemId` | ObjectId | No | Ítem STK cuando `kind=equipment` (antes `stockItemId`, CTR-DAT-30). |
+| `requiresProductIds[]`, `excludesProductIds[]` | uniqueidentifier[] | No | Compatibilidad. Referencia: → `serviceProducts` (M02, autorreferencia). |
+| `inventoryItemId` | uniqueidentifier | No | Ítem STK cuando `kind=equipment` (antes `stockItemId`, CTR-DAT-30). |
 | `status` | enum | Sí | `active`, `discontinued`. |
 | `validFrom`, `validTo` | Date | Sí/No | |
 
@@ -800,16 +802,16 @@ Propósito: estructura de conceptos facturables (el precio vive en TAR). Origen:
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `serviceId` | ObjectId | No | Nulo = transversal (capital, tasas, franqueo). |
+| `serviceId` | uniqueidentifier | No | Nulo = transversal (capital, tasas, franqueo). |
 | `code`, `labelKey`, `invoiceLabelKey` | string | Sí | ex `DES_PRO`, `DES_FOR`. |
 | `kind` | enum | Sí | `oneTime`, `recurring`, `perQuantity`, `perEvent`, `installment`, `adjustment`, `thirdPartyFee`, `capitalContribution`, `usage`, `penalty`, `waiver`. |
 | `trigger` | enum | Sí | `approval`, `installationConfirmed`, `activation`, `periodStart`, `event`, `milestone`, `manual`. |
 | `eventTypes[]` | enum[] | No | Para `perEvent`: `serviceActivation`, `accountCreation`, `holderCreation`, `reconnection`, `afterWorkOrder`, `beforeWorkOrder`, `transfer`, `suspension`, `relocation`. |
 | `unitOfMeasure` | string | Sí | ex `UNI_MED`. |
-| `fiscalClassId` | ObjectId | Sí | FIS. Referencia: `fiscalClasses` (M06, PA-FIS-21); antes «clase fiscal de M06» (PA-CAT-21) y [VERIFICAR]. |
-| `accountingRubricId` | ObjectId | No | ex `COD_RUB`. Referencia: `accountRubrics` (M15). |
-| `costCenterId` | ObjectId | No | |
-| `thirdPartyId` | ObjectId | No | Para tasas. Referencia: tercero beneficiario registrado en M01, asumido en PA-CAT-21 (DEC-072); antes [VERIFICAR] (posible `thirdPartyAgreements`, M06). |
+| `fiscalClassId` | uniqueidentifier | Sí | FIS. Referencia: `fiscalClasses` (M06, PA-FIS-21); antes «clase fiscal de M06» (PA-CAT-21) y [VERIFICAR]. |
+| `accountingRubricId` | uniqueidentifier | No | ex `COD_RUB`. Referencia: `accountRubrics` (M15). |
+| `costCenterId` | uniqueidentifier | No | |
+| `thirdPartyId` | uniqueidentifier | No | Para tasas. Referencia: tercero beneficiario registrado en M01, asumido en PA-CAT-21 (DEC-072); antes [VERIFICAR] (posible `thirdPartyAgreements`, M06). |
 | `isInternalCost` | bool | Sí | true = costo interno, no facturable (BASE §72). |
 | `rounding` | object | No | Precisión y regla (AGR-011). |
 | `status`, `validFrom`, `validTo` | | Sí | |
@@ -824,12 +826,12 @@ Campos de `servicePlans` (tabla normalizada el 05-11-2026 a partir del texto ant
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
-| `serviceProductId` | ObjectId | Sí | Antes `productId`; nombre de T05 | `serviceProducts` (M02) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
+| `serviceProductId` | uniqueidentifier | Sí | Antes `productId`; nombre de T05 | `serviceProducts` (M02) |
 | `code` | string | Sí | Ej. INT-100 | — |
 | `labelKey` | string | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `draft`, `published`, `discontinued`, `retired` | — |
-| `currentVersionId` | ObjectId | [VERIFICAR] | — | `servicePlanVersions` (M02) |
+| `currentVersionId` | uniqueidentifier | [VERIFICAR] | — | `servicePlanVersions` (M02) |
 | `offerChannels[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `publicVisibility` | [VERIFICAR] | [VERIFICAR] | — | — |
 
@@ -837,11 +839,11 @@ Campos de `servicePlans` (tabla normalizada el 05-11-2026 a partir del texto ant
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `planId` | ObjectId | Sí | |
+| `planId` | uniqueidentifier | Sí | |
 | `number` | int | Sí | |
 | `attributes` | object | Sí | Esquema de dominio (velocidad, tecnología, unidad, modalidad medida/no medida). |
 | `periodicity` | enum | Sí | `monthly`, `bimonthly`, `quarterly`, `yearly`, `perEvent`, `oneTime`. |
-| `allowedCategoryIds[]` | ObjectId[] | Sí | |
+| `allowedCategoryIds[]` | uniqueidentifier[] | Sí | |
 | `components[]` | object[] | Sí | `{conceptId, mandatory, quantity, triggerOverride}`. |
 | `promotions[]` | object[] | No | `{code, conceptIds[], durationUnit: calendarMonths\|billedCycles\|days, duration, partialFirstPeriodConsumes: bool, offerValidFrom, offerValidTo, compatibleWith[], priority}`. |
 | `financingOptions[]` | object[] | No | `{conceptId, installments, downPaymentRule, method, mutuallyExclusiveWithCash: true}` (cronograma: MOR). |
@@ -849,7 +851,7 @@ Campos de `servicePlans` (tabla normalizada el 05-11-2026 a partir del texto ant
 | `requirements` | object | Sí | `{feasibility, installation, technicalEvaluation, documents[]}`. |
 | `tariffBinding` | object | Sí | `{tariffScheduleRef, categoryMap}` → TAR. |
 | `effectiveFrom`, `effectiveTo`, `recordedAt` | Date | Sí | |
-| `configVersionId` | ObjectId | Sí | |
+| `configVersionId` | uniqueidentifier | Sí | |
 
 Índices: `{tenantId, planId, number}` único; `{tenantId, planId, effectiveFrom}`.
 
@@ -863,7 +865,7 @@ Campos de `serviceBundles` (tabla normalizada el 05-11-2026 a partir del texto a
 |---|---|---|---|---|
 | `code` | string | Sí | — | — |
 | `labelKey` | string | [VERIFICAR] | — | — |
-| `planVersionIds[]` | ObjectId[] | [VERIFICAR] | De servicios distintos | `servicePlanVersions` (M02) |
+| `planVersionIds[]` | uniqueidentifier[] | [VERIFICAR] | De servicios distintos | `servicePlanVersions` (M02) |
 | `rules` | [VERIFICAR] | [VERIFICAR] | `{terminationOfOne: keepOthers/terminateAll/loseBundleBenefit}` | — |
 | `status` | enum | Sí | — | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
@@ -875,14 +877,14 @@ Propósito: categorías estructurales. Origen: `CATE_SER` (COD_SER, COD_CAT, DES
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `serviceId` | ObjectId | Sí | |
+| `serviceId` | uniqueidentifier | Sí | |
 | `code`, `labelKey` | string | Sí | ex `COD_CAT`, `DES_CAT`. |
-| `groupId` | ObjectId | No | → `serviceCategoryGroups`. |
+| `groupId` | uniqueidentifier | No | → `serviceCategoryGroups`. |
 | `isSocial` | bool | Sí | Reemplaza inferencia (RN-CAT-016). |
 | `isPrepaid` | bool | Sí | Destino válido del paso a prepago. |
 | `isResidential` | bool | No | |
 | `isGenerator` | bool | No | ex `GENERADOR`. |
-| `subsidizedCategoryId`, `sefCategoryId` | ObjectId | No | ex `COD_CATSER_SS`, `COD_CATSER_SEF`. |
+| `subsidizedCategoryId`, `sefCategoryId` | uniqueidentifier | No | ex `COD_CATSER_SS`, `COD_CATSER_SEF`. |
 | `regulatoryCodes` | object | No | `{tariffCode (CODIGO_TARIFA), arbaPresentationType (TIPO_PRESENTACION_ARBA), seId (ID_SE), enargas}`. |
 | `networkProfileCode` | string | No | ex `PERFIL_MIKROTIK` (INT). |
 | `adherentCount` | int | No | ex `CAN_ADH` (tipos 9/10). |
@@ -904,23 +906,23 @@ Campos de `serviceCategoryGroups` (tabla normalizada el 05-11-2026 a partir del 
 | `code` | string | Sí | — | — |
 | `labelKey` | string | [VERIFICAR] | Ex `DES_GRU` | — |
 | `regulatoryCode` | string | [VERIFICAR] | Ex `COD_ENGAS` | — |
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
 
 ### 7.12 `serviceClasses`
 
-Origen `CLASESER`: `serviceId`, `code`, `labelKey` (ex `DES_CLS`), `value1`, `value2` (Decimal128; ex `VALOR1`, `VALOR2`), `notes` (ex `OBS_CLS`), `thirdPartyConceptId` (si la clase representa una tasa).
+Origen `CLASESER`: `serviceId`, `code`, `labelKey` (ex `DES_CLS`), `value1`, `value2` (DECIMAL(18,4); ex `VALOR1`, `VALOR2`), `notes` (ex `OBS_CLS`), `thirdPartyConceptId` (si la clase representa una tasa).
 
 Campos de `serviceClasses` (tabla normalizada el 05-11-2026 a partir del texto anterior, que se conserva, y de T05):
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
 | `code` | string | Sí | — | — |
 | `labelKey` | string | [VERIFICAR] | Ex `DES_CLS` | — |
 | `value1` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `value2` | [VERIFICAR] | [VERIFICAR] | Decimal128; ex `VALOR1`, `VALOR2` | — |
+| `value2` | [VERIFICAR] | [VERIFICAR] | DECIMAL(18,4); ex `VALOR1`, `VALOR2` | — |
 | `notes` | [VERIFICAR] | [VERIFICAR] | Ex `OBS_CLS` | — |
-| `thirdPartyConceptId` | ObjectId | [VERIFICAR] | Si la clase representa una tasa | [VERIFICAR] destino no declarado |
+| `thirdPartyConceptId` | uniqueidentifier | [VERIFICAR] | Si la clase representa una tasa | [VERIFICAR] destino no declarado |
 
 ### 7.13 `serviceProperties`
 
@@ -930,7 +932,7 @@ Campos de `serviceProperties` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
 | `code` | string | Sí | — | — |
 | `labelKey` | string | [VERIFICAR] | Ex `DES_PROP`/`NOM_PROP` | — |
 | `valueType` | enum | [VERIFICAR] | `text`, `number`, `list`, `bool`, `date` | — |
@@ -944,7 +946,7 @@ Origen `ESTASER` (COD_EST, COD_SER, DES_EST, DESCONEC, PRINCIPAL).
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `serviceId` | ObjectId | Sí | |
+| `serviceId` | uniqueidentifier | Sí | |
 | `code`, `labelKey` | string | Sí | ej. CONECTADO, CORTADO, BAJA. |
 | `canonicalStatus` | enum | Sí | Estado canónico (sección 8). |
 | `impliesDisconnection` | bool | Sí | ex `DESCONEC`. |
@@ -968,8 +970,8 @@ Origen `ALTASEAU` (ID_AS, DES_AS, TIPO_AS, COD_SER, COD_CAT, COD_LOC, ZONA, TIT_
 |---|---|---|---|
 | `labelKey` | string | Sí | ex `DES_AS`. |
 | `triggerEvent` | enum | Sí | `serviceActivated`, `accountCreated`, `serviceTerminated`, `serviceReconnected`, `categoryChanged`, `workOrderCreated`, `addressChanged` (ex `OperacionServicioAutomatico` 1–7). |
-| `sourceServiceId` | ObjectId | Sí | ex `COD_SER`. |
-| `targetServiceId`, `targetCategoryId` | ObjectId | Sí | ex `COD_SAS`, `COD_CAS`. |
+| `sourceServiceId` | uniqueidentifier | Sí | ex `COD_SER`. |
+| `targetServiceId`, `targetCategoryId` | uniqueidentifier | Sí | ex `COD_SAS`, `COD_CAS`. |
 | `filters` | object | No | `{categoryIds, propertyIds, classIds, activityIds, localityIds, referenceIds, zones, meterTypeIds, holderCondition: all\|activeOnly\|inactiveOnly}`. |
 | `billingGroupMode` | enum | Sí | `targetDefault`, `inheritFromSource` (ex `TOMAR_GRUPO`). |
 | `mode` | enum | Sí | `propose`, `create` (PA-CAT-04). |
@@ -984,36 +986,36 @@ Propósito: contrato de servicio (suscripción). Origen: `SERSOC` (+106 columnas
 | Campo | Tipo | Oblig. | Descripción / origen |
 |---|---|---|---|
 | `number` | string | Sí | Número de contrato visible; único por tenant (ex `ID_SERSOC` / "Contrato"). |
-| `serviceId` | ObjectId | Sí | ex `COD_SER`. |
-| `holderId` | ObjectId | Sí | Titular → `holders` de M01 (ex `COD_SOC`). Antes `holderPersonId` (CTR-DAT-67); si hace falta la persona se agrega `personId`. |
+| `serviceId` | uniqueidentifier | Sí | ex `COD_SER`. |
+| `holderId` | uniqueidentifier | Sí | Titular → `holders` de M01 (ex `COD_SOC`). Antes `holderPersonId` (CTR-DAT-67); si hace falta la persona se agrega `personId`. |
 | `holderIdentifierSnapshot` | object | Sí (al activar) | Foto de identificación del titular que M01 exige del contrato (contrato de interfaz de M01; servicio `per.getHolderSnapshot`): `{documentTypeId, number, verificationStatus, identificationStatus}`, tomada al activar el contrato y refrescada al consumir `per.person.identificationRegularized` (EVT-PER-27, §12.2; DEC-099, 10-11-2026). `identificationStatus` (enum de M01 `identified`, `approvedException`, `documentPending`) agregado el 10-11-2026 por DEC-099: con `documentPending` (persona migrada sin ningún documento), `documentTypeId` y `number` van vacíos. M02 copia la foto de M01 sin validarla ni reinterpretarla; la restricción fiscal de una persona `documentPending` la aplica M05 con su propia foto a la fecha de prevalidación (RN-FAC-162 de M05; RF-PER-175 de M01). |
-| `legalEntityId` | ObjectId | No | Excepción a la entidad jurídica del servicio (`legalEntities` de T04; DEC-064); vacío = `tenantServices.legalEntityId`. M05 la usa para elegir punto de venta y numeración. |
-| `accountId` | ObjectId | Sí | Cuenta (ex `COD_SUM`). |
-| `payerAccountId` | ObjectId | No | Si difiere (AGR-007). |
-| `planId`, `planVersionId` | ObjectId | Cond. | Obligatorio si el servicio tiene planes. |
-| `categoryId` | ObjectId | Sí | ex `COD_CAT`. |
+| `legalEntityId` | uniqueidentifier | No | Excepción a la entidad jurídica del servicio (`legalEntities` de T04; DEC-064); vacío = `tenantServices.legalEntityId`. M05 la usa para elegir punto de venta y numeración. |
+| `accountId` | uniqueidentifier | Sí | Cuenta (ex `COD_SUM`). |
+| `payerAccountId` | uniqueidentifier | No | Si difiere (AGR-007). |
+| `planId`, `planVersionId` | uniqueidentifier | Cond. | Obligatorio si el servicio tiene planes. |
+| `categoryId` | uniqueidentifier | Sí | ex `COD_CAT`. |
 | `categoryHistory[]` | object[] | Sí | `{categoryId, validFrom, validTo, reason, origin, previousCategoryId (CAT_ANT)}`. |
-| `serviceClassId` | ObjectId | No | ex clase. |
+| `serviceClassId` | uniqueidentifier | No | ex clase. |
 | `propertyValues[]` | object[] | No | `{propertyId, value, validFrom}`. |
-| `activityId` | ObjectId | No | Actividad ARCA. Referencia: `normativeTables` de M06 con `code = arcaActivities` (catálogo de actividades ARCA; PA-CAT-22); antes «actividades económicas de T04» (PA-CAT-21) y [VERIFICAR]. |
-| `quantity` | Decimal128 | Cond. | ex `CANTIDAD`. |
+| `activityId` | uniqueidentifier | No | Actividad ARCA. Referencia: `normativeTables` de M06 con `code = arcaActivities` (catálogo de actividades ARCA; PA-CAT-22); antes «actividades económicas de T04» (PA-CAT-21) y [VERIFICAR]. |
+| `quantity` | DECIMAL(18,4) | Cond. | ex `CANTIDAD`. |
 | `serviceAddress` | object | Sí | `{streetId, number, floor, unit, neighborhood, localityId, postalCode, referenceId, cadastre{cod,sec,man,par,ph,lote} (CAT_CIR/CAT_LOT/CAT_MAN/CAT_PAR/CAT_PH/CAT_LT), propertyId, geo{lat,lng}, gisRef, validFrom}`. `serviceAddress.propertyId` queda reemplazado por `servicePointId` (campo propio de primer nivel) y `premiseId` (CTR-DAT-66); el resto del domicilio es una proyección de M01. |
-| `servicePointId` | ObjectId | Sí | Punto de servicio de M01 (ubicación técnica); uno por contrato medido (DEC-028; CTR-DAT-66). |
-| `premiseId` | ObjectId | No | Inmueble de M01; proyección desde el punto de servicio. |
+| `servicePointId` | uniqueidentifier | Sí | Punto de servicio de M01 (ubicación técnica); uno por contrato medido (DEC-028; CTR-DAT-66). |
+| `premiseId` | uniqueidentifier | No | Inmueble de M01; proyección desde el punto de servicio. |
 | `addressHistory[]` | object[] | Sí | Domicilios anteriores con vigencia. |
 | `route` | object | No | `{zone, sector, route}` (ZSR). |
 | `supplyCode` | string | No | Matrícula. |
-| `meteringPointId` | ObjectId | No | → MED. |
-| `externalClientId` | ObjectId (antes string) | No | "Id Cliente". Referencia: `persons` (M01), asumida en PA-CAT-22 (DEC-072); antes [VERIFICAR] cliente externo (T05 no declara la colección). |
-| `feasibilityRef` | ObjectId | No | ex `COD_SOL` (`FACTIBIL`, TEC). Referencia: → `feasibilityRequests` (M10, COL-TEC-01), confirmada en PA-CAT-23 (DEC-072; antes [VERIFICAR]). |
-| `declaredAffidavitRef` | ObjectId | No | DD JJ. Referencia: → `documents` (T11), confirmada en PA-CAT-23 (DEC-072; antes [VERIFICAR]). |
-| `guarantorPersonId` | ObjectId | No | Garante. |
+| `meteringPointId` | uniqueidentifier | No | → MED. |
+| `externalClientId` | uniqueidentifier (antes string) | No | "Id Cliente". Referencia: `persons` (M01), asumida en PA-CAT-22 (DEC-072); antes [VERIFICAR] cliente externo (T05 no declara la colección). |
+| `feasibilityRef` | uniqueidentifier | No | ex `COD_SOL` (`FACTIBIL`, TEC). Referencia: → `feasibilityRequests` (M10, COL-TEC-01), confirmada en PA-CAT-23 (DEC-072; antes [VERIFICAR]). |
+| `declaredAffidavitRef` | uniqueidentifier | No | DD JJ. Referencia: → `documents` (T11), confirmada en PA-CAT-23 (DEC-072; antes [VERIFICAR]). |
+| `guarantorPersonId` | uniqueidentifier | No | Garante. |
 | `installer` | object | No | `{professionalId (PROFESIO), certificateNumber, certificateExpiresAt}`. |
 | `dueDate` | Date | No | "Fecha Vto". |
-| `billingGroupId` | ObjectId | Sí | ex `GRUPO_FACTURA`. |
+| `billingGroupId` | uniqueidentifier | Sí | ex `GRUPO_FACTURA`. |
 | `lastBilledPeriod` | string | No | ex `ULT_FAC` (proyección de FAC). |
 | `lifecycleStatus` | enum | Sí | Canónico (sección 8). |
-| `operationalStatusId` | ObjectId | Sí | → `serviceStatuses`. |
+| `operationalStatusId` | uniqueidentifier | Sí | → `serviceStatuses`. |
 | `statusChangedAt`, `statusChangedBy`, `statusReason` | | Sí | "fecha del último estado". |
 | `suspension` | object | No | `{reason: voluntary\|debt\|technical\|regulatory\|administrative, mode: restricted\|interrupted, requestedAt, effectiveAt, expectedEndAt, orderedBy (module), commandId}`. |
 | `dates` | object | Sí | `{requestedAt, adminStart (ALTA_ADM), effectiveStart (FEC_ALTA), terminationRequestedAt (BAJA_ADM), effectiveEnd (FEC_BAJA), cancelledAt}` — `null` cuando no corresponde. |
@@ -1021,11 +1023,11 @@ Propósito: contrato de servicio (suscripción). Origen: `SERSOC` (+106 columnas
 | `origin` | object | Sí | `{channel: counter\|pwa\|landing\|bot\|phone\|autoRule\|transfer\|migration, crmCaseId, autoRuleId, transferFromContractId, createdFromPortal (Alta desde CoopOnline)}`. |
 | `agreedConditions[]` | object[] | Sí | Tramos `{planVersionId, components[], promotions[]{code, startsAt, endsAt, unitsConsumed}, financingChoice, acceptedAt, acceptanceChannel, evidenceDocId, validFrom, validTo}`. |
 | `domainAttributes` | object | No | Según `domainAttributeSchema` (INT: `accessIdRef`, `nodeRef`, `oltPortRef`, `macRef`, `ipRef`; TEL: `lines[]{numberRef, tariffRef, from, to}`; ELE: `voltage`, `contractedPowerKw`, `supplyType`, `electroDependent{validFrom, validTo, evidenceDocId}`, `nis`; AG: `meteringRegime[]{value: metered\|unmetered, validFrom, validTo, commandId}` (HUE-AG-03); ALU: `agreement{municipalityRef, claimHandler: municipality\|cooperative}` (HUE-ALU-03); OBR (contrato creado por JOB-CAT-13): `workRef`, `levyRef` (HUECO-OBR-01); GAS: `gasType`, `subdistribution`, `technicalFileRef`; OBR: `installments{total, paid, units, unitsBilled, unitsTotal, unitsOriginal, pctBasic, pctNetworks, planRef}`; VIV: `housingFileRef`; CEM: `rightRef`; SAN/SAL: `agreementRef`). |
-| `capitalAmountAtActivation` | Decimal128 | No | ex `IMP_CAPITAL` (concepto CAP). |
-| `parentContractId` | ObjectId | No | Contrato principal (ALU sobre ELE). |
-| `bundleSubscriptionId` | ObjectId | No | Paquete. Referencia: `bundleSubscriptions` (M02, §7.29; PA-CAT-22); antes [VERIFICAR] suscripción a combo (`serviceBundles`, M02, no tiene colección de suscripciones). |
+| `capitalAmountAtActivation` | DECIMAL(18,4) | No | ex `IMP_CAPITAL` (concepto CAP). |
+| `parentContractId` | uniqueidentifier | No | Contrato principal (ALU sobre ELE). |
+| `bundleSubscriptionId` | uniqueidentifier | No | Paquete. Referencia: `bundleSubscriptions` (M02, §7.29; PA-CAT-22); antes [VERIFICAR] suscripción a combo (`serviceBundles`, M02, no tiene colección de suscripciones). |
 | `observations` | string | No | ex `OBSERVA` (visible según V2 2557). |
-| `supersededByContractId` | ObjectId | No | Transferencia. |
+| `supersededByContractId` | uniqueidentifier | No | Transferencia. |
 | `legacy` | object | No | Subdocumento de T05 §19.1: `{system: 'procoop', table: 'SERSOC', key: ID_SERSOC, runId, hash, readOnly}` (CTR-DAT-32). Antes `migration` `{sourceSystem: 'procoop', sourceId (ID_SERSOC), importedAt}`. |
 
 Índices: `{tenantId, number}` único; `{tenantId, accountId, serviceId, lifecycleStatus}`; `{tenantId, holderPersonId}` (pasa a `{tenantId, holderId}`, CTR-DAT-67); `{tenantId, servicePointId, serviceId}` (reemplaza al de `serviceAddress.propertyId`, CTR-DAT-66); `{tenantId, legalEntityId, serviceId}` (DEC-064); `{tenantId, 'legacy.table', 'legacy.key'}` disperso; `{tenantId, serviceId, supplyCode}` (único parcial cuando `uniqueness.supplyCodeUnique` y estado ≠ `terminated|superseded|cancelled`); `{tenantId, lifecycleStatus, serviceId}`; `{tenantId, "serviceAddress.propertyId"}` (reemplazado por `{tenantId, servicePointId, serviceId}`); `{tenantId, billingGroupId}`.
@@ -1036,7 +1038,7 @@ Origen `SERSOC_HST` (+109 columnas, foto completa por cambio). En CoopApps: even
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `contractId` | ObjectId | Sí | |
+| `contractId` | uniqueidentifier | Sí | |
 | `eventType` | enum | Sí | `created`, `statusChanged`, `planChanged`, `categoryChanged`, `classChanged`, `activityChanged`, `referenceChanged`, `addressChanged`, `holderTransferred`, `flagChanged`, `memberChanged` (Reemplazado: la historia de miembros la lleva M18, HUECO-TRV-01), `meteringRegimeChanged` (HUE-AG-03), `equipmentChanged`, `attributeChanged`, `note` (ej. "Recategorización"). |
 | `from`, `to` | object | Sí | Valores anteriores y nuevos. |
 | `effectiveAt` | Date | Sí | Fecha efectiva. |
@@ -1054,25 +1056,25 @@ Colección única del equipo entregado al contrato: cubre los campos de la ex §
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `contractId` | ObjectId | Sí | |
-| `accountId`, `premiseId`, `serviceId` | ObjectId | Sí | Proyección del contrato al momento de la entrega (cuenta de M01, inmueble `premises` de M01, servicio `tenantServices`); permite a M13 valorizar el comodato y seguir la devolución por inmueble sin leer el contrato (ex §7.17 de M13). |
-| `inventoryItemId` | ObjectId | Sí | Equipo: artículo de M13 (ex `COD_PRO`). Antes `productId` (CTR-DAT-30); en la ex §7.17 de M13, `itemId`. |
-| `quantity` | Decimal128 | Sí | 1 para serializados; cantidad entregada para no serializados (ex §7.17 de M13). |
-| `serialUnitId` | ObjectId | Cond. | Unidad serializada de M13 (`serialUnits`, ex `COD_PTH`). Antes `stockUnitId` (CTR-DAT-30). |
+| `contractId` | uniqueidentifier | Sí | |
+| `accountId`, `premiseId`, `serviceId` | uniqueidentifier | Sí | Proyección del contrato al momento de la entrega (cuenta de M01, inmueble `premises` de M01, servicio `tenantServices`); permite a M13 valorizar el comodato y seguir la devolución por inmueble sin leer el contrato (ex §7.17 de M13). |
+| `inventoryItemId` | uniqueidentifier | Sí | Equipo: artículo de M13 (ex `COD_PRO`). Antes `productId` (CTR-DAT-30); en la ex §7.17 de M13, `itemId`. |
+| `quantity` | DECIMAL(18,4) | Sí | 1 para serializados; cantidad entregada para no serializados (ex §7.17 de M13). |
+| `serialUnitId` | uniqueidentifier | Cond. | Unidad serializada de M13 (`serialUnits`, ex `COD_PTH`). Antes `stockUnitId` (CTR-DAT-30). |
 | `serialNumber` | string | Cond. | Proyección. |
-| `warehouseId` | ObjectId | Sí | Depósito de origen (ex `COD_DPS`; `sourceWarehouseId` en la ex §7.17 de M13). |
+| `warehouseId` | uniqueidentifier | Sí | Depósito de origen (ex `COD_DPS`; `sourceWarehouseId` en la ex §7.17 de M13). |
 | `mode` | enum | Sí | `loan`, `temporaryLoan`, `sale`, `rent`, `customerOwned`, `networkIncorporation`. Default por plan (`defaultDeliveryMode` del artículo de M13); comodato (`loan`) por defecto en Internet y TV, valorizado en stock (DEC-013). Equivalencia con M13 (§7.5 `defaultDeliveryMode`): `loanForUse` = `loan`, `rental` = `rent`; el resto con el mismo nombre. Texto anterior: "`loan`, `sale`, `rent`, `customerOwned`". |
 | `status` | enum | Sí | `assigned`, `delivered`, `returnPending`, `returned`, `lost`, `chargeProposed`, `chargedAsLost`, `replaced`, `convertedToSale`. Equivalencia con los estados de M13 §8.4 (nombres de M13 entre comillas, no son valores de este campo): «active» = `delivered`, «pendingReturn» = `returnPending`, «returnedIncomplete» = `returned` con `returnCondition = incomplete`, «notRecovered» = `chargedAsLost`, «swapped» = `replaced`; `chargeProposed` y `convertedToSale` se agregan desde M13. Texto anterior: "`assigned`, `delivered`, `returnPending`, `returned`, `lost`, `chargedAsLost`, `replaced`". |
 | `returnCondition` | enum | No | `ok`, `damaged`, `incomplete`, `notRecovered` (ex §7.17 de M13); lo informa M13 al recibir la unidad. |
-| `chargeProposalId` | ObjectId | No | Propuesta de cargo por no devolución de M13 (RN-STK-038); el cargo aprobado lo crea M04 en `billableItems` de M05 (RN-TAR-246). Referencia: → `approvalRequests` (T11): la propuesta es la solicitud de aprobación del cargo (RN-STK-038); el ítem aprobado queda en `billableItems` (M05) (PA-CAT-23; antes «Referencia: `billableItems` (M05)»). |
+| `chargeProposalId` | uniqueidentifier | No | Propuesta de cargo por no devolución de M13 (RN-STK-038); el cargo aprobado lo crea M04 en `billableItems` de M05 (RN-TAR-246). Referencia: → `approvalRequests` (T11): la propuesta es la solicitud de aprobación del cargo (RN-STK-038); el ítem aprobado queda en `billableItems` (M05) (PA-CAT-23; antes «Referencia: `billableItems` (M05)»). |
 | `saleDocumentRef` | object `{ module: FAC\|VEN, documentId }` | Cond. | Comprobante de M05/M11 cuando `mode = sale` o al pasar a `convertedToSale`. |
 | `deliveredAt` | Date | Sí | ex `FECHA_ENTREGA`. |
 | `expectedReturnAt` | Date | No | ex `FECHA_DEVOLUCION`. |
 | `returnedAt` | Date | No | ex `FECHA_DEVUELTO`. |
-| `referencePrice` | Decimal128 | No | ex `PRECIO` (valorización en STK). |
-| `deliveryEvidenceDocId`, `returnEvidenceDocId` | ObjectId | No | Constancias firmadas. Nombres de rol que apuntan a `documents` de T11 (`documentRefId`, T05 §7.2); no son `storedFileId`. Cubren el `deliveryReceiptStoredFileId` de la ex §7.17 de M13: el binario de la constancia es el `storedFileId` del documento de T11. |
-| `workOrderId` | ObjectId | No | OT de instalación. |
-| `retrievalWorkOrderId` | ObjectId | No | OT de retiro (ex §7.17 de M13). |
+| `referencePrice` | DECIMAL(18,4) | No | ex `PRECIO` (valorización en STK). |
+| `deliveryEvidenceDocId`, `returnEvidenceDocId` | uniqueidentifier | No | Constancias firmadas. Nombres de rol que apuntan a `documents` de T11 (`documentRefId`, T05 §7.2); no son `storedFileId`. Cubren el `deliveryReceiptStoredFileId` de la ex §7.17 de M13: el binario de la constancia es el `storedFileId` del documento de T11. |
+| `workOrderId` | uniqueidentifier | No | OT de instalación. |
+| `retrievalWorkOrderId` | uniqueidentifier | No | OT de retiro (ex §7.17 de M13). |
 | `notes` | string | No | ex `OBSERVA`. |
 
 Índices: `{tenantId, contractId, status}`; `{tenantId, serialUnitId}` (antes `stockUnitId`) único parcial con `status in [assigned, delivered, returnPending, chargeProposed]`; `{tenantId, status, expectedReturnAt}` (seguimiento de devolución de M13, RN-STK-037; ex §7.17 de M13). Texto anterior del parcial: "`status in [assigned, delivered, returnPending]`".
@@ -1090,7 +1092,7 @@ Campos de `applianceTypes` (tabla normalizada el 05-11-2026 a partir del texto a
 | `code` | string | Sí | — | — |
 | `labelKey` | string | [VERIFICAR] | Ex `DES_ART` | — |
 | `isObservation` | bool | [VERIFICAR] | Ex `ES_OBSERVA` | — |
-| `serviceIds[]` | ObjectId[] | [VERIFICAR] | — | `tenantServices` (M02) |
+| `serviceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `tenantServices` (M02) |
 | `kind` | enum | [VERIFICAR] | `gasAppliance`, `electricAppliance`, `electricVehicle`; HUE-GAS-01 | — |
 | `powerUnit` | [VERIFICAR] | [VERIFICAR] | `kcal/h` en GAS, `W` en artefactos eléctricos, `kW` en cargadores de vehículos eléctricos | — |
 
@@ -1102,9 +1104,9 @@ Campos de `contractDeclaredAppliances` (tabla normalizada el 05-11-2026 a partir
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | — | `serviceContracts` (M02) |
+| `contractId` | uniqueidentifier | Sí | — | `serviceContracts` (M02) |
 | `templateRef` | [VERIFICAR] | [VERIFICAR] | Plantilla del servicio, PRM-CAT-110; HUE-GAS-01 | — |
-| `applianceTypeId` | ObjectId | Sí | Ex `COD_ART` | `applianceTypes` (M02) |
+| `applianceTypeId` | uniqueidentifier | Sí | Ex `COD_ART` | `applianceTypes` (M02) |
 | `quantity` | [VERIFICAR] | [VERIFICAR] | Ex `CAN_ART` | — |
 | `power` | [VERIFICAR] | [VERIFICAR] | + `powerUnit` (obligatorios en GAS y ELE; HUE-GAS-01), `vehicle{plate, model}` (solo `electricVehicle`) | — |
 | `brand` | [VERIFICAR] | [VERIFICAR] | Ex `MAR_ART` | — |
@@ -1114,7 +1116,7 @@ Campos de `contractDeclaredAppliances` (tabla normalizada el 05-11-2026 a partir
 | `use` | [VERIFICAR] | [VERIFICAR] | Ex `USU_ART` | — |
 | `status` | enum | Sí | `active`, `removed` (ex columna ESTADO de ProCoop; inicial `active`, §8.5). | — |
 | `notes` | [VERIFICAR] | [VERIFICAR] | Ex `OBS_ART`/`OBSERVA` | — |
-| `declarationDocId` | ObjectId | [VERIFICAR] | — | `documents` (T11) |
+| `declarationDocId` | uniqueidentifier | [VERIFICAR] | — | `documents` (T11) |
 | `history[]` | array [VERIFICAR] | [VERIFICAR] | Append-only, ex `HIS_ARTEFSUMS` | — |
 | `recordedAt` | datetime | [VERIFICAR] | Ex `FEC_REG` | — |
 
@@ -1126,13 +1128,13 @@ Origen `ADHSOC` (COD_ADH, COD_SOC, COD_SUM, COD_SER, COD_PER, COD_VIN, TITULAR, 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `contractId` | ObjectId | Sí | |
+| `contractId` | uniqueidentifier | Sí | |
 | `role` | enum | Sí | `adherent`, `beneficiary`. |
-| `personId` | ObjectId | Sí | PER. |
-| `relationshipTypeId` | ObjectId | Sí | PER (ex `VINCULOS`). |
+| `personId` | uniqueidentifier | Sí | PER. |
+| `relationshipTypeId` | uniqueidentifier | Sí | PER (ex `VINCULOS`). |
 | `isHolder` | bool | Sí | ex `TITULAR`. |
-| `adherentTariffId` | ObjectId | No | TAR (ex `COD_TAD`). |
-| `benefitRef` | ObjectId | No | Para beneficiarios de beneficio (tarifa social) o cobertura. |
+| `adherentTariffId` | uniqueidentifier | No | TAR (ex `COD_TAD`). |
+| `benefitRef` | uniqueidentifier | No | Para beneficiarios de beneficio (tarifa social) o cobertura. |
 | `joinedAt`, `leftAt`, `leaveReason` | Date/enum | Sí/No | `voluntary`, `deceased`, `outOfRange`, `transfer`, `contractTerminated`. |
 | `coverageFrom` | Date | No | `joinedAt` + carencia. |
 | `cardPrintedAt`, `cardPrintMark` | | No | ex `FEC_IMP`, `MAR_IMP` (credencial). |
@@ -1155,7 +1157,7 @@ Campos de `contractSpecialConditions` (tabla normalizada el 05-11-2026 a partir 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | — | `serviceContracts` (M02) |
+| `contractId` | uniqueidentifier | Sí | — | `serviceContracts` (M02) |
 | `version` | int | Sí | — | — |
 | `priceTermsRef` | [VERIFICAR] | [VERIFICAR] | (TAR), `contractedPower{peakKw, offPeakKw}` | — |
 | `termMonths` | int | [VERIFICAR] | — | — |
@@ -1171,9 +1173,9 @@ Campos de `contractSpecialConditions` (tabla normalizada el 05-11-2026 a partir 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `sourceTenantId`, `sourceServiceId`, `sourceConfigVersionId` | ObjectId | Sí | |
-| `targetTenantId` | ObjectId | Sí | `tenantId` del documento = destino. |
-| `targetServiceId` | ObjectId | No | Existente o creado. |
+| `sourceTenantId`, `sourceServiceId`, `sourceConfigVersionId` | uniqueidentifier | Sí | |
+| `targetTenantId` | uniqueidentifier | Sí | `TenantId` del documento = destino. |
+| `targetServiceId` | uniqueidentifier | No | Existente o creado. |
 | `targetMode` | enum | Sí | `createService`, `newDraftVersion`. |
 | `components` | object | Sí | `{products, plans, concepts, categories, classes, properties, statuses, eventChargeRules, autoRules, forms, ticketTypes, templates, surveyTemplates}` (bool cada uno). |
 | `dependencies[]` | object[] | Sí | `{kind (area, costCenter, account, warehouse, tariff, tax, authority, branch, connector), sourceRef, resolution: mapped\|pending\|keepTarget, targetRef}`. |
@@ -1195,13 +1197,13 @@ Campos de `bulkContractOperations` (tabla normalizada el 05-11-2026 a partir del
 |---|---|---|---|---|
 | `operation` | enum | [VERIFICAR] | `markProvisional`, `changeActivity`, `changeClass`, `changeCategory`, `changeReference`, `terminate`, `recategorize`, `resetCategories`, `memberOutOfRangeAction` | — |
 | `criteria` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `contractIds[]` | ObjectId[] | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `contractIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `serviceContracts` (M02) |
 | `alsoUnbilledConsumption` | [VERIFICAR] | [VERIFICAR] | Bool | — |
 | `requestedBy` | [VERIFICAR] | [VERIFICAR] | — | `memberships` (T02) |
 | `originModule` | enum | [VERIFICAR] | `cat`, `mor`, `tar` | — |
 | `status` | enum | Sí | (`draft`, `simulated`, `approved`, `running`, `completed`, `partiallyFailed`, `reverted`), `results[]{contractId, outcome, message}` | — |
 | `revertibleUntil` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `jobId` | ObjectId | Sí | — | `jobRuns` (T01) |
+| `jobId` | uniqueidentifier | Sí | — | `jobRuns` (T01) |
 
 ### 7.27 `serviceTemplates` (plataforma)
 
@@ -1211,7 +1213,7 @@ Campos de `serviceTemplates` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `capabilityId` | ObjectId | Sí | — | `serviceCapabilities` (M02) |
+| `capabilityId` | uniqueidentifier | Sí | — | `serviceCapabilities` (M02) |
 | `code` | string | Sí | — | — |
 | `labelKey` | string | [VERIFICAR] | — | — |
 | `snapshot` | [VERIFICAR] | [VERIFICAR] | Perfil, productos, planes sin precios, categorías, estados, reglas | — |
@@ -1228,11 +1230,11 @@ Colección declarada el 05-11-2026 (PA-CAT-22): agrupa los contratos que nacen d
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `bundleId` | ObjectId | Sí | Paquete contratado. | `serviceBundles` (M02) |
+| `bundleId` | uniqueidentifier | Sí | Paquete contratado. | `serviceBundles` (M02) |
 | `bundleVersion` | int | Sí | Versión del paquete vigente al contratar. | — |
-| `holderId` | ObjectId | Sí | Titular. | `holders` (M01) |
-| `accountId` | ObjectId | Sí | Cuenta. | `accounts` (M01) |
-| `contractIds` | ObjectId[] | Sí | Contratos del combo, uno por servicio. | `serviceContracts` (M02) |
+| `holderId` | uniqueidentifier | Sí | Titular. | `holders` (M01) |
+| `accountId` | uniqueidentifier | Sí | Cuenta. | `accounts` (M01) |
+| `contractIds` | uniqueidentifier[] | Sí | Contratos del combo, uno por servicio. | `serviceContracts` (M02) |
 | `validFrom` / `validTo` | date | Sí / No | Vigencia de la suscripción. | — |
 | `status` | enum | Sí | `active`, `partial`, `terminated` (§8.3). | — |
 

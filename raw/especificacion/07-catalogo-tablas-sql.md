@@ -83,7 +83,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `TenantId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/001-pla.Tenants.sql` | |
 
 ### `pla.ModuleCatalog`
@@ -98,7 +98,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `ModuleCatalogId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/002-pla.ModuleCatalog.sql` | |
 
 ### `pla.PlatformPlans`
@@ -113,7 +113,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `PlatformPlanId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/003-pla.PlatformPlans.sql` | |
 
 ### `pla.TenantLicenses`
@@ -128,7 +128,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `TenantLicensId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/004-pla.TenantLicenses.sql` | |
 
 ### `pla.TenantModuleActivations`
@@ -143,7 +143,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `TenantModuleActivationId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/005-pla.TenantModuleActivations.sql` | |
 
 ### `pla.TenantChecklists`
@@ -158,7 +158,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `TenantChecklistId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/006-pla.TenantChecklists.sql` | |
 
 ### `pla.OnboardingDrafts`
@@ -173,7 +173,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `OnboardingDraftId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/007-pla.OnboardingDrafts.sql` | |
 
 ### `pla.SaasContracts`
@@ -188,7 +188,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SaasContractId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/008-pla.SaasContracts.sql` | |
 
 ### `pla.UsageSnapshots`
@@ -203,7 +203,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `UsageSnapshotId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/009-pla.UsageSnapshots.sql` | |
 
 ### `pla.SupportCases`
@@ -218,7 +218,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SupportCasId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/010-pla.SupportCases.sql` | |
 
 ### `pla.SupportCaseMessages`
@@ -233,7 +233,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SupportCaseMessageId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/011-pla.SupportCaseMessages.sql` | |
 
 ### ~~`pla.SupportAccessGrants`~~ — absorbida
@@ -248,7 +248,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | A→COL-IAM-20 |
 | SQL | No crear; ver `A→COL-IAM-20` |
-| **Capa B:** pendiente — anexo T01 §7 | |
+| **Capa B:** canónica T02 — [`iam.SupportAccessGrants`](07-catalogo-tablas-sql.md) (§2.2) | |
 | **Capa C:** pendiente | |
 
 ### `pla.SupportSessions`
@@ -263,7 +263,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SupportSessionId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/012-pla.SupportSessions.sql` | |
 
 ### `pla.PlatformIncidents`
@@ -278,7 +278,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `PlatformIncidentId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/013-pla.PlatformIncidents.sql` | |
 
 ### `pla.AlertRules`
@@ -293,7 +293,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `AlertRuleId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/014-pla.AlertRules.sql` | |
 
 ### `pla.Alerts`
@@ -308,7 +308,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `AlertId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/015-pla.Alerts.sql` | |
 
 ### `pla.BackupPolicies`
@@ -323,7 +323,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `BackupPolicyId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/016-pla.BackupPolicies.sql` | |
 
 ### `pla.BackupRuns`
@@ -338,7 +338,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `BackupRunId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/017-pla.BackupRuns.sql` | |
 
 ### `pla.RestoreRequests`
@@ -353,7 +353,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `RestoreRequestId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/018-pla.RestoreRequests.sql` | |
 
 ### `pla.RestoreTests`
@@ -368,7 +368,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `RestoreTestId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/019-pla.RestoreTests.sql` | |
 
 ### `pla.TenantExports`
@@ -383,7 +383,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `TenantExportId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/020-pla.TenantExports.sql` | |
 
 ### `pla.Releases`
@@ -398,7 +398,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ReleasId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/021-pla.Releases.sql` | |
 
 ### `pla.FeatureFlags`
@@ -413,7 +413,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `FeatureFlagId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/022-pla.FeatureFlags.sql` | |
 
 ### `pla.OutboxEvents`
@@ -428,7 +428,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `OutboxEventId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/024-pla.OutboxEvents.sql` | |
 
 ### `pla.InboxReceipts`
@@ -443,7 +443,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `InboxReceiptId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/025-pla.InboxReceipts.sql` | |
 
 ### `pla.DeadLetters`
@@ -458,7 +458,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `DeadLetterId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/026-pla.DeadLetters.sql` | |
 
 ### `pla.JobRuns`
@@ -473,7 +473,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `JobRunId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/027-pla.JobRuns.sql` | |
 
 ### `pla.IdempotencyKeys`
@@ -488,7 +488,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `IdempotencyKeyId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/028-pla.IdempotencyKeys.sql` | |
 
 ### `pla.StoredFiles`
@@ -503,7 +503,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `StoredFileId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/029-pla.StoredFiles.sql` | |
 
 ### `pla.AiUsage`
@@ -518,7 +518,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AiUsageId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/030-pla.AiUsage.sql` | |
 
 ### `pla.HealthSnapshots`
@@ -533,7 +533,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `HealthSnapshotId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/031-pla.HealthSnapshots.sql` | |
 
 ### `pla.SchemaMigrations`
@@ -548,7 +548,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `SchemaMigrationId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.0](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/pla/032-pla.SchemaMigrations.sql` | |
 
 ## Esquema `iam`
@@ -565,7 +565,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `IdentityId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.2](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/iam/0001-iam.Identities.sql` | |
 
 ### `iam.AuthFactors`
@@ -610,7 +610,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `MembershipId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.2](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/iam/0004-iam.Memberships.sql` | |
 
 ### `iam.Roles`
@@ -625,7 +625,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `RoleId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.2](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/iam/0005-iam.Roles.sql` | |
 
 ### `iam.ScreenProfiles`
@@ -640,7 +640,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ScreenProfileId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.2](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/iam/0006-iam.ScreenProfiles.sql` | |
 
 ### `iam.RoleAssignments`
@@ -655,7 +655,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `RoleAssignmentId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.2](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/iam/0007-iam.RoleAssignments.sql` | |
 
 ### `iam.ProfileAssignments`
@@ -670,7 +670,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ProfileAssignmentId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.2](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/iam/0008-iam.ProfileAssignments.sql` | |
 
 ### `iam.CapabilityCatalog`
@@ -745,7 +745,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `SessionId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.2](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/iam/0013-iam.Sessions.sql` | |
 
 ### `iam.AuthTransactions`
@@ -1032,7 +1032,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PersonId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0001-per.Persons.sql` | |
 
 ### `per.PersonIdentifierIndex`
@@ -1047,7 +1047,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PersonIdentifierIndexId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M01 §7 | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0002-per.PersonIdentifierIndex.sql` | |
 
 ### `per.PersonSensitiveData`
@@ -1062,7 +1062,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PersonSensitiveDataId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M01 §7 | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0003-per.PersonSensitiveData.sql` | |
 
 ### `per.Holders`
@@ -1077,7 +1077,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `HolderId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0004-per.Holders.sql` | |
 
 ### `per.Accounts`
@@ -1092,7 +1092,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AccountId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0005-per.Accounts.sql` | |
 
 ### `per.Addresses`
@@ -1107,7 +1107,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AddressId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0006-per.Addresses.sql` | |
 
 ### `per.AddressGeoEvents`
@@ -1122,7 +1122,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AddressGeoEventId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0007-per.AddressGeoEvents.sql` | |
 
 ### `per.Premises`
@@ -1137,7 +1137,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PremisId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0008-per.Premises.sql` | |
 
 ### `per.ServicePoints`
@@ -1152,7 +1152,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ServicePointId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0009-per.ServicePoints.sql` | |
 
 ### `per.Relationships`
@@ -1167,7 +1167,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `RelationshipId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0010-per.Relationships.sql` | |
 
 ### ~~`per.Adherents`~~ — absorbida
@@ -1182,7 +1182,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-SOC-01 / COL-SOC-02 |
 | SQL | No crear; ver `A→COL-SOC-01 / COL-SOC-02` |
-| **Capa B:** pendiente — anexo M01 §7 | |
+| **Capa B:** canónica M18 — [`soc.ServiceDependents`](07-catalogo-tablas-sql.md) / [`soc.ServiceBeneficiaries`](07-catalogo-tablas-sql.md) (§2.21) | |
 | **Capa C:** pendiente | |
 
 ### `per.Notes`
@@ -1197,7 +1197,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `NoteId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0011-per.Notes.sql` | |
 
 ### `per.Blocks`
@@ -1212,7 +1212,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `BlockId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0012-per.Blocks.sql` | |
 
 ### `per.DocumentRequirementTypes`
@@ -1227,7 +1227,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `DocumentRequirementTypeId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0013-per.DocumentRequirementTypes.sql` | |
 
 ### `per.DocumentSubmissions`
@@ -1242,7 +1242,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `DocumentSubmissionId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0014-per.DocumentSubmissions.sql` | |
 
 ### `per.Transfers`
@@ -1257,7 +1257,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `TransferId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0015-per.Transfers.sql` | |
 
 ### `per.DuplicateCases`
@@ -1272,7 +1272,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `DuplicateCasId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0016-per.DuplicateCases.sql` | |
 
 ### `per.PerRevisions`
@@ -1287,7 +1287,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PerRevisionId` (convención; confirmar en anexo) |
-| **Capa B:** [`07` §2](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** [`07` §2.1](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/per/0017-per.PerRevisions.sql` | |
 
 ### ~~`per.Consents`~~ — absorbida
@@ -1302,7 +1302,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-NFR-04 |
 | SQL | No crear; ver `A→COL-NFR-04` |
-| **Capa B:** pendiente — anexo M01 §7 | |
+| **Capa B:** canónica T08 — [`nfr.ConsentRecords`](07-catalogo-tablas-sql.md) (§2.26) | |
 | **Capa C:** pendiente | |
 
 ### ~~`per.DataSubjectRequests`~~ — absorbida
@@ -1317,7 +1317,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-NFR-05 |
 | SQL | No crear; ver `A→COL-NFR-05` |
-| **Capa B:** pendiente — anexo M01 §7 | |
+| **Capa B:** canónica T08 — [`nfr.DataSubjectRequests`](07-catalogo-tablas-sql.md) (§2.26) | |
 | **Capa C:** pendiente | |
 
 ### ~~`per.PersonUserLinks`~~ — absorbida
@@ -1332,7 +1332,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-IAM-04 |
 | SQL | No crear; ver `A→COL-IAM-04` |
-| **Capa B:** pendiente — anexo M01 §7 | |
+| **Capa B:** canónica T02 — [`iam.Memberships`](07-catalogo-tablas-sql.md) (§2.2, `PersonId`) | |
 | **Capa C:** pendiente | |
 
 ## Esquema `bia`
@@ -1349,7 +1349,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ReportDefinitionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0001-bia.ReportDefinitions.sql` | |
 
 ### `bia.ReportPresets`
@@ -1364,7 +1364,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ReportPresetId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0002-bia.ReportPresets.sql` | |
 
 ### `bia.SavedViews`
@@ -1379,7 +1379,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SavedViewId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0003-bia.SavedViews.sql` | |
 
 ### `bia.ReportRuns`
@@ -1394,7 +1394,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ReportRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0004-bia.ReportRuns.sql` | |
 
 ### `bia.ReportExports`
@@ -1409,7 +1409,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ReportExportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0005-bia.ReportExports.sql` | |
 
 ### `bia.ReportSchedules`
@@ -1424,7 +1424,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ReportScheduleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0006-bia.ReportSchedules.sql` | |
 
 ### `bia.ReportDeliveries`
@@ -1439,7 +1439,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ReportDeliveryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0007-bia.ReportDeliveries.sql` | |
 
 ### `bia.ReportTemplates`
@@ -1454,7 +1454,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ReportTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0008-bia.ReportTemplates.sql` | |
 
 ### `bia.ExportLayouts`
@@ -1469,7 +1469,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ExportLayoutId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0009-bia.ExportLayouts.sql` | |
 
 ### `bia.ReportAccessLogs`
@@ -1484,7 +1484,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ReportAccessLogId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0010-bia.ReportAccessLogs.sql` | |
 
 ### `bia.IndicatorDefinitions`
@@ -1499,7 +1499,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `IndicatorDefinitionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0011-bia.IndicatorDefinitions.sql` | |
 
 ### `bia.IndicatorSnapshots`
@@ -1514,7 +1514,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `IndicatorSnapshotId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0012-bia.IndicatorSnapshots.sql` | |
 
 ### `bia.Dashboards`
@@ -1529,7 +1529,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DashboardId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0013-bia.Dashboards.sql` | |
 
 ### `bia.DashboardUserPrefs`
@@ -1544,7 +1544,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DashboardUserPrefId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0014-bia.DashboardUserPrefs.sql` | |
 
 ### `bia.KpiAlertRules`
@@ -1559,7 +1559,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `KpiAlertRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0015-bia.KpiAlertRules.sql` | |
 
 ### `bia.KpiAlerts`
@@ -1574,7 +1574,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `KpiAlertId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0016-bia.KpiAlerts.sql` | |
 
 ### `bia.AnalyticsDatasets`
@@ -1589,7 +1589,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `AnalyticsDatasetId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0017-bia.AnalyticsDatasets.sql` | |
 
 ### `bia.CustomReports`
@@ -1604,7 +1604,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `CustomReportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0018-bia.CustomReports.sql` | |
 
 ### `bia.AiQuestions`
@@ -1619,7 +1619,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `AiQuestionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0019-bia.AiQuestions.sql` | |
 
 ### ~~`bia.ApiClients`~~ — absorbida
@@ -1634,7 +1634,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-IAM-22 |
 | SQL | No crear; ver `A→COL-IAM-22` |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** canónica T02 — [`iam.ApiClients`](07-catalogo-tablas-sql.md) (§2.2) | |
 | **Capa C:** pendiente | |
 
 ### ~~`bia.ApiCredentials`~~ — absorbida
@@ -1649,7 +1649,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-IAM-23 |
 | SQL | No crear; ver `A→COL-IAM-23` |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** canónica T02 — [`iam.ApiCredentials`](07-catalogo-tablas-sql.md) (§2.2) | |
 | **Capa C:** pendiente | |
 
 ### `bia.ApiUsageLogs`
@@ -1664,7 +1664,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `ApiUsageLogId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0020-bia.ApiUsageLogs.sql` | |
 
 ### `bia.ApiUsageDaily`
@@ -1679,7 +1679,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `ApiUsageDailyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0021-bia.ApiUsageDaily.sql` | |
 
 ### `bia.ExtWebhookSubscriptions`
@@ -1694,7 +1694,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `ExtWebhookSubscriptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0022-bia.ExtWebhookSubscriptions.sql` | |
 
 ### `bia.ExtWebhookDeliveries`
@@ -1709,7 +1709,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `ExtWebhookDeliveryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0023-bia.ExtWebhookDeliveries.sql` | |
 
 ### `bia.ExtBulkExports`
@@ -1724,7 +1724,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `ExtBulkExportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0024-bia.ExtBulkExports.sql` | |
 
 ### `bia.OpenDataPublications`
@@ -1739,7 +1739,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `OpenDataPublicationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0025-bia.OpenDataPublications.sql` | |
 
 ### `bia.BenchmarkParticipations`
@@ -1754,7 +1754,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `BenchmarkParticipationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0026-bia.BenchmarkParticipations.sql` | |
 
 ### `bia.BenchmarkAggregates`
@@ -1769,7 +1769,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `BenchmarkAggregateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0027-bia.BenchmarkAggregates.sql` | |
 
 ### `bia.ReportRunResults`
@@ -1784,7 +1784,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C (antes `R`) |
 | PK sugerida | `ReportRunResultId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0028-bia.ReportRunResults.sql` | |
 
 ### `bia.Bi_dim_date`
@@ -1799,7 +1799,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_dateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0029-bia.Bi_dim_date.sql` | |
 
 ### `bia.Bi_dim_person`
@@ -1814,7 +1814,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_personId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0030-bia.Bi_dim_person.sql` | |
 
 ### `bia.Bi_dim_account`
@@ -1829,7 +1829,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_accountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0031-bia.Bi_dim_account.sql` | |
 
 ### `bia.Bi_dim_contract`
@@ -1844,7 +1844,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_contractId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0032-bia.Bi_dim_contract.sql` | |
 
 ### `bia.Bi_dim_service`
@@ -1859,7 +1859,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_serviceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0033-bia.Bi_dim_service.sql` | |
 
 ### `bia.Bi_dim_category`
@@ -1874,7 +1874,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_categoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0034-bia.Bi_dim_category.sql` | |
 
 ### `bia.Bi_dim_plan`
@@ -1889,7 +1889,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_planId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0035-bia.Bi_dim_plan.sql` | |
 
 ### `bia.Bi_dim_product`
@@ -1904,7 +1904,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_productId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0036-bia.Bi_dim_product.sql` | |
 
 ### `bia.Bi_dim_concept`
@@ -1919,7 +1919,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_conceptId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0037-bia.Bi_dim_concept.sql` | |
 
 ### `bia.Bi_dim_channel`
@@ -1934,7 +1934,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_channelId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0038-bia.Bi_dim_channel.sql` | |
 
 ### `bia.Bi_dim_cashbox`
@@ -1949,7 +1949,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_cashboxId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0039-bia.Bi_dim_cashbox.sql` | |
 
 ### `bia.Bi_dim_crew`
@@ -1964,7 +1964,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_crewId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0040-bia.Bi_dim_crew.sql` | |
 
 ### `bia.Bi_dim_supplier`
@@ -1979,7 +1979,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_supplierId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0041-bia.Bi_dim_supplier.sql` | |
 
 ### `bia.Bi_dim_glAccount`
@@ -1994,7 +1994,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_glAccountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0042-bia.Bi_dim_glAccount.sql` | |
 
 ### `bia.Bi_dim_costCenter`
@@ -2009,7 +2009,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_costCenterId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0043-bia.Bi_dim_costCenter.sql` | |
 
 ### `bia.Bi_dim_employee`
@@ -2024,7 +2024,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_employeeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0044-bia.Bi_dim_employee.sql` | |
 
 ### `bia.Bi_dim_branch`
@@ -2039,7 +2039,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_branchId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0045-bia.Bi_dim_branch.sql` | |
 
 ### `bia.Bi_dim_zone`
@@ -2054,7 +2054,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_dim_zoneId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0046-bia.Bi_dim_zone.sql` | |
 
 ### `bia.Bi_fact_invoice`
@@ -2069,7 +2069,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_invoiceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0047-bia.Bi_fact_invoice.sql` | |
 
 ### `bia.Bi_fact_invoiceLine`
@@ -2084,7 +2084,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_invoiceLineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0048-bia.Bi_fact_invoiceLine.sql` | |
 
 ### `bia.Bi_fact_payment`
@@ -2099,7 +2099,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_paymentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0049-bia.Bi_fact_payment.sql` | |
 
 ### `bia.Bi_fact_allocation`
@@ -2114,7 +2114,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_allocationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0050-bia.Bi_fact_allocation.sql` | |
 
 ### `bia.Bi_fact_ledgerEntry`
@@ -2129,7 +2129,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_ledgerEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0051-bia.Bi_fact_ledgerEntry.sql` | |
 
 ### `bia.Bi_fact_consumption`
@@ -2144,7 +2144,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_consumptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0052-bia.Bi_fact_consumption.sql` | |
 
 ### `bia.Bi_fact_reading`
@@ -2159,7 +2159,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_readingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0053-bia.Bi_fact_reading.sql` | |
 
 ### `bia.Bi_fact_arrears`
@@ -2174,7 +2174,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_arrearId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0054-bia.Bi_fact_arrears.sql` | |
 
 ### `bia.Bi_fact_agreement`
@@ -2189,7 +2189,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_agreementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0055-bia.Bi_fact_agreement.sql` | |
 
 ### `bia.Bi_fact_ticket`
@@ -2204,7 +2204,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_ticketId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0056-bia.Bi_fact_ticket.sql` | |
 
 ### `bia.Bi_fact_workOrder`
@@ -2219,7 +2219,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_workOrderId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0057-bia.Bi_fact_workOrder.sql` | |
 
 ### `bia.Bi_fact_turn`
@@ -2234,7 +2234,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_turnId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0058-bia.Bi_fact_turn.sql` | |
 
 ### `bia.Bi_fact_stockMovement`
@@ -2249,7 +2249,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_stockMovementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0059-bia.Bi_fact_stockMovement.sql` | |
 
 ### `bia.Bi_fact_purchase`
@@ -2264,7 +2264,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_purchaseId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0060-bia.Bi_fact_purchase.sql` | |
 
 ### `bia.Bi_fact_treasury`
@@ -2279,7 +2279,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_treasuryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0061-bia.Bi_fact_treasury.sql` | |
 
 ### `bia.Bi_fact_journalLine`
@@ -2294,7 +2294,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_journalLineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0062-bia.Bi_fact_journalLine.sql` | |
 
 ### `bia.Bi_fact_payroll`
@@ -2309,7 +2309,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_payrollId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0063-bia.Bi_fact_payroll.sql` | |
 
 ### `bia.Bi_fact_member`
@@ -2324,7 +2324,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_memberId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0064-bia.Bi_fact_member.sql` | |
 
 ### `bia.Bi_fact_communication`
@@ -2339,7 +2339,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_communicationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0065-bia.Bi_fact_communication.sql` | |
 
 ### `bia.Bi_fact_apiUsage`
@@ -2354,7 +2354,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_fact_apiUsageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0066-bia.Bi_fact_apiUsage.sql` | |
 
 ### `bia.Bi_snap_balance`
@@ -2369,7 +2369,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `Bi_snap_balanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T10 §7 | |
+| **Capa B:** [`07` §2.28](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/bia/0067-bia.Bi_snap_balance.sql` | |
 
 ## Esquema `cat`
@@ -3408,7 +3408,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-WFL-45 |
 | SQL | No crear; ver `A→COL-WFL-45` |
-| **Capa B:** [`07` §2.3](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** canónica T11 — [`wfl.NumberingSequences`](07-catalogo-tablas-sql.md) (§2.25) | |
 | **Capa C:** pendiente | |
 
 ### `cfg.LegalEntities`
@@ -3618,7 +3618,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-INT-10 |
 | SQL | No crear; ver `A→COL-INT-10` |
-| **Capa B:** [`07` §2.3](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** canónica T06 — [`int.FileLayouts`](07-catalogo-tablas-sql.md) (§2.24) | |
 | **Capa C:** pendiente | |
 
 ### ~~`cfg.OfficialTableAdoptions`~~ — absorbida
@@ -3650,7 +3650,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `SupplierId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0001-cmp.Suppliers.sql` | |
 
 ### `cmp.SupplierCategories`
@@ -3665,7 +3665,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierCategoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0002-cmp.SupplierCategories.sql` | |
 
 ### `cmp.SupplierEvaluations`
@@ -3680,7 +3680,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierEvaluationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0003-cmp.SupplierEvaluations.sql` | |
 
 ### `cmp.SupplierCorrespondence`
@@ -3695,7 +3695,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierCorrespondenceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0004-cmp.SupplierCorrespondence.sql` | |
 
 ### `cmp.PurchaseConcepts`
@@ -3710,7 +3710,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PurchaseConceptId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0005-cmp.PurchaseConcepts.sql` | |
 
 ### `cmp.PurchaseLookups`
@@ -3725,7 +3725,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PurchaseLookupId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0006-cmp.PurchaseLookups.sql` | |
 
 ### `cmp.SupplyRequests`
@@ -3740,7 +3740,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplyRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0007-cmp.SupplyRequests.sql` | |
 
 ### `cmp.QuoteRequests`
@@ -3755,7 +3755,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `QuoteRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0008-cmp.QuoteRequests.sql` | |
 
 ### `cmp.SourcingEvents`
@@ -3770,7 +3770,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SourcingEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0009-cmp.SourcingEvents.sql` | |
 
 ### `cmp.PurchaseOrders`
@@ -3785,7 +3785,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PurchaseOrderId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0010-cmp.PurchaseOrders.sql` | |
 
 ### `cmp.SupplierReceipts`
@@ -3800,7 +3800,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierReceiptId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0011-cmp.SupplierReceipts.sql` | |
 
 ### `cmp.SupplierInvoices`
@@ -3815,7 +3815,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierInvoiceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0012-cmp.SupplierInvoices.sql` | |
 
 ### `cmp.PurchaseDocumentLinks`
@@ -3830,7 +3830,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PurchaseDocumentLinkId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0013-cmp.PurchaseDocumentLinks.sql` | |
 
 ### `cmp.MatchExceptions`
@@ -3845,7 +3845,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `MatchExceptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0014-cmp.MatchExceptions.sql` | |
 
 ### `cmp.PaymentOrders`
@@ -3860,7 +3860,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PaymentOrderId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0015-cmp.PaymentOrders.sql` | |
 
 ### `cmp.SupplierAdvances`
@@ -3875,7 +3875,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierAdvanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0016-cmp.SupplierAdvances.sql` | |
 
 ### `cmp.PurchaseForecasts`
@@ -3890,7 +3890,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PurchaseForecastId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0017-cmp.PurchaseForecasts.sql` | |
 
 ### `cmp.SupplierPortalSubmissions`
@@ -3905,7 +3905,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierPortalSubmissionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0018-cmp.SupplierPortalSubmissions.sql` | |
 
 ### `cmp.AiInvoiceExtractions`
@@ -3920,7 +3920,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `AiInvoiceExtractionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0019-cmp.AiInvoiceExtractions.sql` | |
 
 ### `cmp.SupplierLedgerEntries`
@@ -3935,7 +3935,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplierLedgerEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0020-cmp.SupplierLedgerEntries.sql` | |
 
 ### `cmp.SupplyBalances`
@@ -3950,7 +3950,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SupplyBalanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0021-cmp.SupplyBalances.sql` | |
 
 ### `cmp.SignalRightsContracts`
@@ -3965,7 +3965,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `SignalRightsContractId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0022-cmp.SignalRightsContracts.sql` | |
 
 ### `cmp.SignalRightsSettlements`
@@ -3980,7 +3980,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `SignalRightsSettlementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M12 §7 | |
+| **Capa B:** [`07` §2.16](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/cmp/0023-cmp.SignalRightsSettlements.sql` | |
 
 ## Esquema `cob`
@@ -4312,7 +4312,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-INT-10 |
 | SQL | No crear; ver `A→COL-INT-10` |
-| **Capa B:** [`07` §2.10](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** canónica T06 — [`int.FileLayouts`](07-catalogo-tablas-sql.md) (§2.24) | |
 | **Capa C:** pendiente | |
 
 ### `cob.PaymentReferences`
@@ -4704,7 +4704,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PostId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0001-com.Posts.sql` | |
 
 ### `com.PostCategories`
@@ -4719,7 +4719,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PostCategoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0002-com.PostCategories.sql` | |
 
 ### `com.PostTemplates`
@@ -4734,7 +4734,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PostTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0003-com.PostTemplates.sql` | |
 
 ### `com.PostReactions`
@@ -4749,7 +4749,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PostReactionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0004-com.PostReactions.sql` | |
 
 ### `com.PostViews`
@@ -4764,7 +4764,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PostViewId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0005-com.PostViews.sql` | |
 
 ### `com.PostDailyStats`
@@ -4779,7 +4779,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PostDailyStatId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0006-com.PostDailyStats.sql` | |
 
 ### `com.PostUserStates`
@@ -4794,7 +4794,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PostUserStateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0007-com.PostUserStates.sql` | |
 
 ### `com.GreetingRules`
@@ -4809,7 +4809,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `GreetingRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0008-com.GreetingRules.sql` | |
 
 ### `com.Comments`
@@ -4824,7 +4824,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `CommentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0009-com.Comments.sql` | |
 
 ### `com.ModerationPolicies`
@@ -4839,7 +4839,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ModerationPolicyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0010-com.ModerationPolicies.sql` | |
 
 ### `com.ModerationRules`
@@ -4854,7 +4854,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ModerationRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0011-com.ModerationRules.sql` | |
 
 ### `com.ModerationCases`
@@ -4869,7 +4869,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ModerationCasId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0012-com.ModerationCases.sql` | |
 
 ### `com.ContentReports`
@@ -4884,7 +4884,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ContentReportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0013-com.ContentReports.sql` | |
 
 ### `com.CommunitySanctions`
@@ -4899,7 +4899,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `CommunitySanctionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0014-com.CommunitySanctions.sql` | |
 
 ### `com.CommunityGuidelines`
@@ -4914,7 +4914,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `CommunityGuidelineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0015-com.CommunityGuidelines.sql` | |
 
 ### `com.GuidelineAcceptances`
@@ -4929,7 +4929,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `GuidelineAcceptanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0016-com.GuidelineAcceptances.sql` | |
 
 ### `com.NewsletterRules`
@@ -4944,7 +4944,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `NewsletterRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0017-com.NewsletterRules.sql` | |
 
 ### `com.Newsletters`
@@ -4959,7 +4959,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `NewsletterId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0018-com.Newsletters.sql` | |
 
 ### `com.NewsletterRecipients`
@@ -4974,7 +4974,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `NewsletterRecipientId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0019-com.NewsletterRecipients.sql` | |
 
 ### `com.Surveys`
@@ -4989,7 +4989,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SurveyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0020-com.Surveys.sql` | |
 
 ### `com.SurveyResponses`
@@ -5004,7 +5004,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SurveyResponsId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0021-com.SurveyResponses.sql` | |
 
 ### `com.SurveyInvitations`
@@ -5019,7 +5019,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SurveyInvitationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0022-com.SurveyInvitations.sql` | |
 
 ### `com.SurveyTemplates`
@@ -5034,7 +5034,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SurveyTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0023-com.SurveyTemplates.sql` | |
 
 ### `com.SurveyCategories`
@@ -5049,7 +5049,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SurveyCategoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0024-com.SurveyCategories.sql` | |
 
 ### `com.Events`
@@ -5064,7 +5064,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `EventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0025-com.Events.sql` | |
 
 ### `com.EventRegistrations`
@@ -5079,7 +5079,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `EventRegistrationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0026-com.EventRegistrations.sql` | |
 
 ### `com.BenefitPartners`
@@ -5094,7 +5094,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `BenefitPartnerId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0027-com.BenefitPartners.sql` | |
 
 ### `com.Benefits`
@@ -5109,7 +5109,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `BenefitId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0028-com.Benefits.sql` | |
 
 ### `com.BenefitRedemptions`
@@ -5124,7 +5124,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `BenefitRedemptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0029-com.BenefitRedemptions.sql` | |
 
 ### `com.AudienceSegments`
@@ -5139,7 +5139,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AudienceSegmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0030-com.AudienceSegments.sql` | |
 
 ### `com.AudienceImportLists`
@@ -5154,7 +5154,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AudienceImportListId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0031-com.AudienceImportLists.sql` | |
 
 ### `com.AudienceImportRows`
@@ -5169,7 +5169,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AudienceImportRowId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0032-com.AudienceImportRows.sql` | |
 
 ### `com.AudienceSnapshots`
@@ -5184,7 +5184,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AudienceSnapshotId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0033-com.AudienceSnapshots.sql` | |
 
 ### `com.AudienceSnapshotMembers`
@@ -5199,7 +5199,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AudienceSnapshotMemberId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0034-com.AudienceSnapshotMembers.sql` | |
 
 ### `com.CommunicationTypes`
@@ -5214,7 +5214,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `CommunicationTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0035-com.CommunicationTypes.sql` | |
 
 ### `com.MessageTemplates`
@@ -5229,7 +5229,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `MessageTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0036-com.MessageTemplates.sql` | |
 
 ### `com.MessageTemplateVersions`
@@ -5244,7 +5244,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `MessageTemplateVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0037-com.MessageTemplateVersions.sql` | |
 
 ### `com.TemplateVariables`
@@ -5259,7 +5259,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `TemplateVariableId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0038-com.TemplateVariables.sql` | |
 
 ### `com.Communications`
@@ -5274,7 +5274,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `CommunicationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0039-com.Communications.sql` | |
 
 ### `com.CommunicationAttempts`
@@ -5289,7 +5289,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `CommunicationAttemptId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0040-com.CommunicationAttempts.sql` | |
 
 ### `com.CommunicationEvents`
@@ -5304,7 +5304,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `CommunicationEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0041-com.CommunicationEvents.sql` | |
 
 ### `com.TrackedLinks`
@@ -5319,7 +5319,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `TrackedLinkId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0042-com.TrackedLinks.sql` | |
 
 ### `com.SenderIdentities`
@@ -5334,7 +5334,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SenderIdentityId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0043-com.SenderIdentities.sql` | |
 
 ### `com.ChannelSettings`
@@ -5349,7 +5349,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ChannelSettingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0044-com.ChannelSettings.sql` | |
 
 ### `com.MessagingUsage`
@@ -5364,7 +5364,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `MessagingUsageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0045-com.MessagingUsage.sql` | |
 
 ### `com.InternalNotificationRules`
@@ -5379,7 +5379,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `InternalNotificationRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0046-com.InternalNotificationRules.sql` | |
 
 ### `com.Campaigns`
@@ -5394,7 +5394,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `CampaignId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0047-com.Campaigns.sql` | |
 
 ### `com.InvoiceMessages`
@@ -5409,7 +5409,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `InvoiceMessageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0048-com.InvoiceMessages.sql` | |
 
 ### `com.CommunicationPreferences`
@@ -5424,7 +5424,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `CommunicationPreferenceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0049-com.CommunicationPreferences.sql` | |
 
 ### ~~`com.ConsentRecords`~~ — absorbida
@@ -5439,7 +5439,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-NFR-04 |
 | SQL | No crear; ver `A→COL-NFR-04` |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** canónica T08 — [`nfr.ConsentRecords`](07-catalogo-tablas-sql.md) (§2.26) | |
 | **Capa C:** pendiente | |
 
 ### `com.SuppressionEntries`
@@ -5454,7 +5454,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SuppressionEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0050-com.SuppressionEntries.sql` | |
 
 ### `com.AppNotifications`
@@ -5469,7 +5469,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `AppNotificationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0051-com.AppNotifications.sql` | |
 
 ### `com.PushSubscriptions`
@@ -5484,7 +5484,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PushSubscriptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0052-com.PushSubscriptions.sql` | |
 
 ### `com.PlatformNotices`
@@ -5499,7 +5499,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `PlatformNoticeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0053-com.PlatformNotices.sql` | |
 
 ### `com.PlatformNoticeReads`
@@ -5514,7 +5514,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `PlatformNoticeReadId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0054-com.PlatformNoticeReads.sql` | |
 
 ### `com.OutageNotices`
@@ -5529,7 +5529,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `OutageNoticeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T09 §7 | |
+| **Capa B:** [`07` §2.23](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/com/0055-com.OutageNotices.sql` | |
 
 ## Esquema `con`
@@ -5546,7 +5546,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `AccountingSettingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0001-con.AccountingSettings.sql` | |
 
 ### `con.ChartOfAccounts`
@@ -5561,7 +5561,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ChartOfAccountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0002-con.ChartOfAccounts.sql` | |
 
 ### `con.AccountRubrics`
@@ -5576,7 +5576,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `AccountRubricId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0003-con.AccountRubrics.sql` | |
 
 ### `con.LedgerAccounts`
@@ -5591,7 +5591,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `LedgerAccountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0004-con.LedgerAccounts.sql` | |
 
 ### `con.AccountRoles`
@@ -5606,7 +5606,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `AccountRoleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0005-con.AccountRoles.sql` | |
 
 ### `con.PostingRules`
@@ -5621,7 +5621,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `PostingRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0006-con.PostingRules.sql` | |
 
 ### `con.AccountingEvents`
@@ -5636,7 +5636,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `AccountingEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0007-con.AccountingEvents.sql` | |
 
 ### `con.JournalEntries`
@@ -5651,7 +5651,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `JournalEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0008-con.JournalEntries.sql` | |
 
 ### `con.JournalLines`
@@ -5666,7 +5666,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `JournalLineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0009-con.JournalLines.sql` | |
 
 ### `con.EntryTemplates`
@@ -5681,7 +5681,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `EntryTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0010-con.EntryTemplates.sql` | |
 
 ### `con.PostingBatches`
@@ -5696,7 +5696,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `PostingBatcheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0011-con.PostingBatches.sql` | |
 
 ### `con.FiscalYears`
@@ -5711,7 +5711,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `FiscalYearId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0012-con.FiscalYears.sql` | |
 
 ### `con.AccountingPeriods`
@@ -5726,7 +5726,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `AccountingPeriodId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0013-con.AccountingPeriods.sql` | |
 
 ### `con.ResultTargets`
@@ -5741,7 +5741,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ResultTargetId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0014-con.ResultTargets.sql` | |
 
 ### ~~`con.CapitalRubricAccounts`~~ — absorbida
@@ -5756,7 +5756,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-CON-38 |
 | SQL | No crear; ver `A→COL-CON-38` |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** canónica M15 — [`07` §2.18](07-modelo-relacional-azure-sql.md) `EntityAccountAssignments` | |
 | **Capa C:** pendiente | |
 
 ### `con.CostCenters`
@@ -5771,7 +5771,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CostCenterId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0015-con.CostCenters.sql` | |
 
 ### `con.CostCenterGroups`
@@ -5786,7 +5786,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CostCenterGroupId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0016-con.CostCenterGroups.sql` | |
 
 ### `con.CostAllocationRules`
@@ -5801,7 +5801,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CostAllocationRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0017-con.CostAllocationRules.sql` | |
 
 ### `con.DistributionModels`
@@ -5816,7 +5816,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `DistributionModelId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0018-con.DistributionModels.sql` | |
 
 ### `con.CostDistributionRuns`
@@ -5831,7 +5831,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CostDistributionRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0019-con.CostDistributionRuns.sql` | |
 
 ### `con.AccountMappings`
@@ -5846,7 +5846,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `AccountMappingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0020-con.AccountMappings.sql` | |
 
 ### `con.SimulationScenarios`
@@ -5861,7 +5861,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SimulationScenarioId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0021-con.SimulationScenarios.sql` | |
 
 ### `con.SimulatedJournalLines`
@@ -5876,7 +5876,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SimulatedJournalLineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0022-con.SimulatedJournalLines.sql` | |
 
 ### `con.LedgerProjections`
@@ -5891,7 +5891,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `LedgerProjectionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0023-con.LedgerProjections.sql` | |
 
 ### `con.LedgerBalances`
@@ -5906,7 +5906,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `LedgerBalanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0024-con.LedgerBalances.sql` | |
 
 ### `con.Budgets`
@@ -5921,7 +5921,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `BudgetId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0025-con.Budgets.sql` | |
 
 ### `con.BudgetLines`
@@ -5936,7 +5936,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `BudgetLineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0026-con.BudgetLines.sql` | |
 
 ### `con.Commitments`
@@ -5951,7 +5951,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CommitmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0027-con.Commitments.sql` | |
 
 ### ~~`con.InflationIndexSeries`~~ — absorbida
@@ -5966,7 +5966,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-CFG-21 |
 | SQL | No crear; ver `A→COL-CFG-21` |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** canónica T04 — [`07` §2.3](07-modelo-relacional-azure-sql.md) `EconomicIndexSeries` | |
 | **Capa C:** pendiente | |
 
 ### ~~`con.InflationIndexValues`~~ — absorbida
@@ -5981,7 +5981,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-CFG-22 |
 | SQL | No crear; ver `A→COL-CFG-22` |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** canónica T04 — [`07` §2.3](07-modelo-relacional-azure-sql.md) `EconomicIndexValues` | |
 | **Capa C:** pendiente | |
 
 ### `con.InflationAdjustmentRuns`
@@ -5996,7 +5996,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `InflationAdjustmentRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0028-con.InflationAdjustmentRuns.sql` | |
 
 ### `con.ReconciliationRuns`
@@ -6011,7 +6011,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ReconciliationRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0029-con.ReconciliationRuns.sql` | |
 
 ### `con.RubricatedBooks`
@@ -6026,7 +6026,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `RubricatedBookId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0030-con.RubricatedBooks.sql` | |
 
 ### `con.StatementTemplates`
@@ -6041,7 +6041,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `StatementTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0031-con.StatementTemplates.sql` | |
 
 ### `con.FinancialStatementRuns`
@@ -6056,7 +6056,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FinancialStatementRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0032-con.FinancialStatementRuns.sql` | |
 
 ### `con.ExternalLedgerMappings`
@@ -6071,7 +6071,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ExternalLedgerMappingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0033-con.ExternalLedgerMappings.sql` | |
 
 ### `con.ExternalLedgerTransfers`
@@ -6086,7 +6086,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ExternalLedgerTransferId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0034-con.ExternalLedgerTransfers.sql` | |
 
 ### `con.EntityAccountAssignments`
@@ -6101,7 +6101,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `EntityAccountAssignmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0035-con.EntityAccountAssignments.sql` | |
 
 ### `con.CostCenterModels`
@@ -6116,7 +6116,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CostCenterModelId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M15 §7 | |
+| **Capa B:** [`07` §2.18](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/con_/0036-con.CostCenterModels.sql` | |
 
 ## Esquema `crm`
@@ -8119,7 +8119,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C (antes `R`) |
 | PK sugerida | `AssociateMembershipId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0001-ins.AssociateMemberships.sql` | |
 
 ### `ins.MembershipEvents`
@@ -8134,7 +8134,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `MembershipEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0002-ins.MembershipEvents.sql` | |
 
 ### ~~`ins.InsNumberingSeries`~~ — absorbida
@@ -8149,7 +8149,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-WFL-45 |
 | SQL | No crear; ver `A→COL-WFL-45` |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** canónica T11 — [`wfl.NumberingSequences`](07-catalogo-tablas-sql.md) (§2.25) | |
 | **Capa C:** pendiente | |
 
 ### `ins.ElectoralDistricts`
@@ -8164,7 +8164,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ElectoralDistrictId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0003-ins.ElectoralDistricts.sql` | |
 
 ### `ins.CapitalItems`
@@ -8179,7 +8179,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CapitalItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0004-ins.CapitalItems.sql` | |
 
 ### `ins.CapitalSubscriptionRules`
@@ -8194,7 +8194,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CapitalSubscriptionRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0005-ins.CapitalSubscriptionRules.sql` | |
 
 ### `ins.CapitalShareValues`
@@ -8209,7 +8209,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CapitalShareValueId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0006-ins.CapitalShareValues.sql` | |
 
 ### `ins.CapitalMovements`
@@ -8224,7 +8224,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CapitalMovementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0007-ins.CapitalMovements.sql` | |
 
 ### `ins.CapitalReserves`
@@ -8239,7 +8239,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CapitalReserveId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0008-ins.CapitalReserves.sql` | |
 
 ### `ins.CapitalTransfers`
@@ -8254,7 +8254,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `CapitalTransferId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0009-ins.CapitalTransfers.sql` | |
 
 ### `ins.CapitalRefunds`
@@ -8269,7 +8269,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `CapitalRefundId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0010-ins.CapitalRefunds.sql` | |
 
 ### `ins.CapitalClosings`
@@ -8284,7 +8284,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CapitalClosingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0011-ins.CapitalClosings.sql` | |
 
 ### `ins.ShareCertificates`
@@ -8299,7 +8299,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ShareCertificateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0012-ins.ShareCertificates.sql` | |
 
 ### `ins.SurplusDistributions`
@@ -8314,7 +8314,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `SurplusDistributionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0013-ins.SurplusDistributions.sql` | |
 
 ### `ins.SurplusAllocations`
@@ -8329,7 +8329,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `SurplusAllocationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0014-ins.SurplusAllocations.sql` | |
 
 ### `ins.GovernanceBodies`
@@ -8344,7 +8344,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `GovernanceBodyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0015-ins.GovernanceBodies.sql` | |
 
 ### `ins.BodyMandates`
@@ -8359,7 +8359,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BodyMandateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0016-ins.BodyMandates.sql` | |
 
 ### `ins.Meetings`
@@ -8374,7 +8374,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MeetingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0017-ins.Meetings.sql` | |
 
 ### `ins.MeetingAgendaItems`
@@ -8389,7 +8389,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MeetingAgendaItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0018-ins.MeetingAgendaItems.sql` | |
 
 ### `ins.MeetingParticipants`
@@ -8404,7 +8404,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MeetingParticipantId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0019-ins.MeetingParticipants.sql` | |
 
 ### `ins.MeetingPermissions`
@@ -8419,7 +8419,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MeetingPermissionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0020-ins.MeetingPermissions.sql` | |
 
 ### `ins.Minutes`
@@ -8434,7 +8434,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MinuteId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0021-ins.Minutes.sql` | |
 
 ### `ins.Resolutions`
@@ -8449,7 +8449,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ResolutionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0022-ins.Resolutions.sql` | |
 
 ### `ins.Rosters`
@@ -8464,7 +8464,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `RosterId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0023-ins.Rosters.sql` | |
 
 ### `ins.RosterEntries`
@@ -8479,7 +8479,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `RosterEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0024-ins.RosterEntries.sql` | |
 
 ### `ins.Proxies`
@@ -8494,7 +8494,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ProxyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0025-ins.Proxies.sql` | |
 
 ### `ins.ElectoralLists`
@@ -8509,7 +8509,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ElectoralListId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0026-ins.ElectoralLists.sql` | |
 
 ### `ins.VotingSessions`
@@ -8524,7 +8524,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `VotingSessionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0027-ins.VotingSessions.sql` | |
 
 ### `ins.VoteTallies`
@@ -8539,7 +8539,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `VoteTallyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0028-ins.VoteTallies.sql` | |
 
 ### `ins.InstitutionalFees`
@@ -8554,7 +8554,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `InstitutionalFeeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0029-ins.InstitutionalFees.sql` | |
 
 ### `ins.InstitutionalFeeSettlements`
@@ -8569,7 +8569,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `InstitutionalFeeSettlementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0030-ins.InstitutionalFeeSettlements.sql` | |
 
 ### `ins.InaesCategories`
@@ -8584,7 +8584,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `InaesCategoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0031-ins.InaesCategories.sql` | |
 
 ### `ins.InaesReports`
@@ -8599,7 +8599,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `InaesReportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0032-ins.InaesReports.sql` | |
 
 ### `ins.AssociateRegisterEditions`
@@ -8614,7 +8614,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `AssociateRegisterEditionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0033-ins.AssociateRegisterEditions.sql` | |
 
 ### `ins.MemberCredentials`
@@ -8629,7 +8629,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MemberCredentialId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0034-ins.MemberCredentials.sql` | |
 
 ### `ins.CapitalBalances`
@@ -8644,7 +8644,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CapitalBalanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M17 §7 | |
+| **Capa B:** [`07` §2.20](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ins/0035-ins.CapitalBalances.sql` | |
 
 ## Esquema `int`
@@ -8661,7 +8661,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationProviderId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0001-int.IntegrationProviders.sql` | |
 
 ### `int.IntegrationConnections`
@@ -8676,7 +8676,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationConnectionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0002-int.IntegrationConnections.sql` | |
 
 ### `int.IntegrationSecrets`
@@ -8691,7 +8691,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationSecretId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0003-int.IntegrationSecrets.sql` | |
 
 ### `int.IntegrationCertificates`
@@ -8706,7 +8706,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationCertificateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0004-int.IntegrationCertificates.sql` | |
 
 ### `int.IntegrationTokens`
@@ -8721,7 +8721,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationTokenId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0005-int.IntegrationTokens.sql` | |
 
 ### `int.IntegrationOperations`
@@ -8736,7 +8736,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationOperationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0006-int.IntegrationOperations.sql` | |
 
 ### `int.IntegrationMessages`
@@ -8751,7 +8751,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationMessageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0007-int.IntegrationMessages.sql` | |
 
 ### `int.WebhookEndpoints`
@@ -8766,7 +8766,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `WebhookEndpointId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0008-int.WebhookEndpoints.sql` | |
 
 ### `int.WebhookInbox`
@@ -8781,7 +8781,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `WebhookInboxId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0009-int.WebhookInbox.sql` | |
 
 ### `int.FileLayouts`
@@ -8796,7 +8796,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `FileLayoutId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0010-int.FileLayouts.sql` | |
 
 ### `int.IntegrationFileExchanges`
@@ -8811,7 +8811,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationFileExchangeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0011-int.IntegrationFileExchanges.sql` | |
 
 ### `int.IntegrationReconciliations`
@@ -8826,7 +8826,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationReconciliationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0012-int.IntegrationReconciliations.sql` | |
 
 ### `int.IntegrationAlerts`
@@ -8841,7 +8841,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationAlertId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0013-int.IntegrationAlerts.sql` | |
 
 ### `int.IntegrationContingencies`
@@ -8856,7 +8856,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `IntegrationContingencyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0014-int.IntegrationContingencies.sql` | |
 
 ### `int.ExternalReferences`
@@ -8871,7 +8871,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ExternalReferenceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0015-int.ExternalReferences.sql` | |
 
 ### `int.LocalAgents`
@@ -8886,7 +8886,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `LocalAgentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0016-int.LocalAgents.sql` | |
 
 ### `int.LocalAgentCommands`
@@ -8901,7 +8901,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `LocalAgentCommandId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0017-int.LocalAgentCommands.sql` | |
 
 ### `int.AiUsageLogs`
@@ -8916,7 +8916,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AiUsageLogId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T06 §7 | |
+| **Capa B:** [`07` §2.24](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/int/0018-int.AiUsageLogs.sql` | |
 
 ## Esquema `med`
@@ -9383,7 +9383,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-INT-07 |
 | SQL | No crear; ver `A→COL-INT-07` |
-| **Capa B:** [`07` §2.6](07-modelo-relacional-azure-sql.md) | |
+| **Capa B:** canónica T06 — [`int.IntegrationMessages`](07-catalogo-tablas-sql.md) (§2.24) | |
 | **Capa C:** pendiente | |
 
 ### `med.IntervalReadings`
@@ -9490,7 +9490,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationProjectId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0001-mig.MigrationProjects.sql` | |
 
 ### `mig.LegacySnapshots`
@@ -9505,7 +9505,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `LegacySnapshotId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0002-mig.LegacySnapshots.sql` | |
 
 ### `mig.MigrationMappingSets`
@@ -9520,7 +9520,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationMappingSetId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0003-mig.MigrationMappingSets.sql` | |
 
 ### `mig.MigrationMappingRules`
@@ -9535,7 +9535,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationMappingRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0004-mig.MigrationMappingRules.sql` | |
 
 ### `mig.MigrationValueMaps`
@@ -9550,7 +9550,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationValueMapId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0005-mig.MigrationValueMaps.sql` | |
 
 ### `mig.MigrationRuns`
@@ -9565,7 +9565,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0006-mig.MigrationRuns.sql` | |
 
 ### `mig.MigrationBatches`
@@ -9580,7 +9580,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationBatcheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0007-mig.MigrationBatches.sql` | |
 
 ### `mig.MigStagingRecords`
@@ -9595,7 +9595,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigStagingRecordId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0008-mig.MigStagingRecords.sql` | |
 
 ### `mig.LegacyIdMap`
@@ -9610,7 +9610,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `LegacyIdMapId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0009-mig.LegacyIdMap.sql` | |
 
 ### `mig.LegacyKeyAliases`
@@ -9625,7 +9625,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `LegacyKeyAliasId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0010-mig.LegacyKeyAliases.sql` | |
 
 ### `mig.MigrationIssues`
@@ -9640,7 +9640,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationIssueId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0011-mig.MigrationIssues.sql` | |
 
 ### `mig.MigrationReconciliations`
@@ -9655,7 +9655,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `MigrationReconciliationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0012-mig.MigrationReconciliations.sql` | |
 
 ### `mig.ParallelRuns`
@@ -9670,7 +9670,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `ParallelRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0013-mig.ParallelRuns.sql` | |
 
 ### `mig.ParallelComparisons`
@@ -9685,7 +9685,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `ParallelComparisonId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0014-mig.ParallelComparisons.sql` | |
 
 ### `mig.BypassPlans`
@@ -9700,7 +9700,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `BypassPlanId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0015-mig.BypassPlans.sql` | |
 
 ### `mig.CoexistenceSyncs`
@@ -9715,7 +9715,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `CoexistenceSyncId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0016-mig.CoexistenceSyncs.sql` | |
 
 ### `mig.CutoverPlans`
@@ -9730,7 +9730,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `CutoverPlanId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0017-mig.CutoverPlans.sql` | |
 
 ### `mig.RollbackJournal`
@@ -9745,7 +9745,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `RollbackJournalId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0018-mig.RollbackJournal.sql` | |
 
 ### `mig.LegacyRecords`
@@ -9760,7 +9760,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `LegacyRecordId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0019-mig.LegacyRecords.sql` | |
 
 ### `mig.AnonymizationProfiles`
@@ -9775,7 +9775,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `AnonymizationProfileId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T07 §7 | |
+| **Capa B:** [`07` §2.27](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/mig/0020-mig.AnonymizationProfiles.sql` | |
 
 ## Esquema `mor`
@@ -10379,7 +10379,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `DataCatalogEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0001-nfr.DataCatalogEntries.sql` | |
 
 ### `nfr.ProcessingActivities`
@@ -10394,7 +10394,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ProcessingActivityId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0002-nfr.ProcessingActivities.sql` | |
 
 ### `nfr.PrivacyNotices`
@@ -10409,7 +10409,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `PrivacyNoticeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0003-nfr.PrivacyNotices.sql` | |
 
 ### `nfr.ConsentRecords`
@@ -10424,7 +10424,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ConsentRecordId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0004-nfr.ConsentRecords.sql` | |
 
 ### `nfr.DataSubjectRequests`
@@ -10439,7 +10439,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DataSubjectRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0005-nfr.DataSubjectRequests.sql` | |
 
 ### `nfr.RetentionPolicies`
@@ -10454,7 +10454,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `RetentionPolicyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0006-nfr.RetentionPolicies.sql` | |
 
 ### `nfr.LegalHolds`
@@ -10469,7 +10469,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `LegalHoldId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0007-nfr.LegalHolds.sql` | |
 
 ### `nfr.RetentionRuns`
@@ -10484,7 +10484,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `RetentionRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0008-nfr.RetentionRuns.sql` | |
 
 ### `nfr.ErasureLedger`
@@ -10499,7 +10499,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ErasureLedgerId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0009-nfr.ErasureLedger.sql` | |
 
 ### `nfr.SecurityIncidents`
@@ -10514,7 +10514,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SecurityIncidentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0010-nfr.SecurityIncidents.sql` | |
 
 ### ~~`nfr.RestoreDrills`~~ — absorbida
@@ -10529,7 +10529,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-PLA-20 |
 | SQL | No crear; ver `A→COL-PLA-20` |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** canónica T01 — [`pla.RestoreTests`](07-catalogo-tablas-sql.md) (§2.0) | |
 | **Capa C:** pendiente | |
 
 ### `nfr.EncryptionKeys`
@@ -10544,7 +10544,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `EncryptionKeyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0011-nfr.EncryptionKeys.sql` | |
 
 ### ~~`nfr.IdempotencyKeys`~~ — absorbida
@@ -10559,7 +10559,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-PLA-28 |
 | SQL | No crear; ver `A→COL-PLA-28` |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** canónica T01 — [`pla.IdempotencyKeys`](07-catalogo-tablas-sql.md) (§2.0) | |
 | **Capa C:** pendiente | |
 
 ### ~~`nfr.ProcessedEvents`~~ — absorbida
@@ -10574,7 +10574,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-PLA-25 |
 | SQL | No crear; ver `A→COL-PLA-25` |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** canónica T01 — [`pla.InboxReceipts`](07-catalogo-tablas-sql.md) (§2.0) | |
 | **Capa C:** pendiente | |
 
 ### `nfr.Locks`
@@ -10589,7 +10589,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `LockId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0012-nfr.Locks.sql` | |
 
 ### `nfr.SloDefinitions`
@@ -10604,7 +10604,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SloDefinitionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0013-nfr.SloDefinitions.sql` | |
 
 ### ~~`nfr.AlertRules`~~ — absorbida
@@ -10619,7 +10619,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-PLA-15 |
 | SQL | No crear; ver `A→COL-PLA-15` |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** canónica T01 — [`pla.AlertRules`](07-catalogo-tablas-sql.md) (§2.0) | |
 | **Capa C:** pendiente | |
 
 ### ~~`nfr.AlertEvents`~~ — absorbida
@@ -10634,7 +10634,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-PLA-16 |
 | SQL | No crear; ver `A→COL-PLA-16` |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** canónica T01 — [`pla.Alerts`](07-catalogo-tablas-sql.md) (§2.0) | |
 | **Capa C:** pendiente | |
 
 ### `nfr.CspReports`
@@ -10649,7 +10649,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `CspReportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0014-nfr.CspReports.sql` | |
 
 ### `nfr.QualityEvidence`
@@ -10664,7 +10664,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `QualityEvidenceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0015-nfr.QualityEvidence.sql` | |
 
 ### `nfr.StatusNotices`
@@ -10679,7 +10679,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `StatusNoticeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0016-nfr.StatusNotices.sql` | |
 
 ### ~~`nfr.TenantUsageSnapshots`~~ — absorbida
@@ -10694,7 +10694,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-PLA-09 |
 | SQL | No crear; ver `A→COL-PLA-09` |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** canónica T01 — [`pla.UsageSnapshots`](07-catalogo-tablas-sql.md) (§2.0) | |
 | **Capa C:** pendiente | |
 
 ### `nfr.Subprocessors`
@@ -10709,7 +10709,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `SubprocessorId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T08 §7 | |
+| **Capa B:** [`07` §2.26](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/nfr/0017-nfr.Subprocessors.sql` | |
 
 ## Esquema `por`
@@ -10726,7 +10726,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `LandingPageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0001-por.LandingPages.sql` | |
 
 ### `por.LandingPageVersions`
@@ -10741,7 +10741,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `LandingPageVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0002-por.LandingPageVersions.sql` | |
 
 ### `por.PortalAccountAccess`
@@ -10756,7 +10756,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalAccountAccesId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0003-por.PortalAccountAccess.sql` | |
 
 ### `por.PortalLinkAttempts`
@@ -10771,7 +10771,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalLinkAttemptId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0004-por.PortalLinkAttempts.sql` | |
 
 ### `por.PortalDelegationInvites`
@@ -10786,7 +10786,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalDelegationInviteId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0005-por.PortalDelegationInvites.sql` | |
 
 ### `por.PortalForms`
@@ -10801,7 +10801,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalFormId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0006-por.PortalForms.sql` | |
 
 ### `por.PortalFormSubmissions`
@@ -10816,7 +10816,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalFormSubmissionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0007-por.PortalFormSubmissions.sql` | |
 
 ### `por.PortalDrafts`
@@ -10831,7 +10831,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalDraftId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0008-por.PortalDrafts.sql` | |
 
 ### `por.PublicSubmissions`
@@ -10846,7 +10846,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PublicSubmissionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0009-por.PublicSubmissions.sql` | |
 
 ### `por.PortalUserPreferences`
@@ -10861,7 +10861,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalUserPreferenceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0010-por.PortalUserPreferences.sql` | |
 
 ### `por.PortalBanners`
@@ -10876,7 +10876,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `PortalBannerId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0011-por.PortalBanners.sql` | |
 
 ### `por.LegacyPortalImports`
@@ -10891,7 +10891,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `LegacyPortalImportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0012-por.LegacyPortalImports.sql` | |
 
 ### `por.LegacyPortalUserMap`
@@ -10906,7 +10906,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O11 |
 | Estado T05 | C |
 | PK sugerida | `LegacyPortalUserMapId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0013-por.LegacyPortalUserMap.sql` | |
 
 ### `por.KioskDevices`
@@ -10921,7 +10921,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `KioskDeviceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M19 §7 | |
+| **Capa B:** [`07` §2.22](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/por/0014-por.KioskDevices.sql` | |
 
 ## Esquema `soc`
@@ -10938,7 +10938,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `ServiceDependentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0001-soc.ServiceDependents.sql` | |
 
 ### `soc.ServiceBeneficiaries`
@@ -10953,7 +10953,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `ServiceBeneficiaryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0002-soc.ServiceBeneficiaries.sql` | |
 
 ### `soc.DependentEvents`
@@ -10968,7 +10968,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `DependentEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0003-soc.DependentEvents.sql` | |
 
 ### `soc.CoveragePlans`
@@ -10983,7 +10983,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `CoveragePlanId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0004-soc.CoveragePlans.sql` | |
 
 ### `soc.CareProviders`
@@ -10998,7 +10998,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `CareProviderId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0005-soc.CareProviders.sql` | |
 
 ### `soc.ProviderAgreements`
@@ -11013,7 +11013,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ProviderAgreementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0006-soc.ProviderAgreements.sql` | |
 
 ### `soc.MedicalSpecialties`
@@ -11028,7 +11028,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MedicalSpecialtyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0007-soc.MedicalSpecialties.sql` | |
 
 ### `soc.MedicalProfessionals`
@@ -11043,7 +11043,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MedicalProfessionalId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0008-soc.MedicalProfessionals.sql` | |
 
 ### `soc.BenefitRequests`
@@ -11058,7 +11058,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BenefitRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0009-soc.BenefitRequests.sql` | |
 
 ### `soc.BurialServiceCases`
@@ -11073,7 +11073,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BurialServiceCasId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0010-soc.BurialServiceCases.sql` | |
 
 ### `soc.DeathSubsidyCases`
@@ -11088,7 +11088,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `DeathSubsidyCasId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0011-soc.DeathSubsidyCases.sql` | |
 
 ### `soc.BloodCoverageRequests`
@@ -11103,7 +11103,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BloodCoverageRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0012-soc.BloodCoverageRequests.sql` | |
 
 ### `soc.DonationCampaigns`
@@ -11118,7 +11118,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `DonationCampaignId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0013-soc.DonationCampaigns.sql` | |
 
 ### `soc.DonationAppointments`
@@ -11133,7 +11133,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `DonationAppointmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0014-soc.DonationAppointments.sql` | |
 
 ### `soc.HealthAuthorizations`
@@ -11148,7 +11148,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HealthAuthorizationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0015-soc.HealthAuthorizations.sql` | |
 
 ### `soc.TransportTrips`
@@ -11163,7 +11163,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `TransportTripId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0016-soc.TransportTrips.sql` | |
 
 ### `soc.TripLegs`
@@ -11178,7 +11178,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `TripLegId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0017-soc.TripLegs.sql` | |
 
 ### `soc.TripCharacteristics`
@@ -11193,7 +11193,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `TripCharacteristicId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0018-soc.TripCharacteristics.sql` | |
 
 ### `soc.Cemeteries`
@@ -11208,7 +11208,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `CemeteryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0019-soc.Cemeteries.sql` | |
 
 ### `soc.CemeteryRegulations`
@@ -11223,7 +11223,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `CemeteryRegulationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0020-soc.CemeteryRegulations.sql` | |
 
 ### `soc.BurialUnits`
@@ -11238,7 +11238,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BurialUnitId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0021-soc.BurialUnits.sql` | |
 
 ### `soc.BurialRights`
@@ -11253,7 +11253,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BurialRightId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0022-soc.BurialRights.sql` | |
 
 ### `soc.BurialRightEvents`
@@ -11268,7 +11268,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BurialRightEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0023-soc.BurialRightEvents.sql` | |
 
 ### `soc.BurialOccupancies`
@@ -11283,7 +11283,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BurialOccupancyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0024-soc.BurialOccupancies.sql` | |
 
 ### `soc.CemeteryActs`
@@ -11298,7 +11298,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `CemeteryActId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0025-soc.CemeteryActs.sql` | |
 
 ### `soc.OrthopedicItems`
@@ -11313,7 +11313,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `OrthopedicItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0026-soc.OrthopedicItems.sql` | |
 
 ### `soc.OrthopedicLoans`
@@ -11328,7 +11328,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `OrthopedicLoanId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0027-soc.OrthopedicLoans.sql` | |
 
 ### `soc.DispenserWithdrawals`
@@ -11343,7 +11343,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `DispenserWithdrawalId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0028-soc.DispenserWithdrawals.sql` | |
 
 ### `soc.HousingPlans`
@@ -11358,7 +11358,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingPlanId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0029-soc.HousingPlans.sql` | |
 
 ### `soc.HousingPrices`
@@ -11373,7 +11373,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingPriceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0030-soc.HousingPrices.sql` | |
 
 ### `soc.HousingUnits`
@@ -11388,7 +11388,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingUnitId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0031-soc.HousingUnits.sql` | |
 
 ### `soc.HousingContributions`
@@ -11403,7 +11403,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingContributionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0032-soc.HousingContributions.sql` | |
 
 ### `soc.HousingStages`
@@ -11418,7 +11418,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingStageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0033-soc.HousingStages.sql` | |
 
 ### `soc.HousingActivities`
@@ -11433,7 +11433,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingActivityId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0034-soc.HousingActivities.sql` | |
 
 ### `soc.HousingActivityMaterials`
@@ -11448,7 +11448,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingActivityMaterialId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0035-soc.HousingActivityMaterials.sql` | |
 
 ### `soc.HousingProgress`
@@ -11463,7 +11463,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingProgresId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0036-soc.HousingProgress.sql` | |
 
 ### `soc.HousingProgressMaterials`
@@ -11478,7 +11478,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingProgressMaterialId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0037-soc.HousingProgressMaterials.sql` | |
 
 ### `soc.HousingMaterialAllocations`
@@ -11493,7 +11493,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingMaterialAllocationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0038-soc.HousingMaterialAllocations.sql` | |
 
 ### `soc.HousingMaterialWithdrawals`
@@ -11508,7 +11508,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingMaterialWithdrawalId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0039-soc.HousingMaterialWithdrawals.sql` | |
 
 ### `soc.HousingCertificates`
@@ -11523,7 +11523,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingCertificateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0040-soc.HousingCertificates.sql` | |
 
 ### `soc.HousingPlanChanges`
@@ -11538,7 +11538,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingPlanChangeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0041-soc.HousingPlanChanges.sql` | |
 
 ### `soc.HousingTerminations`
@@ -11553,7 +11553,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `HousingTerminationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0042-soc.HousingTerminations.sql` | |
 
 ### `soc.FleetVehicles`
@@ -11568,7 +11568,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FleetVehicleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0043-soc.FleetVehicles.sql` | |
 
 ### `soc.Drivers`
@@ -11583,7 +11583,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `DriverId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0044-soc.Drivers.sql` | |
 
 ### `soc.VehicleDocuments`
@@ -11598,7 +11598,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `VehicleDocumentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0045-soc.VehicleDocuments.sql` | |
 
 ### `soc.VehicleMaintenances`
@@ -11613,7 +11613,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `VehicleMaintenanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0046-soc.VehicleMaintenances.sql` | |
 
 ### `soc.VehicleUsages`
@@ -11628,7 +11628,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `VehicleUsageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0047-soc.VehicleUsages.sql` | |
 
 ### `soc.FuelTypes`
@@ -11643,7 +11643,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FuelTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0048-soc.FuelTypes.sql` | |
 
 ### `soc.FuelLoads`
@@ -11658,7 +11658,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FuelLoadId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0049-soc.FuelLoads.sql` | |
 
 ### `soc.TripSettlements`
@@ -11673,7 +11673,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `TripSettlementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0050-soc.TripSettlements.sql` | |
 
 ### `soc.GpsDevices`
@@ -11688,7 +11688,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `GpsDeviceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0051-soc.GpsDevices.sql` | |
 
 ### `soc.GpsPositions`
@@ -11703,7 +11703,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `GpsPositionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0052-soc.GpsPositions.sql` | |
 
 ### `soc.ContractRegistrations`
@@ -11718,7 +11718,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ContractRegistrationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M18 §7 | |
+| **Capa B:** [`07` §2.21](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/soc/0053-soc.ContractRegistrations.sql` | |
 
 ## Esquema `stk`
@@ -11735,7 +11735,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `ItemTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0001-stk.ItemTypes.sql` | |
 
 ### `stk.ItemClassifications`
@@ -11750,7 +11750,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `ItemClassificationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0002-stk.ItemClassifications.sql` | |
 
 ### `stk.ItemGroups`
@@ -11765,7 +11765,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `ItemGroupId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0003-stk.ItemGroups.sql` | |
 
 ### `stk.ItemDepartments`
@@ -11780,7 +11780,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `ItemDepartmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0004-stk.ItemDepartments.sql` | |
 
 ### `stk.InventoryItems`
@@ -11795,7 +11795,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `InventoryItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0005-stk.InventoryItems.sql` | |
 
 ### `stk.ItemKits`
@@ -11810,7 +11810,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `ItemKitId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0006-stk.ItemKits.sql` | |
 
 ### `stk.Warehouses`
@@ -11825,7 +11825,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `WarehousId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0007-stk.Warehouses.sql` | |
 
 ### `stk.WarehouseLocations`
@@ -11840,7 +11840,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `WarehouseLocationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0008-stk.WarehouseLocations.sql` | |
 
 ### `stk.ItemLocationDefaults`
@@ -11855,7 +11855,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `ItemLocationDefaultId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0009-stk.ItemLocationDefaults.sql` | |
 
 ### `stk.StockDocuments`
@@ -11870,7 +11870,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `StockDocumentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0010-stk.StockDocuments.sql` | |
 
 ### `stk.StockMovements`
@@ -11885,7 +11885,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `StockMovementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0011-stk.StockMovements.sql` | |
 
 ### `stk.StockBalances`
@@ -11900,7 +11900,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `StockBalanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0012-stk.StockBalances.sql` | |
 
 ### `stk.SerialUnits`
@@ -11915,7 +11915,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `SerialUnitId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0013-stk.SerialUnits.sql` | |
 
 ### `stk.SerialUnitEvents`
@@ -11930,7 +11930,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `SerialUnitEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0014-stk.SerialUnitEvents.sql` | |
 
 ### `stk.LotTypes`
@@ -11945,7 +11945,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `LotTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0015-stk.LotTypes.sql` | |
 
 ### `stk.Lots`
@@ -11960,7 +11960,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `LotId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0016-stk.Lots.sql` | |
 
 ### `stk.StockReservations`
@@ -11975,7 +11975,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `StockReservationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0017-stk.StockReservations.sql` | |
 
 ### ~~`stk.EquipmentAssignments`~~ — absorbida
@@ -11990,7 +11990,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-CAT-20 |
 | SQL | No crear; ver `A→COL-CAT-20` |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** canónica M02 — [`07` §2.4](07-modelo-relacional-azure-sql.md) `ContractEquipmentAssignments` | |
 | **Capa C:** pendiente | |
 
 ### `stk.CrewSettlements`
@@ -12005,7 +12005,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `CrewSettlementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0018-stk.CrewSettlements.sql` | |
 
 ### `stk.PhysicalCounts`
@@ -12020,7 +12020,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PhysicalCountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0019-stk.PhysicalCounts.sql` | |
 
 ### `stk.ItemCostStates`
@@ -12035,7 +12035,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ItemCostStateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0020-stk.ItemCostStates.sql` | |
 
 ### `stk.CostLayers`
@@ -12050,7 +12050,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CostLayerId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0021-stk.CostLayers.sql` | |
 
 ### `stk.Revaluations`
@@ -12065,7 +12065,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `RevaluationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0022-stk.Revaluations.sql` | |
 
 ### `stk.ReorderSuggestions`
@@ -12080,7 +12080,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ReorderSuggestionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0023-stk.ReorderSuggestions.sql` | |
 
 ### `stk.ExpenseUnits`
@@ -12095,7 +12095,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ExpenseUnitId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0024-stk.ExpenseUnits.sql` | |
 
 ### `stk.FixedAssets`
@@ -12110,7 +12110,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FixedAssetId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0025-stk.FixedAssets.sql` | |
 
 ### `stk.FixedAssetHistory`
@@ -12125,7 +12125,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FixedAssetHistoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0026-stk.FixedAssetHistory.sql` | |
 
 ### `stk.FixedAssetValueChanges`
@@ -12140,7 +12140,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FixedAssetValueChangeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0027-stk.FixedAssetValueChanges.sql` | |
 
 ### `stk.DepreciationRuns`
@@ -12155,7 +12155,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `DepreciationRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0028-stk.DepreciationRuns.sql` | |
 
 ### `stk.FixedAssetDepreciations`
@@ -12170,7 +12170,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FixedAssetDepreciationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0029-stk.FixedAssetDepreciations.sql` | |
 
 ### `stk.RmaCases`
@@ -12185,7 +12185,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `RmaCasId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0030-stk.RmaCases.sql` | |
 
 ### `stk.ReceptionStatuses`
@@ -12200,7 +12200,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ReceptionStatusId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0031-stk.ReceptionStatuses.sql` | |
 
 ### `stk.ServiceReceptions`
@@ -12215,7 +12215,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ServiceReceptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0032-stk.ServiceReceptions.sql` | |
 
 ### `stk.BomStructures`
@@ -12230,7 +12230,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BomStructureId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0033-stk.BomStructures.sql` | |
 
 ### `stk.BomStructureVersions`
@@ -12245,7 +12245,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `BomStructureVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0034-stk.BomStructureVersions.sql` | |
 
 ### `stk.ProductDivisions`
@@ -12260,7 +12260,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ProductDivisionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0035-stk.ProductDivisions.sql` | |
 
 ### `stk.ManufacturingStages`
@@ -12275,7 +12275,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ManufacturingStageId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0036-stk.ManufacturingStages.sql` | |
 
 ### `stk.ManufacturingOrders`
@@ -12290,7 +12290,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ManufacturingOrderId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0037-stk.ManufacturingOrders.sql` | |
 
 ### `stk.ProductionReports`
@@ -12305,7 +12305,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `ProductionReportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0038-stk.ProductionReports.sql` | |
 
 ### `stk.MrpRuns`
@@ -12320,7 +12320,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O10 |
 | Estado T05 | C |
 | PK sugerida | `MrpRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M13 §7 | |
+| **Capa B:** [`07` §2.17](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/stk/0039-stk.MrpRuns.sql` | |
 
 ## Esquema `sue`
@@ -12337,7 +12337,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-CFG-41 |
 | SQL | No crear; ver `A→COL-CFG-41` |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** canónica T04 — [`07` §2.3](07-modelo-relacional-azure-sql.md) `LegalEntities` (`employer`) | |
 | **Capa C:** pendiente | |
 
 ### `sue.Employees`
@@ -12352,7 +12352,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0001-sue.Employees.sql` | |
 
 ### `sue.EmployeeAssignments`
@@ -12367,7 +12367,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeAssignmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0002-sue.EmployeeAssignments.sql` | |
 
 ### `sue.EmployeeCostAllocations`
@@ -12382,7 +12382,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeCostAllocationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0003-sue.EmployeeCostAllocations.sql` | |
 
 ### `sue.EmployeeFamilyMembers`
@@ -12397,7 +12397,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeFamilyMemberId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0004-sue.EmployeeFamilyMembers.sql` | |
 
 ### `sue.EmployeePayAccounts`
@@ -12412,7 +12412,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmployeePayAccountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0005-sue.EmployeePayAccounts.sql` | |
 
 ### `sue.EmployeeDocuments`
@@ -12427,7 +12427,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeDocumentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0006-sue.EmployeeDocuments.sql` | |
 
 ### `sue.EmployeeNotes`
@@ -12442,7 +12442,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeNoteId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0007-sue.EmployeeNotes.sql` | |
 
 ### `sue.SupervisionLinks`
@@ -12457,7 +12457,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `SupervisionLinkId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0008-sue.SupervisionLinks.sql` | |
 
 ### `sue.Shifts`
@@ -12472,7 +12472,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `ShiftId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0009-sue.Shifts.sql` | |
 
 ### `sue.EmployeeShiftAssignments`
@@ -12487,7 +12487,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeShiftAssignmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0010-sue.EmployeeShiftAssignments.sql` | |
 
 ### `sue.EmploymentStatusPeriods`
@@ -12502,7 +12502,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmploymentStatusPeriodId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0011-sue.EmploymentStatusPeriods.sql` | |
 
 ### `sue.ExtraGroups`
@@ -12517,7 +12517,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `ExtraGroupId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0012-sue.ExtraGroups.sql` | |
 
 ### `sue.ExtraItems`
@@ -12532,7 +12532,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `ExtraItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0013-sue.ExtraItems.sql` | |
 
 ### `sue.EmployeeExtras`
@@ -12547,7 +12547,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmployeeExtraId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0014-sue.EmployeeExtras.sql` | |
 
 ### `sue.DeductionPlans`
@@ -12562,7 +12562,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `DeductionPlanId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0015-sue.DeductionPlans.sql` | |
 
 ### `sue.Unions`
@@ -12577,7 +12577,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `UnionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0016-sue.Unions.sql` | |
 
 ### `sue.LaborAgreements`
@@ -12592,7 +12592,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `LaborAgreementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0017-sue.LaborAgreements.sql` | |
 
 ### `sue.SalaryCategories`
@@ -12607,7 +12607,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `SalaryCategoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0018-sue.SalaryCategories.sql` | |
 
 ### `sue.SalaryScales`
@@ -12622,7 +12622,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `SalaryScaleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0019-sue.SalaryScales.sql` | |
 
 ### `sue.SeniorityScales`
@@ -12637,7 +12637,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `SeniorityScaleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0020-sue.SeniorityScales.sql` | |
 
 ### `sue.Positions`
@@ -12652,7 +12652,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PositionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0021-sue.Positions.sql` | |
 
 ### `sue.WorkAreas`
@@ -12667,7 +12667,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `WorkAreaId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0022-sue.WorkAreas.sql` | |
 
 ### `sue.HealthInsurerAdoptions`
@@ -12682,7 +12682,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `HealthInsurerAdoptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0023-sue.HealthInsurerAdoptions.sql` | |
 
 ### `sue.TerminationReasons`
@@ -12697,7 +12697,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `TerminationReasonId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0024-sue.TerminationReasons.sql` | |
 
 ### `sue.PayrollVariables`
@@ -12712,7 +12712,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollVariableId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0025-sue.PayrollVariables.sql` | |
 
 ### `sue.PayrollConcepts`
@@ -12727,7 +12727,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollConceptId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0026-sue.PayrollConcepts.sql` | |
 
 ### `sue.PayrollTypes`
@@ -12742,7 +12742,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0027-sue.PayrollTypes.sql` | |
 
 ### `sue.PayrollConfigVersions`
@@ -12757,7 +12757,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollConfigVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0028-sue.PayrollConfigVersions.sql` | |
 
 ### `sue.NoveltyTypes`
@@ -12772,7 +12772,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `NoveltyTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0029-sue.NoveltyTypes.sql` | |
 
 ### `sue.Novelties`
@@ -12787,7 +12787,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `NoveltyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0030-sue.Novelties.sql` | |
 
 ### `sue.NoveltyImportBatches`
@@ -12802,7 +12802,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `NoveltyImportBatcheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0031-sue.NoveltyImportBatches.sql` | |
 
 ### `sue.TimePunches`
@@ -12817,7 +12817,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `TimePuncheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0032-sue.TimePunches.sql` | |
 
 ### `sue.ExtraTasks`
@@ -12832,7 +12832,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `ExtraTaskId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0033-sue.ExtraTasks.sql` | |
 
 ### `sue.LeaveCauses`
@@ -12847,7 +12847,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `LeaveCausId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0034-sue.LeaveCauses.sql` | |
 
 ### `sue.LeaveRequests`
@@ -12862,7 +12862,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `LeaveRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0035-sue.LeaveRequests.sql` | |
 
 ### `sue.VacationBalances`
@@ -12877,7 +12877,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `VacationBalanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0036-sue.VacationBalances.sql` | |
 
 ### `sue.PayPeriods`
@@ -12892,7 +12892,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayPeriodId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0037-sue.PayPeriods.sql` | |
 
 ### `sue.PayrollRuns`
@@ -12907,7 +12907,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0038-sue.PayrollRuns.sql` | |
 
 ### `sue.Payslips`
@@ -12922,7 +12922,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayslipId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0039-sue.Payslips.sql` | |
 
 ### `sue.IncomeTaxCalculations`
@@ -12937,7 +12937,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `IncomeTaxCalculationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0040-sue.IncomeTaxCalculations.sql` | |
 
 ### `sue.IncomeTaxDeclarations`
@@ -12952,7 +12952,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `IncomeTaxDeclarationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0041-sue.IncomeTaxDeclarations.sql` | |
 
 ### `sue.StatutoryFilings`
@@ -12967,7 +12967,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `StatutoryFilingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0042-sue.StatutoryFilings.sql` | |
 
 ### `sue.PayrollPaymentRequests`
@@ -12982,7 +12982,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollPaymentRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0043-sue.PayrollPaymentRequests.sql` | |
 
 ### `sue.PayrollAccountingRules`
@@ -12997,7 +12997,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollAccountingRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0044-sue.PayrollAccountingRules.sql` | |
 
 ### `sue.Terminations`
@@ -13012,7 +13012,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `TerminationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0045-sue.Terminations.sql` | |
 
 ### `sue.EmploymentCertificates`
@@ -13027,7 +13027,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `EmploymentCertificateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0046-sue.EmploymentCertificates.sql` | |
 
 ### `sue.PayslipNotifications`
@@ -13042,7 +13042,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayslipNotificationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0047-sue.PayslipNotifications.sql` | |
 
 ### `sue.PerformanceTemplates`
@@ -13057,7 +13057,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PerformanceTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0048-sue.PerformanceTemplates.sql` | |
 
 ### `sue.PerformanceCycles`
@@ -13072,7 +13072,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PerformanceCycleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0049-sue.PerformanceCycles.sql` | |
 
 ### `sue.PerformanceReviews`
@@ -13087,7 +13087,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PerformanceReviewId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0050-sue.PerformanceReviews.sql` | |
 
 ### `sue.Objectives`
@@ -13102,7 +13102,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `ObjectiveId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0051-sue.Objectives.sql` | |
 
 ### `sue.DisciplinaryActions`
@@ -13117,7 +13117,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `DisciplinaryActionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0052-sue.DisciplinaryActions.sql` | |
 
 ### `sue.AdministrativeInquiries`
@@ -13132,7 +13132,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `AdministrativeInquiryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0053-sue.AdministrativeInquiries.sql` | |
 
 ### `sue.WorkAccidents`
@@ -13147,7 +13147,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `WorkAccidentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0054-sue.WorkAccidents.sql` | |
 
 ### `sue.LaborLawsuits`
@@ -13162,7 +13162,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `LaborLawsuitId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0055-sue.LaborLawsuits.sql` | |
 
 ### `sue.ReportGroups`
@@ -13177,7 +13177,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `ReportGroupId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0056-sue.ReportGroups.sql` | |
 
 ### `sue.SalaryIncreaseBatches`
@@ -13192,7 +13192,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `SalaryIncreaseBatcheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0057-sue.SalaryIncreaseBatches.sql` | |
 
 ### `sue.ExternalPayrollImports`
@@ -13207,7 +13207,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ExternalPayrollImportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0058-sue.ExternalPayrollImports.sql` | |
 
 ### `sue.ExternalPayrollLayouts`
@@ -13222,7 +13222,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ExternalPayrollLayoutId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** [`07` §2.19](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/sue/0059-sue.ExternalPayrollLayouts.sql` | |
 
 ### ~~`sue.ParallelRunComparisons`~~ — absorbida
@@ -13237,7 +13237,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-MIG-14 |
 | SQL | No crear; ver `A→COL-MIG-14` |
-| **Capa B:** pendiente — anexo M16 §7 | |
+| **Capa B:** canónica T07 — [`mig.ParallelComparisons`](07-catalogo-tablas-sql.md) (§2.27) | |
 | **Capa C:** pendiente | |
 
 ## Esquema `tar`
@@ -14938,7 +14938,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `FinancialInstitutionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0001-tes.FinancialInstitutions.sql` | |
 
 ### `tes.BankBranches`
@@ -14953,7 +14953,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `BankBrancheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0002-tes.BankBranches.sql` | |
 
 ### `tes.TreasuryAccounts`
@@ -14968,7 +14968,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasuryAccountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0003-tes.TreasuryAccounts.sql` | |
 
 ### `tes.TreasuryAccountSigners`
@@ -14983,7 +14983,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasuryAccountSignerId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0004-tes.TreasuryAccountSigners.sql` | |
 
 ### `tes.TreasuryCategories`
@@ -14998,7 +14998,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasuryCategoryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0005-tes.TreasuryCategories.sql` | |
 
 ### `tes.TreasuryConcepts`
@@ -15013,7 +15013,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasuryConceptId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0006-tes.TreasuryConcepts.sql` | |
 
 ### `tes.InstrumentTypes`
@@ -15028,7 +15028,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `InstrumentTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0007-tes.InstrumentTypes.sql` | |
 
 ### `tes.CheckDrawerAccounts`
@@ -15043,7 +15043,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CheckDrawerAccountId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0008-tes.CheckDrawerAccounts.sql` | |
 
 ### `tes.TreasuryOperations`
@@ -15058,7 +15058,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasuryOperationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0009-tes.TreasuryOperations.sql` | |
 
 ### `tes.TreasuryMovements`
@@ -15073,7 +15073,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasuryMovementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0010-tes.TreasuryMovements.sql` | |
 
 ### `tes.BankDeposits`
@@ -15088,7 +15088,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `BankDepositId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0011-tes.BankDeposits.sql` | |
 
 ### `tes.StatementImportProfiles`
@@ -15103,7 +15103,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `StatementImportProfileId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0012-tes.StatementImportProfiles.sql` | |
 
 ### `tes.BankStatementImports`
@@ -15118,7 +15118,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `BankStatementImportId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0013-tes.BankStatementImports.sql` | |
 
 ### `tes.BankStatementLines`
@@ -15133,7 +15133,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `BankStatementLineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0014-tes.BankStatementLines.sql` | |
 
 ### `tes.Reconciliations`
@@ -15148,7 +15148,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ReconciliationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0015-tes.Reconciliations.sql` | |
 
 ### `tes.ReconciliationMatches`
@@ -15163,7 +15163,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ReconciliationMatcheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0016-tes.ReconciliationMatches.sql` | |
 
 ### `tes.ReconciliationRules`
@@ -15178,7 +15178,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ReconciliationRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0017-tes.ReconciliationRules.sql` | |
 
 ### `tes.InterbankingConnections`
@@ -15193,7 +15193,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `InterbankingConnectionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0018-tes.InterbankingConnections.sql` | |
 
 ### `tes.InterbankingSyncRuns`
@@ -15208,7 +15208,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `InterbankingSyncRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0019-tes.InterbankingSyncRuns.sql` | |
 
 ### `tes.InterbankingBalanceSnapshots`
@@ -15223,7 +15223,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `InterbankingBalanceSnapshotId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0020-tes.InterbankingBalanceSnapshots.sql` | |
 
 ### `tes.PaymentFiles`
@@ -15238,7 +15238,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PaymentFileId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0021-tes.PaymentFiles.sql` | |
 
 ### `tes.ThirdPartyChecks`
@@ -15253,7 +15253,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ThirdPartyCheckId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0022-tes.ThirdPartyChecks.sql` | |
 
 ### `tes.CheckEvents`
@@ -15268,7 +15268,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CheckEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0023-tes.CheckEvents.sql` | |
 
 ### `tes.Checkbooks`
@@ -15283,7 +15283,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CheckbookId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0024-tes.Checkbooks.sql` | |
 
 ### `tes.OwnChecks`
@@ -15298,7 +15298,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `OwnCheckId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0025-tes.OwnChecks.sql` | |
 
 ### ~~`tes.CardPlans`~~ — absorbida
@@ -15313,7 +15313,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-COB-15 |
 | SQL | No crear; ver `A→COL-COB-15` |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** canónica M07 — [`07` §2.10](07-modelo-relacional-azure-sql.md) `CardPlans` | |
 | **Capa C:** pendiente | |
 
 ### `tes.CardVouchers`
@@ -15328,7 +15328,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CardVoucherId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0026-tes.CardVouchers.sql` | |
 
 ### `tes.CardPresentations`
@@ -15343,7 +15343,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CardPresentationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0027-tes.CardPresentations.sql` | |
 
 ### `tes.CardSettlements`
@@ -15358,7 +15358,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CardSettlementId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0028-tes.CardSettlements.sql` | |
 
 ### `tes.ReceivedWithholdings`
@@ -15373,7 +15373,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `ReceivedWithholdingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0029-tes.ReceivedWithholdings.sql` | |
 
 ### `tes.WithholdingPresentations`
@@ -15388,7 +15388,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `WithholdingPresentationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0030-tes.WithholdingPresentations.sql` | |
 
 ### `tes.PaymentCashSessions`
@@ -15403,7 +15403,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PaymentCashSessionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0031-tes.PaymentCashSessions.sql` | |
 
 ### `tes.CashRemittances`
@@ -15418,7 +15418,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `CashRemittanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0032-tes.CashRemittances.sql` | |
 
 ### `tes.TreasuryCashClosings`
@@ -15433,7 +15433,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasuryCashClosingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0033-tes.TreasuryCashClosings.sql` | |
 
 ### `tes.PaymentExecutions`
@@ -15448,7 +15448,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PaymentExecutionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0034-tes.PaymentExecutions.sql` | |
 
 ### `tes.TenantCurrencySettings`
@@ -15463,7 +15463,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TenantCurrencySettingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0035-tes.TenantCurrencySettings.sql` | |
 
 ### `tes.ExchangeRates`
@@ -15478,7 +15478,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `ExchangeRateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0036-tes.ExchangeRates.sql` | |
 
 ### `tes.PlannedCashItems`
@@ -15493,7 +15493,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PlannedCashItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0037-tes.PlannedCashItems.sql` | |
 
 ### `tes.FundCommitments`
@@ -15508,7 +15508,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `FundCommitmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0038-tes.FundCommitments.sql` | |
 
 ### `tes.CashFlowScenarios`
@@ -15523,7 +15523,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CashFlowScenarioId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0039-tes.CashFlowScenarios.sql` | |
 
 ### `tes.CashFlowSnapshots`
@@ -15538,7 +15538,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `CashFlowSnapshotId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0040-tes.CashFlowSnapshots.sql` | |
 
 ### `tes.PayrollPaymentBatches`
@@ -15553,7 +15553,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O9 |
 | Estado T05 | C |
 | PK sugerida | `PayrollPaymentBatcheId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0041-tes.PayrollPaymentBatches.sql` | |
 
 ### `tes.TreasurySettings`
@@ -15568,7 +15568,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O5 |
 | Estado T05 | C |
 | PK sugerida | `TreasurySettingId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M14 §7 | |
+| **Capa B:** [`07` §2.14](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/tes/0042-tes.TreasurySettings.sql` | |
 
 ## Esquema `uxd`
@@ -15752,7 +15752,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `OperationChargeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0001-ven.OperationCharges.sql` | |
 
 ### `ven.SalesConditions`
@@ -15767,7 +15767,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesConditionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0002-ven.SalesConditions.sql` | |
 
 ### `ven.SalesQuotes`
@@ -15782,7 +15782,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesQuoteId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0003-ven.SalesQuotes.sql` | |
 
 ### `ven.SalesQuoteAcceptances`
@@ -15797,7 +15797,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesQuoteAcceptanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0004-ven.SalesQuoteAcceptances.sql` | |
 
 ### `ven.SalesOrders`
@@ -15812,7 +15812,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `SalesOrderId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0005-ven.SalesOrders.sql` | |
 
 ### `ven.SalesDeliveries`
@@ -15827,7 +15827,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesDeliveryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0006-ven.SalesDeliveries.sql` | |
 
 ### `ven.SalesReturns`
@@ -15842,7 +15842,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesReturnId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0007-ven.SalesReturns.sql` | |
 
 ### `ven.SalesFinancingPlans`
@@ -15857,7 +15857,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `SalesFinancingPlanId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0008-ven.SalesFinancingPlans.sql` | |
 
 ### `ven.SalesInstallments`
@@ -15872,7 +15872,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O4 |
 | Estado T05 | C |
 | PK sugerida | `SalesInstallmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0009-ven.SalesInstallments.sql` | |
 
 ### `ven.SalesReps`
@@ -15887,7 +15887,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesRepId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0010-ven.SalesReps.sql` | |
 
 ### `ven.SalesPriceLists`
@@ -15902,7 +15902,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesPriceListId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0011-ven.SalesPriceLists.sql` | |
 
 ### `ven.SalesDiscountRules`
@@ -15917,7 +15917,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `SalesDiscountRuleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0012-ven.SalesDiscountRules.sql` | |
 
 ### `ven.PosTerminals`
@@ -15932,7 +15932,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PosTerminalId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0013-ven.PosTerminals.sql` | |
 
 ### `ven.PosSessions`
@@ -15947,7 +15947,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O8 |
 | Estado T05 | C |
 | PK sugerida | `PosSessionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** [`07` §2.15](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/ven/0014-ven.PosSessions.sql` | |
 
 ### ~~`ven.FreightSettlements`~~ — absorbida
@@ -15962,7 +15962,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-SOC-50 |
 | SQL | No crear; ver `A→COL-SOC-50` |
-| **Capa B:** pendiente — anexo M11 §7 | |
+| **Capa B:** canónica M18 — [`soc.TripSettlements`](07-catalogo-tablas-sql.md) (§2.21) | |
 | **Capa C:** pendiente | |
 
 ## Esquema `wfl`
@@ -15979,7 +15979,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `EventTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0001-wfl.EventTypes.sql` | |
 
 ### `wfl.EventSubscriptions`
@@ -15994,7 +15994,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `EventSubscriptionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0002-wfl.EventSubscriptions.sql` | |
 
 ### `wfl.OperationalInboxItems`
@@ -16009,7 +16009,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `OperationalInboxItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0003-wfl.OperationalInboxItems.sql` | |
 
 ### `wfl.JobDefinitions`
@@ -16024,7 +16024,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `JobDefinitionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0004-wfl.JobDefinitions.sql` | |
 
 ### `wfl.JobSchedules`
@@ -16039,7 +16039,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `JobScheduleId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0005-wfl.JobSchedules.sql` | |
 
 ### `wfl.BulkRuns`
@@ -16054,7 +16054,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `BulkRunId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0006-wfl.BulkRuns.sql` | |
 
 ### `wfl.BulkRunItems`
@@ -16069,7 +16069,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `BulkRunItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0007-wfl.BulkRunItems.sql` | |
 
 ### `wfl.OperationTypes`
@@ -16084,7 +16084,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `OperationTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0008-wfl.OperationTypes.sql` | |
 
 ### `wfl.Operations`
@@ -16099,7 +16099,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `OperationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0009-wfl.Operations.sql` | |
 
 ### `wfl.OperationSteps`
@@ -16114,7 +16114,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `OperationStepId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0010-wfl.OperationSteps.sql` | |
 
 ### `wfl.StateMachineRegistry`
@@ -16129,7 +16129,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `StateMachineRegistryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0011-wfl.StateMachineRegistry.sql` | |
 
 ### `wfl.WorkflowDefinitions`
@@ -16144,7 +16144,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `WorkflowDefinitionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0012-wfl.WorkflowDefinitions.sql` | |
 
 ### `wfl.WorkflowVersions`
@@ -16159,7 +16159,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `WorkflowVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0013-wfl.WorkflowVersions.sql` | |
 
 ### `wfl.WorkflowInstances`
@@ -16174,7 +16174,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `WorkflowInstanceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0014-wfl.WorkflowInstances.sql` | |
 
 ### `wfl.WorkflowInstanceEvents`
@@ -16189,7 +16189,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `WorkflowInstanceEventId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0015-wfl.WorkflowInstanceEvents.sql` | |
 
 ### `wfl.SlaPolicies`
@@ -16204,7 +16204,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SlaPolicyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0016-wfl.SlaPolicies.sql` | |
 
 ### `wfl.SlaTimers`
@@ -16219,7 +16219,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `SlaTimerId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0017-wfl.SlaTimers.sql` | |
 
 ### `wfl.FormDefinitions`
@@ -16234,7 +16234,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `FormDefinitionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0018-wfl.FormDefinitions.sql` | |
 
 ### `wfl.FormVersions`
@@ -16249,7 +16249,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `FormVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0019-wfl.FormVersions.sql` | |
 
 ### `wfl.FormSubmissions`
@@ -16264,7 +16264,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `FormSubmissionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0020-wfl.FormSubmissions.sql` | |
 
 ### `wfl.ActionCatalog`
@@ -16279,7 +16279,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `ActionCatalogId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0021-wfl.ActionCatalog.sql` | |
 
 ### `wfl.DataSourceCatalog`
@@ -16294,7 +16294,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `DataSourceCatalogId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0022-wfl.DataSourceCatalog.sql` | |
 
 ### `wfl.ApprovalPolicies`
@@ -16309,7 +16309,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ApprovalPolicyId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0023-wfl.ApprovalPolicies.sql` | |
 
 ### `wfl.ApprovalRequests`
@@ -16324,7 +16324,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ApprovalRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0024-wfl.ApprovalRequests.sql` | |
 
 ### `wfl.ApprovalSteps`
@@ -16339,7 +16339,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ApprovalStepId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0025-wfl.ApprovalSteps.sql` | |
 
 ### `wfl.ApprovalDecisions`
@@ -16354,7 +16354,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ApprovalDecisionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0026-wfl.ApprovalDecisions.sql` | |
 
 ### `wfl.Delegations`
@@ -16369,7 +16369,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DelegationId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0027-wfl.Delegations.sql` | |
 
 ### `wfl.Tasks`
@@ -16384,7 +16384,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `TaskId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0028-wfl.Tasks.sql` | |
 
 ### `wfl.TaskComments`
@@ -16399,7 +16399,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `TaskCommentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0029-wfl.TaskComments.sql` | |
 
 ### `wfl.WorkItems`
@@ -16414,7 +16414,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `WorkItemId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0030-wfl.WorkItems.sql` | |
 
 ### `wfl.AgendaEntries`
@@ -16429,7 +16429,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AgendaEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0031-wfl.AgendaEntries.sql` | |
 
 ### `wfl.AgendaFeeds`
@@ -16444,7 +16444,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O2 |
 | Estado T05 | C |
 | PK sugerida | `AgendaFeedId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0032-wfl.AgendaFeeds.sql` | |
 
 ### `wfl.DocumentTypes`
@@ -16459,7 +16459,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `DocumentTypeId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0033-wfl.DocumentTypes.sql` | |
 
 ### `wfl.Documents`
@@ -16474,7 +16474,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `DocumentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0034-wfl.Documents.sql` | |
 
 ### `wfl.DocumentVersions`
@@ -16489,7 +16489,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `DocumentVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0035-wfl.DocumentVersions.sql` | |
 
 ### `wfl.DocumentLinks`
@@ -16504,7 +16504,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `DocumentLinkId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0036-wfl.DocumentLinks.sql` | |
 
 ### `wfl.ShareLinks`
@@ -16519,7 +16519,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `ShareLinkId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0037-wfl.ShareLinks.sql` | |
 
 ### ~~`wfl.RetentionPolicies`~~ — absorbida
@@ -16534,7 +16534,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-NFR-06 |
 | SQL | No crear; ver `A→COL-NFR-06` |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** canónica T08 — [`nfr.RetentionPolicies`](07-catalogo-tablas-sql.md) (§2.26) | |
 | **Capa C:** pendiente | |
 
 ### ~~`wfl.LegalHolds`~~ — absorbida
@@ -16549,7 +16549,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | — |
 | Estado T05 | A→COL-NFR-07 |
 | SQL | No crear; ver `A→COL-NFR-07` |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** canónica T08 — [`nfr.LegalHolds`](07-catalogo-tablas-sql.md) (§2.26) | |
 | **Capa C:** pendiente | |
 
 ### `wfl.DocumentAccessLogs`
@@ -16564,7 +16564,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DocumentAccessLogId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0038-wfl.DocumentAccessLogs.sql` | |
 
 ### `wfl.DocumentTemplates`
@@ -16579,7 +16579,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `DocumentTemplateId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0039-wfl.DocumentTemplates.sql` | |
 
 ### `wfl.TemplateVersions`
@@ -16594,7 +16594,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `TemplateVersionId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0040-wfl.TemplateVersions.sql` | |
 
 ### `wfl.TemplateDataContracts`
@@ -16609,7 +16609,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `TemplateDataContractId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0041-wfl.TemplateDataContracts.sql` | |
 
 ### `wfl.RenderRequests`
@@ -16624,7 +16624,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `RenderRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0042-wfl.RenderRequests.sql` | |
 
 ### `wfl.NumberingSequences`
@@ -16639,7 +16639,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `NumberingSequenceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0043-wfl.NumberingSequences.sql` | |
 
 ### `wfl.NumberingAssignments`
@@ -16654,7 +16654,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O0 |
 | Estado T05 | C |
 | PK sugerida | `NumberingAssignmentId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0044-wfl.NumberingAssignments.sql` | |
 
 ### `wfl.SignatureProfiles`
@@ -16669,7 +16669,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `SignatureProfileId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0045-wfl.SignatureProfiles.sql` | |
 
 ### `wfl.SignatureRequests`
@@ -16684,7 +16684,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `SignatureRequestId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0046-wfl.SignatureRequests.sql` | |
 
 ### `wfl.SignatureParticipants`
@@ -16699,7 +16699,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `SignatureParticipantId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0047-wfl.SignatureParticipants.sql` | |
 
 ### `wfl.SignatureEvidences`
@@ -16714,7 +16714,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O3 |
 | Estado T05 | C |
 | PK sugerida | `SignatureEvidenceId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0048-wfl.SignatureEvidences.sql` | |
 
 ### `wfl.Dossiers`
@@ -16729,7 +16729,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DossierId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0049-wfl.Dossiers.sql` | |
 
 ### `wfl.DossierEntries`
@@ -16744,7 +16744,7 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DossierEntryId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0050-wfl.DossierEntries.sql` | |
 
 ### `wfl.DossierTimeline`
@@ -16759,5 +16759,5 @@ DDL columnas (capa B): **`07-modelo-relacional-azure-sql.md` §2.0**. Scripts T-
 | Ola contenido | O1 |
 | Estado T05 | C |
 | PK sugerida | `DossierTimelineId` (convención; confirmar en anexo) |
-| **Capa B:** pendiente — anexo T11 §7 | |
+| **Capa B:** [`07` §2.25](07-modelo-relacional-azure-sql.md) | |
 | **Capa C:** `07-ddl/sql/wfl/0051-wfl.DossierTimeline.sql` | |

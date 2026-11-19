@@ -2,7 +2,7 @@
 
 Artefacto 7.1 del índice de entregables. Este documento es el índice de los contratos OpenAPI derivados de las tablas `API-XXX-nnn` de la sección 11 de cada anexo (M01 a M19, T01 a T11). Los contratos están en [`18-openapi/`](18-openapi/): un documento OpenAPI 3.1 por módulo (partido en partes cuando supera el límite de líneas), un archivo de esquemas por módulo, la API externa de T10 en archivo propio y los componentes comunes.
 
-> **Rol frente a GoodApps (D-06, DEC-118):** estos YAML y el catálogo son **contrato de diseño y trazabilidad RF→operación** en GACAC. GoodApps implementa en ASP.NET Core; los esquemas «colección» en OpenAPI se leen como **entidades lógicas** alineadas a tablas en `07-catalogo-tablas-sql.md` / `07-ddl`. No implican stack Node ni Mongo en el producto entregado.
+> **Norma de implementación (impacto stack, C-10, DEC-111–118).** Estos YAML y el catálogo son **contrato de diseño y trazabilidad RF→operación** en GACAC. GoodApps implementa en **ASP.NET Core**; los esquemas «colección» en OpenAPI son **entidades lógicas** → tablas en `07-catalogo-tablas-sql.md` / `07-ddl`. No implican Node ni Mongo en el producto entregado. Cierre: `00-C10-CIERRE-STACK.md`.
 
 | Dato | Valor |
 |---|---|

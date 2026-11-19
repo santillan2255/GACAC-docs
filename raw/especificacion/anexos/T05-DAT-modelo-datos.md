@@ -89,19 +89,21 @@ Las filas de §6 conservan la redacción lógica del catálogo. En **implementac
 Catálogo ejecutable: [`07-catalogo-tablas-sql.md`](../07-catalogo-tablas-sql.md) (**1.058** tablas) y [`07-ddl/deploy-coopapps-full.sql`](../07-ddl/deploy-coopapps-full.sql). Seguimiento: `06-impacto-adaptacion-stack-goodapps.md` §12.
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Mapeo lógico → físico (DEC-111, DEC-117, DIR-13)
 
-Este §7 conserva el **modelo lógico** redactado sobre nomenclatura documental («colección», `tenantId`, tipos documento). La **norma de implementación** es **Azure SQL** + **EF Core** (`07-modelo-relacional-azure-sql.md`, `07-catalogo-tablas-sql.md`). Al leer §7.1, traducir:
+Este §7 conserva el **modelo lógico** redactado sobre nomenclatura documental («colección», `TenantId`, tipos documento). La **norma de implementación** es **Azure SQL** + **EF Core** (`07-modelo-relacional-azure-sql.md`, `07-catalogo-tablas-sql.md`). Al leer §7.1, traducir:
 
 | En este anexo (lógico / histórico) | En implementación (vigente) |
 |---|---|
 | Colección | Tabla en esquema del módulo dueño (`per`, `iam`, `fac`, …) |
 | Documento / fila | Registro (`Id` PK, usualmente `uniqueidentifier` o `bigint` según `07`) |
-| `tenantId` (ObjectId) | `TenantId` (`uniqueidentifier` o FK a `pla.Tenants`) |
-| `_id` ObjectId | `Id` PK; códigos visibles `Code` / `Number` con unicidad por tenant |
+| `TenantId` (uniqueidentifier) | `TenantId` (`uniqueidentifier` o FK a `pla.Tenants`) |
+| `_id` uniqueidentifier | `Id` PK; códigos visibles `Code` / `Number` con unicidad por tenant |
 | Plugin Mongoose / consulta sin tenant | Filtro global EF + interceptores; pruebas CI de aislamiento (T08) |
-| Decimal128 / `decimal.js` | `decimal(p,s)` en SQL; tipos money en dominio .NET |
+| DECIMAL(18,4) / `decimal.js` | `decimal(p,s)` en SQL; tipos money en dominio .NET |
 | Transacción multi-documento + outbox | Transacción SQL única + tabla `OutboxEvents` (T01) |
 | BullMQ job | Mensaje Azure Queue + worker .NET idempotente |
 | `$jsonSchema` en Mongo | Constraints, CHECK, FK en SQL (DEC-117; DEC-100 adaptado) |
@@ -115,7 +117,7 @@ El detalle campo a campo de §7.1 **sigue siendo normativo en semántica** (obli
 | B — Diseño legible | `07-modelo-relacional-azure-sql.md` §2 | Tipos/FK por módulo (incremental) |
 | C — DDL | `07-ddl/` | `CREATE TABLE`, índices únicos (~878), FK (~1912 full / ~942 intra) |
 
-Tras §7.0, los párrafos que citan Mongoose, `ObjectId`, BullMQ o `$jsonSchema` son **descripción lógica o histórica**; la fila equivalente en la tabla de arriba es la norma de build.
+Tras §7.0, los párrafos que citan Mongoose, `uniqueidentifier`, BullMQ o `$jsonSchema` son **descripción lógica o histórica**; la fila equivalente en la tabla de arriba es la norma de build.
 
 ### 7.1 Convenciones de modelado (obligatorias para todas las colecciones)
 
@@ -123,19 +125,19 @@ Tras §7.0, los párrafos que citan Mongoose, `ObjectId`, BullMQ o `$jsonSchema`
 
 - **Almacenamiento (vigente):** una base **Azure SQL** compartida por ambiente (`CoopApps_<ambiente>` o equivalente operativo), multitenant con **`TenantId`** en tablas de negocio (DEC-110). Esquema analítico/BI y tablas `bi_*` según T10 en la misma instancia o réplica de lectura. Libro de supresiones `erasureLedger` (T08) en esquema/control excluido de restauraciones masivas. *Redacción histórica Mongo:* clúster `goodapps_<ambiente>` — solo referencia de origen 04-11, sin efecto en build.
 - **Nombres**: colecciones en inglés, camelCase, plural (`serviceContracts`); campos en inglés, camelCase; valores de enum en camelCase (`pendingApproval`). Prefijo de módulo solo cuando el nombre genérico choca (`crmCases`, `insNumberingSeries` → ver §20). Las etiquetas visibles nunca se guardan como texto fijo: se guarda la clave `labelKey` del diccionario (T03) salvo datos ingresados por usuarios.
-- **Identificadores**: PK `Id` (GUID o entero según tabla en `07`). El identificador visible es `code` (catálogos) o `number` (documentos), texto, único por tenant y, si corresponde, por entidad jurídica, punto de venta o serie. *Histórico:* `_id` ObjectId.
+- **Identificadores**: PK `Id` (GUID o entero según tabla en `07`). El identificador visible es `code` (catálogos) o `number` (documentos), texto, único por tenant y, si corresponde, por entidad jurídica, punto de venta o serie. *Histórico:* `_id` uniqueidentifier.
 - **Tipos compartidos** (dominio + `07`): `Money` (`decimal`), cantidades `Dec`, `DateOnly`, `Period`, `LabelKey`, geografía según módulo, `Snapshot<T>`, `LegacyRef` (§19.1), `AuditFields`, `Validity` (`validFrom`, `validTo`).
 
 #### 7.1.2 Tenancy
 
 - **Vigente (SQL/EF):** `TenantId` obligatorio e inmutable en tablas de negocio; primero en índices compuestos y únicos con `TenantId` (DEC-110). Filtro global en consultas; sin mezcla de tenants en una transacción (T01 §7.8, T08).
-- *Histórico (texto lógico):* `tenantId` ObjectId, plugin `tenancyPlugin` / agregaciones Mongo — equivalencias en §7.0. Las pruebas de aislamiento multitenant de CI (T08) cubren toda tabla nueva.
+- *Histórico (texto lógico):* `TenantId` uniqueidentifier, plugin `tenancyPlugin` / agregaciones Mongo — equivalencias en §7.0. Las pruebas de aislamiento multitenant de CI (T08) cubren toda tabla nueva.
 - **Tenant `PLATFORM`**: tenant técnico sembrado en O0 con `tenants.code = 'PLATFORM'` y `_id` fijo por ambiente. Contiene catálogos de plataforma (alcance `P` en el catálogo). Los tenants los leen mediante el servicio de catálogo de T04, que combina filas de `PLATFORM` (solo lectura) con filas propias del tenant (alcance `T+P`, con `platformRef` cuando extienden o adoptan una fila de plataforma).
 - **Operación cruzada**: solo el operador de plataforma, mediante `runAsPlatform(reason, tenantIds)`, con concesión de soporte vigente (T02) y auditoría (T02 `auditAccess`).
 
-#### 7.1.3 Colecciones globales (lista blanca sin `tenantId`)
+#### 7.1.3 Colecciones globales (lista blanca sin `TenantId`)
 
-Solo las de la tabla. Cualquier otra colección sin `tenantId` es un defecto bloqueante de revisión.
+Solo las de la tabla. Cualquier otra colección sin `TenantId` es un defecto bloqueante de revisión.
 
 | Colección | Dueño | Motivo |
 |---|---|---|
@@ -143,13 +145,13 @@ Solo las de la tabla. Cualquier otra colección sin `tenantId` es un defecto blo
 | `moduleCatalog` | T01 | Catálogo de módulos y capabilities licenciables. |
 | `platformPlans`, `releases`, `featureFlags`, `backupPolicies`, `alertRules` de ámbito plataforma | T01 (RF-PLA-023; DEC-092) | Configuración de la plataforma, común a todos los tenants. |
 | `identities`, `federatedLinks` | T02 | Una persona que inicia sesión puede tener membresía en varios tenants. |
-| `outboxEvents` (índice `{status, nextAttemptAt}` del despachador), `jobRuns` del despachador | T01 | Llevan `tenantId` como campo, pero el despachador consulta sin filtro de tenant con `runAsPlatform` técnico. |
+| `outboxEvents` (índice `{status, nextAttemptAt}` del despachador), `jobRuns` del despachador | T01 | Llevan `TenantId` como campo, pero el despachador consulta sin filtro de tenant con `runAsPlatform` técnico. |
 | `schemaMigrations` | T01 (§7.11.28; COL-PLA-32; antes "nueva, §7.3") | Registro de migraciones de esquema aplicadas. |
 | `erasureLedger` | T08 | Base separada, fuera de restauraciones. |
 
 #### 7.1.4 Auditoría y concurrencia
 
-- Campos comunes (`AuditFields`): `createdAt`, `createdBy`, `updatedAt`, `updatedBy` (ObjectId de `memberships` de T02; `system` como ObjectId reservado para jobs) y `version` (entero, control optimista: toda actualización filtra por `{_id, version}` e incrementa `version`; Mongoose `optimisticConcurrency` activo y `versionKey: 'version'`).
+- Campos comunes (`AuditFields`): `createdAt`, `createdBy`, `updatedAt`, `updatedBy` (uniqueidentifier de `memberships` de T02; `system` como uniqueidentifier reservado para jobs) y `version` (entero, control optimista: toda actualización filtra por `{_id, version}` e incrementa `version`; Mongoose `optimisticConcurrency` activo y `versionKey: 'version'`).
 - Plugin `auditPlugin` (O0, T02): registra en `auditLogs` creación, cambio (diferencia antes/después con campos `x-pii` enmascarados) y baja lógica de toda colección marcada `audited: true` (por defecto todas las de negocio y configuración).
 - Colecciones de historia propia (`serviceContractHistory`, `fixedAssetHistory`, `perRevisions`, `invoiceBlockHistory`…) son **historia de negocio**, consultable en pantallas; no reemplazan a `auditLogs` ni viceversa.
 
@@ -164,12 +166,12 @@ Solo las de la tabla. Cualquier otra colección sin `tenantId` es un defecto blo
 #### 7.1.6 Documentos económicos y anulación por contrapartida
 
 - Son documentos económicos (no se borran, no se editan después de emitidos; solo cambian campos de estado por transición auditada): `invoices`, `invoiceRelations`, `billedPeriods`, `paymentSlips`, `billingCycleClosures` (M05); `obligations`, `ledgerEntries`, `allocations`, `receipts`, `cashOperations`, `paymentTenders`, `creditBalances` (M07); `interestCalculations`, `agreements`, `agreementInstallments`, `writeOffs` (M08); `fiscalAuthorizations`, `withholdingsApplied`, `vatLedgers` cerrados, `regimeFilings` presentados (M06); `journalEntries`, `journalLines` (M15); `stockMovements`, `fixedAssetDepreciations` (M13); `treasuryMovements`, `ownChecks`, `thirdPartyChecks` (M14); `supplierInvoices`, `paymentOrders`, `supplierLedgerEntries` (M12); `payslips`, `payrollRuns` cerrados (M16); `capitalMovements`, `shareCertificates`, `minutes` firmadas (M17); `salesOrders` facturadas (M11); `meterReadings`, `consumptions` facturados (M03).
-- Corrección: documento de signo contrario con `reversalOf` (ObjectId del original) y, en el original, `reversedBy[]` y el estado comercial correspondiente. Las tablas espejo de anulación de ProCoop (`ANUFAC`, `ANUITEMSFAC`, `ANUPAG_SOC`, `ANUPLAN_CAJ`, `ANUIT_PAGSO`) **no** se replican: se migran como documentos en estado anulado.
+- Corrección: documento de signo contrario con `reversalOf` (uniqueidentifier del original) y, en el original, `reversedBy[]` y el estado comercial correspondiente. Las tablas espejo de anulación de ProCoop (`ANUFAC`, `ANUITEMSFAC`, `ANUPAG_SOC`, `ANUPLAN_CAJ`, `ANUIT_PAGSO`) **no** se replican: se migran como documentos en estado anulado.
 - Protección técnica: el modelo Mongoose de estas colecciones bloquea `deleteOne`/`deleteMany` y la actualización de campos fuera de la lista blanca de transición; el usuario de base de la aplicación no tiene privilegio `remove` sobre ellas (rol MongoDB `appEconomicWriter`).
 
 #### 7.1.7 Dinero, cantidades y moneda
 
-- Tipo `Money`: `Decimal128`; aritmética con `decimal.js` (`precision: 34`, `rounding: ROUND_HALF_UP` salvo política de redondeo de M04 `roundingPolicies`).
+- Tipo `Money`: `DECIMAL(18,4)`; aritmética con `decimal.js` (`precision: 34`, `rounding: ROUND_HALF_UP` salvo política de redondeo de M04 `roundingPolicies`).
 - Precisión de almacenamiento (PRM-TAR-150): importe 2 decimales; precio unitario 6; cantidad 4; fracción de prorrateo 6; tasas y alícuotas 6; cotización 6.
 - `currency`: ISO 4217 de 3 letras, a nivel de documento (por defecto `ARS`); a nivel de renglón solo en documentos multimoneda. Toda conversión guarda `exchangeRate` (Dec) y `exchangeRateDate` (`DateOnly`) con referencia a `exchangeRates` de M14.
 - Cantidades físicas (estados de medidor, consumos, demanda, factores) también en `Dec` (M03).
@@ -184,7 +186,7 @@ Solo las de la tabla. Cualquier otra colección sin `tenantId` es un defecto blo
 
 #### 7.1.9 Referencias, snapshots y desnormalización
 
-- Referencias por `ObjectId` con el nombre canónico de §7.2. Una referencia a otro módulo nunca se resuelve con `populate` en escritura; en lectura, solo dentro del mismo tenant.
+- Referencias por `uniqueidentifier` con el nombre canónico de §7.2. Una referencia a otro módulo nunca se resuelve con `populate` en escritura; en lectura, solo dentro del mismo tenant.
 - **Snapshots obligatorios** en documentos emitidos: datos del cliente (nombre, tipo y número de documento, condición fiscal, domicilios a la fecha), del emisor (entidad jurídica, CUIT, punto de venta), de conceptos (etiqueta impresa, unidad, alícuota) y de la versión tarifaria y reglas usadas. Un cambio posterior en el maestro no altera el documento.
 - **Proyecciones** (campos derivados de otro módulo, como `serviceContracts.lastBilledPeriod` o `meteringPoints.lastValues`): solo las escribe un consumidor de eventos del módulo dueño de la colección que las contiene, con `projectedAt`; nunca se editan en pantalla.
 
@@ -241,8 +243,8 @@ Solo las de la tabla. Cualquier otra colección sin `tenantId` es un defecto blo
 En **Azure SQL** (DEC-111, DEC-117) las relaciones dueñas del modelo llevan **PK/FK y constraints** en `07-*`. **DEC-100** sigue vigente en **comportamiento**: la integridad entre módulos no se delega solo a la base; se garantiza con **cinco mecanismos de aplicación** que se suman a las FK (ninguno corrige datos a ciegas). *Contexto 04-11:* sin FK en Mongo (DEC-001) — superado en implementación, no en reglas de negocio.
 
 1. **Módulo dueño** (RN-DAT-003, ARQ-01). Solo el módulo dueño escribe su colección. Al grabar una referencia a una entidad de otro módulo, el servicio que escribe pide al servicio del módulo dueño de la entidad que confirme que existe, que es del mismo tenant y que su estado admite la referencia; nunca lee la colección ajena directamente. Un maestro referenciado por un documento emitido no se borra: pasa a `inactive` (§7.1.5). Entre módulos, los efectos viajan por eventos del outbox en la misma transacción del cambio (§7.1.15) y los consumidores son idempotentes (`inboxReceipts`), de modo que una referencia derivada no queda a medio escribir.
-2. **`ObjectId` y foto en lo emitido** (RN-DAT-007, §7.1.9). Las referencias son `ObjectId` con el nombre canónico de §7.2 y el destino de §7.2.1; las polimórficas se guardan tipadas (`{type, id}` o `entityType` + `entityId`) con la lista cerrada de tipos que declara el anexo dueño. Los documentos emitidos guardan la foto de los datos que representan, así que una referencia que se rompa después no altera lo emitido ni impide reimprimirlo.
-3. **`$jsonSchema`** (§7.1.14). Mongoose valida todas las colecciones en la aplicación; además, las colecciones económicas de §7.1.6 tienen validador `$jsonSchema` en la base que exige el tipo `objectId` y la presencia de sus campos de referencia obligatorios (`tenantId`, `legalEntityId` y los que el catálogo marca como obligatorios), aunque la escritura no pase por la aplicación.
+2. **`uniqueidentifier` y foto en lo emitido** (RN-DAT-007, §7.1.9). Las referencias son `uniqueidentifier` con el nombre canónico de §7.2 y el destino de §7.2.1; las polimórficas se guardan tipadas (`{type, id}` o `entityType` + `entityId`) con la lista cerrada de tipos que declara el anexo dueño. Los documentos emitidos guardan la foto de los datos que representan, así que una referencia que se rompa después no altera lo emitido ni impide reimprimirlo.
+3. **`$jsonSchema`** (§7.1.14). Mongoose valida todas las colecciones en la aplicación; además, las colecciones económicas de §7.1.6 tienen validador `$jsonSchema` en la base que exige el tipo `objectId` y la presencia de sus campos de referencia obligatorios (`TenantId`, `legalEntityId` y los que el catálogo marca como obligatorios), aunque la escritura no pase por la aplicación.
 4. **Control optimista** (§7.1.4). Toda actualización filtra por `{_id, version}`; dos escrituras concurrentes sobre el mismo documento no se pisan (RNF-NFR-210 de T08) y una baja que compite con un alta de referencia falla con conflicto en lugar de dejar un huérfano.
 5. **Verificador nocturno** (DEC-100; requisito operativo en T08, RNF-NFR-260 y JOB-NFR-25). Proceso por tenant que recorre las referencias declaradas en la columna "Claves y referencias" del catálogo (§7.3 a §7.7), con el destino de §7.2 y §7.2.1, y **informa** cada referencia rota (colección y `_id` de origen, campo, colección de destino y `_id` inexistente) **sin corregirla**. El registro de referencias que lee se genera desde los esquemas Mongoose (opción `ref` y tipos de las polimórficas) y CI lo compara con este catálogo (RNF-NFR-244 de T08), de modo que una referencia nueva sin declarar hace fallar el build. Quedan fuera los campos marcados "No es referencia" en §7.2.1, los datos de la foto de lo emitido, el subdocumento `legacy` y las colecciones absorbidas (`A→`); las referencias a colecciones globales (§7.1.3) se verifican sin filtro de tenant y una referencia que apunta a un documento de otro tenant se informa como hallazgo de aislamiento. Cada hallazgo va a la bandeja de integridad del tenant y genera alerta a operaciones (T08).
 
@@ -254,7 +256,7 @@ Toda referencia a una entidad de otro módulo usa el nombre de la tabla. Las var
 
 | Campo canónico | Apunta a | Dueño | Reemplaza (variantes detectadas) |
 |---|---|---|---|
-| `tenantId` | `tenants` | T01 | — |
+| `TenantId` | `tenants` | T01 | — |
 | `legalEntityId` | `legalEntities` | T04 | `employerId` (M16), `companyId`, `COD_EMP` |
 | `branchId` | `branches` | T04 | `sucursalId`, `SUC_*` como sucursal, `branchOfficeId` (M14; alias histórico, CTR-DAT-80) |
 | `bankBranchId` | `bankBranches` (sucursal bancaria) | M14 | `branchId` cuando apunta a la sucursal de un banco (M14), `COD_SUC` de `CTASUCE`/`VALORES` (CTR-DAT-80) |
@@ -309,16 +311,16 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | `templateId` | M01 `documentRequirementTypes`, M08 `agreements`, M18 `housingPlanChanges` y bajas de vivienda | `documentTemplates` | T11 |
 | `templateId` | M12 `supplierCorrespondence`, T02 `auditMessages` | `messageTemplates` (COL-COM-36; PA-DAT-04, Asumida DEC-072; antes "`messageTemplates` [VERIFICAR]") | T09 |
 | `templateId` | M15 `journalEntries` | `entryTemplates` | M15 |
-| `templateId` | M08 `suspensionRestrictionRules` | `code` de la fila de plataforma de la misma colección (alcance `T+P`): clave natural, no ObjectId (PA-DAT-04, Asumida DEC-072; antes "Código de plantilla de plataforma: no es referencia [VERIFICAR]") | M08 |
+| `templateId` | M08 `suspensionRestrictionRules` | `code` de la fila de plataforma de la misma colección (alcance `T+P`): clave natural, no uniqueidentifier (PA-DAT-04, Asumida DEC-072; antes "Código de plantilla de plataforma: no es referencia [VERIFICAR]") | M08 |
 | `templateId` | M10 `connectionEstimates`, M17 `memberCredentials` | `documentTemplates` (COL-WFL-41; PA-DAT-04, Asumida DEC-072; antes "`documentTemplates` [VERIFICAR]") | T11 |
 | `productId` | M04 `productPrices`, M07 `thirdPartyBillers`, M11 `salesDiscountRules` (producto comercial) | `serviceProducts`; canónico `serviceProductId` | M02 |
 | `productId` | M12 `purchaseForecasts` (artículo de stock); M18 ya usa `inventoryItemId` en `housingPlans` y materiales de vivienda (PA-SOC-16; antes "M12 `purchaseForecasts`, M18 materiales de vivienda") | `inventoryItems`; canónico `inventoryItemId` | M13 |
 | `requestId` | M18 casos de sepelio, subsidio, salud, traslado y ortopedia | `benefitRequests` | M18 |
 | `requestId` | T10 `apiUsageLogs` | Identificador de la petición HTTP: no es referencia | — |
 | `connectionId`, `connectorId`, `providerConnectionId` | M03, M07, M09, M14, T09, T11 (5-11-2026, sincronización: incluye M10 `provisioningSystems.connectorId`) | `integrationConnections` | T06 |
-| `taxId` | M05, M08, M12, T09 (5-11-2026, sincronización: incluye M08 `debtCollectionAgencies.taxId`, que deja de ser ObjectId) | CUIT o documento: no es referencia | — |
+| `taxId` | M05, M08, M12, T09 (5-11-2026, sincronización: incluye M08 `debtCollectionAgencies.taxId`, que deja de ser uniqueidentifier) | CUIT o documento: no es referencia | — |
 | `deviceId` | M10 `syncMutations`, M03 `readingTasks` | `fieldDevices` (COL-TEC-28): M03 usa los mismos dispositivos de campo de M10 (PA-DAT-04, Asumida DEC-072; antes "`fieldDevices` (M03 [VERIFICAR])") | M10 |
-| `deviceId` | M16 `timePunches`, T06 `localAgentCommands` | `deviceId` del dispositivo embebido en `localAgents.devices[]` (COL-INT-16): identificador del subdocumento, no ObjectId de colección; M16 lo usa para el reloj de fichada (PA-DAT-04, Asumida DEC-072; antes "Dispositivo de `localAgents` (M16 [VERIFICAR])") | T06 |
+| `deviceId` | M16 `timePunches`, T06 `localAgentCommands` | `deviceId` del dispositivo embebido en `localAgents.devices[]` (COL-INT-16): identificador del subdocumento, no uniqueidentifier de colección; M16 lo usa para el reloj de fichada (PA-DAT-04, Asumida DEC-072; antes "Dispositivo de `localAgents` (M16 [VERIFICAR])") | T06 |
 | `relationshipTypeId`, `maritalStatusId`, `occupationId`, `closeReasonId`, `noteTypeId`, `usageId`, `stateId` | M01, M04, M18 y catálogos simples de M01 §7.18 | `enumerationItems` (CTR-DAT-12) | T04 |
 | `districtSectionId` | M01 | `cadastralDistricts` | T04 |
 | `postalCompanyId` | M01 | `postalCarriers` | M05 |
@@ -349,16 +351,16 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | `defaultAreaId` | M09 `crmCaseTypes`, `crmChannels` | `crmAreas` | M09 |
 | `responsibleAreaId` | T11 `operationalInboxItems`, `dossiers` | `crmAreas` (PA-WFL-22 de T11, Asumida DEC-072; antes "`crmAreas` (M09) o `workAreas` (M16) [VERIFICAR; ver PA]") | M09 |
 | `evidenceId`, `evidenceIds` | M06 `determinedRates`, `taxExemptions`; M05 `invoiceAnnulmentRequests`; M10 `syncConflicts` | `documents`; canónico `evidenceDocumentId(s)` | T11 |
-| `formVersion` | M19 `portalFormSubmissions` (número de lectura) | Número de versión de `formVersions` (no es ObjectId). La referencia es `formVersionId` → `formVersions` (T11) en `portalForms`, `portalFormSubmissions` y `portalDrafts`; `portalForms.versions` y `currentVersion` quedan reemplazados por `formVersions` (PA-POR-21 de M19; antes "M19 `portalFormSubmissions`, `portalDrafts`") | T11 |
+| `formVersion` | M19 `portalFormSubmissions` (número de lectura) | Número de versión de `formVersions` (no es uniqueidentifier). La referencia es `formVersionId` → `formVersions` (T11) en `portalForms`, `portalFormSubmissions` y `portalDrafts`; `portalForms.versions` y `currentVersion` quedan reemplazados por `formVersions` (PA-POR-21 de M19; antes "M19 `portalFormSubmissions`, `portalDrafts`") | T11 |
 | `invoiceTypeId` | M04 `roundingPolicies`, `calculations` | `voucherTypes`; canónico `voucherTypeId` | M05 |
 | `lineId` | M13 `stockMovements` | Renglón embebido del mismo documento | M13 |
 | `lineId` | T10 `bi_fact_invoiceLine` | Renglón embebido `invoices.lines[].lineId` (COL-FAC-13): la fila analítica es un renglón de factura, no un ítem facturable (PA-DAT-04, Asumida DEC-072; antes "`billableItems` [VERIFICAR]") | M05 |
 | `memberId` | M05 `billingRunItems`, M09 `crmProcedureRecords` | `associateMemberships` (COL-INS-01); canónico `associateMembershipId` (PA 9 del cierre); M05 y M09 deben renombrar (PA-DAT-04, Asumida DEC-072; antes "`associateMemberships` [VERIFICAR]") (5-11-2026, sincronización: M05 `billingRunItems` e `invoices.customer` y M09 ya usan `associateMembershipId`) | M17 |
 | `paymentId` | T10 `bi_fact_payment`, `bi_fact_allocation` | `receipts` (COL-COB-12): el hecho analítico es el cobro con recibo; canónico `receiptId` (PA-DAT-04, Asumida DEC-072; antes "`cashOperations` o `receipts` [VERIFICAR]") | M07 |
 | `pendingChargeId` | M08 `deferredInterests`, `agreementInstallments` | `billableItems`; canónico `billableItemId` (5-11-2026, sincronización: M08 ya usa `billableItemId`) | M05 |
-| `seriesId` | M15 `inflationAdjustmentRuns`, T04 `economicIndexValues` | `economicIndexSeries` | T04 (nota del 5-11-2026: T04 §7 nombra `seriesCode` → `economicIndexSeries.code` en `economicIndexValues`, `platformTableReleases` y `platformTableAdoptions`. Rige `seriesId` (ObjectId) como referencia en las colecciones; `seriesCode` se admite solo como clave natural de la serie en payloads de eventos (EVT-CFG-12), en las tablas de plataforma y en la API, igual que `serviceCode` en §7.2. T04 debe renombrar el campo de `economicIndexValues`) |
+| `seriesId` | M15 `inflationAdjustmentRuns`, T04 `economicIndexValues` | `economicIndexSeries` | T04 (nota del 5-11-2026: T04 §7 nombra `seriesCode` → `economicIndexSeries.code` en `economicIndexValues`, `platformTableReleases` y `platformTableAdoptions`. Rige `seriesId` (uniqueidentifier) como referencia en las colecciones; `seriesCode` se admite solo como clave natural de la serie en payloads de eventos (EVT-CFG-12), en las tablas de plataforma y en la API, igual que `serviceCode` en §7.2. T04 debe renombrar el campo de `economicIndexValues`) |
 | `shortageMovementId` | M14 `cashRemittances`, `treasuryCashClosings` | `treasuryMovements` | M14 |
-| `unitId` | M01 `servicePoints` | Subdocumento `premises.units` (COL-PER-08; M01 §7 lo declara así): identificador de la unidad dentro del inmueble, no ObjectId de colección (PA-DAT-04, Asumida DEC-072; antes "Unidad embebida en `premises` [VERIFICAR]") | M01 |
+| `unitId` | M01 `servicePoints` | Subdocumento `premises.units` (COL-PER-08; M01 §7 lo declara así): identificador de la unidad dentro del inmueble, no uniqueidentifier de colección (PA-DAT-04, Asumida DEC-072; antes "Unidad embebida en `premises` [VERIFICAR]") | M01 |
 | `unitId` | M18 `cemeteryActs` | `burialUnits` | M18 |
 | `rightId` | M04 `worksInstallmentPlans` (`planKind = right_acquisition`) | `burialRights` (COL-SOC-22) (PA-DAT-04, Asumida DEC-072; agregado el 5-11-2026) | M18 |
 | `paymentOrderRef` | M17 `capitalRefunds` (5-11-2026, sincronización: agrega M17 `surplusAllocations` e `institutionalFeeSettlements`) | `paymentOrders` (COL-CMP-15): orden de pago del reembolso (PA-DAT-04, Asumida DEC-072; agregado el 5-11-2026) | M12 |
@@ -367,7 +369,7 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | `fiscalClassId` | M02 `billableConcepts` | `fiscalClasses` (COL-FIS-47, M06 §7.38; PA-FIS-21, Asumida DEC-072). Antes "Clase fiscal de M06 (PA-CAT-21) [VERIFICAR: M06 no declara la colección]" | M06 |
 | `thirdPartyId`, `authorityIds` | M02 `billableConcepts`, `serviceConcessions` | `persons`: tercero beneficiario y autoridad concedente registrados en M01 (PA-CAT-21, Asumida DEC-072) | M01 |
 | `activityId` | M02 `serviceContracts` | `normativeTables` (M06) con `code = arcaActivities` (PA-CAT-22 y PA-FIS-21, Asumida DEC-072). Antes "Actividades económicas de T04 (PA-CAT-21) [VERIFICAR: T04 no declara la colección…]", con dueño T04 | M06 |
-| `externalClientId` | M02 `serviceContracts` | `persons` (M01), ObjectId (PA-CAT-22, Asumida DEC-072). Antes "Sin destino: PA-CAT-21 no lo fija [VERIFICAR]", en una fila compartida con `bundleSubscriptionId` | M01 |
+| `externalClientId` | M02 `serviceContracts` | `persons` (M01), uniqueidentifier (PA-CAT-22, Asumida DEC-072). Antes "Sin destino: PA-CAT-21 no lo fija [VERIFICAR]", en una fila compartida con `bundleSubscriptionId` | M01 |
 | `bundleSubscriptionId` | M02 `serviceContracts` | `bundleSubscriptions` (COL-CAT-29, M02 §7.29; PA-CAT-22, Asumida DEC-072). Antes "Sin destino: PA-CAT-21 no lo fija [VERIFICAR]" | M02 |
 | `adjustmentRequestIds` | M04 `retroactiveDiffRuns` | `invoiceAnnulmentRequests` (COL-FAC-17, M05): pedidos de ajuste (NC/ND) (PA-TAR-20 y PA-FAC-22, Asumida DEC-072). Antes "Pedidos de ajuste (NC/ND) de M05 [VERIFICAR: candidata `invoiceAnnulmentRequests`, COL-FAC-17]" | M05 |
 | `m02ChangeIds` | M04 `bonusRecalcRuns` | `serviceContractHistory` (COL-CAT-19): versión del contrato con el cambio de categoría (PA-TAR-20, Asumida DEC-072) | M02 |
@@ -381,12 +383,12 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | `sourceType`, `originType`, `quoteVersion`, `installmentType`, `discountAmount`, `discountReason` | M11 `operationCharges`, `salesInstallments`, `salesQuoteAcceptances` | No es referencia: discriminadores de `sourceId` y `originId` (polimórficas), número de versión, código `TIPO_FAC` y datos del descuento (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M11 |
 | `vendorTransactionId` | M03 `prepaidTopUps` | No es referencia: identificador del proveedor de prepago (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M03 |
 | `levyEventId` | M04 `worksInstallmentPlans` | No es referencia: `eventId` del sobre del evento que origina el gravamen (M04 PA-TAR-21) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M04 |
-| `arcaVatId` | M06 `vatRates` | No es referencia: código ARCA de la alícuota (entero; antes ObjectId) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M06 |
+| `arcaVatId` | M06 `vatRates` | No es referencia: código ARCA de la alícuota (entero; antes uniqueidentifier) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M06 |
 | `promptTemplateCode` | T02 `auditAi` | No es referencia: plantilla de prompt versionada en código (antes `promptTemplateId`) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T02 |
 | `catalogQuestionCode` | T10 `aiQuestions` | No es referencia: código del catálogo de preguntas de la sala (antes `catalogQuestionId`) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T10 |
 | `externalTransactionNumber` | T06 `integrationFileExchanges` | No es referencia: número de transacción del ente (antes `externalTransactionId`) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T06 |
 | `ruleCode` | T07 `migrationMappingRules` | No es referencia: clave natural de la regla (antes `ruleId` en esa colección) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T07 |
-| `jobId` | M02 `bulkContractOperations`, M04 `calculationRuns`, M05 `massOperations` | Identificador del job BullMQ registrado en `jobRuns.jobId` (COL-PLA-27): string, no ObjectId (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T01 |
+| `jobId` | M02 `bulkContractOperations`, M04 `calculationRuns`, M05 `massOperations` | Identificador del job BullMQ registrado en `jobRuns.jobId` (COL-PLA-27): string, no uniqueidentifier (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T01 |
 | `documentRef`, `receiptRef` | M17 `capitalReserves`, `capitalRefunds` | No es referencia: número del comprobante o del recibo; `documentRef.typeId` → `voucherTypes` (M05) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M17 |
 | `deviceIds` | M07 `collectors` | `fieldDevices` (COL-TEC-28) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M10 |
 | `surchargeProductId`, `productIds`, `requiresProductIds`, `excludesProductIds`, `catalogProductId` | M07 `cardPlans`, `collectionReportSchemes`; M02 `serviceProducts` (autorreferencia); M13 `inventoryItems` | `serviceProducts` (COL-CAT-05) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M02 |
@@ -398,10 +400,10 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | `declaredAffidavitRef`, `documents`, `acceptanceActId` | M02 `serviceContracts`; M03 `meters`, `distributedGenerationContracts`; T07 `migrationProjects` | `documents` (expediente T11) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T11 |
 | `feasibilityRef` | M02 `serviceContracts` | `feasibilityRequests` (COL-TEC-01) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M10 |
 | `defaultReaderIds`, `readerId`, `assigneeId` | M03 `readingRoutes`, `readerWorkSessions`; M05 `billingExceptions` | `memberships` (COL-IAM-04) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T02 |
-| `ownerRole` | M05 `billingExceptions` | `roles` (T02) por clave del rol, no ObjectId (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T02 |
+| `ownerRole` | M05 `billingExceptions` | `roles` (T02) por clave del rol, no uniqueidentifier (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T02 |
 | `photoIds` | M03 `meterReadings` | `storedFiles` (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | T01 |
 | `reading.routeIds` | M03 `meteringPoints` | `readingRoutes` (COL-MED-13) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M03 |
-| `serviceBlockId`, `affectedServiceBlockIds` | M05 `billedPeriods`, `invoiceRelations` | Subdocumento `invoices.serviceBlocks` (COL-FAC-13): identificador del bloque dentro de la factura, no ObjectId de colección (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M05 |
+| `serviceBlockId`, `affectedServiceBlockIds` | M05 `billedPeriods`, `invoiceRelations` | Subdocumento `invoices.serviceBlocks` (COL-FAC-13): identificador del bloque dentro de la factura, no uniqueidentifier de colección (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M05 |
 | `paymentOrderId`, `supplierId`, `withholdingTypeId`, `filingId`, `obligationId` | M06 `withholdingsApplied` (`filingId` también en `fiscalDeadlines`) | `paymentOrders` (M12), `suppliers` (M12), `withholdingTypes`, `regimeFilings` y `taxObligations` (M06); en esta colección `obligationId` es la obligación fiscal, no `obligations` de M07 (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M06 |
 | `perceptionTaxId` | M06 `vatRateMatrix` | `taxDefinitions` (COL-FIS-18) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M06 |
 | `entityId` | M15 `entityAccountAssignments` | Polimórfica según `entityType`, que admite `vatRate` y `taxDefinition` (antes `tax`) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) y `ownTaxObligation` → `ownTaxObligations` (COL-FIS-48; 10-11-2026, DEC-095) | M15 |
@@ -411,7 +413,7 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | `ownTaxObligationId` | M06 `taxObligations` | `ownTaxObligations` (COL-FIS-48, M06 §7.39): obligación propia de la cooperativa como contribuyente; excluyente con `taxAgentRegistrationId`, que pasa a condicional (10-11-2026, DEC-095) | M06 |
 | `lines[].supplyUsageId` | M06 `taxCalculationTraces` | `enumerationItems` (COL-CFG-06) del catálogo `premiseUsages` de M01 §7.18, cuyo ítem lleva la clase normalizada `usageClass`; el uso se toma de `premises.usageId` del inmueble del suministro. `lines[].supplyUsageClass` (enum `residential`, `commercial`, `industrial`, `rural`, `other`) no es referencia. En `vatRateMatrix` la condición pasa a `supplyUsageClasses[]`, enum de plataforma que **no es referencia** (clase `premiseUsages.usageClass` de M01), y `supplyUsageKey` es la lista ordenada de `supplyUsageClasses[]`, solo para el índice único (10-11-2026, DEC-102; M06 §7 `vatRateMatrix`, RF-FIS-079, RN-FIS-073). *Reemplazado (10-11-2026, alineación con M06): "`supplyUsageIds[]`, `lines[].supplyUsageId` \| M06 `vatRateMatrix`, `taxCalculationTraces` \| `enumerationItems` (COL-CFG-06) del catálogo `premiseUsages` … `supplyUsageKey` (lista ordenada de `supplyUsageIds[]`) …".* | T04 / M01 |
 | `accessoryApproval.approvedBy`, `accessoryApproval.evidenceId` | M06 `conceptFiscalCases` | `memberships` (COL-IAM-04) y `documents` (T11) (10-11-2026, DEC-093; M06 §7.37) | T02 / T11 |
-| `tax.taxDefinitionId`, `activityScope.serviceIds[]`, `activityScope.arcaActivityCodes[]`, `evidenceIds[]`, `approvedBy` | M06 `ownTaxObligations` | `taxDefinitions` (COL-FIS-18, solo con `nature = ownTax`), `tenantServices` (COL-CAT-02), `normativeTables` (COL-FIS-01, `arcaActivities`; código, no ObjectId), `documents` (T11) y `memberships` (COL-IAM-04). `capitalBase.capitalItemIds[]` → `capitalItems` (COL-INS-05, M17): `capitalBase` queda `{source: none/m17CapitalBase, component, capitalItemIds[], requireFinal}`, sin `serviceIds[]` ni `capitalEventTypes[]`, porque M17 no abre la base por servicio ni por evento (M06 §7.39; [VERIFICAR] resuelto en M06 el 10-11-2026). *Reemplazado (10-11-2026): "`capitalBase.capitalEventTypes[]` son códigos del catálogo de eventos de capital de M17, no ObjectId ([VERIFICAR] en M06)".* (10-11-2026, DEC-095) | M06 |
+| `tax.taxDefinitionId`, `activityScope.serviceIds[]`, `activityScope.arcaActivityCodes[]`, `evidenceIds[]`, `approvedBy` | M06 `ownTaxObligations` | `taxDefinitions` (COL-FIS-18, solo con `nature = ownTax`), `tenantServices` (COL-CAT-02), `normativeTables` (COL-FIS-01, `arcaActivities`; código, no uniqueidentifier), `documents` (T11) y `memberships` (COL-IAM-04). `capitalBase.capitalItemIds[]` → `capitalItems` (COL-INS-05, M17): `capitalBase` queda `{source: none/m17CapitalBase, component, capitalItemIds[], requireFinal}`, sin `serviceIds[]` ni `capitalEventTypes[]`, porque M17 no abre la base por servicio ni por evento (M06 §7.39; [VERIFICAR] resuelto en M06 el 10-11-2026). *Reemplazado (10-11-2026): "`capitalBase.capitalEventTypes[]` son códigos del catálogo de eventos de capital de M17, no uniqueidentifier ([VERIFICAR] en M06)".* (10-11-2026, DEC-095) | M06 |
 | `capitalBaseRef.capitalClosingId`, `replacesObligationId`, `replacedByObligationId` | M06 `taxObligations` | `capitalClosings` (COL-INS-12, M17; base de capital usada en la obligación propia sobre el capital, RN-FIS-133 puntos 5 y 7) y `taxObligations` (autorreferencia: enlace entre la obligación anulada y la recalculada; `cancelReason` enum `manual`, `ownObligationRevoked`, `capitalBaseReopened`, `recalculated`, no es referencia; EVT-FIS-26) (10-11-2026, DEC-095; M06 §7.26) | M06 / M17 |
 | `paymentConflict.paymentExecutionId` | M06 `taxObligations` | `paymentExecutions` (COL-TES-35, M14): ejecución de pago en curso de una obligación anulada o recalculada que queda `cancellationPending` hasta que M14 confirme si se ejecutó o se anuló (RN-FIS-133 punto 9; 10-11-2026, DEC-095, cierre) | M14 |
 | `supplierPersonId` | M06 `withholdingsApplied` | `persons` (COL-PER-01): persona de M01 del sujeto retenido, copiada de `suppliers.personId` al confirmar la retención (10-11-2026, DEC-097; M06 RF-FIS-102) | M01 |
@@ -433,7 +435,7 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | `purchaseReceiptId` | M13 `lots` | `supplierReceipts` (COL-CMP-11) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M12 |
 | `invoiceId`, `receiptId` | M12 `matchExceptions`, `aiInvoiceExtractions`, `signalRightsSettlements` | `supplierInvoices` (COL-CMP-12) y `supplierReceipts` (COL-CMP-11), no `invoices` de M05 ni `receipts` de M07 (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M12 |
 | `packageIds`, `lines.packageId` | M12 `signalRightsContracts`, `signalRightsSettlements` | `serviceProducts` (COL-CAT-05, M02) (antes `servicePlans`; M02 PA-CAT-23 confirma que el paquete de TV es un producto de servicio) (5-11-2026, sincronización; Asumida DEC-072, PA-DAT-05) | M02 |
-| `vatRateId` | M18 `fuelTypes` | `vatRates` (COL-FIS-16), ObjectId obligatorio (antes Enum `vatRate` en M18; resuelve el [VERIFICAR] de obligatoriedad de M18) (5-11-2026, pendientes de la sincronización; Asumida DEC-072, PA-DAT-05) | M06 |
+| `vatRateId` | M18 `fuelTypes` | `vatRates` (COL-FIS-16), uniqueidentifier obligatorio (antes Enum `vatRate` en M18; resuelve el [VERIFICAR] de obligatoriedad de M18) (5-11-2026, pendientes de la sincronización; Asumida DEC-072, PA-DAT-05) | M06 |
 | Autorreferencias: `parentRunId`, `reversesEntryId`, `reversedByEntryId`, `reversesMovementId`, `reversedByMovementId`, `mergedIntoCaseId`, `parentCaseId`, `parentRubricId`, `subrubricId`, `previousNoticeId`, `nextNoticeId`, `reversalOfRunId`, `carriedOverToRunId`, `reservedByRunId`, `complementsRunId`, `correctsRunId`, `parentTripId`, `parentAssetId`, `replacesCertificateId`, `supersedesSubmissionId`, `supersedesSampleResultId`, `rotatedFromId`, `previousClosureId`, `previousVersionId`, `originalFilingId`, `originalReportId` | Varias | La misma colección que los contiene | Dueño de la colección |
 
 ### 7.3 Catálogo de colecciones — Plataforma y transversales (T01 a T04)
@@ -441,7 +443,7 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 **Leyenda del catálogo (vale para §7.3 a §7.7).**
 
 - **ID**: `COL-<MOD>-NN`, estable; no se reutiliza si una colección se absorbe.
-- **Únicos**: índices únicos además de `_id`; se escriben **sin** `tenantId`, que siempre va primero (`code` = `{tenantId, code}` único). "p." = parcial; "d." = disperso. Es el mínimo canónico; el anexo dueño puede agregar índices no únicos.
+- **Únicos**: índices únicos además de `_id`; se escriben **sin** `TenantId`, que siempre va primero (`code` = `{tenantId, code}` único). "p." = parcial; "d." = disperso. Es el mínimo canónico; el anexo dueño puede agregar índices no únicos.
 - **Alc.**: `T` tenant; `P` tenant `PLATFORM`; `T+P` filas de plataforma más filas propias del tenant; `G` global (§7.1.3); `A` base analítica.
 - **Clas.**: códigos de §7.1.12, el primero es el dominante.
 - **Est.**: `C` canónica (crear); `R` crear con el nombre indicado en lugar del declarado (5-11-2026: no queda ninguna `R`; las 6 que había pasaron a `C (antes R)` porque sus anexos dueños ya declaran el nombre nuevo); `A→X` absorbida en la colección X (no crear); `N` nueva propuesta por T05 por faltar en el anexo dueño (crear; el dueño debe incorporarla).
@@ -633,7 +635,7 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | COL-MIG-06 | `migrationRuns` | T07 | Corridas | `projectId` | `{projectId, number}` | T | OP | O1 | — | C |
 | COL-MIG-07 | `migrationBatches` | T07 | Lotes por tabla y corrida | `runId` | `{runId, sourceTable, batchNo}` | T | OP | O1 | — | C |
 | COL-MIG-08 | `migStagingRecords` | T07 | Registros en staging; TTL | `batchId` | `{batchId, sourceKey}` | T | ID/FI | O1 | Todas | C |
-| COL-MIG-09 | `legacyIdMap` | T07 | Mapa clave ProCoop → ObjectId | `targetCollection` | `{sourceTable, sourceKey}` | T | OP | O0 | Claves primarias | C |
+| COL-MIG-09 | `legacyIdMap` | T07 | Mapa clave ProCoop → uniqueidentifier | `targetCollection` | `{sourceTable, sourceKey}` | T | OP | O0 | Claves primarias | C |
 | COL-MIG-10 | `legacyKeyAliases` | T07 | Alias de claves ProCoop vigentes (usuario, ID_FAC; DEC-050) | `targetRef` | `{kind, alias}` | T | OP | O1 | `FACTURAS.USUARIO`, `ID_FAC` | C |
 | COL-MIG-11 | `migrationIssues` | T07 | Rechazos y advertencias (incluye los hallazgos del escaneo previo de secretos, sin valores; DEC-103) | `batchId`, `ruleId` (→ `migrationMappingRules`), `snapshotId` (→ `legacySnapshots`, DEC-103) (5-11-2026, sincronización: T07 §7.26 (Asumida DEC-072, PA-DAT-05): la referencia conserva `ruleId`; `ruleCode` es la clave natural de la regla; antes "`batchId`") | — | T | OP | O1 | — | C |
 | COL-MIG-12 | `migrationReconciliations` | T07 | Conciliaciones origen-destino | `runId` | `{runId, check}` | T | OP | O1 | — | C |
@@ -658,7 +660,7 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | COL-NFR-06 | `retentionPolicies` | T08 | Políticas de retención (canónica; absorbe la de T11) | `retentionClass` | `code` | T+P | CF | O1 | — | C |
 | COL-NFR-07 | `legalHolds` | T08 | Retenciones legales (canónica; absorbe la de T11) | `entityRefs[]` | `number` | T | AU | O1 | — | C |
 | COL-NFR-08 | `retentionRuns` | T08 | Corridas de supresión | `retentionPolicyId` | — | T | AU | O1 | — | C |
-| COL-NFR-09 | `erasureLedger` | T08 | Libro de supresiones fuera de restauraciones | `tenantId` como campo | `{tenantId, entityRef}` | G | AU | O1 | — | C |
+| COL-NFR-09 | `erasureLedger` | T08 | Libro de supresiones fuera de restauraciones | `TenantId` como campo | `{tenantId, entityRef}` | G | AU | O1 | — | C |
 | COL-NFR-10 | `securityIncidents` | T08 | Incidentes de seguridad y privacidad | `platformIncidentId` | `number` | T+P | AU | O1 | — | C |
 | COL-NFR-11 | `restoreDrills` | T08 | (duplicada con `restoreTests`) | — | — | — | — | — | — | A→COL-PLA-20 |
 | COL-NFR-12 | `encryptionKeys` | T08 | DEK envueltas por categoría y tenant | `category` | `{category, version}` | T | SC | O0 | — | C |
@@ -770,7 +772,7 @@ Agregado el 5-11-2026 a partir de `docs/entregables-analisis-diseno/_trabajo/er-
 | COL-BIA-29 | `benchmarkAggregates` | T10 | Agregados anónimos entre tenants | — | `{indicatorCode, periodKey, segmentKey}` (5-11-2026, residuales: alineado a T10 §7; antes `{period, metric}`) | P | OP | O11 | — | C |
 | COL-BIA-30 | `reportRunResults` | T10 | Resultados temporales de ejecución (reemplaza `bia_runResults_<tenant>`); TTL | `reportRunId` | `{reportRunId, rowNo}` | T | según reporte | O1 | Tablas temporales | C (antes `R`) |
 
-Base analítica `goodapps_<ambiente>_analytics` (T10 §7, O11). Todas llevan `tenantId` primero en todo índice, se cargan por ETL incremental idempotente desde eventos y lecturas de réplica, y no se escriben desde la aplicación operativa.
+Base analítica `goodapps_<ambiente>_analytics` (T10 §7, O11). Todas llevan `TenantId` primero en todo índice, se cargan por ETL incremental idempotente desde eventos y lecturas de réplica, y no se escriben desde la aplicación operativa.
 
 | ID | Colección | Dueño | Propósito | Claves y referencias | Únicos | Alc. | Clas. | Ola | Origen ProCoop | Est. |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -1563,7 +1565,7 @@ Datos laborales: `FI` por defecto; los campos de salud, discapacidad, afiliació
 | COL-SUE-21 | `seniorityScales` | M16 | Escalas de antigüedad | `laborAgreementId` | `{laborAgreementId, validFrom}` | T | CF | O9 | s/d | C |
 | COL-SUE-22 | `positions` | M16 | Puestos | — | `code` | T | CF | O9 | s/d | C |
 | COL-SUE-23 | `workAreas` | M16 | Áreas laborales (distintas de `crmAreas`) | `costCenterId` | `code` | T | CF | O3 | s/d | C |
-| COL-SUE-24 | `healthInsurerAdoptions` | M16 | Obras sociales adoptadas (catálogo oficial en `payrollOfficialCodes`) | `officialCode` (código de `payrollOfficialCodes`, no ObjectId) (5-11-2026, residuales: alineado a M16 §7; antes `officialCodeId`) | `officialCode` | T | CF | O9 | s/d | C |
+| COL-SUE-24 | `healthInsurerAdoptions` | M16 | Obras sociales adoptadas (catálogo oficial en `payrollOfficialCodes`) | `officialCode` (código de `payrollOfficialCodes`, no uniqueidentifier) (5-11-2026, residuales: alineado a M16 §7; antes `officialCodeId`) | `officialCode` | T | CF | O9 | s/d | C |
 | COL-SUE-25 | `terminationReasons` | M16 | Causas de egreso | — | `code` | T | CF | O9 | s/d | C |
 | COL-SUE-26 | `payrollVariables` | M16 | Variables de liquidación | `configVersionId` | `{configVersionId, name}` | T | CF | O9 | `SU_VARIABLES` | C |
 | COL-SUE-27 | `payrollConcepts` | M16 | Conceptos de liquidación | `configVersionId` | `{configVersionId, code}` | T | CF | O9 | `SU_CONCEPTOS` | C |
@@ -1698,7 +1700,7 @@ Los campos de salud y discapacidad son `SE` (cifrado con `dek-salud`); M18 usa `
 | COL-SOC-45 | `vehicleDocuments` | M18 | Seguros, VTV, habilitaciones | `vehicleId`, `documentRefId` | — | T | OP | O8 | — | C |
 | COL-SOC-46 | `vehicleMaintenances` | M18 | Mantenimientos | `vehicleId`, `supplierId` | — | T | OP | O8 | — | C |
 | COL-SOC-47 | `vehicleUsages` | M18 | Usos (OT, traslado, interno) | `vehicleId`, `driverId`, `source.id` | — | T | OP | O8 | — | C |
-| COL-SOC-48 | `fuelTypes` | M18 | Combustibles (canónica; absorbe el tipo `fuel` de `purchaseLookups`) | `vatRateId` (→ `vatRates`, ObjectId obligatorio) (5-11-2026, pendientes de la sincronización: M18 §7 cambia `vatRate` (Enum) por `vatRateId` (PA-SOC-19); el [VERIFICAR] de obligatoriedad de M18 se resuelve como obligatorio: todo combustible liquida IVA con una alícuota; antes "`vatRateId`") | `code` | T | CF | O8 | `COMBUSTIBLES` | C |
+| COL-SOC-48 | `fuelTypes` | M18 | Combustibles (canónica; absorbe el tipo `fuel` de `purchaseLookups`) | `vatRateId` (→ `vatRates`, uniqueidentifier obligatorio) (5-11-2026, pendientes de la sincronización: M18 §7 cambia `vatRate` (Enum) por `vatRateId` (PA-SOC-19); el [VERIFICAR] de obligatoriedad de M18 se resuelve como obligatorio: todo combustible liquida IVA con una alícuota; antes "`vatRateId`") | `code` | T | CF | O8 | `COMBUSTIBLES` | C |
 | COL-SOC-49 | `fuelLoads` | M18 | Cargas de combustible | `vehicleId`, `fuelTypeId`, `supplierInvoiceId` | — | T | OP | O8 | `IVACOM_COMBUSTIBLES` | C |
 | COL-SOC-50 | `tripSettlements` | M18 | Rendiciones de viaje (canónica; absorbe `freightSettlements` de M11) | `source.id` (venta, traslado u OT), `vehicleId`, `driverId` | `{source.kind, source.id}` | T | FI | O8 | `COMP_VEN_RENDICION`, `COMP_VEN_RENDICION_ITEMS` | C |
 | COL-SOC-51 | `gpsDevices` | M18 | Dispositivos AVL | `vehicleId` | `{providerAdapter, externalUnitId}` | T | TE | O8 | `MOVIL.NOM_AVL` | C |
@@ -1785,13 +1787,13 @@ Actualización por la sincronización del 10-11-2026 con los anexos dueños de D
 
 #### 7.8.1 Estrategia de índices
 
-- **Orden de campos** (igualdad → orden → rango): `tenantId` siempre primero, luego igualdades (`status`, `accountId`), luego el campo de orden (`issueDate`, `createdAt`) y al final los rangos. Toda pantalla de lista y todo job por lote tiene un índice que cubre su filtro principal; la revisión de código exige `explain('executionStats')` sin `COLLSCAN` para colecciones de más de 10.000 documentos por tenant.
+- **Orden de campos** (igualdad → orden → rango): `TenantId` siempre primero, luego igualdades (`status`, `accountId`), luego el campo de orden (`issueDate`, `createdAt`) y al final los rangos. Toda pantalla de lista y todo job por lote tiene un índice que cubre su filtro principal; la revisión de código exige `explain('executionStats')` sin `COLLSCAN` para colecciones de más de 10.000 documentos por tenant.
 - **Únicos**: los del catálogo son el mínimo. En catálogos con baja lógica, parciales con `{isDeleted: false}`; en documentos con anulación, parciales por `status` cuando el anexo dueño lo pide (por ejemplo, `supplierInvoices`).
 - **Migración**: `{tenantId, 'legacy.table', 'legacy.key'}` disperso en toda colección destino (§7.1.11).
 - **Texto**: como máximo un índice de texto por colección (personas, artículos, proveedores, casos); la búsqueda difusa de personas usa `personIdentifierIndex` (M01), no el índice de texto.
-- **Geoespacial**: `2dsphere` compuesto con `tenantId` en `servicePoints`, `premises`, `networkElements`, `feasibilityRequests`, `visits`, `burialUnits`; las posiciones de flota se consultan por `meta.vehicleId` y rango de tiempo (serie temporal).
+- **Geoespacial**: `2dsphere` compuesto con `TenantId` en `servicePoints`, `premises`, `networkElements`, `feasibilityRequests`, `visits`, `burialUnits`; las posiciones de flota se consultan por `meta.vehicleId` y rango de tiempo (serie temporal).
 - **Límite práctico**: hasta 12 índices en colecciones de alto volumen (§7.8.2) y hasta 20 en el resto; cada índice adicional en una colección de alto volumen se justifica con el patrón de consulta que lo usa.
-- **Excepciones de índices únicos globales** (sin `tenantId` adelante). Solo sirven para **resolver el tenant** antes de tener contexto (subdominio, webhook, token o QR); la colección conserva `tenantId` en cada documento, la consulta se hace solo por la función `resolveTenantBy*` del módulo dueño, con `runAsPlatform` técnico auditado, y devuelve únicamente `{tenantId, _id}`. Cualquier otro índice global es un defecto bloqueante.
+- **Excepciones de índices únicos globales** (sin `TenantId` adelante). Solo sirven para **resolver el tenant** antes de tener contexto (subdominio, webhook, token o QR); la colección conserva `TenantId` en cada documento, la consulta se hace solo por la función `resolveTenantBy*` del módulo dueño, con `runAsPlatform` técnico auditado, y devuelve únicamente `{tenantId, _id}`. Cualquier otro índice global es un defecto bloqueante.
 
 | Colección | Índice único global | Dueño | Uso |
 |---|---|---|---|
@@ -1802,7 +1804,7 @@ Actualización por la sincronización del 10-11-2026 con los anexos dueños de D
 | `tenants` | `{code}`; `{domains.host}` | T01 | Colección global (§7.1.3); `domains.host` resuelve el tenant de la PWA. |
 | `identities` | `{emailNormalized}` d.; `{cuilHmac}` d. | T02 | Colección global (§7.1.3). |
 
-  Si T02 (`actionTokens`), T06 (`webhookEndpoints`) o T11 (`shareLinks`) necesitan resolver el tenant por token, se agregan a esta tabla con la misma regla; mientras no lo declaren, el token se emite con el `tenantId` codificado y el índice es `{tenantId, tokenHash}`.
+  Si T02 (`actionTokens`), T06 (`webhookEndpoints`) o T11 (`shareLinks`) necesitan resolver el tenant por token, se agregan a esta tabla con la misma regla; mientras no lo declaren, el token se emite con el `TenantId` codificado y el índice es `{tenantId, tokenHash}`.
 
 #### 7.8.2 Volumen y particionado (DEC-075)
 
@@ -1825,7 +1827,7 @@ Perfil: tenant estándar 25.000 suministros (`accounts`) y grande 150.000; dise�
 | `stockMovements` | 0,1 M | 0,5 M | `legal10y` | — |
 
 - **Plataforma completa** (300 tenants: 288 estándar y 12 grandes, 9 M de suministros como en T08 §7.1; con 100 tenants, 96 y 4, 3 M): del orden de 143 M facturas y 1.080 M renglones por año (≈ 1.430 M facturas y 10.800 M renglones en 10 años) y hasta 12.600 M lecturas de intervalo por año (≈ 37.800 M en 36 meses) si todos los tenants tienen la telemedición del perfil. Esto excede lo razonable para un replica set único a partir de los 100 tenants. Corregido el 5-11-2026: antes la mezcla era 85 % estándar y 15 % grandes, que da 13,1 M de suministros e incompatible con los 9 M de T08; las cifras "200 M facturas y 1.700 M renglones en 10 años" correspondían en realidad a un año de esa mezcla, y las "10.000–15.000 M lecturas en 36 meses" no salían de la tabla.
-- **Preparado para sharding desde O0**: no se fragmenta al inicio, pero las colecciones de alto volumen de la tabla nacen con una clave candidata `{tenantId: 1, _id: 1}` (o `{tenantId: 1, <fecha>: 1}` en las de orden temporal) y todo índice único las incluye como prefijo, para poder fragmentar por `tenantId` con zonas (tenants grandes en su propio shard) sin reescribir índices. Las series temporales se fragmentan por `metaField.tenantId`.
+- **Preparado para sharding desde O0**: no se fragmenta al inicio, pero las colecciones de alto volumen de la tabla nacen con una clave candidata `{tenantId: 1, _id: 1}` (o `{tenantId: 1, <fecha>: 1}` en las de orden temporal) y todo índice único las incluye como prefijo, para poder fragmentar por `TenantId` con zonas (tenants grandes en su propio shard) sin reescribir índices. Las series temporales se fragmentan por `metaField.tenantId`.
 - **Archivo en frío** de ejercicios cerrados (asumido por DEC-087, PA-DAT-02): `billableItems`, `intervalReadings`, `callRecords`, `auditLogs`, `integrationMessages` y el detalle accesorio de cobranzas de M07 (`agencySettlementLines`, `agencyNoveltyFiles`, `paymentIntents`, `gatewayTransactions` cerradas y bitácoras de entes; RF-COB-191) con más de 36 meses pasan a almacenamiento de objetos (formato columnar, cifrado, por tenant y período) mediante `retentionRuns` (T08); el documento operativo deja un resumen y la referencia al archivo. Las facturas, recibos, asientos y movimientos **no** se archivan: quedan en línea los 10 años. En cobranzas tampoco se archivan `obligations`, `allocations`, `ledgerEntries`, `receipts` ni sus PDF: el saldo y la deuda a una fecha nunca dependen del archivo; el detalle archivado se pide como consulta diferida y se entrega por notificación con enlace (M07 RF-COB-191, M19 API-POR-122).
 - La base analítica (`bi_*`) se reconstruye desde la operativa; no tiene retención legal propia.
 
@@ -1900,7 +1902,7 @@ Las olas de migración (T07) cargan cada colección en su ola de creación; los 
 
 ### 7.10 Mapa de relaciones
 
-Relaciones principales por dominio (cardinalidad de negocio; el detalle está en el §7 del dueño). Se omiten las referencias de auditoría (`createdBy`, `updatedBy`), `tenantId` y `legalEntityId`, que están en todas las colecciones o documentos económicos.
+Relaciones principales por dominio (cardinalidad de negocio; el detalle está en el §7 del dueño). Se omiten las referencias de auditoría (`createdBy`, `updatedBy`), `TenantId` y `legalEntityId`, que están en todas las colecciones o documentos económicos.
 
 **Plataforma e identidad.** `tenants` 1–N `legalEntities` 1–N `branches` 1–N `workstations`; `identities` (global) 1–N `memberships` (una por tenant) N–N `roles` por `roleAssignments`; `tenants` 1–N `tenantModuleActivations`; toda operación de negocio 1–N `outboxEvents`.
 

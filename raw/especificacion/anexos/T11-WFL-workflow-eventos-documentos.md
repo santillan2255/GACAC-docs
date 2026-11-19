@@ -535,8 +535,10 @@ Reglas de alcance:
 | RN-WFL-074 | Los enlaces compartidos vencen como máximo a los `PRM-WFL-045` días y se revocan al anular el documento o al revocar el acceso del sujeto. | — | Nueva (AGR-023) | PRM-WFL-045 | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Convenciones de la guía §5: todos los documentos llevan `tenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy` y `version`; los índices empiezan por `tenantId`; los importes son `Decimal128`; las fechas se guardan en UTC. Las colecciones técnicas `outboxEvents`, `inboxReceipts`, `deadLetters`, `jobRuns`, `idempotencyKeys` y `storedFiles` son de T01 (§7.11.23–7.11.25 de T01) y aquí solo se referencian.
+
+Convenciones de la guía §5: todos los documentos llevan `TenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy` y `version`; los índices empiezan por `TenantId`; los importes son `DECIMAL(18,4)`; las fechas se guardan en UTC. Las colecciones técnicas `outboxEvents`, `inboxReceipts`, `deadLetters`, `jobRuns`, `idempotencyKeys` y `storedFiles` son de T01 (§7.11.23–7.11.25 de T01) y aquí solo se referencian.
 
 ### 7.1 Contrato de eventos
 
@@ -586,7 +588,7 @@ Convenciones de la guía §5: todos los documentos llevan `tenantId`, `createdAt
 | `sourceRef` | object | Sí | `{ type, id }` (eventId + consumer, jobRunId, operationId, bulkRunItemId, deadLetterId; en `referentialIntegrity`, la huella del hallazgo). |
 | `businessTitleKey` | string | Sí | `dict:` del título funcional. |
 | `businessContext` | object | Sí | Sujeto, importe, módulo, sin secretos. |
-| `responsibleRole`, `responsibleAreaId` | string / ObjectId | Sí / No | Responsable. `responsibleRole` es el código de `roles` (T02); `responsibleAreaId` → `crmAreas` (M09) (PA-WFL-nn, Asumida DEC-072; antes "`crmAreas` (M09) o `workAreas` (M16) [VERIFICAR: T05 §7.2 no declara el destino de las áreas responsables genéricas]"). |
+| `responsibleRole`, `responsibleAreaId` | string / uniqueidentifier | Sí / No | Responsable. `responsibleRole` es el código de `roles` (T02); `responsibleAreaId` → `crmAreas` (M09) (PA-WFL-nn, Asumida DEC-072; antes "`crmAreas` (M09) o `workAreas` (M16) [VERIFICAR: T05 §7.2 no declara el destino de las áreas responsables genéricas]"). |
 | `severity` | enum | Sí | `low`, `medium`, `high`, `critical`. |
 | `suggestedActions` | string[] | Sí | `retry`, `resolveWithEvidence`, `discard`, `openSource`, `contactSupport`. |
 | `status` | enum | Sí | `open`, `inProgress`, `resolved`, `discarded`. |
@@ -647,8 +649,8 @@ Convenciones de la guía §5: todos los documentos llevan `tenantId`, `createdAt
 | `status` | enum | Sí | §8.3. |
 | `pauseReason` | object | No | `{ code, source: manual/systemic/threshold, at }`. |
 | `cursor` | object | No | Punto de reanudación. |
-| `resultStoredFileId` | ObjectId | No | `storedFiles` del detalle (antes `resultFileId`; nombre con rol de T05 §7.2, `<rol>StoredFileId`). |
-| `requestedBy`, `approvedOperationId` | ObjectId | No | Origen. `requestedBy` → `memberships` (T02); `approvedOperationId` → `operations`. |
+| `resultStoredFileId` | uniqueidentifier | No | `storedFiles` del detalle (antes `resultFileId`; nombre con rol de T05 §7.2, `<rol>StoredFileId`). |
+| `requestedBy`, `approvedOperationId` | uniqueidentifier | No | Origen. `requestedBy` → `memberships` (T02); `approvedOperationId` → `operations`. |
 | `idempotencyKey` | string | Sí | Clave de la corrida (`<module>:<kind>:<sourceRef.id>[:<universe.version>]`); única por tenant (§12.6 regla 4; T05 COL-WFL-06). |
 
 Índices: `{ tenantId: 1, number: 1 }` único; `{ tenantId: 1, idempotencyKey: 1 }` único; `{ tenantId: 1, module: 1, status: 1 }`.
@@ -657,7 +659,7 @@ Convenciones de la guía §5: todos los documentos llevan `tenantId`, `createdAt
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `bulkRunId` | ObjectId | Sí | Ref. `bulkRuns`. |
+| `bulkRunId` | uniqueidentifier | Sí | Ref. `bulkRuns`. |
 | `itemKey` | string | Sí | Clave del ítem en la corrida (`<subjectRef.type>:<subjectRef.id>`); única con `bulkRunId` (T05 COL-WFL-07). |
 | `subjectRef` | object | Sí | `{ type, id }` del sujeto procesado; `id` apunta a la colección del módulo dueño según `type`. |
 | `status` | enum | Sí | `succeeded`, `failed`, `skipped`, `excluded`, `reprocessed` (§8.11). |
@@ -665,7 +667,7 @@ Convenciones de la guía §5: todos los documentos llevan `tenantId`, `createdAt
 | `ownerModule`, `ownerRole` | string | Sí | Módulo y rol (código de `roles` de T02) que resuelven la excepción. |
 | `message` | string | No | Detalle sin datos personales. |
 | `attempts` | int | Sí | Intentos. |
-| `reprocessRunId` | ObjectId | No | Ref. `bulkRuns`: corrida hija de reproceso. |
+| `reprocessRunId` | uniqueidentifier | No | Ref. `bulkRuns`: corrida hija de reproceso. |
 
 Índices: `{ tenantId: 1, bulkRunId: 1, status: 1 }`; `{ tenantId: 1, ownerRole: 1, status: 1 }`; `{ tenantId: 1, bulkRunId: 1, itemKey: 1 }` único.
 
@@ -750,17 +752,17 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 | `items` | object[] | No | Lote: `{ subjectRef, payload, status, result, error }` (hasta `PRM-WFL-013`; más allá, `bulkRuns`). |
 | `payload` | object | Sí | Parámetros validados por el esquema del tipo. |
 | `contentHash` | string | Sí | Huella para RN-WFL-043. |
-| `amount` | Decimal128 | No | Importe que define tramos. |
+| `amount` | DECIMAL(18,4) | No | Importe que define tramos. |
 | `currency` | string | No | `ARS` por defecto. |
 | `riskAttributes` | object | No | Valores evaluados por la política. |
 | `reason` | string | Sí | Motivo. |
-| `evidenceDocumentIds` | ObjectId[] | Cond. | Si `evidenceRequired`. |
-| `requestedBy`, `requestedAt` | ObjectId / date | Sí | Solicitante. |
-| `approvalRequestId` | ObjectId | No | Aprobación. |
+| `evidenceDocumentIds` | uniqueidentifier[] | Cond. | Si `evidenceRequired`. |
+| `requestedBy`, `requestedAt` | uniqueidentifier / date | Sí | Solicitante. |
+| `approvalRequestId` | uniqueidentifier | No | Aprobación. |
 | `status` | enum | Sí | §8.1. |
 | `executionAttempts`, `lastError` | int / object | No | Sin secretos. |
 | `result` | object | No | Resumen funcional del efecto. |
-| `reversesOperationId` | ObjectId | No | Reversión. |
+| `reversesOperationId` | uniqueidentifier | No | Reversión. |
 | `correlationId` | string | Sí | Traza. |
 | `deadlines` | object | Sí | `{ decisionDueAt, executionDueAt }`. |
 
@@ -770,7 +772,7 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `operationId` | ObjectId | Sí | Ref. `operations`. |
+| `operationId` | uniqueidentifier | Sí | Ref. `operations`. |
 | `order` | int | Sí | Orden del paso. |
 | `module`, `command` | string | Sí | Módulo y comando que ejecuta el paso (`actionCatalog.code`). |
 | `params` | object | Sí | Parámetros validados por `actionCatalog.paramsSchema`. |
@@ -803,12 +805,12 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 |---|---|---|---|
 | `code` | string | Sí | Único por tenant (`WF-<COD>-<nombre>`). |
 | `scope` | enum | Sí | `platformTemplate`, `tenant`. |
-| `basedOnTemplateId` | ObjectId | No | Plantilla adoptada: ref. `workflowDefinitions` con `scope = platformTemplate`. |
+| `basedOnTemplateId` | uniqueidentifier | No | Plantilla adoptada: ref. `workflowDefinitions` con `scope = platformTemplate`. |
 | `nameKey`, `descriptionKey` | string | Sí | Diccionario. |
 | `ownerModule` | string | Sí | Módulo funcional (por ejemplo `crm`). |
 | `subjectTypes` | string[] | Sí | Sujetos admitidos. |
 | `channels` | enum[] | Sí | `admin`, `pwaMember`, `pwaEmployee`, `pwaField`, `public`, `api`. |
-| `currentVersionId`, `draftVersionId` | ObjectId | No | Ref. `workflowVersions`. |
+| `currentVersionId`, `draftVersionId` | uniqueidentifier | No | Ref. `workflowVersions`. |
 | `status` | enum | Sí | `active`, `retired` (§8.11). |
 | `extensionPoints` | string[] | No | Partes editables si viene de plantilla. |
 
@@ -816,7 +818,7 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `workflowDefinitionId`, `number` | ObjectId / int | Sí | `workflowDefinitionId` → `workflowDefinitions` (antes `definitionId`; nombre canónico de T05 §7.2 y §7.4.6); `number` es el número de versión (no es referencia). Únicos juntos. |
+| `workflowDefinitionId`, `number` | uniqueidentifier / int | Sí | `workflowDefinitionId` → `workflowDefinitions` (antes `definitionId`; nombre canónico de T05 §7.2 y §7.4.6); `number` es el número de versión (no es referencia). Únicos juntos. |
 | `status` | enum | Sí | `draft`, `inReview`, `published`, `retired`. |
 | `nodes[]` | object[] | Sí | `{ id, kind: start/humanTask/approval/action/waitEvent/timer/decision/parallelSplit/parallelJoin/subprocess/end, nameKey, assignment, formVersionId, slaPolicyId, actionCode, actionParams, eventType, correlation, timeout, conditions, approvalPolicyCode, visibleToRequester, publicStatusKey }`. |
 | `edges[]` | object[] | Sí | `{ from, to, condition, nameKey }`. |
@@ -831,14 +833,14 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | string | Sí | Según secuencia de la definición. |
-| `workflowDefinitionId`, `workflowVersionId` | ObjectId | Sí | Versión fija: ref. `workflowDefinitions` y `workflowVersions` (antes `definitionId`, `versionId`; nombres canónicos de T05 §7.2 y §7.4.6). |
+| `workflowDefinitionId`, `workflowVersionId` | uniqueidentifier | Sí | Versión fija: ref. `workflowDefinitions` y `workflowVersions` (antes `definitionId`, `versionId`; nombres canónicos de T05 §7.2 y §7.4.6). |
 | `subjectRef`, `relatedRefs[]` | object | Sí / No | Sujetos. |
 | `requester` | object | Sí | `{ kind: member/employee/system/public, userId, personId }`. |
 | `channel` | enum | Sí | Canal de inicio. |
 | `status` | enum | Sí | §8.2. |
 | `currentNodes[]` | object[] | Sí | `{ nodeId, enteredAt, taskIds[], timerIds[] }`. |
 | `data` | object | Sí | Variables de la instancia (validadas). |
-| `formSubmissionIds[]`, `documentIds[]` | ObjectId[] | No | Presentaciones y adjuntos. |
+| `formSubmissionIds[]`, `documentIds[]` | uniqueidentifier[] | No | Presentaciones y adjuntos. |
 | `sla` | object | No | `{ policyId, dueAt, pausedMs, breached }`. |
 | `dueAt`, `expiredActionsExecutedAt` | date | No | Vencimiento del trámite (RN-WFL-035). |
 | `publicStatusKey` | string | No | Estado visible al socio. |
@@ -851,7 +853,7 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `workflowInstanceId` | ObjectId | Sí | Ref. `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6). |
+| `workflowInstanceId` | uniqueidentifier | Sí | Ref. `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6). |
 | `at` | date | Sí | Momento. |
 | `kind` | enum | Sí | `nodeEntered`, `nodeCompleted`, `transition`, `comment`, `documentAdded`, `slaPaused`, `slaResumed`, `reassigned`, `migrated`. |
 | `nodeId` | string | No | Nodo de `workflowVersions.nodes[]`. |
@@ -879,7 +881,7 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `targetRef` | object | Sí | `{ type: instance/task/approvalStep, id }` → `workflowInstances`, `tasks` o `approvalSteps`. |
-| `slaPolicyId` | ObjectId | Sí | Ref. `slaPolicies` (antes `policyId`; nombre canónico de T05 §7.2 y §7.4.6); mismo nombre que en `workflowVersions.nodes[]` y `approvalPolicies.rules[].steps[]`. |
+| `slaPolicyId` | uniqueidentifier | Sí | Ref. `slaPolicies` (antes `policyId`; nombre canónico de T05 §7.2 y §7.4.6); mismo nombre que en `workflowVersions.nodes[]` y `approvalPolicies.rules[].steps[]`. |
 | `startedAt`, `dueAt` | date | Sí | Inicio y vencimiento. |
 | `nextThresholdAt` | date | No | Próximo umbral. |
 | `thresholdsFired[]` | object[] | No | `{ percent, at }`. |
@@ -893,7 +895,7 @@ Semilla de tipos (45). La política por defecto la ajusta cada tenant:
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `code`, `nameKey` | string | Sí | Identificación (en `formDefinitions`; `code` único por tenant). |
-| `formDefinitionId` | ObjectId | Sí | Solo en `formVersions`: ref. `formDefinitions` (T05 COL-WFL-18; antes decía COL-WFL-17, que es otra colección). |
+| `formDefinitionId` | uniqueidentifier | Sí | Solo en `formVersions`: ref. `formDefinitions` (T05 COL-WFL-18; antes decía COL-WFL-17, que es otra colección). |
 | `version`, `status` | int / enum | Sí | Solo en `formVersions`: número de versión y `draft`, `published`, `retired`. Únicos `{ formDefinitionId, version }`. |
 | `fields[]` | object[] | Sí | `{ key, kind (§5.6), labelKey, helpKey, required, requiredWhen, visibleWhen, editableBy: requester/operator/both, validations, dataSourceCode, dataSourceParams, documentTypeCode, currency, decimals, min, max, pattern, options[], calculated (expresión declarativa), piiLevel }`. |
 | `sections[]` | object[] | No | Agrupación y orden. |
@@ -911,7 +913,7 @@ Tabla combinada conservada como registro; desde el 5-11-2026 cada colección tie
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `formDefinitionId` | ObjectId | Sí | Ref. `formDefinitions` (COL-WFL-18). |
+| `formDefinitionId` | uniqueidentifier | Sí | Ref. `formDefinitions` (COL-WFL-18). |
 | `version` | int | Sí | Número de versión. Único `{ formDefinitionId, version }`. |
 | `status` | enum | Sí | `draft`, `published`, `retired` (§8.11). |
 | `fields[]` | object[] | Sí | Igual que en la tabla anterior (§5.6). |
@@ -924,14 +926,14 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `formVersionId` | ObjectId | Sí | Ref. `formVersions`. |
-| `workflowInstanceId` | ObjectId | No | Ref. `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6). |
+| `formVersionId` | uniqueidentifier | Sí | Ref. `formVersions`. |
+| `workflowInstanceId` | uniqueidentifier | No | Ref. `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6). |
 | `submittedBy` | object | Sí | `{ kind: member/employee/public, userId, personId }`; `userId` → `memberships` (T02), `personId` → `persons` (M01). |
 | `channel` | enum | Sí | Canal (los de `workflowDefinitions.channels`). |
-| `values` | object | Sí | Valores tipados; importes `Decimal128`. |
-| `documentIds` | ObjectId[] | No | Ref. `documents`. |
+| `values` | object | Sí | Valores tipados; importes `DECIMAL(18,4)`. |
+| `documentIds` | uniqueidentifier[] | No | Ref. `documents`. |
 | `hash` | string | Sí | Huella de la presentación. |
-| `supersedesSubmissionId` | ObjectId | No | Ref. `formSubmissions` (presentación que reemplaza). |
+| `supersedesSubmissionId` | uniqueidentifier | No | Ref. `formSubmissions` (presentación que reemplaza). |
 | `verification[]` | object[] | No | `{ fieldKey, source, status, detail }`. |
 | `clientMutationId` | string | No | Idempotencia del cliente. |
 
@@ -978,19 +980,19 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | `rules[]` | object[] | Sí | Evaluadas en orden: `{ when: { amountFrom, amountTo, currency, areaIds, branchIds, serviceIds, categoryIds, risk: { attribute, op, value } }, mode: none/single/sequential/parallelAll/parallelQuorum/committee/dualControl/jointSignature, steps[] { order, assignees: { roles[], areaRole, users[], signerRegistryCode, relation }, quorum, amountLimitCheck, slaPolicyId, strongAuth }, autoDecisionReasonKey }`. |
 | `sod` | object | Sí | `{ requesterCannotApprove: true, distinctPerStep: true, extraRules[] (ref T02 sodRules) }`. |
 | `onExpire` | enum | Sí | `expire`, `escalate`. |
-| `approvalRequestId` | ObjectId | No | Aprobación de la política (PRM-WFL-030). |
+| `approvalRequestId` | uniqueidentifier | No | Aprobación de la política (PRM-WFL-030). |
 
 **`approvalRequests`** (tenant)
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | string | Sí | `APR-AAAA-NNNNNN`. |
-| `approvalPolicyId`, `policyVersion`, `ruleIndex` | ObjectId / int / int | Sí | Regla aplicada; `approvalPolicyId` → `approvalPolicies` (antes `policyId`; nombre canónico de T05 §7.2 y §7.4.6). |
+| `approvalPolicyId`, `policyVersion`, `ruleIndex` | uniqueidentifier / int / int | Sí | Regla aplicada; `approvalPolicyId` → `approvalPolicies` (antes `policyId`; nombre canónico de T05 §7.2 y §7.4.6). |
 | `sourceRef` | object | Sí | `{ type: operation/workflowInstance/configVersion/document/other, id }`. |
 | `summary` | object | Sí | Resumen funcional (`titleKey`, importe, sujeto, motivo). |
 | `contentHash` | string | Sí | Huella. |
-| `amount`, `currency` | Decimal128 / string | No | Tramo. |
-| `requestedBy` | ObjectId | Sí | Solicitante. |
+| `amount`, `currency` | DECIMAL(18,4) / string | No | Tramo. |
+| `requestedBy` | uniqueidentifier | Sí | Solicitante. |
 | `status` | enum | Sí | §8.4. |
 | `currentStepOrder` | int | No | Secuencial. |
 | `decidedAt`, `outcome` | date / enum | No | `approved`, `rejected`, `expired`, `withdrawn`. |
@@ -1002,14 +1004,14 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `approvalRequestId` | ObjectId | Sí | Ref. `approvalRequests`. |
+| `approvalRequestId` | uniqueidentifier | Sí | Ref. `approvalRequests`. |
 | `order` | int | Sí | Orden. |
 | `mode` | enum | Sí | Modo de `approvalPolicies.rules[].mode`. |
 | `assigneeResolution` | object | Sí | Snapshot de candidatos. |
 | `quorum` | int | No | Quórum. |
 | `status` | enum | Sí | `waiting`, `active`, `approved`, `rejected`, `expired`, `skipped` (§8.11). |
 | `activatedAt`, `dueAt` | date | No | Plazos. |
-| `slaTimerId` | ObjectId | No | Ref. `slaTimers`. |
+| `slaTimerId` | uniqueidentifier | No | Ref. `slaTimers`. |
 | `escalations[]` | object[] | No | `{ at, kind, addedAssignees }`. |
 
 Índice `{ tenantId: 1, approvalRequestId: 1, order: 1 }`.
@@ -1018,13 +1020,13 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `approvalRequestId` | ObjectId | Sí | Ref. `approvalRequests`. |
-| `approvalStepId` | ObjectId | Sí | Ref. `approvalSteps` (antes `stepId`; nombre canónico de T05 §7.2 y §7.4.6). |
-| `decidedBy`, `onBehalfOf` | ObjectId | Sí / No | Aprobador y delegante; ref. `memberships` (T02). |
-| `delegationId` | ObjectId | No | Ref. `delegations`. |
+| `approvalRequestId` | uniqueidentifier | Sí | Ref. `approvalRequests`. |
+| `approvalStepId` | uniqueidentifier | Sí | Ref. `approvalSteps` (antes `stepId`; nombre canónico de T05 §7.2 y §7.4.6). |
+| `decidedBy`, `onBehalfOf` | uniqueidentifier | Sí / No | Aprobador y delegante; ref. `memberships` (T02). |
+| `delegationId` | uniqueidentifier | No | Ref. `delegations`. |
 | `decision` | enum | Sí | `approve`, `reject`, `abstain`. |
 | `comment` | string | No | Comentario. |
-| `evidenceDocumentIds` | ObjectId[] | No | Ref. `documents`. |
+| `evidenceDocumentIds` | uniqueidentifier[] | No | Ref. `documents`. |
 | `contentHash` | string | Sí | Huella decidida. |
 | `authMethod` | enum | Sí | `password+totp`, `webauthn`, `pwaStepUp`. |
 | `ip` | string | No | Seudonimizada. |
@@ -1037,12 +1039,12 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `delegatorUserId`, `delegateUserId` | ObjectId | Sí | Delegante y delegado; ref. `memberships` (T02). |
+| `delegatorUserId`, `delegateUserId` | uniqueidentifier | Sí | Delegante y delegado; ref. `memberships` (T02). |
 | `from`, `to` | date | Sí | Vigencia. |
 | `scope` | object | Sí | `{ operationTypeCodes[], policyCodes[], areaIds[], maxAmount, currency }`. |
 | `reason` | string | Sí | Motivo. |
 | `status` | enum | Sí | `scheduled`, `active`, `ended`, `revoked` (§8.10). |
-| `createdBy` | ObjectId | Sí | Ref. `memberships` (T02). |
+| `createdBy` | uniqueidentifier | Sí | Ref. `memberships` (T02). |
 
 Índice `{ tenantId: 1, delegateUserId: 1, status: 1, to: 1 }`.
 
@@ -1057,18 +1059,18 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | `titleKey` o `title` | string | Sí | Diccionario o texto del usuario. |
 | `description` | string | No | Texto. |
 | `subjectRefs` | object[] | No | Vínculos. |
-| `workflowInstanceId`, `nodeId` | ObjectId / string | No | Workflow: ref. `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6) y nodo de la versión. |
+| `workflowInstanceId`, `nodeId` | uniqueidentifier / string | No | Workflow: ref. `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6) y nodo de la versión. |
 | `assignee` | object | Sí | `{ kind: user/area/role/queue, id }`. |
-| `claimedBy`, `claimedAt` | ObjectId / date | No | Toma de cola. |
+| `claimedBy`, `claimedAt` | uniqueidentifier / date | No | Toma de cola. |
 | `priority` | int | Sí | 0, 1, 25, 50, 75, 100. |
 | `dueAt`, `startAt` | date | No | Plazos. |
 | `recurrence` | object | No | `{ rrule, timezone, seriesId, occurrenceDate }`. |
 | `checklist[]` | object[] | No | `{ key, labelKey, done, doneBy, doneAt }`. |
 | `evidenceRequired` | object | No | `{ documentTypeCodes[], minCount }`. |
-| `formVersionId`, `formSubmissionId` | ObjectId | No | Formulario de la tarea. |
+| `formVersionId`, `formSubmissionId` | uniqueidentifier | No | Formulario de la tarea. |
 | `status` | enum | Sí | §8.5. |
 | `completion` | object | No | `{ by, at, outcome, comment, documentIds[] }`. |
-| `slaTimerId` | ObjectId | No | SLA. |
+| `slaTimerId` | uniqueidentifier | No | SLA. |
 | `origin` | object | Sí | `{ module, ref }`. Las tareas `review` llevan además `origin.dedupKey` (p. ej. `contractId + period` en RN-MOR-144) para que el módulo que la pide no cree dos tareas por el mismo motivo. |
 
 Índices: `{ tenantId: 1, "origin.module": 1, "origin.dedupKey": 1 }` único parcial (solo tareas `review` abiertas con `dedupKey`; HUECO-SAN-02); `{ tenantId: 1, number: 1 }` único; `{ tenantId: 1, "assignee.kind": 1, "assignee.id": 1, status: 1, dueAt: 1 }`; `{ tenantId: 1, "recurrence.seriesId": 1, "recurrence.occurrenceDate": 1 }` único parcial.
@@ -1077,11 +1079,11 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `taskId`, `workflowInstanceId` | ObjectId | Cond. | Uno de los dos: ref. `tasks` o `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6). |
+| `taskId`, `workflowInstanceId` | uniqueidentifier | Cond. | Uno de los dos: ref. `tasks` o `workflowInstances` (antes `instanceId`; nombre canónico de T05 §7.2 y §7.4.6). |
 | `body` | string | Sí | Texto plano con menciones `@userId`. |
-| `mentions[]` | ObjectId[] | No | Ref. `memberships` (T02). |
+| `mentions[]` | uniqueidentifier[] | No | Ref. `memberships` (T02). |
 | `visibility` | enum | Sí | `internal`, `public`. |
-| `documentIds` | ObjectId[] | No | Ref. `documents`. |
+| `documentIds` | uniqueidentifier[] | No | Ref. `documents`. |
 | `editedAt` | date | No | Edición. |
 
 Índice `{ tenantId: 1, taskId: 1, createdAt: 1 }`.
@@ -1091,11 +1093,11 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `sourceType` | enum | Sí | `task`, `approvalStep`, `iamAuthorization`, `crmCase`, `workOrder`, `visit`, `bulkException`, `operationalInbox`, `syncConflict`, `activityOccurrence`, `signature`, `deskTransfer`. |
-| `sourceModule`, `sourceId` | string / ObjectId | Sí | Origen; `sourceModule` es el código de tres letras del módulo (no es referencia); `sourceId` apunta a la colección del módulo dueño según `sourceType` (por ejemplo `tasks`, `approvalSteps`, `authorizationRequests` de T02, `crmCases` de M09, `workOrders` de M10). |
+| `sourceModule`, `sourceId` | string / uniqueidentifier | Sí | Origen; `sourceModule` es el código de tres letras del módulo (no es referencia); `sourceId` apunta a la colección del módulo dueño según `sourceType` (por ejemplo `tasks`, `approvalSteps`, `authorizationRequests` de T02, `crmCases` de M09, `workOrders` de M10). |
 | `titleKey`, `titleParams` | string / object | Sí | Diccionario. |
 | `subjectSummary` | object | No | Sujeto resumido (sin datos sensibles innecesarios). |
 | `assignees` | object[] | Sí | `{ kind: user/area/role/queue, id }`. |
-| `claimedBy` | ObjectId | No | Toma. |
+| `claimedBy` | uniqueidentifier | No | Toma. |
 | `priority`, `dueAt` | int / date | No | Orden. |
 | `dueBucket` | enum | Sí | `overdue`, `today`, `tomorrow`, `next7`, `future`, `none` (recalculado por job y al leer). |
 | `actions` | string[] | Sí | Acciones en línea permitidas. |
@@ -1110,9 +1112,9 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `userId`, `teamRef` | ObjectId / object | Cond. | Uno de los dos; `userId` → `memberships` (T02); `teamRef` `{ kind: area/crew, id }`. |
+| `userId`, `teamRef` | uniqueidentifier / object | Cond. | Uno de los dos; `userId` → `memberships` (T02); `teamRef` `{ kind: area/crew, id }`. |
 | `sourceType` | enum | Sí | `crmCalendar`, `visit`, `queueAppointment`, `meeting`, `leave`, `taskDue`, `approvalDue`, `holiday`, `activityOccurrence`. |
-| `sourceId` | ObjectId | Sí | Colección del módulo dueño según `sourceType`. |
+| `sourceId` | uniqueidentifier | Sí | Colección del módulo dueño según `sourceType`. |
 | `start`, `end` | date | Sí | `end` exclusivo si `allDay`. |
 | `allDay` | bool | Sí | Día completo. |
 | `titleKey`, `title` | string | Sí | Uno de los dos. |
@@ -1127,7 +1129,7 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `userId` | ObjectId | Sí | Ref. `memberships` (T02). |
+| `userId` | uniqueidentifier | Sí | Ref. `memberships` (T02). |
 | `tokenHash` | string | Sí | Hash del token del feed. |
 | `scope` | enum | Sí | `own`, `team`. |
 | `includeSources[]` | enum[] | No | Valores de `agendaEntries.sourceType`. |
@@ -1159,10 +1161,10 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | string | No | Si el tipo numera (secuencia). |
-| `documentTypeId` | ObjectId | Sí | Ref. `documentTypes` (T05 §7.2). |
+| `documentTypeId` | uniqueidentifier | Sí | Ref. `documentTypes` (T05 §7.2). |
 | `documentTypeCode` | string | Sí | Copia desnormalizada de `documentTypes.code` para filtros e índices. |
 | `title` | string | Sí | Título (sin datos sensibles innecesarios). |
-| `currentVersionId`, `acceptedVersionIds[]` | ObjectId | Sí / No | Versiones; ref. `documentVersions`. Los vínculos con sujetos van en `documentLinks`. |
+| `currentVersionId`, `acceptedVersionIds[]` | uniqueidentifier | Sí / No | Versiones; ref. `documentVersions`. Los vínculos con sujetos van en `documentLinks`. |
 | `metadata` | object | No | Validado por `metadataSchema`. |
 | `sensitivity` | enum | Sí | Heredada o elevada. |
 | `origin` | enum | Sí | `upload`, `generated`, `signed`, `imported`, `scanned`, `email`. |
@@ -1170,7 +1172,7 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | `status` | enum | Sí | §8.6. |
 | `expiresAt` | date | No | Vencimiento del contenido. |
 | `retention` | object | Sí | `{ policyCode, retainUntil, basisDate }`. |
-| `legalHoldIds[]` | ObjectId[] | No | Holds; ref. `legalHolds` (T08 COL-NFR-07). |
+| `legalHoldIds[]` | uniqueidentifier[] | No | Holds; ref. `legalHolds` (T08 COL-NFR-07). |
 | `voided` | object | No | `{ at, by, reason }`. |
 | `legacy` | object | No | `{ source: ADJUNTOS/PROCOOPAR_ADJUNTOS/folder, key, path }`. |
 
@@ -1180,16 +1182,16 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `documentId` | ObjectId | Sí | Ref. `documents`. |
+| `documentId` | uniqueidentifier | Sí | Ref. `documents`. |
 | `number` | int | Sí | Número de versión. |
-| `storedFileId`, `thumbnailStoredFileId` | ObjectId | Sí / No | Ref. `storedFiles` (T01) (antes `thumbnailFileId`; nombre con rol de T05 §7.2). |
+| `storedFileId`, `thumbnailStoredFileId` | uniqueidentifier | Sí / No | Ref. `storedFiles` (T01) (antes `thumbnailFileId`; nombre con rol de T05 §7.2). |
 | `sha256`, `sizeBytes`, `mimeType`, `pages` | string / long / string / int | Sí | Huella y metadatos del binario. |
 | `scanStatus` | enum | Sí | Espejo de `storedFiles.scanStatus` de T01: `pending`, `clean`, `infected`, `failed`. Valores declarados el 5-11-2026: antes el campo no tenía valores. |
-| `uploadedBy`, `uploadedAt` | ObjectId / date | Sí | `uploadedBy` → `memberships` (T02). |
+| `uploadedBy`, `uploadedAt` | uniqueidentifier / date | Sí | `uploadedBy` → `memberships` (T02). |
 | `channel` | enum | Sí | Canal de carga. |
 | `note` | string | No | Nota. |
 | `accepted` | object | No | `{ at, by, act: { type, id } }`. |
-| `signatures[]` | ObjectId[] | No | Ref. `signatureRequests`. |
+| `signatures[]` | uniqueidentifier[] | No | Ref. `signatureRequests`. |
 | `pdfa` | bool | Sí | PDF/A. |
 
 Índice `{ tenantId: 1, documentId: 1, number: 1 }` único; `{ tenantId: 1, sha256: 1 }`.
@@ -1198,10 +1200,10 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `documentId` | ObjectId | Sí | Ref. `documents`. |
-| `subjectType`, `subjectId` | string / ObjectId | Sí | Sujeto vinculado; `subjectType` es el tipo de sujeto (no es referencia); `subjectId` apunta a la colección del módulo dueño según `subjectType`. |
+| `documentId` | uniqueidentifier | Sí | Ref. `documents`. |
+| `subjectType`, `subjectId` | string / uniqueidentifier | Sí | Sujeto vinculado; `subjectType` es el tipo de sujeto (no es referencia); `subjectId` apunta a la colección del módulo dueño según `subjectType`. |
 | `role` | enum | Sí | `main`, `evidence`, `attachment`, `generatedFor`, `signedBy`. |
-| `linkedBy`, `linkedAt` | ObjectId / date | Sí | `linkedBy` → `memberships` (T02). |
+| `linkedBy`, `linkedAt` | uniqueidentifier / date | Sí | `linkedBy` → `memberships` (T02). |
 | `unlinkedAt` | date | No | Desvinculación. |
 
 Índices: `{ tenantId: 1, subjectType: 1, subjectId: 1, linkedAt: -1 }`; `{ tenantId: 1, documentId: 1, subjectType: 1, subjectId: 1 }` único (T05 COL-WFL-35).
@@ -1210,15 +1212,15 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `documentId` | ObjectId | Sí | Ref. `documents`. |
-| `versionId` | ObjectId | No | Ref. `documentVersions` (fija la versión). |
+| `documentId` | uniqueidentifier | Sí | Ref. `documents`. |
+| `versionId` | uniqueidentifier | No | Ref. `documentVersions` (fija la versión). |
 | `tokenHash` | string | Sí | Hash del token. |
 | `expiresAt` | date | Sí | Vencimiento. |
 | `maxDownloads`, `downloads` | int | No / Sí | Límite y contador. |
 | `passwordHash` | string | No | Contraseña opcional. |
 | `recipientNote` | string | No | Nota para el destinatario. |
 | `status` | enum | Sí | `active`, `expired`, `revoked` (§8.11). |
-| `createdBy` | ObjectId | Sí | Ref. `memberships` (T02). |
+| `createdBy` | uniqueidentifier | Sí | Ref. `memberships` (T02). |
 
 Índice `{ tokenHash: 1 }` único (lista blanca).
 
@@ -1230,8 +1232,8 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `documentId` | ObjectId | Sí | Ref. `documents`. |
-| `versionId` | ObjectId | No | Ref. `documentVersions`. |
+| `documentId` | uniqueidentifier | Sí | Ref. `documents`. |
+| `versionId` | uniqueidentifier | No | Ref. `documentVersions`. |
 | `action` | enum | Sí | `view`, `download`, `shareLinkAccess`, `export`. |
 | `actor` | object | Sí | `{ userId }` (→ `memberships` de T02) o `{ shareLinkId }` (→ `shareLinks`). |
 | `at` | date | Sí | Momento. |
@@ -1252,8 +1254,8 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | `ownerModule` | string | Sí | Dueño. |
 | `dataContractCode` | string | Sí | Ref. `templateDataContracts.code`. |
 | `scope` | enum | Sí | `platformTemplate`, `tenant`. |
-| `basedOnTemplateId` | ObjectId | No | Ref. `documentTemplates` con `scope = platformTemplate`. |
-| `currentVersionId` | ObjectId | No | Ref. `templateVersions`. |
+| `basedOnTemplateId` | uniqueidentifier | No | Ref. `documentTemplates` con `scope = platformTemplate`. |
+| `currentVersionId` | uniqueidentifier | No | Ref. `templateVersions`. |
 | `requiresApproval` | bool | Sí | Fiscales y legales. |
 | `paper` | enum | Sí | `A4`, `Letter`, `Legal`, `ticket80`. |
 | `copies[]` | enum[] | Sí | `original`, `duplicate`, `triplicate`. |
@@ -1266,17 +1268,17 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `documentTemplateId` | ObjectId | Sí | Ref. `documentTemplates` (antes `templateId`; nombre de T05 COL-WFL-45). |
+| `documentTemplateId` | uniqueidentifier | Sí | Ref. `documentTemplates` (antes `templateId`; nombre de T05 COL-WFL-45). |
 | `number` | int | Sí | Número de versión; único con `documentTemplateId`. |
 | `status` | enum | Sí | `draft`, `inReview`, `published`, `retired`. |
 | `html`, `css`, `header`, `footer` | string | Sí / Sí / No / No | Contenido. |
-| `assets[]` | ObjectId[] | No | Ref. `storedFiles` (T01). |
+| `assets[]` | uniqueidentifier[] | No | Ref. `storedFiles` (T01). |
 | `dataContractVersion` | int | Sí | Versión de `templateDataContracts`. |
 | `validFrom` | date | No | Vigencia. |
 | `pdfa` | bool | Sí | PDF/A. |
 | `watermarkRules[]` | object[] | No | Marcas de agua. |
-| `approvalRequestId` | ObjectId | No | Ref. `approvalRequests`. |
-| `previewStoredFileId` | ObjectId | No | Ref. `storedFiles` (T01) (antes `previewFileId`; nombre con rol de T05 §7.2). |
+| `approvalRequestId` | uniqueidentifier | No | Ref. `approvalRequests`. |
+| `previewStoredFileId` | uniqueidentifier | No | Ref. `storedFiles` (T01) (antes `previewFileId`; nombre con rol de T05 §7.2). |
 | `changeNote` | string | No | Nota de cambio. |
 
 Índice `{ tenantId: 1, documentTemplateId: 1, number: 1 }` único.
@@ -1297,14 +1299,14 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `templateVersionId` | ObjectId | Sí | Ref. `templateVersions`. |
+| `templateVersionId` | uniqueidentifier | Sí | Ref. `templateVersions`. |
 | `dataContractVersion` | int | Sí | Versión del contrato. |
 | `sourceRef` | object | Sí | `{ type, id }` del acto que pide el render. |
 | `idempotencyKey` | string | Sí | `<sourceType>:<sourceId>:<templateVersionId>:<copy>`. |
 | `mode` | enum | Sí | `sync`, `job`. |
-| `bulkRunId` | ObjectId | No | Ref. `bulkRuns`. |
+| `bulkRunId` | uniqueidentifier | No | Ref. `bulkRuns`. |
 | `status` | enum | Sí | `queued`, `rendering`, `succeeded`, `failed` (§8.11). |
-| `documentId`, `versionId` | ObjectId | No | Resultado: ref. `documents` y `documentVersions`. |
+| `documentId`, `versionId` | uniqueidentifier | No | Resultado: ref. `documents` y `documentVersions`. |
 | `durationMs` | int | No | Duración. |
 | `error` | object | No | Sin secretos. |
 
@@ -1335,7 +1337,7 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `numberingSequenceId` | ObjectId | Sí | Ref. `numberingSequences` (antes `sequenceId`; nombre canónico de T05 §7.2 y §7.4.6). |
+| `numberingSequenceId` | uniqueidentifier | Sí | Ref. `numberingSequences` (antes `sequenceId`; nombre canónico de T05 §7.2 y §7.4.6). |
 | `value` | long | Sí | Valor asignado. |
 | `formatted` | string | Sí | Valor con máscara. |
 | `assignedTo` | object | Sí | `{ type, id }` del documento o acto numerado. |
@@ -1353,7 +1355,7 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 |---|---|---|---|
 | `code` | string | Sí | Único por tenant. |
 | `level` | enum | Sí | `handwritten`, `electronic`, `digital`. |
-| `providerConnectionId` | ObjectId | Cond. | Ref. `integrationConnections` (T06); obligatorio para `digital`. |
+| `providerConnectionId` | uniqueidentifier | Cond. | Ref. `integrationConnections` (T06); obligatorio para `digital`. |
 | `otpChannels[]` | enum[] | No | Canales de OTP. |
 | `evidence` | object | Sí | `{ geo, photo, deviceInfo, idDocument }`. |
 | `legalTextKey` | string | Sí | Texto legal (`dict:`). |
@@ -1368,12 +1370,12 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | string | Sí | `FIR-AAAA-NNNNNN`. |
-| `documentId` | ObjectId | Sí | Ref. `documents`. |
-| `versionId`, `signedVersionId` | ObjectId | Sí / No | Versión a firmar y versión firmada: ref. `documentVersions`. |
-| `signatureProfileId` | ObjectId | Sí | Ref. `signatureProfiles` (COL-WFL-47) (antes `profileId`; T05 §7.2: la referencia usa el nombre de la tabla). |
+| `documentId` | uniqueidentifier | Sí | Ref. `documents`. |
+| `versionId`, `signedVersionId` | uniqueidentifier | Sí / No | Versión a firmar y versión firmada: ref. `documentVersions`. |
+| `signatureProfileId` | uniqueidentifier | Sí | Ref. `signatureProfiles` (COL-WFL-47) (antes `profileId`; T05 §7.2: la referencia usa el nombre de la tabla). |
 | `order` | enum | Sí | `sequential`, `parallel`. |
 | `status` | enum | Sí | §8.7. |
-| `requestedBy` | ObjectId | Sí | Ref. `memberships` (T02). |
+| `requestedBy` | uniqueidentifier | Sí | Ref. `memberships` (T02). |
 | `sourceRef` | object | Sí | `{ type, id }` del acto. |
 | `expiresAt` | date | Sí | Vencimiento. |
 | `externalRef` | string | No | Identificador del proveedor (T06); no es referencia interna. |
@@ -1385,7 +1387,7 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `signatureRequestId` | ObjectId | Sí | Ref. `signatureRequests`. |
+| `signatureRequestId` | uniqueidentifier | Sí | Ref. `signatureRequests`. |
 | `order` | int | Sí | Orden. |
 | `party` | object | Sí | `{ kind: user/member/employee/external/signerRegistry, id, name, taxId (enmascarado en vistas) }`; `id` → `memberships` (T02), `persons` (M01), `employees` (M16) o `treasuryAccountSigners` (M14) según `kind`; `taxId` es un dato, no una referencia. |
 | `role` | enum | Sí | `signer`, `approver`, `witness`. |
@@ -1400,10 +1402,10 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `signatureParticipantId` | ObjectId | Sí | Ref. `signatureParticipants` (antes `participantId`; nombre canónico de T05 §7.2 y §7.4.6). |
+| `signatureParticipantId` | uniqueidentifier | Sí | Ref. `signatureParticipants` (antes `participantId`; nombre canónico de T05 §7.2 y §7.4.6). |
 | `level` | enum | Sí | Nivel de `signatureProfiles.level`. |
 | `documentSha256` | string | Sí | Huella firmada. |
-| `signatureImageStoredFileId` | ObjectId | Cond. | Ref. `storedFiles` (T01); manuscrita (antes `signatureImageFileId`; nombre con rol de T05 §7.2). |
+| `signatureImageStoredFileId` | uniqueidentifier | Cond. | Ref. `storedFiles` (T01); manuscrita (antes `signatureImageFileId`; nombre con rol de T05 §7.2). |
 | `otp` | object | No | `{ channel, verifiedAt }`. |
 | `geo`, `device` | object | No | Evidencias. |
 | `ip` | string | No | Seudonimizada. |
@@ -1424,11 +1426,11 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 | `subjectRef` | object | No | `{ type, id }` del sujeto principal. |
 | `title` | string | Sí | Carátula. |
 | `status` | enum | Sí | `open`, `inProgress`, `closed`, `archived` (§8.8). |
-| `responsibleAreaId` | ObjectId | No | Ref. `crmAreas` (M09) (PA-WFL-22, antes "PA-WFL-nn"; Asumida DEC-072; antes "`crmAreas` (M09) o `workAreas` (M16) [VERIFICAR: T05 §7.2 no declara el destino de las áreas responsables genéricas]"). |
+| `responsibleAreaId` | uniqueidentifier | No | Ref. `crmAreas` (M09) (PA-WFL-22, antes "PA-WFL-nn"; Asumida DEC-072; antes "`crmAreas` (M09) o `workAreas` (M16) [VERIFICAR: T05 §7.2 no declara el destino de las áreas responsables genéricas]"). |
 | `openedAt`, `closedAt` | date | Sí / No | Apertura y cierre. |
 | `foliation` | object | No | `{ enabled, lastFolio }`. |
-| `coverDocumentId` | ObjectId | No | Ref. `documents`. |
-| `legalHoldIds` | ObjectId[] | No | Ref. `legalHolds` (T08). |
+| `coverDocumentId` | uniqueidentifier | No | Ref. `documents`. |
+| `legalHoldIds` | uniqueidentifier[] | No | Ref. `legalHolds` (T08). |
 
 Índice `{ tenantId: 1, number: 1 }` único; `{ tenantId: 1, status: 1, kind: 1 }`.
 
@@ -1436,12 +1438,12 @@ Sujetos que usan `formVersions` (verificado el 5-11-2026; antes el anexo solo lo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `dossierId` | ObjectId | Sí | Ref. `dossiers`. |
+| `dossierId` | uniqueidentifier | Sí | Ref. `dossiers`. |
 | `order` | int | Sí | Orden. |
 | `entryType` | enum | Sí | `document`, `note`, `transfer`, `decision`, `instance`, `operation`. |
 | `ref` | object | Cond. | `{ type, id }` → `documents`, `workflowInstances` u `operations` según `entryType`. |
 | `folioFrom`, `folioTo` | int | No | Folios. |
-| `addedBy`, `addedAt` | ObjectId / date | Sí | `addedBy` → `memberships` (T02). |
+| `addedBy`, `addedAt` | uniqueidentifier / date | Sí | `addedBy` → `memberships` (T02). |
 
 Índice `{ tenantId: 1, dossierId: 1, order: 1 }` único.
 
@@ -1452,7 +1454,7 @@ El **expediente por sujeto** no tiene colección propia: es una vista sobre `doc
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `subjectRef` | object | Sí | `{ type, id }` del sujeto del expediente. |
-| `dossierId` | ObjectId | No | Ref. `dossiers` si el hecho pertenece a un expediente formal. |
+| `dossierId` | uniqueidentifier | No | Ref. `dossiers` si el hecho pertenece a un expediente formal. |
 | `eventId` | string | Sí | `eventId` del evento de origen (`outboxEvents` de T01); único con `subjectRef`. |
 | `type` | string | Sí | Tipo de evento (`eventTypes.type` con `timeline = true`). |
 | `sourceRef` | object | Sí | `{ module, type, id }` del objeto que produjo el hecho. |

@@ -444,6 +444,8 @@ La "Autogestión" de ProCoop es la terminal física (ATM/kiosco con lector de bi
 | 3050 | VAR | L | Excluir si ya está en lista de candidatos con el mismo tipo de notificación | Filtros de circulares | Migrar | PRM-MOR-P3-044 | `mor.candidatos.excluirMismoTipoNotificacion` | boolean | tenant | true | M08 MOR |
 
 ## 7. Módulo FINANCIACIONES (21 parámetros)
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 | V2 # | Tabla/canal | Tipo | Descripción ProCoop | Uso en código (resumido) | Decisión | PRM-ID | Clave nueva | Tipo nuevo | Ámbito | Default sugerido | Anexo destino |
 |---:|---|---|---|---|---|---|---|---|---|---|---|

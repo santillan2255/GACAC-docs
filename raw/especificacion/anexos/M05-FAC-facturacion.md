@@ -641,8 +641,10 @@ Decisión: **Replicar** (se conserva tal cual), **Mejorar** (se conserva con cam
 | RN-FAC-153 | Con descuento, el IVA se calcula sobre el neto con descuento. | `GetItCompV` sobre neto sin descuento (RN-02 §16.1) | Descartar el defecto (M11/M06) | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-**Campos comunes** (no se repiten en cada tabla): `tenantId` (ObjectId, obligatorio, primer campo de todo índice), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista). Los documentos económicos (`invoices`, `invoiceRelations`, `billedPeriods`, `paymentSlips`, `billingCycleClosures`) **no se borran ni se editan** después de emitidos: cambian solo sus campos de estado por transiciones auditadas. Excepción acotada (DEC-107): un comprobante con CAE en línea que ARCA rechaza, o que queda detrás de uno rechazado, cambia número y estado antes de autorizarse, y solo en `returnedToDraft` su contenido (RN-FAC-164). Dinero: `Decimal128` (marcado `Money`); cantidades y precios unitarios `Decimal128` (marcado `Dec`, hasta 6 decimales). Fechas en UTC; las fechas de negocio sin hora (`Date-only`) se guardan como `YYYY-MM-DD` interpretadas en la zona horaria del tenant.
+
+**Campos comunes** (no se repiten en cada tabla): `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista). Los documentos económicos (`invoices`, `invoiceRelations`, `billedPeriods`, `paymentSlips`, `billingCycleClosures`) **no se borran ni se editan** después de emitidos: cambian solo sus campos de estado por transiciones auditadas. Excepción acotada (DEC-107): un comprobante con CAE en línea que ARCA rechaza, o que queda detrás de uno rechazado, cambia número y estado antes de autorizarse, y solo en `returnedToDraft` su contenido (RN-FAC-164). Dinero: `DECIMAL(18,4)` (marcado `Money`); cantidades y precios unitarios `DECIMAL(18,4)` (marcado `Dec`, hasta 6 decimales). Fechas en UTC; las fechas de negocio sin hora (`Date-only`) se guardan como `YYYY-MM-DD` interpretadas en la zona horaria del tenant.
 
 ### 7.1 Ciclos, universos, plantillas y marcas
 
@@ -652,18 +654,18 @@ Decisión: **Replicar** (se conserva tal cual), **Mejorar** (se conserva con cam
 |---|---|---|---|
 | `code` | String | Sí | Código del tenant (ej. `AG-C1`). Único por tenant. |
 | `name` | String | Sí | Nombre visible. |
-| `serviceId` | ObjectId → M02 | Sí | Servicio facturado. |
-| `universeId` | ObjectId → `billingUniverses` | Sí | Universo de clientes. |
-| `templateId` | ObjectId → `billingTemplates` | Sí | Plantilla de corrida por defecto. |
+| `serviceId` | uniqueidentifier → M02 | Sí | Servicio facturado. |
+| `universeId` | uniqueidentifier → `billingUniverses` | Sí | Universo de clientes. |
+| `templateId` | uniqueidentifier → `billingTemplates` | Sí | Plantilla de corrida por defecto. |
 | `periodicity` | Enum `monthly, bimonthly, quarterly, semiannual, annual, onDemand` | Sí | Periodicidad. |
 | `calendar` | Object | Sí | `{ consumptionCutoff, periodEnd, runDate, issueDate, dueDates[1..N], nextDueDate }` (N = tope de vencimientos de PRM-FAC-163, por defecto 4; DEC-106; antes `dueDates[1..4]`); cada valor es una **expresión de fecha** `{ kind: fixedDay\|businessDay\|endOfMonthPlus\|daysFrom, value, from, shift: next\|previous\|none }`. |
-| `dueDateSchemeId` | ObjectId → `dueDateSchemes` | No | Trama por defecto. |
+| `dueDateSchemeId` | uniqueidentifier → `dueDateSchemes` | No | Trama por defecto. |
 | `deliveryDefaults` | Object | No | Canales por defecto y orden de impresión. |
 | `approvalPolicy` | Object | Sí | `{ requireSample, minApprovers, amountThreshold }`. |
 | `autoCreateRun` | Boolean | Sí | Crear lote borrador en `runDate` (RF-FAC-008). |
 | `status` | Enum `draft`, `published`, `inactive` | Sí | — |
 | `validFrom` / `validTo` | Date-only | Sí / No | Vigencia. |
-| `configVersionId` | ObjectId → T04 | Sí | Versión de configuración publicada. |
+| `configVersionId` | uniqueidentifier → T04 | Sí | Versión de configuración publicada. |
 
 Índices: `{tenantId, code}` único; `{tenantId, serviceId, status, validFrom}`. Origen ProCoop: `TIPO_FAC` (parte de calendario), `CALENDARIO`.
 
@@ -692,12 +694,12 @@ Decisión: **Replicar** (se conserva tal cual), **Mejorar** (se conserva con cam
 | `services` | Array `{ serviceId, periodRule, readingWindow: {from, to}, billWithOthers, ownVoucherType }` | Sí | Ex `PARSERFA`. |
 | `installments` | Object | No | `{ include, installmentTypes[], dueFrom, dueTo, includeDeferredInterest, groupId }`. |
 | `dueDateRules` | Array de expresiones (1..N; N = tope de PRM-FAC-163, por defecto 4; DEC-106; antes 1..4) + `nextDueDate` | Sí | — |
-| `dueDateSchemeId` | ObjectId | No | — |
+| `dueDateSchemeId` | uniqueidentifier | No | — |
 | `orderBy` | Enum `account, alphabetical, postalZsr, deliveryRoute, streetNumber` | Sí | — |
 | `options` | Object | Sí | `{ forceTariffTable: {enabled, effectiveDate}, skipAdvances, skipFreight, periodByClass }`. |
-| `printTemplateId` | ObjectId | No | — Referencia: `invoiceTemplates` (M05) [VERIFICAR]. |
+| `printTemplateId` | uniqueidentifier | No | — Referencia: `invoiceTemplates` (M05) [VERIFICAR]. |
 | `status` | Enum `draft`, `published`, `retired` | Sí | — |
-| `previousVersionId` | ObjectId | No | — Referencia: `billingTemplates` (M05). |
+| `previousVersionId` | uniqueidentifier | No | — Referencia: `billingTemplates` (M05). |
 
 Índices: `{tenantId, code, templateVersion}` único. Origen: `TIPO_FAC`, `PARSERFA`.
 
@@ -713,15 +715,15 @@ Campos: `scope` (Enum `account, contract, service`), `accountId`, `contractId`, 
 |---|---|---|---|
 | `code` | String | Sí | Ej. `LOTE-AG-DEMO-001`. Único por tenant. |
 | `kind` | Enum `cycle, adHoc, reprocess, simulation, rebill` | Sí | `reprocess` reprocesa pendientes de otro lote. |
-| `cycleId` | ObjectId | No | Ciclo origen. |
-| `parentRunId` | ObjectId | No | Lote del que reprocesa. Referencia: `billingRuns` (M05). |
-| `templateId` / `templateVersion` | ObjectId / Int | Sí | Congelados. Referencia: `templateId` → `billingTemplates` (M05); `templateVersion` es número de versión, no es referencia. |
-| `serviceIds` | Array ObjectId | Sí | — |
+| `cycleId` | uniqueidentifier | No | Ciclo origen. |
+| `parentRunId` | uniqueidentifier | No | Lote del que reprocesa. Referencia: `billingRuns` (M05). |
+| `templateId` / `templateVersion` | uniqueidentifier / Int | Sí | Congelados. Referencia: `templateId` → `billingTemplates` (M05); `templateVersion` es número de versión, no es referencia. |
+| `serviceIds` | Array uniqueidentifier | Sí | — |
 | `period` | String `YYYY-MM` (CTR-DAT-31; antes ~~`{ year, month }`~~) | Sí | Período general; la pasada la da `sequence`. |
 | `servicePeriods` | Array `{ serviceId, period, readingFrom, readingTo }` | Sí | Ex `SFACTME`. |
 | `sequence` | Int | Sí | 0 = primera pasada. |
 | `target` | Enum `allUniverse, single, several, controlAccounts` | Sí | — |
-| `targetAccounts` | Array ObjectId | No | Ex `FACTMES_CTAS`. Referencia: → `accounts` (M01). |
+| `targetAccounts` | Array uniqueidentifier | No | Ex `FACTMES_CTAS`. Referencia: → `accounts` (M01). |
 | `filters` | Object | No | Copia de criterios aplicados. |
 | `issueDate` | Date-only | Sí | Fecha de emisión resuelta. |
 | `dueDates` | Array `{ index, date }` (1..N; N = tope de PRM-FAC-163, por defecto 4; DEC-106; antes 1..4) + `nextDueDate` | Sí | Resueltas. |
@@ -740,7 +742,7 @@ Campos: `scope` (Enum `account, contract, service`), `accountId`, `contractId`, 
 | `progress` | Object | No | `{ phase, processed, total, ratePerMinute, etaAt, lastConfirmedBlock, currentBlock }`. |
 | `pause` | Object | No | `{ reason, code, source, at, by }`. |
 | `lockKey` | String | Sí | `tenant:cycle\|template:period:sequence` (exclusión mutua). |
-| `jobIds` | Array String | No | Jobs BullMQ. |
+| `jobIds` | Array String | No | Jobs Azure Queue Storage. |
 | `overrides` | Array `{ validation, reason, approvedBy, at }` | No | — |
 | `startedAt` / `finishedAt` | Date | No | — |
 | `legacy` | Object | No | Subdocumento `legacy` de T05 §19.1 (CTR-DAT-32): `ID_REC` va en `legacy.key`; antes ~~`{ procoopIdRec }`~~. Solo consulta. |
@@ -751,25 +753,25 @@ Campos: `scope` (Enum `account, contract, service`), `accountId`, `contractId`, 
 
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
-| `runId` | ObjectId | Sí | — |
+| `runId` | uniqueidentifier | Sí | — |
 | `itemCode` | String | Sí | Ej. `ITEM-099`. |
 | `universeVersion` | Int | Sí | Versión en la que entró. |
-| `accountId`, `holderId`, `associateMembershipId` | ObjectId → M01 / M01 / M17 | Sí / Sí / No | `associateMembershipId` (antes `memberId`; nombre canónico de T05 §7.2.1, PA-DAT-04) → `associateMemberships` (M17). |
+| `accountId`, `holderId`, `associateMembershipId` | uniqueidentifier → M01 / M01 / M17 | Sí / Sí / No | `associateMembershipId` (antes `memberId`; nombre canónico de T05 §7.2.1, PA-DAT-04) → `associateMemberships` (M17). |
 | `billingMode` | Enum `separate, grouped` | Sí | Resuelto por RN-FAC-135. |
-| `billingGroupId` / `groupVersion` | ObjectId / Int | No | Referencia: `billingGroupId` → `billingGroups` (M05); `groupVersion` es número de versión, no es referencia. |
+| `billingGroupId` / `groupVersion` | uniqueidentifier / Int | No | Referencia: `billingGroupId` → `billingGroups` (M05); `groupVersion` es número de versión, no es referencia. |
 | `contracts` | Array `{ contractId, serviceId, consumptionIds[], consumptionVersions[], billableItemIds[], installmentIds[], eligibilityReason }` | Sí | Foto de cantidades. |
 | `isSample` | Boolean | Sí | Muestra de control. |
 | `status` | Enum (ver §8.3) | Sí | — |
 | `exclusion` | Object | No | `{ reasonCode, note, approvedBy, at }`. |
-| `exceptionIds` | Array ObjectId | No | — |
+| `exceptionIds` | Array uniqueidentifier | No | — |
 | `prebill` | Object | No | `{ calculationResultIds[], candidates: [{ candidateKey, voucherTypeId, letter, pointOfSaleId, serviceBlocks[{serviceId, contractId, subtotal}], net, taxes, total, dueTotals[] }], computedAt }`. |
 | `comparison` | Object | No | `{ previousInvoiceIds[], previousTotal, variationPct, flagged }`. |
 | `warnings` | Array `{ code, message }` | No | — |
-| `invoiceIds` | Array ObjectId | No | Comprobantes emitidos. |
+| `invoiceIds` | Array uniqueidentifier | No | Comprobantes emitidos. |
 | `idempotencyKey` | String | Sí | `tenant:run:item:universeVersion`. |
 | `attempts` | Int | Sí | — |
 | `lastError` | Object | No | `{ code, message, at }`. |
-| `carriedOverToRunId` | ObjectId | No | — Referencia: `billingRuns` (M05). |
+| `carriedOverToRunId` | uniqueidentifier | No | — Referencia: `billingRuns` (M05). |
 | `preReview` | Object | No | Revisión previa (RF-FAC-174; HUE-ELE-02): `{ required, reasons[] (categoría, condición especial, `requiresReview` de M04), status (`pending`, `approved`, `returned`, `excluded`), reviewerId, decidedAt, note }`. |
 | `serviceDependencies` | Array `{ serviceId, dependsOnServiceId, dependsOnContractId, resolved }` | No | Dependencias entre servicios relacionados resueltas al preparar (RF-FAC-175; HUE-CLO-02). |
 
@@ -783,10 +785,10 @@ Campos de `billingRunNumberRanges` (tabla normalizada el 05-11-2026 a partir del
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `runId` | ObjectId | Sí | — | `billingRuns` (M05) |
-| `voucherTypeId` | ObjectId | [VERIFICAR] | — | `voucherTypes` (M05) |
-| `numberingVoucherTypeId` | ObjectId | [VERIFICAR] | Relacionado | `voucherTypes` (M05) |
-| `pointOfSaleId` | ObjectId | Sí | — | `pointsOfSale` (M06) |
+| `runId` | uniqueidentifier | Sí | — | `billingRuns` (M05) |
+| `voucherTypeId` | uniqueidentifier | [VERIFICAR] | — | `voucherTypes` (M05) |
+| `numberingVoucherTypeId` | uniqueidentifier | [VERIFICAR] | Relacionado | `voucherTypes` (M05) |
+| `pointOfSaleId` | uniqueidentifier | Sí | — | `pointsOfSale` (M06) |
 | `fromNumber` | int | [VERIFICAR] | — | — |
 | `toNumber` | int | [VERIFICAR] | Int | — |
 | `count` | int | [VERIFICAR] | — | — |
@@ -800,8 +802,8 @@ Campos de `billingRunNumberRanges` (tabla normalizada el 05-11-2026 a partir del
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
 | `code` | String | Sí | Correlativo legible. |
-| `runId`, `runItemId` | ObjectId | Sí | Origen. |
-| `accountId`, `holderId`, `contractId`, `serviceId` | ObjectId | Sí / Sí / No / No | — |
+| `runId`, `runItemId` | uniqueidentifier | Sí | Origen. |
+| `accountId`, `holderId`, `contractId`, `serviceId` | uniqueidentifier | Sí / Sí / No / No | — |
 | `period` | String `YYYY-MM` (CTR-DAT-31; antes ~~`{ year, month }`~~) | Sí | — |
 | `reasonCode` | String → `billingExceptionReasons` | Sí | Ej. `FISCAL_TAXID_MISSING`. |
 | `category` | Enum `customerFiscalData, reading, tariff, contract, configuration, pointOfSale, numbering, dueDate, thirdPartyAgreement, integration, printing, delivery, other` | Sí | — |
@@ -812,12 +814,12 @@ Campos de `billingRunNumberRanges` (tabla normalizada el 05-11-2026 a partir del
 | `externalCode` | String | No | Código de rechazo de ARCA u otro. |
 | `status` | Enum (ver §8.4) | Sí | — |
 | `ownerModule` | Enum `PER, CAT, MED, TAR, FIS, COB, FAC` | Sí | — |
-| `ownerRole` / `assigneeId` | String / ObjectId | Sí / No | Responsable. Referencia: `ownerRole` → `roles` (T02), por clave del rol; `assigneeId` → `memberships` (T02). Confirmado en PA-FAC-23 (DEC-072; antes «`roles` (T02) [VERIFICAR]»). |
+| `ownerRole` / `assigneeId` | String / uniqueidentifier | Sí / No | Responsable. Referencia: `ownerRole` → `roles` (T02), por clave del rol; `assigneeId` → `memberships` (T02). Confirmado en PA-FAC-23 (DEC-072; antes «`roles` (T02) [VERIFICAR]»). |
 | `nextAction` | String (dict) | Sí | Ej. "Completar y validar situación fiscal". |
 | `deepLink` | String | No | Ruta a la pantalla de corrección. |
 | `dueAt` | Date | No | Según SLA (PA-FAC-18). |
 | `resolution` | Object | No | `{ action: corrected\|excluded\|carriedOver\|dismissed, by, at, note, evidenceId }`. |
-| `reprocessRunId` | ObjectId | No | Ejecución vinculada. Referencia: `billingRuns` (M05). |
+| `reprocessRunId` | uniqueidentifier | No | Ejecución vinculada. Referencia: `billingRuns` (M05). |
 | `history` | Array `{ at, by, fromStatus, toStatus, note }` | Sí | — |
 
 Índices: `{tenantId, status, ownerRole}`; `{tenantId, runId}`; `{tenantId, assigneeId, status}`; `{tenantId, accountId}`.
@@ -847,15 +849,15 @@ Campos de `billedPeriods` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | — | `serviceContracts` (M02) |
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
+| `contractId` | uniqueidentifier | Sí | — | `serviceContracts` (M02) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
 | `period` | string | Sí | `YYYY-MM`; CTR-DAT-31 — antes ~~`{year, month}`~~ | — |
 | `sequence` | int | Sí | Int | — |
-| `invoiceId` | ObjectId | Sí | — | `invoices` (M05) |
-| `serviceBlockId` | ObjectId | Sí | Bloque del servicio facturado (PA-FAC-23; antes [VERIFICAR]) | → `invoices.serviceBlocks` (subdocumento, M05) |
-| `runId` | ObjectId | [VERIFICAR] | — | `billingRuns` (M05) |
+| `invoiceId` | uniqueidentifier | Sí | — | `invoices` (M05) |
+| `serviceBlockId` | uniqueidentifier | Sí | Bloque del servicio facturado (PA-FAC-23; antes [VERIFICAR]) | → `invoices.serviceBlocks` (subdocumento, M05) |
+| `runId` | uniqueidentifier | [VERIFICAR] | — | `billingRuns` (M05) |
 | `status` | enum | Sí | Enum `active`, `released` | — |
-| `releasedByInvoiceId` | ObjectId | [VERIFICAR] | NC/anulación | [VERIFICAR] destino no declarado |
+| `releasedByInvoiceId` | uniqueidentifier | [VERIFICAR] | NC/anulación | [VERIFICAR] destino no declarado |
 | `releasedAt` | datetime | [VERIFICAR] | — | — |
 
 **`billableItems`** — ítems facturables pendientes.
@@ -865,22 +867,22 @@ Campos de `billedPeriods` (tabla normalizada el 05-11-2026 a partir del texto an
 | `sourceModule` | Enum `FAC, VEN, MOR, TEC, MED, FIS, MIG, SOC, TAR` | Sí | Quién lo generó (`SOC` = M18: depósitos de préstamo ortopédico y aportes al fondo de subsidio; `TAR` = M04: cargos precargados del motor —derecho de sepultura, actos y traslados sociales, equipo no devuelto, conceptos de telefonía móvil importados, gas prorrateado—, que absorben `preloadedCharges` de M04 por CTR-DAT-38). |
 | `sourceType` | Enum `manualCharge, retroactive, retroactiveInterest, thirdPartyImport, saleInstallment, financingInstallment, deferredInterest, technicalCharge, freight, mobileProviderImport, gasProration, equipmentNotReturned, socialAct, socialTrip, migration, other` | Sí | Los valores `mobileProviderImport` … `socialTrip` corresponden al ex `preloadedCharges.origin` de M04 (CTR-DAT-38). |
 | `sourceRef` | `{ type, id }` | No | Ej. operación masiva, venta; para M04, `assignmentId`, `actId`, `tripId` o datos del cálculo de gas prorrateado (ex `originRef`). Índice único `{tenantId, sourceModule, "sourceRef.id"}` cuando está presente (idempotencia; COL-FAC-11). |
-| `accountId`, `contractId`, `serviceId` | ObjectId | Sí / No / No | — |
-| `conceptId` | ObjectId → M02 | Sí | — |
+| `accountId`, `contractId`, `serviceId` | uniqueidentifier | Sí / No / No | — |
+| `conceptId` | uniqueidentifier → M02 | Sí | — |
 | `description` | String | No | — |
 | `quantity` / `unitPrice` | Dec | Sí | — |
 | `amount` | Money | Sí | — |
 | `period` | String `YYYY-MM` (CTR-DAT-31; antes ~~`{year, month}`~~) | No | Vacío = primer lote del servicio. |
 | `basePeriod` | String `YYYY-MM` (CTR-DAT-31) | No | Retroactivos (`PERIODOB`). |
-| `targetGroupId` / `invoiceClassCode` | ObjectId / String | No | Destino. Referencia: `billingGroups` (M05). |
+| `targetGroupId` / `invoiceClassCode` | uniqueidentifier / String | No | Destino. Referencia: `billingGroups` (M05). |
 | `dueDate` | Date-only | No | Cuotas. |
-| `thirdPartyAgreementId` | ObjectId → M06 | No | — |
+| `thirdPartyAgreementId` | uniqueidentifier → M06 | No | — |
 | `itemClass` | Enum `standard, guaranteeDeposit, subsidyFundContribution, burialRightAcquisition, burialRightMaintenance` | Sí | Clase del ítem facturable (RF-FAC-176, RN-FAC-156); default `standard`. Determina el bloque de impresión, la clase fiscal que aplica M06 y el rol contable de la obligación publicada a M07/M15. |
 | `currency` | String ISO 4217 | Sí | Default `ARS`. |
-| `approvedBy` / `approvedAt` | ObjectId / DateTime | No | Aprobación del cargo manual sobre el umbral PRM-TAR-152 de M04 (ex `preloadedCharges.approvedBy`). |
-| `calculationId` | ObjectId → M04 `calculations` | No | Cálculo que lo incluyó (RN-TAR-007). |
+| `approvedBy` / `approvedAt` | uniqueidentifier / DateTime | No | Aprobación del cargo manual sobre el umbral PRM-TAR-152 de M04 (ex `preloadedCharges.approvedBy`). |
+| `calculationId` | uniqueidentifier → M04 `calculations` | No | Cálculo que lo incluyó (RN-TAR-007). |
 | `status` | Enum `proposed`, `pending`, `reserved`, `billed`, `cancelled` | Sí | `proposed` = pendiente de aprobación (umbral de M04); `reserved` = tomado por un lote preparado. |
-| `reservedByRunId` / `invoiceId` | ObjectId | No | — Referencia: `billingRuns` (M05). |
+| `reservedByRunId` / `invoiceId` | uniqueidentifier | No | — Referencia: `billingRuns` (M05). |
 
 Índices: `{tenantId, accountId, status}`; `{tenantId, contractId, status, period}`; `{tenantId, sourceModule, "sourceRef.id"}` único parcial. Origen: `PRCAGAS` (filas pendientes; CTR-DAT-38, que absorbe `preloadedCharges` de M04; las de gas prorrateado con `sourceType = gasProration` y [VERIFICAR] en LAG según CTR-TAR-29), `DEUDAVTA` (proyección), `INTERNAC`, `LLA_CEL` (proyección). Es la única colección de lo pendiente de facturar (RF-FAC-116); otros módulos la escriben con `fac.service.upsertBillableItem` (§11.7).
 
@@ -893,34 +895,34 @@ Campos de `invoiceDrafts` (tabla normalizada el 05-11-2026 a partir del texto an
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `origin` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `sourceInvoiceId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `sourceInvoiceId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `status` | enum | Sí | `editing`, `validated`, `discarded`, `issued` | — |
-| `issuedInvoiceId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `issuedInvoiceId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `validationResult` | [VERIFICAR] | [VERIFICAR] | — | — |
 
 **`invoices`** — comprobante emitido (cabecera, bloques por servicio, renglones, tributos, vencimientos, relaciones). Inmutable una vez autorizado (o emitido, si no requiere autorización en línea); mientras espera el CAE solo cambian su número y estado por RN-FAC-164, y su contenido solo en `returnedToDraft` (DEC-107); las fechas de vencimiento se corren, en la misma transacción que registra la autorización, si esta llega después del primer vencimiento (RN-FAC-165; 10-11-2026). Los renglones se embeben (acotados por diseño a `PRM-FAC-049` renglones, por defecto 500); para BI se proyectan a la vista de reportes de T10.
 
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
-| `legalEntityId` | ObjectId → T04 `legalEntities` | Sí | Entidad jurídica emisora (DEC-064, DEC-087): se toma de `serviceContracts.legalEntityId` o, si está vacío, de `tenantServices.legalEntityId` (M02); determina CUIT emisor, perfil fiscal, punto de venta y numerador. Un comprobante tiene una sola entidad (RN-FAC-157). |
-| `voucherTypeId` | ObjectId → `voucherTypes` | Sí | — |
+| `legalEntityId` | uniqueidentifier → T04 `legalEntities` | Sí | Entidad jurídica emisora (DEC-064, DEC-087): se toma de `serviceContracts.legalEntityId` o, si está vacío, de `tenantServices.legalEntityId` (M02); determina CUIT emisor, perfil fiscal, punto de venta y numerador. Un comprobante tiene una sola entidad (RN-FAC-157). |
+| `voucherTypeId` | uniqueidentifier → `voucherTypes` | Sí | — |
 | `voucherClass` | Enum `invoice, debitNote, creditNote, publicServiceSettlement, publicServiceCredit, ticket, internal, cvlp, cashInvoice` | Sí | — |
 | `arcaVoucherCode` | Int | No | Código ARCA del tipo. |
 | `letter` | Enum `A, B, C, M, E, X` | Sí | `X` = sin letra/interno. |
 | `direction` | Enum `debit, credit` | Sí | — |
-| `pointOfSaleId` / `posNumber` | ObjectId / Int | Sí | — |
+| `pointOfSaleId` / `posNumber` | uniqueidentifier / Int | Sí | — |
 | `number` | Int | Sí (salvo en `returnedToDraft` y `requeued`) | Asignado al emitir; en comprobantes con CAE en línea es provisorio hasta el CAE y se libera (`null`) si ARCA rechaza el comprobante o uno anterior del mismo numerador (RN-FAC-164; DEC-107). *Reemplazado (10-11-2026, DEC-107): "Asignado al emitir."* |
 | `fullNumber` | String | Sí (salvo en `returnedToDraft` y `requeued`) | `0002-00001001`. |
 | `numberAssignments` | Array `{ number, numberSequenceId, assignedAt, releasedAt, reason: initialIssue\|arcaRejected\|sequenceRelease\|reissueAfterCorrection\|reissueAfterRelease, arcaCode, billingRunId, actor }` | Sí | Historial de cada número asignado, liberado y reasignado con su motivo (RN-FAC-164 punto 8; DEC-107). |
 | `issueAttempt` | Int | Sí | Intento de emisión (1 al emitir; +1 en cada reemisión tras `returnedToDraft` o `requeued`); viaja en `fac.invoice.issued` para que los consumidores distingan la reemisión (DEC-107). |
 | `emissionSeq` | Int | No | Orden de emisión dentro del lote; define el orden de renumeración de los `requeued` (RN-FAC-164 punto 5; DEC-107). |
-| `numberSequenceId` | ObjectId | Sí | Numerador usado. Antes `numberingSequenceId` (nombre de T05). |
+| `numberSequenceId` | uniqueidentifier | Sí | Numerador usado. Antes `numberingSequenceId` (nombre de T05). |
 | `origin` | Enum `batch, manual, rebill, replica, reversal, import, prepaid, sale, interest, inSitu, migration` | Sí | — |
-| `billingRunId` / `billingRunItemId` / `billingCycleId` | ObjectId | No | — |
+| `billingRunId` / `billingRunItemId` / `billingCycleId` | uniqueidentifier | No | — |
 | `invoiceClassCode` | String | Sí | Clasificación comercial (ex `TIPO`/`COD_TIP`). |
 | `period` | String `YYYY-MM` + `sequence` (CTR-DAT-31; antes ~~`{year, month}`~~) | Sí | — |
 | `billingMode` | Enum `separate, grouped` | Sí | — |
-| `billingGroupId` / `billingGroupVersion` | ObjectId / Int | No | — |
+| `billingGroupId` / `billingGroupVersion` | uniqueidentifier / Int | No | — |
 | `customer` | Object | Sí | `{ personId, holderId, associateMembershipId (antes memberId; → associateMemberships, M17), accountId, name, taxIdType, taxId, taxCondition, isMiPyme, serviceAddress, postalAddress (histórico a la fecha), deliveryAddress }`. |
 | `issueDate` | Date-only | Sí | — |
 | `servicePeriodFrom` / `servicePeriodTo` | Date-only | No | Período facturado (dato fiscal de servicios). |
@@ -930,7 +932,7 @@ Campos de `invoiceDrafts` (tabla normalizada el 05-11-2026 a partir del texto an
 | `lateAuthorizationShift` | Object | No | `{ authorizedAt, graceDays, shiftDays, originalDueDates[{ index, date }], originalNextDueDate }`: corrimiento aplicado al autorizarse después del primer vencimiento o al reenviarse a ARCA (RN-FAC-165; DEC-107, 10-11-2026). |
 | `nextDueDate` | Date-only | No | — |
 | `currency` / `exchangeRate` | String / Dec | Sí / No | `ARS` por defecto (ex `FACTURAS_EXTRAS`). |
-| `sellerId`, `warehouseId` | ObjectId | No | Vendedor y depósito (`warehouses` de M13; T05 §7.2 — antes ~~`depotId`~~). Referencia: vendedor como usuario del tenant (`memberships` de T02, según el canal de venta de M11), asumido en PA-FAC-21 (DEC-072); antes [VERIFICAR] vendedor (`employees` de M16 o `memberships` de T02). |
+| `sellerId`, `warehouseId` | uniqueidentifier | No | Vendedor y depósito (`warehouses` de M13; T05 §7.2 — antes ~~`depotId`~~). Referencia: vendedor como usuario del tenant (`memberships` de T02, según el canal de venta de M11), asumido en PA-FAC-21 (DEC-072); antes [VERIFICAR] vendedor (`employees` de M16 o `memberships` de T02). |
 | `serviceBlocks` | Array (ver abajo) | Sí | Al menos uno salvo comprobantes sin servicio (venta, interés). |
 | `lines` | Array (ver abajo) | Sí | — |
 | `taxes` | Array `{ taxId, kind: vat\|perception\|municipal\|provincial\|fund\|other, jurisdiction, rate (Dec), base (Money), amount (Money), serviceBlockId, thirdPartyAgreementId }` | No | Calculado por M06. |
@@ -940,8 +942,8 @@ Campos de `invoiceDrafts` (tabla normalizada el 05-11-2026 a partir del texto an
 | `block` | Object | No | `{ reasonId, since, by, note }` vigente. |
 | `obligations` | Array `{ serviceBlockId, serviceId, contractId, amount (Money), obligationRef }` | Sí | Una por servicio (FAC-008), publicada a M07. |
 | `paymentCodes` | Array `{ formatId, formatVersion, documentPrefix, code, dueIndexes[], channel, generatedAt }` | No | — |
-| `paymentSlipIds` | Array ObjectId | No | — |
-| `documentIds` | Array ObjectId → `invoiceDocuments` | No | PDF por versión. |
+| `paymentSlipIds` | Array uniqueidentifier | No | — |
+| `documentIds` | Array uniqueidentifier → `invoiceDocuments` | No | PDF por versión. |
 | `relationsSummary` | Object | No | `{ reversedBy[], reversalOf, annulmentRequestId }` (fuente: `invoiceRelations`). |
 | `observations` | String | No | Ex `OB_FACT`. |
 | `printMessages` | Array String | No | Mensajes personalizados. |
@@ -964,17 +966,17 @@ Campos de `invoiceRelations` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `originInvoiceId` | ObjectId | Sí | — | [VERIFICAR] destino no declarado |
-| `generatedInvoiceId` | ObjectId | Sí | — | [VERIFICAR] destino no declarado |
+| `originInvoiceId` | uniqueidentifier | Sí | — | [VERIFICAR] destino no declarado |
+| `generatedInvoiceId` | uniqueidentifier | Sí | — | [VERIFICAR] destino no declarado |
 | `relationType` | enum | Sí | Enum `reversal, partialCredit, debitAdjustment, rebill, replica, manual, administrative, interestOn` | — |
-| `affectedServiceBlockIds[]` | ObjectId[] | No | Vacío = todos los bloques (PA-FAC-23; antes [VERIFICAR]) | → `invoices.serviceBlocks` (subdocumento, M05) |
+| `affectedServiceBlockIds[]` | uniqueidentifier[] | No | Vacío = todos los bloques (PA-FAC-23; antes [VERIFICAR]) | → `invoices.serviceBlocks` (subdocumento, M05) |
 | `amount` | Money | [VERIFICAR] | Money | — |
 | `isAnnulment` | bool | [VERIFICAR] | Boolean | — |
 | `reportToTaxAuthority` | bool | [VERIFICAR] | Boolean, ex `INFORMAR_CUIT` | — |
 | `hidden` | bool | [VERIFICAR] | Ex `NOMOSTRAR` | — |
 | `discountsInvoice` | [VERIFICAR] | [VERIFICAR] | Ex `BONIFICA_FACTURA` | — |
 | `reason` | string | [VERIFICAR] | — | — |
-| `requestId` | ObjectId | [VERIFICAR] | — | `invoiceAnnulmentRequests` (M05) |
+| `requestId` | uniqueidentifier | [VERIFICAR] | — | `invoiceAnnulmentRequests` (M05) |
 
 **`invoiceAnnulmentRequests`** — solicitud de anulación o reversión: `invoiceIds[]`, `mode` (Enum `annul, reverse, partialCredit, debitAdjustment`), `options` `{ revertConsumptions, allowRebilling, releaseCreditsDebits, revertStock, dueDates[] }`, `reason`, `evidenceIds[]`, `status` (Enum `draft, pendingApproval, approved, rejected, executing, executed, partiallyExecuted, failed`), `workflowInstanceId` (T05 §7.2; antes ~~`workflowId`~~), `excluded[] {invoiceId, reason}`, `resultInvoiceIds[]`, `fiscalCheck` `{ checkedAt, result }`. Origen: proceso `clsAnulacionFacturas`. También recibe los pedidos de ajuste por NC/ND de las diferencias retroactivas de M04 (`retroactiveDiffRuns.adjustmentRequestIds`, modos `partialCredit` y `debitAdjustment`; PA-FAC-22).
 
@@ -982,14 +984,14 @@ Campos de `invoiceAnnulmentRequests` (tabla normalizada el 05-11-2026 a partir d
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `invoiceIds[]` | ObjectId[] | [VERIFICAR] | — | `invoices` (M05) |
+| `invoiceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `invoices` (M05) |
 | `mode` | enum | [VERIFICAR] | Enum `annul, reverse, partialCredit, debitAdjustment` | — |
 | `options` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `reason` | string | [VERIFICAR] | — | — |
-| `evidenceIds[]` | ObjectId[] | [VERIFICAR] | — | `documents` (T11) |
+| `evidenceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `documents` (T11) |
 | `status` | enum | Sí | Enum `draft`, `pendingApproval`, `approved`, `rejected`, `executing`, `executed`, `partiallyExecuted`, `failed` | — |
-| `workflowInstanceId` | ObjectId | Sí | (T05 §7.2; antes ~~`workflowId`~~), `excluded[] {invoiceId, reason}` | `workflowInstances` (T11) |
-| `resultInvoiceIds[]` | ObjectId[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `workflowInstanceId` | uniqueidentifier | Sí | (T05 §7.2; antes ~~`workflowId`~~), `excluded[] {invoiceId, reason}` | `workflowInstances` (T11) |
+| `resultInvoiceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `fiscalCheck` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `number` | string | Sí | Número de la solicitud (único en T05). | — |
 
@@ -1003,11 +1005,11 @@ Campos de `invoiceExternalData` (tabla normalizada el 05-11-2026 a partir del te
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `invoiceId` | ObjectId | Sí | — | `invoices` (M05) |
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
+| `invoiceId` | uniqueidentifier | Sí | — | `invoices` (M05) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
 | `providerCode` | string | Sí | — | — |
 | `fields` | object | [VERIFICAR] | (Object), `items[] {description, amount}` | — |
-| `importId` | ObjectId | [VERIFICAR] | — | `billingImports` (M05) |
+| `importId` | uniqueidentifier | [VERIFICAR] | — | `billingImports` (M05) |
 
 ### 7.4 Tipos de comprobante, puntos de venta y numeración
 
@@ -1021,8 +1023,8 @@ Campos de `invoiceExternalData` (tabla normalizada el 05-11-2026 a partir del te
 | `letter` | Enum `A, B, C, M, E, X` | Sí | — |
 | `voucherClass` | Enum (como `invoices.voucherClass`) | Sí | — |
 | `direction` | Enum `debit, credit` | Sí | Ex `DEB_CRE`. |
-| `reversalVoucherTypeId` | ObjectId | No | Ex `COD_COM_ANU`. Referencia: `voucherTypes` (M05). |
-| `sharesNumberingWithId` | ObjectId | No | Ex `RELACION`. Referencia: → `voucherTypes` (M05). |
+| `reversalVoucherTypeId` | uniqueidentifier | No | Ex `COD_COM_ANU`. Referencia: `voucherTypes` (M05). |
+| `sharesNumberingWithId` | uniqueidentifier | No | Ex `RELACION`. Referencia: → `voucherTypes` (M05). |
 | `manualNumbering` / `internal` | Boolean | Sí | Ex `NUM_MANUAL`, `INTERNO`. |
 | `taxConditionRestriction` | Enum `none, onlyRiAndMonotributo, notForRi` | Sí | Ex `TIPO_SIT`. |
 | `allowsZeroPointOfSale` | Boolean | Sí | Ex `PTOVTA0`. |
@@ -1041,15 +1043,15 @@ Campos de `voucherResolutionRules` (tabla normalizada el 05-11-2026 a partir del
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `taxCondition` | [VERIFICAR] | Sí | — | — |
-| `invoiceVoucherTypeId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
-| `debitNoteVoucherTypeId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
-| `creditNoteVoucherTypeId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
-| `publicServiceInvoiceVoucherTypeId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
-| `publicServiceCreditVoucherTypeId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
-| `ticketVoucherTypeId` | ObjectId | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `invoiceVoucherTypeId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `debitNoteVoucherTypeId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `creditNoteVoucherTypeId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `publicServiceInvoiceVoucherTypeId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `publicServiceCreditVoucherTypeId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `ticketVoucherTypeId` | uniqueidentifier | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `matrixVersion` | int | Sí | — | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
-| `vatConditionSettingId` | ObjectId | [VERIFICAR] | Condición fiscal configurada (T05 lo declara en claves; `taxCondition` es su código). | `vatConditionSettings` (M06) |
+| `vatConditionSettingId` | uniqueidentifier | [VERIFICAR] | Condición fiscal configurada (T05 lo declara en claves; `taxCondition` es su código). | `vatConditionSettings` (M06) |
 
 **`pointsOfSale`** — `number` (Int), `name`, `kind` (Enum `electronicCae, electronicCaea, cai, manual, fiscalPrinter, internal`), `branchId`, `serviceIds[]`, `channels[]` (Enum `batch, counter, portal, field, prepaid`), `address`, `arcaEnabledAt`, `status` (`draft, active, suspended, retired`), `validFrom`, `validTo`. Índice `{tenantId, number}` único. Origen `PTOVENTA`. **Reemplazado por** `pointsOfSale` de M06 (CTR-DAT-17 de T05; COL-FIS-09): una sola colección con modos fiscales y uso operativo, con `legalEntityId` obligatorio e índice único `{tenantId, legalEntityId, number}` (DEC-064: el mismo número puede existir en dos entidades jurídicas). M05 la lee para resolver el punto de venta del comprobante y conserva aquí solo la definición de `channels[]` y `serviceIds[]` como requisito hacia M06.
 
@@ -1059,14 +1061,14 @@ Campos de `numberSequences` (tabla normalizada el 05-11-2026 a partir del texto 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | → T04 `legalEntities`; DEC-064; debe coincidir con el del punto de venta | `legalEntities` (T04) |
-| `numberingVoucherTypeId` | ObjectId | Sí | — | `voucherTypes` (M05) |
-| `pointOfSaleId` | ObjectId | Sí | — | `pointsOfSale` (M06) |
+| `legalEntityId` | uniqueidentifier | Sí | → T04 `legalEntities`; DEC-064; debe coincidir con el del punto de venta | `legalEntities` (T04) |
+| `numberingVoucherTypeId` | uniqueidentifier | Sí | — | `voucherTypes` (M05) |
+| `pointOfSaleId` | uniqueidentifier | Sí | — | `pointsOfSale` (M06) |
 | `lastNumber` | int | [VERIFICAR] | Int. Último número asignado; al liberar números por un rechazo de ARCA vuelve a `lastAuthorizedNumber` más los números todavía en curso por debajo del liberado (RN-FAC-164; DEC-107) | — |
 | `lastAuthorizedNumber` | int | Sí (numeradores CAE) | Último número autorizado por ARCA para el punto de venta y tipo; lo actualiza el consumidor de `fis.invoice.authorized` y se contrasta con `FECompUltimoAutorizado` (RF-FAC-085). Es la referencia para renumerar: ningún número igual o menor se libera (RN-FAC-164; DEC-107) | — |
 | `authorizationType` | enum | [VERIFICAR] | Enum `CAE, CAEA, CAI, CESP, none`: `CESP` para los numeradores de liquidación de servicios públicos, como `invoices.fiscal.authorizationType` y RF-FIS-034 de M06 (DEC-104; antes `CAE, CAEA, CAI`); `none` para los numeradores que no pasan por ARCA (recibos de M07, RF-COB-087; comprobantes internos), como ya usan `billingRunNumberRanges.authorizationType` e `invoices.fiscal.authorizationType` (alineación del 10-11-2026; antes `CAE, CAEA, CAI, CESP`) | — |
 | `cai` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `billingGroupId` | ObjectId | No | Talonario propio del grupo (`billingGroups.numberingMode = own`, RF-FAC-082); `null` en el numerador general y en los de recibos de M07. Integra el índice único con valor `null` explícito, de modo que hay un solo numerador general por entidad, tipo y punto de venta (DEC-104; antes "Sí" en esta columna, en contradicción con la descripción "opcional") | `billingGroups` (M05) |
+| `billingGroupId` | uniqueidentifier | No | Talonario propio del grupo (`billingGroups.numberingMode = own`, RF-FAC-082); `null` en el numerador general y en los de recibos de M07. Integra el índice único con valor `null` explícito, de modo que hay un solo numerador general por entidad, tipo y punto de venta (DEC-104; antes "Sí" en esta columna, en contradicción con la descripción "opcional") | `billingGroups` (M05) |
 | `lastSyncedWithArca` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `active`, `blocked` | — |
 | `blockedReason` | string | [VERIFICAR] | — | — |
@@ -1092,15 +1094,15 @@ Campos de `billingModePolicies` (tabla normalizada el 05-11-2026 a partir del te
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
 | `code` / `name` | String | Sí | — |
-| `holderId` / `accountId` | ObjectId → M01 | Sí | Un solo titular. |
+| `holderId` / `accountId` | uniqueidentifier → M01 | Sí | Un solo titular. |
 | `taxId` | String | Sí | Copia para validar unicidad de CUIT/DNI. Referencia: no es referencia: copia del CUIT/DNI para validar unicidad. |
 | `members` | Array `{ contractId, serviceId, validFrom, validTo }` | Sí | Servicios y contratos incluidos. |
-| `postalAddressId` / `deliveryAddressId` | ObjectId → M01 | No | Domicilio postal y de reparto. |
-| `pointOfSaleId` / `numberingMode` | ObjectId / Enum `general, own` | No / Sí | Talonario propio o general. Referencia: `pointOfSaleId` → `pointsOfSale` (M05); `numberingMode` no es referencia. |
+| `postalAddressId` / `deliveryAddressId` | uniqueidentifier → M01 | No | Domicilio postal y de reparto. |
+| `pointOfSaleId` / `numberingMode` | uniqueidentifier / Enum `general, own` | No / Sí | Talonario propio o general. Referencia: `pointOfSaleId` → `pointsOfSale` (M05); `numberingMode` no es referencia. |
 | `periodicity` | Enum | Sí | Periodicidad común. |
-| `dueDateSchemeId` | ObjectId | No | — |
+| `dueDateSchemeId` | uniqueidentifier | No | — |
 | `deliveryChannels` | Array Enum | No | — |
-| `voucherTypeOverrideId` | ObjectId | No | Ex `GRUPOS_FACTURA.COD_TPFC`. Referencia: → `voucherTypes` (M05). |
+| `voucherTypeOverrideId` | uniqueidentifier | No | Ex `GRUPOS_FACTURA.COD_TPFC`. Referencia: → `voucherTypes` (M05). |
 | `forceDebitNote` | Boolean | Sí | Ex `FORZAR_ND`. |
 | `fiscalValidation` | Object | Sí | `{ status: pending\|approved\|rejected, by, at, note }` (BASE §103.3). |
 | `status` | Enum `draft`, `active`, `dissolved` | Sí | — |
@@ -1122,7 +1124,7 @@ Campos de `dueDateSchemes` (tabla normalizada el 05-11-2026 a partir del texto a
 | `dueCount` | int | [VERIFICAR] | (1..N; N = tope de PRM-FAC-163, por defecto 4; al guardar la trama se valida contra el tope de su alcance; DEC-106; antes 1..4), `spacing[] { index, rule (expresión) }` | — |
 | `mode` | enum | [VERIFICAR] | (Enum `fixedAmount, fixedPercentCompound, dailyPercent, byAmountRange, byDueIndex`), `rows[] { amountFrom, amountTo, dueIndexFrom, dueIndexTo, valueType: percent/fixed, value (Dec) }` | — |
 | `compounding` | bool | [VERIFICAR] | Boolean | — |
-| `interestConceptId` | ObjectId | [VERIFICAR] | IVA del recargo | `billableConcepts` (M02) |
+| `interestConceptId` | uniqueidentifier | [VERIFICAR] | IVA del recargo | `billableConcepts` (M02) |
 | `lateAuthorizationGraceDays` | int ≥ 0 | No | Días de gracia desde la autorización fiscal para el primer vencimiento corrido cuando la autorización llega tarde; vacío = PRM-FAC-164 (RN-FAC-165; DEC-107, 10-11-2026) | — |
 | `isDemo` | bool | [VERIFICAR] | Boolean | — |
 | `status` | enum | Sí | — | — |
@@ -1147,7 +1149,7 @@ Campos de `massOperations` (tabla normalizada el 05-11-2026 a partir del texto a
 | `preview` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `approvals[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `result` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `jobId` | ObjectId | Sí | — | `jobRuns` (T01) |
+| `jobId` | uniqueidentifier | Sí | — | `jobRuns` (T01) |
 
 **`massOperationItems`** — `operationId`, `targetType` (`invoice, contract, consumption, installment`), `targetId`, `before` (Object), `after` (Object), `status` (`proposed, applied, skipped, failed`), `reason`, `noteId` (nota en la cuenta, M01).
 
@@ -1155,14 +1157,14 @@ Campos de `massOperationItems` (tabla normalizada el 05-11-2026 a partir del tex
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `operationId` | ObjectId | Sí | — | `massOperations` (M05) |
+| `operationId` | uniqueidentifier | Sí | — | `massOperations` (M05) |
 | `targetType` | enum | [VERIFICAR] | `invoice, contract, consumption, installment` | — |
-| `targetId` | ObjectId | Sí | — | polimórfica según `targetType` |
+| `targetId` | uniqueidentifier | Sí | — | polimórfica según `targetType` |
 | `before` | object | [VERIFICAR] | Object | — |
 | `after` | object | [VERIFICAR] | Object | — |
 | `status` | enum | Sí | `proposed`, `applied`, `skipped`, `failed` | — |
 | `reason` | string | [VERIFICAR] | — | — |
-| `noteId` | ObjectId | [VERIFICAR] | Nota en la cuenta, M01 | `notes` (M01) |
+| `noteId` | uniqueidentifier | [VERIFICAR] | Nota en la cuenta, M01 | `notes` (M01) |
 
 **`billingImports`** — `format` (Enum `EMA, SAM, SAM_TASA_VERDE, EME, CT1, FAR, IAL, CEL, GAS_INVOICES, PR1, CANONICAL`), `storedFileId` (antes ~~`fileId`~~), `destination` (Enum `billableItem, saleInstallment, directInvoice`), `period`, `conceptId`, `status` (`uploaded, validated, confirmed, applied, failed, cancelled`), `counts` `{ rows, valid, errors }`. **`billingImportRows`** — `importId`, `rowNo`, `raw` (Object), `mapped` `{ accountId, contractId, conceptId, quantity, unitPrice, description, amount }`, `errors[]`, `resultRef`.
 
@@ -1172,7 +1174,7 @@ Campos de `billingImportRows` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `importId` | ObjectId | Sí | — | `billingImports` (M05) |
+| `importId` | uniqueidentifier | Sí | — | `billingImports` (M05) |
 | `rowNo` | int | Sí | — | — |
 | `raw` | object | [VERIFICAR] | Object | — |
 | `mapped` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1186,10 +1188,10 @@ Campos de `billingImports` (tabla normalizada el 05-11-2026 a partir del texto a
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `format` | enum | Sí | Enum `EMA, SAM, SAM_TASA_VERDE, EME, CT1, FAR, IAL, CEL, GAS_INVOICES, PR1, CANONICAL` | — |
-| `storedFileId` | ObjectId | Sí | Antes ~~`fileId`~~ | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | Sí | Antes ~~`fileId`~~ | `storedFiles` (T01) |
 | `destination` | enum | [VERIFICAR] | Enum `billableItem, saleInstallment, directInvoice` | — |
 | `period` | string | [VERIFICAR] | — | — |
-| `conceptId` | ObjectId | Sí | — | `billableConcepts` (M02) |
+| `conceptId` | uniqueidentifier | Sí | — | `billableConcepts` (M02) |
 | `status` | enum | Sí | `uploaded`, `validated`, `confirmed`, `applied`, `failed`, `cancelled` | — |
 | `counts` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `fileHash` | string | Sí | Hash del archivo; único con `format` (T05). | — |
@@ -1233,7 +1235,7 @@ Campos de `consumptionChartGroups` (tabla normalizada el 05-11-2026 a partir del
 | `code` | string | Sí | — | — |
 | `groupCode` | string | [VERIFICAR] | — | — |
 | `description` | string | [VERIFICAR] | — | — |
-| `serviceIds[]` | ObjectId[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `serviceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `periods` | [VERIFICAR] | [VERIFICAR] | Cantidad, por defecto 12 | — |
 
 **`barcodeFormats`** — formato declarativo.
@@ -1248,7 +1250,7 @@ Campos de `consumptionChartGroups` (tabla normalizada el 05-11-2026 a partir del
 | `segments[]` | Array | Sí | `{ kind: constant\|agreement\|companyCode\|docPrefix\|internalId\|voucherType\|pointOfSale\|number\|amount\|surcharge\|daysBetween\|date\|period\|cuit\|cae\|caeDueDate\|accountCode\|padding\|checkDigit, source (vencimiento i, etc.), width, pad: zeros\|spaces, align, dateFormat: YYMMDD\|YYYYMMDD\|DDMMYY\|JULIAN_YYDDD\|MMYYYY, onOverflow: error\|fallbackFormat }`. |
 | `checkDigits[]` | Array `{ algorithm: DV1..DV9\|CRC16\|MOD10\|MOD11, rangeFrom, rangeTo, position }` | No | — |
 | `decoders[]` | Array `{ match (prefijo/largo), extract: {...}, lookup: invoiceId\|slipNumber\|notification\|gatewayRequest\|accountAndAmount\|voucherNumber, legacy: Boolean }` | No | Lectura. |
-| `fallbackFormatId` | ObjectId | No | Formato extendido ante desborde. Referencia: → `barcodeFormats` (M05). |
+| `fallbackFormatId` | uniqueidentifier | No | Formato extendido ante desborde. Referencia: → `barcodeFormats` (M05). |
 | `dueDateCapacity` | Int | Sí | Cantidad máxima de vencimientos que el formato codifica (≥ 1), por tipo de documento si difiere; se deriva de los segmentos `amount`/`surcharge`/`daysBetween` con `source` de vencimiento y se confirma al publicar el formato. Valida el tope de PRM-FAC-163 y limita la codificación a los primeros N vencimientos (RF-FAC-140, RN-FAC-163; DEC-106). |
 | `testVectors[]` | Array `{ input, expected }` | Sí | Validación al publicar. |
 | `status` / `formatVersion` | Enum / Int | Sí | — |
@@ -1259,7 +1261,7 @@ Campos de `barcodeAssignments` (tabla normalizada el 05-11-2026 a partir del tex
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `formatId` | ObjectId | Sí | — | `barcodeFormats` (M05) |
+| `formatId` | uniqueidentifier | Sí | — | `barcodeFormats` (M05) |
 | `collectorCode` | string | Sí | Recaudador o canal | — |
 | `documentTypes[]` | array [VERIFICAR] | Sí | — | — |
 | `agreementCode` | string | [VERIFICAR] | Convenio por documento, secreto no aplica | — |
@@ -1276,16 +1278,16 @@ Campos de `paymentSlips` (tabla normalizada el 05-11-2026 a partir del texto ant
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | → T04 `legalEntities`; DEC-064: un talón agrupa solo comprobantes de la misma entidad jurídica | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | → T04 `legalEntities`; DEC-064: un talón agrupa solo comprobantes de la misma entidad jurídica | `legalEntities` (T04) |
 | `number` | int | Sí | Int, correlativo por tenant y entidad | — |
 | `kind` | enum | [VERIFICAR] | Enum `summedSlip, installmentSlip`, ~~`singleCoupon`~~ — el cupón único es `paymentCoupons` de M07, CTR-DAT-39 | — |
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
 | `slipGroupCode` | string | [VERIFICAR] | — | — |
-| `invoiceIds[]` | ObjectId[] | [VERIFICAR] | — | `invoices` (M05) |
+| `invoiceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `invoices` (M05) |
 | `installmentNo` | int | [VERIFICAR] | `installmentCount`, `dueDates[] { index, date, amount (Money) }` (hasta el tope efectivo, PRM-FAC-163; DEC-106; antes "hasta 4") | — |
 | `paymentCodes[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `active`, `superseded`, `cancelled`, `paid` — `paid` lo informa M07 | — |
-| `supersededById` | ObjectId | [VERIFICAR] | — | `paymentSlips` (M05) |
+| `supersededById` | uniqueidentifier | [VERIFICAR] | — | `paymentSlips` (M05) |
 | `history[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 
 **`invoiceDocuments`** — `invoiceId` (o `paymentSlipId`, `closureId`), `kind` (Enum `invoicePdf, duplicatePdf, slipPdf, printBatchPdf, closureActaPdf, printDataFile`), `storedFileId` (almacenamiento privado; T05 §7.2 — antes ~~`fileKey`~~), `sha256`, `templateId`, `templateVersion`, `generatedAt`, `pages`, `passwordProtected`. Índice `{tenantId, invoiceId, kind}`.
@@ -1294,11 +1296,11 @@ Campos de `invoiceDocuments` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `invoiceId` | ObjectId | Sí | O `paymentSlipId`, `closureId` | `invoices` (M05) |
+| `invoiceId` | uniqueidentifier | Sí | O `paymentSlipId`, `closureId` | `invoices` (M05) |
 | `kind` | enum | Sí | Enum `invoicePdf, duplicatePdf, slipPdf, printBatchPdf, closureActaPdf, printDataFile` | — |
-| `storedFileId` | ObjectId | Sí | Almacenamiento privado; T05 §7.2 — antes ~~`fileKey`~~ | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | Sí | Almacenamiento privado; T05 §7.2 — antes ~~`fileKey`~~ | `storedFiles` (T01) |
 | `sha256` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `templateId` | ObjectId | [VERIFICAR] | — | `documentTemplates` (T11) |
+| `templateId` | uniqueidentifier | [VERIFICAR] | — | `documentTemplates` (T11) |
 | `templateVersion` | int | Sí | Número de versión; no es referencia. | — |
 | `generatedAt` | datetime | [VERIFICAR] | — | — |
 | `pages` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1312,9 +1314,9 @@ Campos de `deliveryPreferences` (tabla normalizada el 05-11-2026 a partir del te
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `holderId` | ObjectId | Sí | — | `holders` (M01) |
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
-| `billingGroupId` | ObjectId | Sí | Alcance más específico prevalece | `billingGroups` (M05) |
+| `holderId` | uniqueidentifier | Sí | — | `holders` (M01) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
+| `billingGroupId` | uniqueidentifier | Sí | Alcance más específico prevalece | `billingGroups` (M05) |
 | `channels[]` | enum | [VERIFICAR] | Enum `paper, email, whatsapp, app` | — |
 | `emails[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `phones[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1328,7 +1330,7 @@ Campos de `distributionRuns` (tabla normalizada el 05-11-2026 a partir del texto
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `code` | string | Sí | — | — |
-| `billingRunId` | ObjectId | Sí | O `selection` | `billingRuns` (M05) |
+| `billingRunId` | uniqueidentifier | Sí | O `selection` | `billingRuns` (M05) |
 | `channels[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `grouping` | enum | [VERIFICAR] | Enum `none, account, member, memberAndPhone` | — |
 | `orderBy` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1337,7 +1339,7 @@ Campos de `distributionRuns` (tabla normalizada el 05-11-2026 a partir del texto
 | `printOptions` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Ver §8.9 | — |
 | `counts` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `outputDocumentIds[]` | ObjectId[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `outputDocumentIds[]` | uniqueidentifier[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 
 **`invoiceDeliveries`** — un registro por comprobante, canal y destino: `invoiceId`, `distributionRunId`, `channel`, `destination` (enmascarado en vistas), `communicationId` (T09), `providerMessageId`, `status` (ver §8.9), `attempts`, `lastError`, `idempotencyKey`, `postalPieceNo`, `routeId`, `routeSequence`, `deliveredAt`, `returnReason`, `recordedBy` (repartidor), `clientMutationId` (offline). Índices `{tenantId, invoiceId}`, `{tenantId, distributionRunId, status}`, `{tenantId, idempotencyKey}` único.
 
@@ -1345,23 +1347,23 @@ Campos de `invoiceDeliveries` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `invoiceId` | ObjectId | Sí | — | `invoices` (M05) |
-| `distributionRunId` | ObjectId | [VERIFICAR] | — | `distributionRuns` (M05) |
+| `invoiceId` | uniqueidentifier | Sí | — | `invoices` (M05) |
+| `distributionRunId` | uniqueidentifier | [VERIFICAR] | — | `distributionRuns` (M05) |
 | `channel` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `destination` | [VERIFICAR] | [VERIFICAR] | Enmascarado en vistas | — |
-| `communicationId` | ObjectId | Sí | T09 | `communications` (T09) |
-| `providerMessageId` | ObjectId | [VERIFICAR] | — | externa: id del proveedor de mensajería (sin colección) |
+| `communicationId` | uniqueidentifier | Sí | T09 | `communications` (T09) |
+| `providerMessageId` | uniqueidentifier | [VERIFICAR] | — | externa: id del proveedor de mensajería (sin colección) |
 | `status` | enum | Sí | Ver §8.9 | — |
 | `attempts` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `lastError` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `idempotencyKey` | string | Sí | — | — |
 | `postalPieceNo` | int | [VERIFICAR] | — | — |
-| `routeId` | ObjectId | [VERIFICAR] | — | `distributionRoutes` (M05) |
+| `routeId` | uniqueidentifier | [VERIFICAR] | — | `distributionRoutes` (M05) |
 | `routeSequence` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `deliveredAt` | datetime | [VERIFICAR] | — | — |
 | `returnReason` | string | [VERIFICAR] | — | — |
 | `recordedBy` | [VERIFICAR] | [VERIFICAR] | Repartidor | `memberships` (T02) |
-| `clientMutationId` | ObjectId | Sí | Offline | no es referencia: clave de idempotencia offline |
+| `clientMutationId` | uniqueidentifier | Sí | Offline | no es referencia: clave de idempotencia offline |
 
 **`distributionRoutes`** — `code`, `name`, `courierUserId` (repartidor) o `postalCarrierId`, `zones[]`, `stops[] { accountId, sequence }`, `status`. Origen: zona/sector/recorrido postal de la cuenta (`SUMSOC`).
 
@@ -1371,8 +1373,8 @@ Campos de `distributionRoutes` (tabla normalizada el 05-11-2026 a partir del tex
 |---|---|---|---|---|
 | `code` | string | Sí | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `courierUserId` | ObjectId | [VERIFICAR] | (repartidor) o | `memberships` (T02) |
-| `postalCarrierId` | ObjectId | [VERIFICAR] | — | `postalCarriers` (M05) |
+| `courierUserId` | uniqueidentifier | [VERIFICAR] | (repartidor) o | `memberships` (T02) |
+| `postalCarrierId` | uniqueidentifier | [VERIFICAR] | — | `postalCarriers` (M05) |
 | `zones[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | — | — |
 
@@ -1393,8 +1395,8 @@ Campos de `postalCarriers` (tabla normalizada el 05-11-2026 a partir del texto a
 
 | Campo | Tipo | Obl. | Descripción |
 |---|---|---|---|
-| `cycleId` / `period` / `sequence` | ObjectId / String `YYYY-MM` (CTR-DAT-31; antes ~~Object~~) / Int | Sí | — |
-| `runIds` | Array ObjectId | Sí | Lotes incluidos (incluye reprocesos). |
+| `cycleId` / `period` / `sequence` | uniqueidentifier / String `YYYY-MM` (CTR-DAT-31; antes ~~Object~~) / Int | Sí | — |
+| `runIds` | Array uniqueidentifier | Sí | Lotes incluidos (incluye reprocesos). |
 | `reconciliation` | Object | Sí | `{ selected, issued, issuedObserved, pending, excluded, uncertain, fiscalRejected, requeued, carriedOver, balanced: Boolean }` (`requeued` agregado por DEC-107). |
 | `totals` | Array `{ serviceId, conceptId, net, taxes, total }` | Sí | — |
 | `authorizationSummary` / `distributionSummary` | Object | Sí | Conteos por estado. |
@@ -1402,8 +1404,8 @@ Campos de `postalCarriers` (tabla normalizada el 05-11-2026 a partir del texto a
 | `numberRanges` | Array (copia de `billingRunNumberRanges`) | Sí | — |
 | `status` | Enum (ver §8.10) | Sí | — |
 | `approvals` | Array `{ role, userId, at, decision, comment }` | No | — |
-| `actaDocumentId` | ObjectId | No | PDF inmutable. |
-| `closureVersion` / `previousClosureId` | Int / ObjectId | Sí / No | Reapertura. Referencia: `previousClosureId` → `billingCycleClosures` (M05); `closureVersion` no es referencia. |
+| `actaDocumentId` | uniqueidentifier | No | PDF inmutable. |
+| `closureVersion` / `previousClosureId` | Int / uniqueidentifier | Sí / No | Reapertura. Referencia: `previousClosureId` → `billingCycleClosures` (M05); `closureVersion` no es referencia. |
 | `reopen` | Object | No | `{ reason, requestedBy, approvedBy, at }`. |
 
 Índice `{tenantId, legalEntityId, cycleId, period, sequence, closureVersion}` único (antes con `period.year`, `period.month` y sin entidad); el acta se arma por entidad jurídica (DEC-064), con `legalEntityId` obligatorio.

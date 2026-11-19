@@ -659,11 +659,13 @@ Formato: ID | Regla | Comportamiento ProCoop (fuente) | Decisión en CoopApps | 
 | RN-COB-150 | Las ramas muertas y de otras cooperativas ("FAL", "LAGU", `E_SIRO.cs:26`) no se portan. | RN-11 implicancia 8 | Descartar | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Convenciones comunes
 
-- Todo documento lleva `tenantId` (ObjectId, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista). Todos los índices compuestos empiezan por `tenantId` (DEC-002).
-- Importes: `Decimal128`; los objetos `money` son `{ amount: Decimal128, currency: 'ARS' }`. Prohibido `Number` para importes.
+- Todo documento lleva `TenantId` (uniqueidentifier, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista). Todos los índices compuestos empiezan por `TenantId` (DEC-002).
+- Importes: `DECIMAL(18,4)`; los objetos `money` son `{ amount: DECIMAL(18,4), currency: 'ARS' }`. Prohibido `Number` para importes.
 - Los documentos económicos (`obligations`, `ledgerEntries`, `allocations`, `receipts`, `cashOperations`, `paymentTenders`, `creditBalances`, `gatewayTransactions`, `agencySettlementLines`, `refundCases`, `chargebacks`) **nunca se borran**: se anulan o revierten.
 - Datos sensibles: CBU cifrado a nivel de campo y mostrado enmascarado; tarjetas solo como token del proveedor, marca y últimos 4 dígitos; nunca PAN ni código de seguridad. Credenciales solo como referencia a la bóveda (`credentialRef`).
 - `operationId`: identificador de operación estable por tenant (AGR-016) usado como clave de idempotencia de cada hecho económico.
@@ -679,14 +681,14 @@ Propósito: agrupación de presentación de obligaciones (separada por servicio 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `code` | string | Sí | Código visible de la cuenta corriente (único por tenant). |
-| `holderId` | ObjectId → M01 | Sí | Titular. |
-| `legalEntityId` | ObjectId → T04 `legalEntities` | Sí | Entidad jurídica a la que pertenecen todas las obligaciones de la cuenta (DEC-064, DEC-087). |
-| `accountIds` | [ObjectId] → M01 | Sí | Cuentas (suministros) incluidas. |
-| `billingGroupId` | ObjectId → M05 | No | Grupo de facturación (FAC-006) cuando la cuenta es unificada por grupo. |
+| `holderId` | uniqueidentifier → M01 | Sí | Titular. |
+| `legalEntityId` | uniqueidentifier → T04 `legalEntities` | Sí | Entidad jurídica a la que pertenecen todas las obligaciones de la cuenta (DEC-064, DEC-087). |
+| `accountIds` | [uniqueidentifier] → M01 | Sí | Cuentas (suministros) incluidas. |
+| `billingGroupId` | uniqueidentifier → M05 | No | Grupo de facturación (FAC-006) cuando la cuenta es unificada por grupo. |
 | `mode` | enum `separate` \| `unified` | Sí | Modalidad efectiva (RN-COB-014). |
-| `serviceId` | ObjectId → M02 | Cond. | Obligatorio si `mode = separate`. |
-| `contractIds` | [ObjectId] | No | Contratos incluidos. |
-| `allocationPolicyId` | ObjectId | No | Política propia (excepción). |
+| `serviceId` | uniqueidentifier → M02 | Cond. | Obligatorio si `mode = separate`. |
+| `contractIds` | [uniqueidentifier] | No | Contratos incluidos. |
+| `allocationPolicyId` | uniqueidentifier | No | Política propia (excepción). |
 | `minimumPaymentPolicy` | objeto | No | Fórmula y saldo elegible (PRM-COB-014/015). |
 | `electronicPaymentCode` | string | No | Código de pago electrónico de la cuenta para redes. |
 | `status` | enum `active` \| `closed` | Sí | — |
@@ -698,12 +700,12 @@ Propósito: agrupación de presentación de obligaciones (separada por servicio 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `currentAccountId`, `holderId`, `accountId` | ObjectId | Sí | Cuenta corriente, titular y cuenta M01. |
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica emisora del comprobante de origen; debe coincidir con la de la cuenta corriente (DEC-064). |
-| `serviceId`, `contractId` | ObjectId | Sí / No | Servicio y contrato o suministro. |
-| `billingGroupId` | ObjectId | No | Grupo de facturación. |
+| `currentAccountId`, `holderId`, `accountId` | uniqueidentifier | Sí | Cuenta corriente, titular y cuenta M01. |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica emisora del comprobante de origen; debe coincidir con la de la cuenta corriente (DEC-064). |
+| `serviceId`, `contractId` | uniqueidentifier | Sí / No | Servicio y contrato o suministro. |
+| `billingGroupId` | uniqueidentifier | No | Grupo de facturación. |
 | `sourceType` | enum `invoice`, `debitNote`, `installment`, `interestCharge`, `surchargeDeferred`, `commissionCharge`, `reversalCharge`, `connectionCharge`, `thirdPartyDocument`, `externalImport`, `advanceDebit`, `migration`, `other` | Sí | Origen. |
-| `sourceDocumentId` | ObjectId | Sí | Documento de M05/M08/M18 o importación. |
+| `sourceDocumentId` | uniqueidentifier | Sí | Documento de M05/M08/M18 o importación. |
 | `sourceDocument` | `{ type, pointOfSale, number, letter }` | Sí | Número visible. Si M05 renumera un comprobante todavía no autorizado (`fac.invoice.renumbered`, EVT-FAC-23; DEC-107), se actualiza `number` y el anterior queda en la auditoría; con `fiscalGate = authorized` el número ya no cambia. |
 | `sourceLineKey` | string | Sí | Clave del bloque de servicio dentro del comprobante agrupado. |
 | `period` | string `YYYY-MM` | No | Período facturado. |
@@ -714,13 +716,13 @@ Propósito: agrupación de presentación de obligaciones (separada por servicio 
 | `amount` | money | Sí | Importe original. |
 | `components` | [`{ kind: capital\|tax\|thirdParty\|surcharge\|interest\|financing\|fee\|other, code, amount, thirdPartyBillerId? }`] | Sí | Desglose (neto, IVA, percepción, IIBB, terceros). |
 | `itemClass` | enum `standard`, `guaranteeDeposit`, `subsidyFundContribution`, `burialRightAcquisition`, `burialRightMaintenance` | Sí | Clase del ítem de M05 (RF-FAC-176); default `standard`. `guaranteeDeposit` es pasivo reintegrable (RN-COB-157). Si un comprobante mezcla clases, cada bloque es una obligación propia (`sourceLineKey`). |
-| `openAmount` | Decimal128 | Sí | Proyección no editable (RN-COB-002). |
+| `openAmount` | DECIMAL(18,4) | Sí | Proyección no editable (RN-COB-002). |
 | `openComponents` | [`{ kind, amount }`] | Sí | Saldo por componente. |
 | `balanceStatus` | enum `pending`, `partial`, `paid`, `voided` | Sí | Derivado. |
 | `lifecycle` | `{ agreementId?, writtenOffAt?, prescribedAt?, notifiedNoticeId?, disputeClaimId? }` | No | Marcas de M08/M09. |
 | `collectionBlock` | `{ blocked, reason, until, by, at }` | No | Bloqueo de cobro (RF-COB-012). |
-| `directDebitMandateId` | ObjectId | No | Adhesión aplicable. |
-| `paymentReferenceIds` | [ObjectId] | No | Identificadores publicados. |
+| `directDebitMandateId` | uniqueidentifier | No | Adhesión aplicable. |
+| `paymentReferenceIds` | [uniqueidentifier] | No | Identificadores publicados. |
 | `generatedInCash` | bool | No | Comprobante generado en caja (`GEN_CAJ`). |
 | `legacy` | `{ system, table, key, displayKey, runId, hash, readOnly, priorMigration }` (T05; antes `{ system, id, user, account }`) | No | Claves ProCoop: `key` = `ID_FAC`; `displayKey` = `USUARIO` y cuenta. |
 | `recordedAt` | Date | Sí | Registro (AGR-010). |
@@ -732,17 +734,17 @@ Propósito: agrupación de presentación de obligaciones (separada por servicio 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `entryNo` | long | Sí | Correlativo por tenant. |
-| `currentAccountId`, `holderId`, `serviceId` | ObjectId | Sí | — |
+| `currentAccountId`, `holderId`, `serviceId` | uniqueidentifier | Sí | — |
 | `direction` | enum `debit` \| `credit` | Sí | — |
 | `kind` | enum `obligation`, `payment`, `creditNote`, `advance`, `adjustment`, `reversal`, `chargeback`, `refund`, `writeOff`, `agreementReplacement`, `migrationOpening` | Sí | — |
 | `amount` | money | Sí | — |
-| `obligationId` / `creditBalanceId` / `receiptId` | ObjectId | Cond. | Vínculos. |
+| `obligationId` / `creditBalanceId` / `receiptId` | uniqueidentifier | Cond. | Vínculos. |
 | `sourceRef` | `{ type, id }` | Sí | Documento o hecho de origen. |
 | `effectiveDate` | Date | Sí | Fecha efectiva. |
 | `recordedAt` | Date | Sí | Fecha de registro. |
-| `reversalOf` | ObjectId | No | Movimiento que revierte. |
+| `reversalOf` | uniqueidentifier | No | Movimiento que revierte. |
 | `reasonCode`, `reasonText` | string | Cond. | Obligatorio en ajustes y reversos. |
-| `authorizedBy` | ObjectId | Cond. | Ajustes y reversos. |
+| `authorizedBy` | uniqueidentifier | Cond. | Ajustes y reversos. |
 | `operationId` | string | Sí | Idempotencia. |
 
 Índices: `{tenantId, operationId, kind}` único; `{tenantId, currentAccountId, effectiveDate}`; `{tenantId, obligationId}`; `{tenantId, entryNo}` único. Origen: derivado de `FACTURAS`, `IT_PAGSO`, `ANTICIPOS`, `ANUPAG_SOC`.
@@ -751,19 +753,19 @@ Propósito: agrupación de presentación de obligaciones (separada por servicio 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `obligationId` | ObjectId | Sí | Obligación cancelada. |
+| `obligationId` | uniqueidentifier | Sí | Obligación cancelada. |
 | `creditType` | enum `payment`, `creditNote`, `creditBalance`, `retention`, `writeOff`, `agreement` | Sí | Origen del crédito. |
 | `creditRef` | `{ type, id }` | Sí | Recibo, saldo a favor, NC. |
 | `component` | enum `surchargeBetweenDues`, `interestMora`, `interestFinancing`, `thirdParty`, `tax`, `capital` | Sí | Componente imputado. |
-| `amount` | Decimal128 | Sí | — |
-| `prevOpenAmount` | Decimal128 | Sí | Saldo previo (`SAL_ACT`). |
+| `amount` | DECIMAL(18,4) | Sí | — |
+| `prevOpenAmount` | DECIMAL(18,4) | Sí | Saldo previo (`SAL_ACT`). |
 | `policy` | `{ policyId, version, strategy }` | Sí | Regla aplicada. |
 | `sequence` | int | Sí | Orden dentro de la operación. |
 | `effectiveDate` | Date | Sí | — |
 | `status` | enum `active` \| `reversed` | Sí | — |
-| `reversedBy` | ObjectId | No | Imputación inversa. |
+| `reversedBy` | uniqueidentifier | No | Imputación inversa. |
 | `reversalReason` | string | Cond. | — |
-| `authorizedBy` | ObjectId | Cond. | Reasignaciones. |
+| `authorizedBy` | uniqueidentifier | Cond. | Reasignaciones. |
 | `operationId` | string | Sí | Idempotencia. |
 
 Índices: `{tenantId, operationId, sequence}` único; `{tenantId, obligationId, status}`; `{tenantId, 'creditRef.id', status}`. Origen: `IT_PAGSO` (`ENTREGA`, `SAL_ACT`, `INT_234`, `INT_MOR`, `INT_FIN`, `FACTOR`, `FEC_ACRED`, `NRO_CUO`), `TALONFAC_PAGO`, `ANUIT_PAGSO`, `IT_PAGSO_INTERES`, `IT_PAGSO_INTERES_TRAMAS` (el detalle de cálculo lo guarda M08).
@@ -774,7 +776,7 @@ Campos: `code`, `nameKey` (dict), `scope` `{ serviceIds, channels: [cash, collec
 
 ### 7.6 `creditBalances` — saldos a favor y anticipos
 
-Campos: `currentAccountId`, `holderId`, `serviceId` (opcional), `origin` enum `overpayment`, `advance`, `onAccount`, `duplicatePayment`, `rounding`, `creditNote`, `allocationReversal`, `retentionExcess`, `collectorExcess`, `migration`, `guaranteeRefund` (devolución de depósito en garantía, RF-COB-190; HUECO-OTR-04); `sourceRef`; `amount`, `openAmount` (proyección); `autoApplicable` bool; `applyOnNextInvoice` bool; `partialApplicationPct` Decimal128; `dueSchedule` (anticipos con vencimientos); `validFrom`, `validTo`; `status` enum `open`, `consumed`, `refundRequested`, `refunded`, `voided`; `notes`. Índices: `{tenantId, currentAccountId, status}`; `{tenantId, 'sourceRef.id'}`. Origen: `ANTICIPOS` (`IMP_ANT`, `SDO_ANT`), `ANTIFACTU`, `CREDITOS_NOAUTOMATICOS`.
+Campos: `currentAccountId`, `holderId`, `serviceId` (opcional), `origin` enum `overpayment`, `advance`, `onAccount`, `duplicatePayment`, `rounding`, `creditNote`, `allocationReversal`, `retentionExcess`, `collectorExcess`, `migration`, `guaranteeRefund` (devolución de depósito en garantía, RF-COB-190; HUECO-OTR-04); `sourceRef`; `amount`, `openAmount` (proyección); `autoApplicable` bool; `applyOnNextInvoice` bool; `partialApplicationPct` DECIMAL(18,4); `dueSchedule` (anticipos con vencimientos); `validFrom`, `validTo`; `status` enum `open`, `consumed`, `refundRequested`, `refunded`, `voided`; `notes`. Índices: `{tenantId, currentAccountId, status}`; `{tenantId, 'sourceRef.id'}`. Origen: `ANTICIPOS` (`IMP_ANT`, `SDO_ANT`), `ANTIFACTU`, `CREDITOS_NOAUTOMATICOS`.
 
 ### 7.7 `unidentifiedReceipts` — cobros no identificados
 
@@ -852,9 +854,9 @@ Campos: `cashRegisterId`, `connectorId`, `externalQrId`, `payloadRef`, `imageSto
 | `agreementCode` | string | Convenio (se valida contra la cabecera) | `CONVENIO` |
 | `conceptCode` | string | Concepto Red Link | `ID_CON` |
 | `barcode` | `{ formatCode, agreement }` | Formato y convenio del código de barras | `ID_CODBAR`, `CONV_CODBAR` |
-| `cashRegisterId` | ObjectId | Caja virtual | `CAJA` |
-| `treasuryAccountId` | ObjectId → M14 | Cuenta de acreditación | `COD_BANT` |
-| `exportLayoutId`, `importLayoutId`, `controlLayoutId` | ObjectId | Layouts | `COD_ARC2`, `COD_ARC` |
+| `cashRegisterId` | uniqueidentifier | Caja virtual | `CAJA` |
+| `treasuryAccountId` | uniqueidentifier → M14 | Cuenta de acreditación | `COD_BANT` |
+| `exportLayoutId`, `importLayoutId`, `controlLayoutId` | uniqueidentifier | Layouts | `COD_ARC2`, `COD_ARC` |
 | `referenceMode` | enum `default`, `directObligationId`, `legacyUserAlias`, `format3_4_8`, `lagResolver` | Forma de identificar el comprobante | `ARC_CONFIG` |
 | `maxAcceptedDue` | enum `due1`..`due4`, `none` | Último vencimiento aceptado. Con DEC-106 queda como dato de migración: el valor operativo es `dueDateCapacity` (`due1`..`due4` → 1..4; `none` → `null`). *Reemplazado como fuente operativa (10-11-2026, DEC-106).* | `PERFUETER`, `FUETERBAN` |
 | `dueDateCapacity` | int ≥ 1 | Cantidad máxima de vencimientos que el ente admite, según su layout de exportación vigente (`fileLayouts.dueDateCapacity` de T06 para `exportLayoutId`) o lo que declare el convenio si es menor; obligatoria para habilitar el ente. Se publica a M05 con `cob.service.agencyDueDateCapacities` para validar el tope de vencimientos (RN-FAC-163) y define cuántos vencimientos se publican al ente: los primeros N (RN-COB-159; DEC-106, 10-11-2026) | `maxAcceptedDue` (migración) |
@@ -864,7 +866,7 @@ Campos: `cashRegisterId`, `connectorId`, `externalQrId`, `payloadRef`, `imageSto
 | `fee` | `{ mode: none\|fixedPerItem\|pct, amount, pct, min, max, transferToPayer, productId }` | Comisión | `TRASLADAR`, `FORMA_CAL`, `IMPO_CAL`, `IMPO_MIN`, `IMPO_MAX` |
 | `bankPostingMode` | enum `perReceipt`, `perCreditDate`, `perCashRegister`, `perPayment` | Registración bancaria | `TIPO_REG` |
 | `autoReconciled` | bool | Movimiento nace conciliado | `CONCILIACION_AUTO` |
-| `amountTolerance` | Decimal128 | Tolerancia de importe | `_minimoDiferencia` |
+| `amountTolerance` | DECIMAL(18,4) | Tolerancia de importe | `_minimoDiferencia` |
 | `maxItemsPerAccountPeriod`, `extraDaysLastDue`, `excludeAlreadyInformed`, `settlementDateMode` | varios | Reglas de layout (SIRO, Banelco) | V2 3006, 2818, 3023 |
 | `transport` | `{ mode: manual\|sftp\|api, t06ConnectionId, schedule, autoConfirm, errorEmails }` | Canal | V2 2994, 2995, 3025, 3005 |
 | `excludeDirectDebitAdhered` | bool | — | — |
@@ -913,10 +915,10 @@ Campos: `agencyId`, `kind` enum `novelty` \| `delinquency`, `storedFileId`, `fil
 | Campo | Tipo | Oblig. | Descripción | Origen `PAGOS360` |
 |---|---|---|---|---|
 | `intentNo` | long | Sí | Correlativo | `COD_PAG` |
-| `connectorId` | ObjectId | Sí | Conector | `API` |
+| `connectorId` | uniqueidentifier | Sí | Conector | `API` |
 | `type` | enum `invoice`, `coupon`, `installment`, `prepaid`, `web`, `cashRegister`, `link`, `manual`, `directDebit`, `file`, `thirdPartySummary` | Sí | Tipo | `TIPO` |
 | `originChannel` | enum `portal`, `app`, `landing`, `cash`, `crm`, `whatsapp`, `api`, `system` | Sí | Canal | — |
-| `currentAccountId`, `holderId` | ObjectId | Cond. | — | — |
+| `currentAccountId`, `holderId` | uniqueidentifier | Cond. | — | — |
 | `payer` | `{ name, email, phone }` | No | Pagador | `NOMBRE`, `MAIL` |
 | `items` | [`{ obligationId\|couponId, document, serviceId, installment, amountsByDue, surchargeMora, surchargeDue }`] | Sí | Ítems | `PAGOS360_ITEMS` (`ID_FAC`, `TOTAL1/2`, `VTO1/2`, `TALON`, `CUOTA`, `RECARGO_MORA`, `RECARGO_VTO`) |
 | `amounts` | [`{ seq, dueDate, amount }`] | Sí | Importes por vencimiento | `IMPORTE1/2`, `VTO1/2` |
@@ -927,11 +929,11 @@ Campos: `agencyId`, `kind` enum `novelty` \| `delinquency`, `storedFileId`, `fil
 | `externalId` | string | Cond. | Id externo | `ID_360`, `ID_SIRO`, `ID_ENTIDAD` |
 | `externalRefs` | `{ checkoutUrl, barcode, barcodeUrl, rapipagoBarcode, pagoFacilBarcodes, qrData, pdfUrl }` | No | Datos devueltos | `URL_PAGO`, `CODIGO_BARRA` |
 | `metadata` | objeto | No | Metadata del proveedor | `PAGOS360_EXTRAS.METADATA` |
-| `mandateId` | ObjectId | No | Débito | `DEBITO_ID`, `DEBITO_TIPO` |
+| `mandateId` | uniqueidentifier | No | Débito | `DEBITO_ID`, `DEBITO_TIPO` |
 | `shares` | [`{ channel, to, at, status }`] | No | Envíos del link | — |
-| `reusedFromId` | ObjectId | No | Reutilización | — |
-| `transactionIds` | [ObjectId] | No | Transacciones | — |
-| `receiptId` | ObjectId | No | Imputación | — |
+| `reusedFromId` | uniqueidentifier | No | Reutilización | — |
+| `transactionIds` | [uniqueidentifier] | No | Transacciones | — |
+| `receiptId` | uniqueidentifier | No | Imputación | — |
 | `statusHistory` | [`{ from, to, at, by, cause }`] | Sí | Auditoría | `Cambiar_Estado` |
 | `uncertainSince` | Date | No | Pago incierto | — |
 | `idempotencyKey` | string | Sí | — | — |
@@ -1042,16 +1044,16 @@ Lista original: §7.6.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `currentAccountId` | ObjectId | [VERIFICAR] | — | `currentAccounts` (M07) |
-| `holderId` | ObjectId | [VERIFICAR] | — | `holders` (M01) |
-| `serviceId` | ObjectId | No | opcional | `tenantServices` (M02) |
+| `currentAccountId` | uniqueidentifier | [VERIFICAR] | — | `currentAccounts` (M07) |
+| `holderId` | uniqueidentifier | [VERIFICAR] | — | `holders` (M01) |
+| `serviceId` | uniqueidentifier | No | opcional | `tenantServices` (M02) |
 | `origin` | enum | [VERIFICAR] | Valores: `overpayment`, `advance`, `onAccount`, `duplicatePayment`, `rounding`, `creditNote`, `allocationReversal`, `retentionExcess`, `collectorExcess`, `migration`,… | — |
 | `sourceRef` | string | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `openAmount` | Decimal128 | [VERIFICAR] | proyección | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `openAmount` | DECIMAL(18,4) | [VERIFICAR] | proyección | — |
 | `autoApplicable` | bool | [VERIFICAR] | — | — |
 | `applyOnNextInvoice` | bool | [VERIFICAR] | — | — |
-| `partialApplicationPct` | Decimal128 | [VERIFICAR] | — | — |
+| `partialApplicationPct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `dueSchedule` | [VERIFICAR] | [VERIFICAR] | anticipos con vencimientos | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
@@ -1066,11 +1068,11 @@ Lista original: §7.7.
 |---|---|---|---|---|
 | `channel` | enum | [VERIFICAR] | Valores: `cash`, `agency`, `gateway`, `transfer`, `directDebit`, `collector`. | — |
 | `sourceRef` | string | [VERIFICAR] | línea de rendición, transacción, movimiento bancario M14 | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `receivedAt` | Date | [VERIFICAR] | — | — |
 | `payerData` | object | [VERIFICAR] | `{ name, docType, docNumberMasked, cbuMasked, bankReference, freeText }` | — |
-| `candidateObligationIds` | ObjectId[] | [VERIFICAR] | — | `obligations` (M07) |
-| `evidenceStoredFileIds` | ObjectId[] | [VERIFICAR] | antes `evidenceFileIds` | `storedFiles` (T01) |
+| `candidateObligationIds` | uniqueidentifier[] | [VERIFICAR] | — | `obligations` (M07) |
+| `evidenceStoredFileIds` | uniqueidentifier[] | [VERIFICAR] | antes `evidenceFileIds` | `storedFiles` (T01) |
 | `status` | enum | [VERIFICAR] | Valores: `pending`, `identified`, `applied`, `refundRequested`, `refunded`, `transferredToCredit`, `voided`. | — |
 | `assignedTo` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `escalatedAt` | Date | [VERIFICAR] | — | — |
@@ -1083,8 +1085,8 @@ Lista original: §7.8.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `currentAccountId` | ObjectId | [VERIFICAR] | — | `currentAccounts` (M07) |
-| `billingGroupId` | ObjectId | [VERIFICAR] | — | `billingGroups` (M05); antes implícita por el nombre |
+| `currentAccountId` | uniqueidentifier | [VERIFICAR] | — | `currentAccounts` (M07) |
+| `billingGroupId` | uniqueidentifier | [VERIFICAR] | — | `billingGroups` (M05); antes implícita por el nombre |
 | `cutoffDate` | Date | [VERIFICAR] | — | — |
 | `periodFrom` | Date | [VERIFICAR] | — | — |
 | `periodTo` | Date | [VERIFICAR] | — | — |
@@ -1093,9 +1095,9 @@ Lista original: §7.8.
 | `totalOpen` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `minimumPayment` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `creditAvailable` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `paymentCouponId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `couponId` en este anexo. | `paymentCoupons` (M07); antes implícita por el nombre |
-| `paymentReferenceIds` | ObjectId[] | [VERIFICAR] | — | `paymentReferences` (M07); antes implícita por el nombre |
-| `storedFileId` | ObjectId | [VERIFICAR] | PDF privado | `storedFiles` (T01) |
+| `paymentCouponId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `couponId` en este anexo. | `paymentCoupons` (M07); antes implícita por el nombre |
+| `paymentReferenceIds` | uniqueidentifier[] | [VERIFICAR] | — | `paymentReferences` (M07); antes implícita por el nombre |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | PDF privado | `storedFiles` (T01) |
 | `deliveryChannels` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | Valores: `issued`, `delivered`, `superseded`. | — |
 
@@ -1107,18 +1109,18 @@ Lista original: §7.9.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | número | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
 | `type` | enum | [VERIFICAR] | Valores: `counter`, `agencyVirtual`, `collector`, `digitalChannel`, `remote`. | — |
-| `fixedUserId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `agencyId` | ObjectId | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
-| `collectorId` | ObjectId | [VERIFICAR] | — | `collectors` (M07); antes implícita por el nombre |
-| `connectorId` | ObjectId | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `fixedUserId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
+| `collectorId` | uniqueidentifier | [VERIFICAR] | — | `collectors` (M07); antes implícita por el nombre |
+| `connectorId` | uniqueidentifier | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
 | `allowedMethods` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `limits` | object | [VERIFICAR] | `{ maxPerOperation, maxCashOnHand }` | — |
-| `staticQrCodeId` | ObjectId | [VERIFICAR] | — | `staticQrCodes` (M07); antes implícita por el nombre |
+| `staticQrCodeId` | uniqueidentifier | [VERIFICAR] | — | `staticQrCodes` (M07); antes implícita por el nombre |
 | `printerProfile` | [VERIFICAR] | [VERIFICAR] | T06 | — |
 | `status` | enum | [VERIFICAR] | Valores: `active`, `inactive`, `inactive`. | — |
-| `workstationId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `workstations` (T04); antes implícita por el nombre |
+| `workstationId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `workstations` (T04); antes implícita por el nombre |
 
 #### 7.35.10 `cashSessions` (COL-COB-10)
 
@@ -1126,8 +1128,8 @@ Lista original: §7.10.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cashRegisterId` | ObjectId | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
-| `userId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `cashRegisterId` | uniqueidentifier | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
+| `userId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `businessDate` | Date | [VERIFICAR] | — | — |
 | `openedAt` | Date | [VERIFICAR] | — | — |
 | `closedAt` | Date | [VERIFICAR] | — | — |
@@ -1137,8 +1139,8 @@ Lista original: §7.10.
 | `declared` | array | [VERIFICAR] | [`{ method, currency, amount, denominations? }`] | — |
 | `differences` | array | [VERIFICAR] | [`{ method, currency, amount, justification, approvedBy, adjustmentEntryId }`] | — |
 | `integrityIssues` | array | [VERIFICAR] | [] | — |
-| `closeGroupId` | string (UUID) | No | Cierre múltiple: identificador de correlación que comparten las sesiones cerradas juntas (antes tipo `ObjectId`). | No es referencia: no hay colección de cierres múltiples; las sesiones del grupo se buscan por este valor (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `handoverId` | ObjectId | [VERIFICAR] | — | `treasuryHandovers` (M07); antes implícita por el nombre |
+| `closeGroupId` | string (UUID) | No | Cierre múltiple: identificador de correlación que comparten las sesiones cerradas juntas (antes tipo `uniqueidentifier`). | No es referencia: no hay colección de cierres múltiples; las sesiones del grupo se buscan por este valor (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `handoverId` | uniqueidentifier | [VERIFICAR] | — | `treasuryHandovers` (M07); antes implícita por el nombre |
 | `notes` | string | [VERIFICAR] | — | — |
 | `open` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
@@ -1149,21 +1151,21 @@ Lista original: §7.11.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `operationNo` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `cashSessionId` | ObjectId | [VERIFICAR] | Nombre canónico del payload de EVT-COB-12/14/25; antes `sessionId` en este anexo. | → M07 `cashSessions` (antes "`cashSessions` (M07); antes implícita por el nombre") |
-| `cashRegisterId` | ObjectId | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
+| `cashSessionId` | uniqueidentifier | [VERIFICAR] | Nombre canónico del payload de EVT-COB-12/14/25; antes `sessionId` en este anexo. | → M07 `cashSessions` (antes "`cashSessions` (M07); antes implícita por el nombre") |
+| `cashRegisterId` | uniqueidentifier | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
 | `type` | enum | [VERIFICAR] | Valores: `collection`, `supplierPayment`, `donation`, `manualIn`, `manualOut`, `prepaidSale`, `thirdPartyCollection`, `agencySettlement`, `gatewaySettlement`,… | — |
 | `channel` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `agencyId` | ObjectId | [VERIFICAR] | / `connectorId` | `collectionAgencies` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | / `connectorId` | `collectionAgencies` (M07); antes implícita por el nombre |
 | `businessDate` | Date | [VERIFICAR] | — | — |
 | `time` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `totalsByMethod` | array | [VERIFICAR] | [`{ method, in, out }`] | — |
 | `cashPaid` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `change` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `receiptIds` | ObjectId[] | [VERIFICAR] | — | `receipts` (M07) |
+| `receiptIds` | uniqueidentifier[] | [VERIFICAR] | — | `receipts` (M07) |
 | `originRef` | string | [VERIFICAR] | rendición, intención, lista de cobro | — |
 | `status` | enum | [VERIFICAR] | Valores: `confirmed`, `pendingFiscal`, `voided`. | — |
 | `void` | object | [VERIFICAR] | `{ by, at, reason, approvalRequestId }` | — |
-| `operationId` | ObjectId | [VERIFICAR] | único | `cashOperations` (M07); antes implícita por el nombre |
+| `operationId` | uniqueidentifier | [VERIFICAR] | único | `cashOperations` (M07); antes implícita por el nombre |
 
 #### 7.35.12 `receipts` (COL-COB-12)
 
@@ -1171,26 +1173,26 @@ Lista original: §7.12.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | [VERIFICAR] | → T04; DEC-064, DEC-087: un recibo pertenece a una sola entidad jurídica | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | → T04; DEC-064, DEC-087: un recibo pertenece a una sola entidad jurídica | `legalEntities` (T04) |
 | `number` | object | [VERIFICAR] | `{ pointOfSale, number, voucherTypeId }` con `pointOfSaleId` / `numberSequenceId` del servicio de numeración de M05 asociado a la entidad (CTR-DAT-74) | — |
 | `type` | enum | [VERIFICAR] | Valores: `official`, `internal`, `agency`, `refundToHolder`. | — |
-| `cashOperationId` | ObjectId | [VERIFICAR] | una operación de caja puede tener varios recibos, uno por entidad jurídica, RN-COB-152 | `cashOperations` (M07); antes implícita por el nombre |
-| `currentAccountId` | ObjectId | [VERIFICAR] | — | `currentAccounts` (M07) |
-| `holderId` | ObjectId | [VERIFICAR] | — | `holders` (M01) |
+| `cashOperationId` | uniqueidentifier | [VERIFICAR] | una operación de caja puede tener varios recibos, uno por entidad jurídica, RN-COB-152 | `cashOperations` (M07); antes implícita por el nombre |
+| `currentAccountId` | uniqueidentifier | [VERIFICAR] | — | `currentAccounts` (M07) |
+| `holderId` | uniqueidentifier | [VERIFICAR] | — | `holders` (M01) |
 | `issueDate` | Date | [VERIFICAR] | — | — |
 | `paymentDate` | Date | [VERIFICAR] | — | — |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `items` | array | [VERIFICAR] | [`{ obligationId, document, serviceId, prevOpen, applied, components: {surcharge, interest, financing, thirdParty, capital}, factor: 1\|-1 }`] (vista desnormalizada de… | — |
-| `creditBalanceIds` | ObjectId[] | [VERIFICAR] | — | `creditBalances` (M07); antes implícita por el nombre |
+| `creditBalanceIds` | uniqueidentifier[] | [VERIFICAR] | — | `creditBalances` (M07); antes implícita por el nombre |
 | `tenderSummary` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `fiscal` | object | [VERIFICAR] | `{ status: notRequired\|pending\|authorized\|failed, documentId }` | — |
-| `storedFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `validationCode` | string | [VERIFICAR] | QR público | — |
 | `status` | enum | [VERIFICAR] | Valores: `issued`, `voided`. | — |
 | `voidRef` | string | [VERIFICAR] | — | — |
 | `deliveries` | array | [VERIFICAR] | [`{ channel, to, at, status }`] | — |
 | `reprints` | array | [VERIFICAR] | [`{ by, at, charged }`] | — |
-| `voucherTypeId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `voucherTypes` (M05) |
+| `voucherTypeId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `voucherTypes` (M05) |
 
 #### 7.35.13 `paymentTenders` (COL-COB-13)
 
@@ -1198,18 +1200,18 @@ Lista original: §7.13.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cashOperationId` | ObjectId | [VERIFICAR] | — | `cashOperations` (M07); antes implícita por el nombre |
+| `cashOperationId` | uniqueidentifier | [VERIFICAR] | — | `cashOperations` (M07); antes implícita por el nombre |
 | `method` | enum | [VERIFICAR] | Valores: `cash`, `thirdPartyCheque`, `ownCheque`, `transfer`, `debitCard`, `creditCard`, `qr`, `retention`, `creditBalance`, `agency`, `gateway`, `directDebit`. | — |
 | `currency` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `exchangeRate` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `exchangeRate` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `amountInBase` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | Valores: `inRegister`, `handedOver`, `presented`, `deposited`, `rejected`, `voided`. | — |
-| `handoverId` | ObjectId | [VERIFICAR] | . Detalle por medio | `treasuryHandovers` (M07); antes implícita por el nombre |
-| `thirdPartyCheckId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `thirdPartyChecks` (M14); antes implícita por el nombre |
-| `settlementId` | ObjectId | Cond. | Medio `agency`: rendición del ente (§7.13). | → M07 `agencySettlements` (PA-COB-21; antes sin destino declarado) |
-| `gatewayTransactionId` | ObjectId | Cond. | Medios `gateway` y `qr` (§7.13); antes `transactionId`. | → M07 `gatewayTransactions` (PA-COB-21) |
-| `directDebitBatchId` | ObjectId | Cond. | Medio `directDebit` (§7.13); antes `batchId`. | → M07 `directDebitBatches` (PA-COB-21) |
+| `handoverId` | uniqueidentifier | [VERIFICAR] | . Detalle por medio | `treasuryHandovers` (M07); antes implícita por el nombre |
+| `thirdPartyCheckId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `thirdPartyChecks` (M14); antes implícita por el nombre |
+| `settlementId` | uniqueidentifier | Cond. | Medio `agency`: rendición del ente (§7.13). | → M07 `agencySettlements` (PA-COB-21; antes sin destino declarado) |
+| `gatewayTransactionId` | uniqueidentifier | Cond. | Medios `gateway` y `qr` (§7.13); antes `transactionId`. | → M07 `gatewayTransactions` (PA-COB-21) |
+| `directDebitBatchId` | uniqueidentifier | Cond. | Medio `directDebit` (§7.13); antes `batchId`. | → M07 `directDebitBatches` (PA-COB-21) |
 
 #### 7.35.14 `paymentMethods` (COL-COB-14)
 
@@ -1220,7 +1222,7 @@ Lista original: §7.14.
 | `code` | string | [VERIFICAR] | — | — |
 | `nameKey` | string | [VERIFICAR] | — | — |
 | `kind` | [VERIFICAR] | [VERIFICAR] | enum de `paymentTenders.method` | — |
-| `ledgerAccountId` | ObjectId | [VERIFICAR] | M15 | `ledgerAccounts` (M15) |
+| `ledgerAccountId` | uniqueidentifier | [VERIFICAR] | M15 | `ledgerAccounts` (M15) |
 | `requiresManualData` | bool | [VERIFICAR] | — | — |
 | `allowsChange` | bool | [VERIFICAR] | — | — |
 | `allowedChannels` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1243,9 +1245,9 @@ Lista original: §7.15.
 | `usableInCash` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `cashSurcharge` | object | [VERIFICAR] | `{ pct, amount }` | — |
 | `installmentPlans` | array | [VERIFICAR] | [`{ installments, surchargeType: pct\|amount, value }`] | — |
-| `surchargeProductId` | ObjectId | [VERIFICAR] | Producto con que se factura el recargo de tarjeta. | → M02 `serviceProducts` (T05 §7.2.1, `productId`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `surchargeProductId` | uniqueidentifier | [VERIFICAR] | Producto con que se factura el recargo de tarjeta. | → M02 `serviceProducts` (T05 §7.2.1, `productId`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `active` | bool | [VERIFICAR] | — | — |
-| `surchargeConceptId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `billableConcepts` (M02) |
+| `surchargeConceptId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `billableConcepts` (M02) |
 
 #### 7.35.16 `staticQrCodes` (COL-COB-17)
 
@@ -1253,11 +1255,11 @@ Lista original: §7.17.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cashRegisterId` | ObjectId | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
-| `gatewayConnectorId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `connectorId` en este anexo. | `gatewayConnectors` (M07); antes implícita por el nombre |
-| `externalQrId` | string | [VERIFICAR] | Identificador del QR en el proveedor (antes tipo `ObjectId`). | — (identificador del sistema externo; no es referencia interna) |
+| `cashRegisterId` | uniqueidentifier | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
+| `gatewayConnectorId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `connectorId` en este anexo. | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `externalQrId` | string | [VERIFICAR] | Identificador del QR en el proveedor (antes tipo `uniqueidentifier`). | — (identificador del sistema externo; no es referencia interna) |
 | `payloadRef` | string | [VERIFICAR] | — | — |
-| `imageStoredFileId` | ObjectId | [VERIFICAR] | antes `imageFileId` | `storedFiles` (T01) |
+| `imageStoredFileId` | uniqueidentifier | [VERIFICAR] | antes `imageFileId` | `storedFiles` (T01) |
 | `currentTransaction` | object | [VERIFICAR] | `{ reference, amount, intentId, loadedAt }` | — |
 | `status` | enum | [VERIFICAR] | Valores: `active`, `inactive`. | — |
 
@@ -1268,13 +1270,13 @@ Lista original: §7.18.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
-| `personId` | ObjectId | [VERIFICAR] | — | `persons` (M01) |
-| `cashRegisterId` | ObjectId | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
+| `personId` | uniqueidentifier | [VERIFICAR] | — | `persons` (M01) |
+| `cashRegisterId` | uniqueidentifier | [VERIFICAR] | — | `cashRegisters` (M07); antes implícita por el nombre |
 | `zones` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `limits` | object | [VERIFICAR] | `{ maxCashOnHand, maxPerOperation }` | — |
 | `allowedMethods` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `commission` | object | [VERIFICAR] | `{ mode: pct\|perReceipt, value, min }` | — |
-| `deviceIds` | ObjectId[] | [VERIFICAR] | Dispositivos de la PWA del cobrador. | → M10 `fieldDevices` (T05 §7.2.1, `deviceId`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `deviceIds` | uniqueidentifier[] | [VERIFICAR] | Dispositivos de la PWA del cobrador. | → M10 `fieldDevices` (T05 §7.2.1, `deviceId`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `receiptSeries` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `active`, `suspended`, `inactive` (§8.19; PA-COB-21); antes sin valores. | — |
 
@@ -1284,7 +1286,7 @@ Lista original: §7.18.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `collectorId` | ObjectId | [VERIFICAR] | — | `collectors` (M07); antes implícita por el nombre |
+| `collectorId` | uniqueidentifier | [VERIFICAR] | — | `collectors` (M07); antes implícita por el nombre |
 | `plannedDate` | Date | [VERIFICAR] | — | — |
 | `items` | array | [VERIFICAR] | [… | — |
 | `status` | enum | Sí | Valores: `draft`, `assigned`, `inProgress`, `synced`, `settled` (§8.15); antes "sección 8". | — |
@@ -1295,13 +1297,13 @@ Lista original: §7.18.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `collectorId` | ObjectId | [VERIFICAR] | — | `collectors` (M07); antes implícita por el nombre |
-| `roundIds` | ObjectId[] | [VERIFICAR] | — | `collectionRounds` (M07); antes implícita por el nombre |
-| `collectedTotal` | Decimal128 | [VERIFICAR] | — | — |
-| `handedOverTotal` | Decimal128 | [VERIFICAR] | — | — |
+| `collectorId` | uniqueidentifier | [VERIFICAR] | — | `collectors` (M07); antes implícita por el nombre |
+| `roundIds` | uniqueidentifier[] | [VERIFICAR] | — | `collectionRounds` (M07); antes implícita por el nombre |
+| `collectedTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `handedOverTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `difference` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `justification` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `cashSessionId` | ObjectId | [VERIFICAR] | Sesión de caja donde se entregan los fondos; antes `sessionId` en este anexo. | → M07 `cashSessions` (antes "`cashSessions` (M07); antes implícita por el nombre") |
+| `cashSessionId` | uniqueidentifier | [VERIFICAR] | Sesión de caja donde se entregan los fondos; antes `sessionId` en este anexo. | → M07 `cashSessions` (antes "`cashSessions` (M07); antes implícita por el nombre") |
 | `commissionBase` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `open`, `delivered`, `withDifference`, `closed` (§8.17; PA-COB-19); antes sin valores. | — |
 
@@ -1309,11 +1311,11 @@ Lista original: §7.18.
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `cashRegisterId` | ObjectId | `cashRegisters` (M07); antes implícita por el nombre |
-| `exportLayoutId` | ObjectId | → T06 `fileLayouts` (§7.20, COL-INT-10; PA-COB-21; antes "`exportLayouts` (T10); antes implícita por el nombre") |
-| `importLayoutId` | ObjectId | → T06 `fileLayouts` (§7.20, COL-INT-10; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `controlLayoutId` | ObjectId | → T06 `fileLayouts` (§7.20, COL-INT-10; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `fileLayoutIds` | ObjectId[] | Nombre con que T05 (COL-COB-21) agrupa `exportLayoutId`, `importLayoutId` y `controlLayoutId` → T06 `fileLayouts`. Prevalece el anexo: tres campos con rol (PA-COB-21). |
+| `cashRegisterId` | uniqueidentifier | `cashRegisters` (M07); antes implícita por el nombre |
+| `exportLayoutId` | uniqueidentifier | → T06 `fileLayouts` (§7.20, COL-INT-10; PA-COB-21; antes "`exportLayouts` (T10); antes implícita por el nombre") |
+| `importLayoutId` | uniqueidentifier | → T06 `fileLayouts` (§7.20, COL-INT-10; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `controlLayoutId` | uniqueidentifier | → T06 `fileLayouts` (§7.20, COL-INT-10; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `fileLayoutIds` | uniqueidentifier[] | Nombre con que T05 (COL-COB-21) agrupa `exportLayoutId`, `importLayoutId` y `controlLayoutId` → T06 `fileLayouts`. Prevalece el anexo: tres campos con rol (PA-COB-21). |
 
 #### 7.35.21 `paymentReferences` (COL-COB-23)
 
@@ -1322,7 +1324,7 @@ Lista original: §7.21.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `kind` | enum | [VERIFICAR] | Valores: `obligation`, `coupon`, `notice`, `intent`, `installment`, `account`. | — |
-| `targetId` | ObjectId | [VERIFICAR] | — | polimórfica según `kind` (`obligations`, `paymentCoupons`, `delinquencyNotices` [M08], `paymentIntents`, `agreementInstallments` [M08], `currentAccounts`) |
+| `targetId` | uniqueidentifier | [VERIFICAR] | — | polimórfica según `kind` (`obligations`, `paymentCoupons`, `delinquencyNotices` [M08], `paymentIntents`, `agreementInstallments` [M08], `currentAccounts`) |
 | `code` | string | [VERIFICAR] | identificador autocontenido | — |
 | `checkDigit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `barcodes` | array | [VERIFICAR] | [`{ format, value, valid, invalidReason }`] | — |
@@ -1338,11 +1340,11 @@ Lista original: §7.21.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `source` | enum | [VERIFICAR] | Valores: `legacyUser`, `lagRedLink`, `accountTimes100`, `agencyIdentifier`, `procoopIdFac`. | — |
-| `agencyId` | ObjectId | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
 | `externalKey` | string | [VERIFICAR] | — | — (identificador del sistema externo; no es referencia interna) |
-| `currentAccountId` | ObjectId | [VERIFICAR] | — | `currentAccounts` (M07) |
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `currentAccountId` | uniqueidentifier | [VERIFICAR] | — | `currentAccounts` (M07) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
 
@@ -1352,20 +1354,20 @@ Lista original: §7.22.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agencyId` | ObjectId | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
 | `layout` | object | [VERIFICAR] | `{ id, version }` | — |
 | `operation` | enum | [VERIFICAR] | Valores: `debtPublication`, `debtUpdate`, `directDebit`. | — |
 | `filters` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `period` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `storedFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
-| `controlStoredFileId` | ObjectId | [VERIFICAR] | antes `controlFileId` | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
+| `controlStoredFileId` | uniqueidentifier | [VERIFICAR] | antes `controlFileId` | `storedFiles` (T01) |
 | `fileName` | string | [VERIFICAR] | — | — |
 | `recordCount` | int | [VERIFICAR] | — | — |
 | `totals` | object | [VERIFICAR] | `{ due1, due2, due3 }` | — |
 | `api` | object | [VERIFICAR] | `{ transactionNo, confirmAutomatically, result: {correct, errors, processed, totalDue1, totalDue2, description}, state }` | — |
 | `status` | enum | Sí | Valores: `generated`, `sent`, `acknowledged`, `failed`, `cancelled` (§8.6); antes "sección 8". | — |
 | `sentVia` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `operationId` | ObjectId | [VERIFICAR] | — | `cashOperations` (M07); antes implícita por el nombre |
+| `operationId` | uniqueidentifier | [VERIFICAR] | — | `cashOperations` (M07); antes implícita por el nombre |
 | `sequence` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.35.24 `agencyPublishedDebts` (COL-COB-26)
@@ -1374,8 +1376,8 @@ Lista original: §7.22.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agencyId` | ObjectId | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
-| `exportId` | ObjectId | [VERIFICAR] | — | `agencyDebtExports` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
+| `exportId` | uniqueidentifier | [VERIFICAR] | — | `agencyDebtExports` (M07); antes implícita por el nombre |
 | `targetRef` | string | [VERIFICAR] | obligación o cupón | — |
 | `period` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `concept` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1390,9 +1392,9 @@ Lista original: §7.23.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agencyId` | ObjectId | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
 | `source` | enum | [VERIFICAR] | Valores: `upload`, `sftp`, `api`. | — |
-| `storedFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `fileHash` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `presentationDate` | Date | [VERIFICAR] | — | — |
 | `header` | object | [VERIFICAR] | `{ agreement, date }` | — |
@@ -1400,10 +1402,10 @@ Lista original: §7.23.
 | `read` | object | [VERIFICAR] | `{ count, total }` | — |
 | `warnings` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `imported`, `rejected`, `validated`, `partiallyConfirmed`, `confirmed` (§8.5); antes "sección 8". | — |
-| `confirmedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `confirmedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `confirmedAt` | Date | [VERIFICAR] | — | — |
-| `cashOperationId` | ObjectId | [VERIFICAR] | — | `cashOperations` (M07); antes implícita por el nombre |
-| `feeTotal` | Decimal128 | [VERIFICAR] | — | — |
+| `cashOperationId` | uniqueidentifier | [VERIFICAR] | — | `cashOperations` (M07); antes implícita por el nombre |
+| `feeTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `expectedCredit` | object | [VERIFICAR] | `{ net, date, treasuryAccountId }` | — |
 
 #### 7.35.26 `agencySettlementLines` (COL-COB-28)
@@ -1412,18 +1414,18 @@ Lista original: §7.23.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `settlementId` | ObjectId | [VERIFICAR] | — | `agencySettlements` (M07); antes implícita por el nombre |
+| `settlementId` | uniqueidentifier | [VERIFICAR] | — | `agencySettlements` (M07); antes implícita por el nombre |
 | `lineNo` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `rawMasked` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `parsed` | object | [VERIFICAR] | `{ amount, accountKey, reference, dueDate, paymentDate, creditDate, conceptId, barcode, rejectCode }` | — |
 | `resolution` | object | [VERIFICAR] | `{ method: reference\|alias\|lagResolver\|barcode\|intent, obligationIds, couponId, intentId, candidates }` | — |
-| `expectedAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `expectedAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `result` | enum | [VERIFICAR] | Valores: `ok`, `warning`, `error`. | — |
 | `messages` | array | [VERIFICAR] | [`{ code, text }`] | — |
 | `selected` | bool | [VERIFICAR] | — | — |
 | `action` | enum | [VERIFICAR] | Valores: `applied`, `creditCreated`, `unidentified`, `ignored`, `rejectedDebit`, `pending`. | — |
-| `receiptId` | ObjectId | [VERIFICAR] | — | `receipts` (M07) |
-| `unidentifiedId` | ObjectId | [VERIFICAR] | — | `unidentifiedReceipts` (M07); antes implícita por el nombre |
+| `receiptId` | uniqueidentifier | [VERIFICAR] | — | `receipts` (M07) |
+| `unidentifiedId` | uniqueidentifier | [VERIFICAR] | — | `unidentifiedReceipts` (M07); antes implícita por el nombre |
 
 #### 7.35.27 `agencyNoveltyFiles` (COL-COB-29)
 
@@ -1431,9 +1433,9 @@ Lista original: §7.24.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agencyId` | ObjectId | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | — | `collectionAgencies` (M07); antes implícita por el nombre |
 | `kind` | enum | [VERIFICAR] | Valores: `novelty`, `delinquency`. | — |
-| `storedFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `fileHash` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `lines` | array | [VERIFICAR] | [`{ action: add\|remove\|update, accountKey, mediumMasked, period, amount, dueDate, presentationDate, result, message }`] | — |
 | `status` | enum | [VERIFICAR] | Valores: `imported`, `applied`, `rejected`. | — |
@@ -1444,12 +1446,12 @@ Lista original: §7.25.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `currentAccountId` | ObjectId | Sí | Cuenta corriente que se debita. | `currentAccounts` (M07) |
-| `accountId` | ObjectId | Sí | Cuenta de servicio de la adhesión. | `accounts` (M01) |
-| `serviceIds` | ObjectId[] | No | Vacío = todos los servicios de la cuenta. | `tenantServices` (M02) |
+| `currentAccountId` | uniqueidentifier | Sí | Cuenta corriente que se debita. | `currentAccounts` (M07) |
+| `accountId` | uniqueidentifier | Sí | Cuenta de servicio de la adhesión. | `accounts` (M01) |
+| `serviceIds` | uniqueidentifier[] | No | Vacío = todos los servicios de la cuenta. | `tenantServices` (M02) |
 | `channel` | enum | Sí | Valores: `agency` (ente por archivo: banco para CBU o procesadora de tarjetas), `gateway` (pasarela por API). Declarado en T05; define cuál de `agencyId` o `gatewayConnectorId` se completa. Una sola adhesión `active` por cuenta corriente y canal (índice parcial de T05). | — |
-| `agencyId` | ObjectId | Si `channel` = `agency` | Ente que recibe la presentación; excluyente con `gatewayConnectorId`. | `collectionAgencies` (M07); antes implícita por el nombre |
-| `gatewayConnectorId` | ObjectId | Si `channel` = `gateway` | Conector con las capacidades `mandate` y `debit`; excluyente con `agencyId`. Declarado en T05; antes `connectorId` en §7.25. | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | Si `channel` = `agency` | Ente que recibe la presentación; excluyente con `gatewayConnectorId`. | `collectionAgencies` (M07); antes implícita por el nombre |
+| `gatewayConnectorId` | uniqueidentifier | Si `channel` = `gateway` | Conector con las capacidades `mandate` y `debit`; excluyente con `agencyId`. Declarado en T05; antes `connectorId` en §7.25. | `gatewayConnectors` (M07); antes implícita por el nombre |
 | `mediumType` | enum | Sí | Valores: `cbu`, `card`. | — |
 | `cbuEncrypted` | BinData (cifrado de campo) | Si `mediumType` = `cbu` | CBU de 22 dígitos con dígitos verificadores válidos (RF-COB-119), cifrado con la clave de datos financieros del tenant (RNF-NFR-055, DEC-074); se descifra solo para generar la presentación. Nunca se expone por API. | — |
 | `cbuMasked` | string | Si `mediumType` = `cbu` | Últimos 4 dígitos en claro, resto enmascarado (`******************1234`); es lo único que muestran pantallas, comprobantes y API. | — |
@@ -1462,7 +1464,7 @@ Lista original: §7.25.
 | `periodFrom` | period | Sí | Primer período (`YYYY-MM`) que entra en presentaciones. | — |
 | `signedAt` | Date | No | Fecha de firma o alta confirmada; se completa al pasar a `active` (§8.7). | — |
 | `status` | enum | Sí | Valores: `pendingSignature`, `active`, `suspended`, `cancelled`, `error` (§8.7); estado inicial `pendingSignature`. | — |
-| `externalId` | string | Si `channel` = `gateway` | Identificador de la adhesión en la pasarela (por ejemplo, el `id` de la adhesión de Pagos360; antes tipo `ObjectId`). Único por `{tenantId, gatewayConnectorId, externalId}`. | — (identificador del sistema externo; no es referencia interna) |
+| `externalId` | string | Si `channel` = `gateway` | Identificador de la adhesión en la pasarela (por ejemplo, el `id` de la adhesión de Pagos360; antes tipo `uniqueidentifier`). Único por `{tenantId, gatewayConnectorId, externalId}`. | — (identificador del sistema externo; no es referencia interna) |
 | `exclusions` | array | No | [`{ billingTypeId \| serviceId }`] | — |
 | `consecutiveRejections` | int | Sí | Rechazos consecutivos (≥ 0, default 0); se reinicia con un débito aceptado; lo usa la transición `active` → `suspended` (§8.7). | — |
 | `lastRejectCode` | string | No | Último código de rechazo del ente o la pasarela (RN-COB-105). | — |
@@ -1475,8 +1477,8 @@ Lista original: §7.25.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agencyId` | ObjectId | [VERIFICAR] | o `connectorId` | `collectionAgencies` (M07); antes implícita por el nombre |
-| `exportId` | ObjectId | [VERIFICAR] | — | `agencyDebtExports` (M07); antes implícita por el nombre |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | o `connectorId` | `collectionAgencies` (M07); antes implícita por el nombre |
+| `exportId` | uniqueidentifier | [VERIFICAR] | — | `agencyDebtExports` (M07); antes implícita por el nombre |
 | `debitDate` | Date | [VERIFICAR] | — | — |
 | `items` | array | [VERIFICAR] | [`{ obligationId, mandateId, amount, attempt, status: presented\|accepted\|rejected\|retryScheduled\|excluded, rejectCode, receiptId }`] | — |
 | `totals` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1502,17 +1504,17 @@ Lista original: §7.26.
 | `cardDataMode` | enum | Sí | Valores: `hostedFields` (campos o formulario alojados por el proveedor dentro de la página), `redirect` (checkout del proveedor), `terminal` (terminal certificada del adquirente), `none` (el conector no cobra con tarjeta). Cómo se capturan los datos de tarjeta; ningún modo permite que el PAN pase por CoopApps (alcance SAQ A, DEC-091). | — |
 | `excludedCardBrands` | string[] | No | Valores de `directDebitMandates.brand`; marcas que no se ofrecen con este conector. | — |
 | `excludedInstallments` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `minAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `minAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `reuseWindowMinutes` | int | [VERIFICAR] | — | — |
 | `reconciliationWindowDays` | int | [VERIFICAR] | — | — |
 | `qrMerchantData` | object | [VERIFICAR] | `{ merchantName, city, postalCode, mcc, cuit, cbu, province }` | — |
-| `settlementAgencyId` | ObjectId | [VERIFICAR] | caja virtual y cuenta | `collectionAgencies` (M07); antes implícita por el nombre |
+| `settlementAgencyId` | uniqueidentifier | [VERIFICAR] | caja virtual y cuenta | `collectionAgencies` (M07); antes implícita por el nombre |
 | `feeSchedule` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `directDebitCutoffDay` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `webhookTokenRef` | string | Si el proveedor envía webhooks | Referencia en la bóveda de T06 al token o secreto de firma de webhooks del conector (FI-INT-43/44); rotable. | `integrationSecrets` (T06) |
 | `health` | object | [VERIFICAR] | `{ status: ok\|degraded\|credentialExpired\|down, lastOkAt, lastError }` | — |
 | `status` | enum | Sí | Valores: `active`, `suspended`, `inactive` (§8.19; PA-COB-21); antes sin valores. | — |
-| `connectionId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | → T06 `integrationConnections` (T05 §7.2.1) (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `connectionId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | → T06 `integrationConnections` (T05 §7.2.1) (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.35.31 `paymentChannels` (COL-COB-33)
 
@@ -1522,8 +1524,8 @@ Lista original: §7.26.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `nameKey` | string | [VERIFICAR] | — | — |
-| `iconStoredFileId` | ObjectId | [VERIFICAR] | antes `iconFileId` | `storedFiles` (T01) |
-| `gatewayConnectorId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `connectorId` en este anexo. | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `iconStoredFileId` | uniqueidentifier | [VERIFICAR] | antes `iconFileId` | `storedFiles` (T01) |
+| `gatewayConnectorId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `connectorId` en este anexo. | `gatewayConnectors` (M07); antes implícita por el nombre |
 | `methods` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `visibleIn` | array | [VERIFICAR] | [`portal`, `app`, `landing`] | — |
 | `order` | int | [VERIFICAR] | — | — |
@@ -1533,10 +1535,10 @@ Lista original: §7.26.
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `gatewayConnectorId` | ObjectId | → M07 `gatewayConnectors`. Nombre de T05 (COL-COB-34); antes `connectorId` en §7.27 (el índice `{tenantId, connectorId, externalId}` se lee `{tenantId, gatewayConnectorId, externalId}`) (antes "`gatewayConnectors` (M07); antes implícita por el nombre") |
-| `mandateId` | ObjectId | `directDebitMandates` (M07); antes implícita por el nombre |
-| `reusedFromId` | ObjectId | → M07 `paymentIntents` (autorreferencia: intención reutilizada dentro de `reuseWindowMinutes`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `transactionIds` | ObjectId | `gatewayTransactions` (M07); antes implícita por el nombre |
+| `gatewayConnectorId` | uniqueidentifier | → M07 `gatewayConnectors`. Nombre de T05 (COL-COB-34); antes `connectorId` en §7.27 (el índice `{tenantId, connectorId, externalId}` se lee `{tenantId, gatewayConnectorId, externalId}`) (antes "`gatewayConnectors` (M07); antes implícita por el nombre") |
+| `mandateId` | uniqueidentifier | `directDebitMandates` (M07); antes implícita por el nombre |
+| `reusedFromId` | uniqueidentifier | → M07 `paymentIntents` (autorreferencia: intención reutilizada dentro de `reuseWindowMinutes`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `transactionIds` | uniqueidentifier | `gatewayTransactions` (M07); antes implícita por el nombre |
 
 #### 7.35.33 `gatewayTransactions` (COL-COB-35)
 
@@ -1544,24 +1546,24 @@ Lista original: §7.28.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `connectorId` | ObjectId | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
-| `intentId` | ObjectId | [VERIFICAR] | — | `paymentIntents` (M07); antes implícita por el nombre |
-| `externalPaymentId` | string | [VERIFICAR] | Identificador del pago en el proveedor (antes tipo `ObjectId`). | — (identificador del sistema externo; no es referencia interna) |
+| `connectorId` | uniqueidentifier | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `intentId` | uniqueidentifier | [VERIFICAR] | — | `paymentIntents` (M07); antes implícita por el nombre |
+| `externalPaymentId` | string | [VERIFICAR] | Identificador del pago en el proveedor (antes tipo `uniqueidentifier`). | — (identificador del sistema externo; no es referencia interna) |
 | `type` | enum | [VERIFICAR] | Valores: `payment`, `rejection`, `chargeback`, `refund`, `reversal`. | — |
 | `status` | enum | Sí | Valores: `received`, `confirmed`, `rejected`, `applied`, `unmatched`, `reconciled` (§8.17; PA-COB-19); antes sin valores. | — |
 | `channel` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `grossAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `grossFee` | Decimal128 | [VERIFICAR] | — | — |
-| `netFee` | Decimal128 | [VERIFICAR] | — | — |
+| `grossAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `grossFee` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `netFee` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `feeVat` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `netAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `netAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `feeEstimated` | bool | [VERIFICAR] | — | — |
 | `paidAt` | Date | [VERIFICAR] | — | — |
 | `availableAt` | Date | [VERIFICAR] | — | — |
 | `payerMasked` | object | No | `{ name, docNumberMasked, brand, last4, cbuMasked }`: datos del pagador tal como los informa el proveedor, siempre enmascarados; nunca PAN ni CBU completo (DEC-091). | — |
-| `evidenceStoredFileId` | ObjectId | [VERIFICAR] | antes `evidenceFileId` | `storedFiles` (T01) |
+| `evidenceStoredFileId` | uniqueidentifier | [VERIFICAR] | antes `evidenceFileId` | `storedFiles` (T01) |
 | `receivedVia` | enum | [VERIFICAR] | Valores: `webhook`, `reconciliation`, `polling`, `file`. | — |
-| `cashOperationId` | ObjectId | [VERIFICAR] | cuando se imputa; equivalente `ID_PLA` | `cashOperations` (M07); antes implícita por el nombre |
+| `cashOperationId` | uniqueidentifier | [VERIFICAR] | cuando se imputa; equivalente `ID_PLA` | `cashOperations` (M07); antes implícita por el nombre |
 
 #### 7.35.34 `gatewayWebhookEvents` (COL-COB-36)
 
@@ -1569,7 +1571,7 @@ Lista original: §7.28.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `connectorId` | ObjectId | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `connectorId` | uniqueidentifier | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
 | `receivedAt` | Date | [VERIFICAR] | — | — |
 | `headersFiltered` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `signatureValid` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1578,7 +1580,7 @@ Lista original: §7.28.
 | `status` | enum | [VERIFICAR] | Valores: `received`, `processing`, `processed`, `ignored`, `failed`. | — |
 | `attempts` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `lastError` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `relatedIntentId` | ObjectId | [VERIFICAR] | — | `paymentIntents` (M07); antes implícita por el nombre |
+| `relatedIntentId` | uniqueidentifier | [VERIFICAR] | — | `paymentIntents` (M07); antes implícita por el nombre |
 
 #### 7.35.35 `paymentCoupons` (COL-COB-37)
 
@@ -1587,12 +1589,12 @@ Lista original: §7.29.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `couponNo` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `legalEntityId` | ObjectId | Sí | → T04, Sí; todas las obligaciones del cupón son de esa entidad, RN-COB-156 | `legalEntities` (T04) |
-| `currentAccountId` | ObjectId | [VERIFICAR] | — | `currentAccounts` (M07) |
-| `statementId` | ObjectId | [VERIFICAR] | — | `accountStatements` (M07); antes implícita por el nombre |
-| `obligationIds` | ObjectId[] | [VERIFICAR] | — | `obligations` (M07) |
+| `legalEntityId` | uniqueidentifier | Sí | → T04, Sí; todas las obligaciones del cupón son de esa entidad, RN-COB-156 | `legalEntities` (T04) |
+| `currentAccountId` | uniqueidentifier | [VERIFICAR] | — | `currentAccounts` (M07) |
+| `statementId` | uniqueidentifier | [VERIFICAR] | — | `accountStatements` (M07); antes implícita por el nombre |
+| `obligationIds` | uniqueidentifier[] | [VERIFICAR] | — | `obligations` (M07) |
 | `totalsByDue` | array | [VERIFICAR] | [`{ seq, dueDate, amount }`] | — |
-| `paymentReferenceId` | ObjectId | [VERIFICAR] | — | `paymentReferences` (M07); antes implícita por el nombre |
+| `paymentReferenceId` | uniqueidentifier | [VERIFICAR] | — | `paymentReferences` (M07); antes implícita por el nombre |
 | `status` | enum | Sí | Valores: `active`, `paid`, `partiallyPaid`, `expired`, `cancelled` (§8.13); antes "sección 8". | — |
 | `validUntil` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `legacy` | object | [VERIFICAR] | `{ talonNumber, installment }` | — (identificador del sistema externo; no es referencia interna) |
@@ -1605,20 +1607,20 @@ Lista original: §7.30.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `caseNo` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `currentAccountId` | ObjectId | [VERIFICAR] | — | `currentAccounts` (M07) |
-| `holderId` | ObjectId | [VERIFICAR] | — | `holders` (M01) |
+| `currentAccountId` | uniqueidentifier | [VERIFICAR] | — | `currentAccounts` (M07) |
+| `holderId` | uniqueidentifier | [VERIFICAR] | — | `holders` (M01) |
 | `sourceRef` | string | [VERIFICAR] | recibo, transacción, saldo a favor, no identificado | — |
 | `cause` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `correctiveDocumentId` | ObjectId | [VERIFICAR] | NC M05 | `documents` (T11) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `correctiveDocumentId` | uniqueidentifier | [VERIFICAR] | NC M05 | `documents` (T11) |
 | `destination` | object | [VERIFICAR] | `{ type: gateway\|bankTransfer\|cash, cbuMasked, holderName, holderCuit }` | — |
-| `requestedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `approvedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `workflowInstanceId` | ObjectId | [VERIFICAR] | T11 | `workflowInstances` (T11) |
+| `requestedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `workflowInstanceId` | uniqueidentifier | [VERIFICAR] | T11 | `workflowInstances` (T11) |
 | `status` | [VERIFICAR] | [VERIFICAR] | sección 8 | — |
 | `execution` | object | [VERIFICAR] | `{ via: connector\|treasury\|cash, externalRefundId, executedAt, idempotencyKey }` | — |
-| `reconciliationId` | ObjectId | [VERIFICAR] | — | `collectionReconciliations` (M07); antes implícita por el nombre |
-| `paymentOrderId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `paymentOrders` (M12); antes implícita por el nombre |
+| `reconciliationId` | uniqueidentifier | [VERIFICAR] | — | `collectionReconciliations` (M07); antes implícita por el nombre |
+| `paymentOrderId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `paymentOrders` (M12); antes implícita por el nombre |
 | `number` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.35.37 `chargebacks` (COL-COB-39)
@@ -1627,19 +1629,19 @@ Lista original: §7.30.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `connectorId` | ObjectId | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
-| `gatewayTransactionId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `transactionId` en este anexo. | `gatewayTransactions` (M07); antes implícita por el nombre |
-| `intentId` | ObjectId | [VERIFICAR] | — | `paymentIntents` (M07); antes implícita por el nombre |
-| `receiptId` | ObjectId | [VERIFICAR] | — | `receipts` (M07) |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `connectorId` | uniqueidentifier | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `gatewayTransactionId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `transactionId` en este anexo. | `gatewayTransactions` (M07); antes implícita por el nombre |
+| `intentId` | uniqueidentifier | [VERIFICAR] | — | `paymentIntents` (M07); antes implícita por el nombre |
+| `receiptId` | uniqueidentifier | [VERIFICAR] | — | `receipts` (M07) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `reason` | string | [VERIFICAR] | — | — |
 | `notifiedAt` | Date | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `received`, `applied`, `disputed`, `won`, `lost` (§8.12); antes "sección 8". | — |
-| `reversalAllocationIds` | ObjectId[] | [VERIFICAR] | — | `allocations` (M07); antes implícita por el nombre |
-| `chargeObligationIds` | ObjectId[] | [VERIFICAR] | interés y comisión de reversión | `obligations` (M07) |
-| `blockedAccountIds` | ObjectId[] | [VERIFICAR] | — | `accounts` (M01) |
-| `evidenceStoredFileIds` | ObjectId[] | [VERIFICAR] | antes `evidenceFileIds` | `storedFiles` (T01) |
-| `externalId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — (identificador del sistema externo; no es referencia interna) |
+| `reversalAllocationIds` | uniqueidentifier[] | [VERIFICAR] | — | `allocations` (M07); antes implícita por el nombre |
+| `chargeObligationIds` | uniqueidentifier[] | [VERIFICAR] | interés y comisión de reversión | `obligations` (M07) |
+| `blockedAccountIds` | uniqueidentifier[] | [VERIFICAR] | — | `accounts` (M01) |
+| `evidenceStoredFileIds` | uniqueidentifier[] | [VERIFICAR] | antes `evidenceFileIds` | `storedFiles` (T01) |
+| `externalId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — (identificador del sistema externo; no es referencia interna) |
 
 #### 7.35.38 `collectionReconciliations` (COL-COB-40)
 
@@ -1658,10 +1660,10 @@ Lista original: §7.31.
 | `difference` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `items` | array | [VERIFICAR] | [`{ ref, type, expected, actual, status: matched\|unmatched\|difference, comment, exceptionId }`] | — |
 | `status` | enum | Sí | Valores: `open`, `inReview`, `closed` (§8.14); antes "sección 8". | — |
-| `closedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `minutesStoredFileId` | ObjectId | [VERIFICAR] | antes `minutesFileId` | `storedFiles` (T01) |
-| `agencyId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `collectionAgencies` (M07); antes implícita por el nombre |
-| `treasuryMovementIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `treasuryMovements` (M14); antes implícita por el nombre |
+| `closedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `minutesStoredFileId` | uniqueidentifier | [VERIFICAR] | antes `minutesFileId` | `storedFiles` (T01) |
+| `agencyId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `collectionAgencies` (M07); antes implícita por el nombre |
+| `treasuryMovementIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `treasuryMovements` (M14); antes implícita por el nombre |
 
 #### 7.35.39 `treasuryHandovers` (COL-COB-41)
 
@@ -1669,17 +1671,17 @@ Lista original: §7.31.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `sessionIds` | ObjectId[] | [VERIFICAR] | o `collectorSettlementId` | `cashSessions` (M07); antes implícita por el nombre |
-| `legalEntityId` | ObjectId | [VERIFICAR] | una entrega por entidad jurídica, RF-COB-194 | `legalEntities` (T04) |
-| `deliveredBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `receivedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `sessionIds` | uniqueidentifier[] | [VERIFICAR] | o `collectorSettlementId` | `cashSessions` (M07); antes implícita por el nombre |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | una entrega por entidad jurídica, RF-COB-194 | `legalEntities` (T04) |
+| `deliveredBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `receivedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `contents` | object | [VERIFICAR] | `{ cashByCurrency, cheques [tenderId], cardVouchers [tenderId], retentions [tenderId], transfers [tenderId] }` | — |
-| `reportStoredFileId` | ObjectId | [VERIFICAR] | antes `reportFileId` | `storedFiles` (T01) |
+| `reportStoredFileId` | uniqueidentifier | [VERIFICAR] | antes `reportFileId` | `storedFiles` (T01) |
 | `status` | enum | Sí | Valores: `prepared`, `delivered`, `received`, `rejected` (§8.14); antes "sección 8". | — |
 | `deliveredAt` | Date | [VERIFICAR] | — | — |
 | `receivedAt` | Date | [VERIFICAR] | — | — |
 | `observations` | string | [VERIFICAR] | . M07 registra la **entrega** | — |
-| `cashSessionIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `cashSessions` (M07); antes implícita por el nombre |
+| `cashSessionIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `cashSessions` (M07); antes implícita por el nombre |
 | `number` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.35.40 `thirdPartyBillers` (COL-COB-42)
@@ -1690,20 +1692,20 @@ Lista original: §7.32.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `linkedAccountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
+| `linkedAccountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
 | `barcodeType` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `thirdPartyNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `voucherTypeId` | ObjectId | [VERIFICAR] | — | `voucherTypes` (M05) |
-| `productId` | ObjectId | [VERIFICAR] | — | → M02 `serviceProducts` (T05 §7.2.1) (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `voucherTypeId` | uniqueidentifier | [VERIFICAR] | — | `voucherTypes` (M05) |
+| `productId` | uniqueidentifier | [VERIFICAR] | — | → M02 `serviceProducts` (T05 §7.2.1) (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `fee` | object | [VERIFICAR] | `{ mode, value, min }` | — |
-| `billingTypeId` | ObjectId | [VERIFICAR] | Clasificación comercial del comprobante del tercero (`COD_TPFC`). | → M05 `voucherTypes` (igual que `voucherTypeOverrideId` de M05, ex `COD_TPFC`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `billingTypeId` | uniqueidentifier | [VERIFICAR] | Clasificación comercial del comprobante del tercero (`COD_TPFC`). | → M05 `voucherTypes` (igual que `voucherTypeOverrideId` de M05, ex `COD_TPFC`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `allowsPartial` | bool | [VERIFICAR] | — | — |
 | `allowsOverdue` | bool | [VERIFICAR] | — | — |
 | `allowsMultiple` | bool | [VERIFICAR] | — | — |
 | `allowsRefund` | bool | [VERIFICAR] | — | — |
-| `minAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `minAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `isDonationEntity` | bool | [VERIFICAR] | — | — |
-| `summaryServiceConnectorId` | ObjectId | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
+| `summaryServiceConnectorId` | uniqueidentifier | [VERIFICAR] | — | `gatewayConnectors` (M07); antes implícita por el nombre |
 | `active` | bool | [VERIFICAR] | — | — |
 
 #### 7.35.41 `thirdPartyCollections` (COL-COB-43)
@@ -1712,18 +1714,18 @@ Lista original: §7.32.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `thirdPartyBillerId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `billerId` en este anexo. | `thirdPartyBillers` (M07); antes implícita por el nombre |
-| `obligationId` | ObjectId | [VERIFICAR] | propia | `obligations` (M07) |
+| `thirdPartyBillerId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `billerId` en este anexo. | `thirdPartyBillers` (M07); antes implícita por el nombre |
+| `obligationId` | uniqueidentifier | [VERIFICAR] | propia | `obligations` (M07) |
 | `barcode` | string | [VERIFICAR] | — | — |
 | `documentRef` | string | [VERIFICAR] | — | — |
 | `dueDate` | Date | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `fee` | Decimal128 | [VERIFICAR] | — | — |
-| `receiptId` | ObjectId | [VERIFICAR] | — | `receipts` (M07) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `fee` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `receiptId` | uniqueidentifier | [VERIFICAR] | — | `receipts` (M07) |
 | `summaryNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `renderedToThirdPartyAt` | Date | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `collected`, `inSummary`, `rendered`, `voided` (§8.17; PA-COB-19); antes sin valores. | — |
-| `cashOperationId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `cashOperations` (M07); antes implícita por el nombre |
+| `cashOperationId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `cashOperations` (M07); antes implícita por el nombre |
 
 #### 7.35.42 `externalObligationImports` (COL-COB-44)
 
@@ -1732,7 +1734,7 @@ Lista original: §7.33.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `format` | enum | [VERIFICAR] | Valores: `general`, `publicAdministration`, `procoopDocument`. | — |
-| `storedFileId` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `lines` | array | [VERIFICAR] | [`{ lineNo, result, message, obligationId }`] | — |
 | `status` | enum | Sí | Valores: `uploaded`, `rejected`, `validated`, `applied`, `partiallyApplied`, `cancelled` (§8.17; PA-COB-19); antes sin valores. | — |
 | `source` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
@@ -1745,9 +1747,9 @@ Lista original: §7.33.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | — | — |
-| `productIds` | ObjectId[] | [VERIFICAR] | Productos comerciales del esquema. | → M02 `serviceProducts` (T05 §7.2.1, `productId`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `serviceIds` | ObjectId[] | [VERIFICAR] | — | `tenantServices` (M02) |
-| `taxIds` | ObjectId[] | [VERIFICAR] | — | → M06 `taxDefinitions` (T05 §7.2.1) (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `productIds` | uniqueidentifier[] | [VERIFICAR] | Productos comerciales del esquema. | → M02 `serviceProducts` (T05 §7.2.1, `productId`; PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `serviceIds` | uniqueidentifier[] | [VERIFICAR] | — | `tenantServices` (M02) |
+| `taxIds` | uniqueidentifier[] | [VERIFICAR] | — | → M06 `taxDefinitions` (T05 §7.2.1) (PA-COB-21; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `reportCode` | string | [VERIFICAR] | — | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
@@ -1785,22 +1787,22 @@ Ronda de residuales detectados al regenerar los entregables (categorías 1, 2 y 
 
 | Colección | Campo | Tipo | Referencia | Antes |
 |---|---|---|---|---|
-| `cashSessions` | `closeGroupId` | string (UUID) | No es referencia (correlación del cierre múltiple) | `ObjectId` sin destino |
-| `cashOperations` | `cashSessionId` | ObjectId | → M07 `cashSessions` | `sessionId` |
-| `paymentTenders` | `settlementId` | ObjectId | → M07 `agencySettlements` | sin destino |
-| `paymentTenders` | `gatewayTransactionId` | ObjectId | → M07 `gatewayTransactions` | `transactionId` |
-| `paymentTenders` | `directDebitBatchId` | ObjectId | → M07 `directDebitBatches` | `batchId` |
-| `cardPlans` | `surchargeProductId` | ObjectId | → M02 `serviceProducts` | sin destino |
-| `staticQrCodes` | `externalQrId` | string | No es referencia (identificador del proveedor) | tipo `ObjectId` |
-| `collectors` | `deviceIds` | ObjectId[] | → M10 `fieldDevices` | sin destino |
-| `collectorSettlements` | `cashSessionId` | ObjectId | → M07 `cashSessions` | `sessionId` |
-| `collectionAgencies` | `exportLayoutId` | ObjectId | → T06 `fileLayouts` | `exportLayouts` (T10), inferido por el nombre |
-| `collectionAgencies` | `importLayoutId`, `controlLayoutId` | ObjectId | → T06 `fileLayouts` | sin destino |
-| `paymentIntents` | `reusedFromId` | ObjectId | → M07 `paymentIntents` (autorreferencia) | sin destino |
-| `paymentIntents` | `gatewayConnectorId` | ObjectId | → M07 `gatewayConnectors` | `connectorId` |
-| `gatewayTransactions` | `externalPaymentId` | string | No es referencia (identificador del proveedor) | tipo `ObjectId` |
-| `thirdPartyBillers` | `billingTypeId` | ObjectId | → M05 `voucherTypes` | sin destino |
-| `collectionReportSchemes` | `productIds` | ObjectId[] | → M02 `serviceProducts` | sin destino |
+| `cashSessions` | `closeGroupId` | string (UUID) | No es referencia (correlación del cierre múltiple) | `uniqueidentifier` sin destino |
+| `cashOperations` | `cashSessionId` | uniqueidentifier | → M07 `cashSessions` | `sessionId` |
+| `paymentTenders` | `settlementId` | uniqueidentifier | → M07 `agencySettlements` | sin destino |
+| `paymentTenders` | `gatewayTransactionId` | uniqueidentifier | → M07 `gatewayTransactions` | `transactionId` |
+| `paymentTenders` | `directDebitBatchId` | uniqueidentifier | → M07 `directDebitBatches` | `batchId` |
+| `cardPlans` | `surchargeProductId` | uniqueidentifier | → M02 `serviceProducts` | sin destino |
+| `staticQrCodes` | `externalQrId` | string | No es referencia (identificador del proveedor) | tipo `uniqueidentifier` |
+| `collectors` | `deviceIds` | uniqueidentifier[] | → M10 `fieldDevices` | sin destino |
+| `collectorSettlements` | `cashSessionId` | uniqueidentifier | → M07 `cashSessions` | `sessionId` |
+| `collectionAgencies` | `exportLayoutId` | uniqueidentifier | → T06 `fileLayouts` | `exportLayouts` (T10), inferido por el nombre |
+| `collectionAgencies` | `importLayoutId`, `controlLayoutId` | uniqueidentifier | → T06 `fileLayouts` | sin destino |
+| `paymentIntents` | `reusedFromId` | uniqueidentifier | → M07 `paymentIntents` (autorreferencia) | sin destino |
+| `paymentIntents` | `gatewayConnectorId` | uniqueidentifier | → M07 `gatewayConnectors` | `connectorId` |
+| `gatewayTransactions` | `externalPaymentId` | string | No es referencia (identificador del proveedor) | tipo `uniqueidentifier` |
+| `thirdPartyBillers` | `billingTypeId` | uniqueidentifier | → M05 `voucherTypes` | sin destino |
+| `collectionReportSchemes` | `productIds` | uniqueidentifier[] | → M02 `serviceProducts` | sin destino |
 
 Campos que T05 cita con otro nombre: `collectionAgencies.fileLayoutIds[]` (T05) = los tres campos con rol del anexo (prevalece el anexo); `paymentIntents.gatewayConnectorId` (T05) se adopta; `cashOperations.sessionId` (T05) pasa a `cashSessionId` como en los payloads de EVT-COB-12, 14 y 25. Valores de `status` agregados en §7.35: `collectors` y `gatewayConnectors` (nuevos, §8.19) y los que solo decían "sección 8" (`collectionRounds`, `agencyDebtExports`, `agencySettlements`, `directDebitBatches`, `paymentCoupons`, `chargebacks`, `collectionReconciliations`, `treasuryHandovers`, `collectionExceptions`), tomados de su máquina del §8.
 

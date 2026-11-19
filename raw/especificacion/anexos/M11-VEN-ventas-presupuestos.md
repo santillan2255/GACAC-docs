@@ -286,28 +286,30 @@ Controles: quien crea un presupuesto o una venta con descuento fuera de polític
 | RN-VEN-052 | Mostrar el CFT y la TEA en toda oferta financiada al consumidor final. | No. | Mejorar (práctica de defensa del consumidor) | — | Normativa vigente |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Campos comunes a todas las colecciones (no se repiten): `tenantId` (ObjectId, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista), `deletedAt` (solo catálogos; los documentos económicos nunca se borran). Importes `Decimal128` con `currency` (`ARS` por defecto). Todos los índices empiezan por `tenantId`.
+
+Campos comunes a todas las colecciones (no se repiten): `TenantId` (uniqueidentifier, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista), `deletedAt` (solo catálogos; los documentos económicos nunca se borran). Importes `DECIMAL(18,4)` con `currency` (`ARS` por defecto). Todos los índices empiezan por `TenantId`.
 
 ### 7.1 `operationCharges` — cargos por operación con titulares
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | String | Sí | Número interno `CHG-AAAA-NNNNNN` |
-| `accountId`, `holderId`, `contractId` | ObjectId | Sí (contrato salvo concepto `allowWithoutContract`) | Cuenta y titular (M01) y contrato (`serviceContracts` de M02; antes `serviceContractId`, CTR-DAT-30) |
-| `serviceId` | ObjectId | Sí | Servicio (`tenantServices` de M02; T05 §7.2). Antes `serviceCode` (String), que T05 reserva para el código público de la API externa (CTR-DAT-32) |
-| `conceptId`, `conceptVersionId` | ObjectId | Sí | Concepto facturable y versión: → M02 `billableConcepts` (la versión es la vigente del concepto; antes "(M02/M04)"; PA-VEN-12) |
+| `accountId`, `holderId`, `contractId` | uniqueidentifier | Sí (contrato salvo concepto `allowWithoutContract`) | Cuenta y titular (M01) y contrato (`serviceContracts` de M02; antes `serviceContractId`, CTR-DAT-30) |
+| `serviceId` | uniqueidentifier | Sí | Servicio (`tenantServices` de M02; T05 §7.2). Antes `serviceCode` (String), que T05 reserva para el código público de la API externa (CTR-DAT-32) |
+| `conceptId`, `conceptVersionId` | uniqueidentifier | Sí | Concepto facturable y versión: → M02 `billableConcepts` (la versión es la vigente del concepto; antes "(M02/M04)"; PA-VEN-12) |
 | `chargeType` | Enum | Sí | `connection`, `installation`, `reconnection`, `holderChange`, `relocation`, `extraVisit`, `reconnectionCredit`, `other` |
 | `trigger` | Enum | Sí | `requestApproved`, `workOrderCompleted`, `installationConfirmed`, `periodStart`, `manual` |
-| `sourceType`, `sourceId` | String, ObjectId | Sí | Origen (`crm.request`, `tec.workOrder`, `mor.reconnection`, `manual`). `sourceType` no es referencia: discriminador de `sourceId`, polimórfica (→ M09 `crmCases` · M10 `workOrders` · M08 `interruptionCases`; PA-VEN-12) |
+| `sourceType`, `sourceId` | String, uniqueidentifier | Sí | Origen (`crm.request`, `tec.workOrder`, `mor.reconnection`, `manual`). `sourceType` no es referencia: discriminador de `sourceId`, polimórfica (→ M09 `crmCases` · M10 `workOrders` · M08 `interruptionCases`; PA-VEN-12) |
 | `idempotencyKey` | String | Sí | `sourceType:sourceId:conceptId` |
 | `effectiveDate` | Date | Sí | Fecha del hito (zona del tenant) |
-| `quantity`, `unitPrice`, `amount` | Decimal128 | Sí | Instantánea de valorización |
+| `quantity`, `unitPrice`, `amount` | DECIMAL(18,4) | Sí | Instantánea de valorización |
 | `tariffSnapshot` | Object | Sí | `{ tariffVersionId, rounding, taxTreatment, priceDate }` |
-| `discountAmount`, `discountReason`, `discountApprovalId` | Decimal128, String, ObjectId | No | Bonificación aprobada. `discountAmount` y `discountReason` no son referencias; `discountApprovalId` → T11 `approvalRequests` (PA-VEN-12) |
+| `discountAmount`, `discountReason`, `discountApprovalId` | DECIMAL(18,4), String, uniqueidentifier | No | Bonificación aprobada. `discountAmount` y `discountReason` no son referencias; `discountApprovalId` → T11 `approvalRequests` (PA-VEN-12) |
 | `billingMode` | Enum | Sí | `nextServiceInvoice`, `ownInvoice`, `financed` |
 | `includeInServiceInvoice` | Boolean | Sí | Resultado de RN-VEN-004 |
-| `financingPlanId`, `installmentIds[]` | ObjectId | Si `financed` | Plan y cuotas |
+| `financingPlanId`, `installmentIds[]` | uniqueidentifier | Si `financed` | Plan y cuotas |
 | `invoiceRefs[]` | `{ invoiceId, itemId, amount }` | No | Facturas que lo incluyen (M05) |
 | `status` | Enum | Sí | Ver §8.1 |
 | `cancelReason`, `cancelledAt` | String, Date | No | Anulación |
@@ -332,23 +334,23 @@ Campos comunes a todas las colecciones (no se repiten): `tenantId` (ObjectId, ob
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | String | Sí | `pointOfSale-NNNNNNNN` por tenant y punto de venta |
-| `pointOfSaleId` | ObjectId | Sí | Punto de venta (M05) |
+| `pointOfSaleId` | uniqueidentifier | Sí | Punto de venta (M05) |
 | `customer` | Object | Sí | `{ accountId?, personId?, prospect?: { name, email, phone, taxId? } }` |
-| `contractId`, `serviceCode`, `premiseAddressId` | ObjectId/String | No | Servicio y domicilio de prestación: `contractId` → M02 `serviceContracts`; `premiseAddressId` → M01 `addresses` (PA-VEN-12) |
-| `salesRepId` | ObjectId | Según config | Vendedor |
-| `conditionIds[]` | ObjectId | No | Condiciones de venta |
-| `currency`, `exchangeRate` | String, Decimal128 | Sí | Moneda y cotización |
+| `contractId`, `serviceCode`, `premiseAddressId` | uniqueidentifier/String | No | Servicio y domicilio de prestación: `contractId` → M02 `serviceContracts`; `premiseAddressId` → M01 `addresses` (PA-VEN-12) |
+| `salesRepId` | uniqueidentifier | Según config | Vendedor |
+| `conditionIds[]` | uniqueidentifier | No | Condiciones de venta |
+| `currency`, `exchangeRate` | String, DECIMAL(18,4) | Sí | Moneda y cotización |
 | `pricesIncludeVat` | Boolean | Sí | P2915 |
 | `reference` | String | No | Referencia/asunto |
-| `workOrderId`, `projectId`, `crmCaseId`, `feasibilityId` | ObjectId | No | Vínculos (M10/M09) |
+| `workOrderId`, `projectId`, `crmCaseId`, `feasibilityId` | uniqueidentifier | No | Vínculos (M10/M09) |
 | `channel` | Enum | Sí | `office`, `field`, `portal` |
-| `fieldBulk`, `fieldBulkCoefficient` | Boolean, Decimal128 | No | Granel (PMOVIL 25/26) |
+| `fieldBulk`, `fieldBulkCoefficient` | Boolean, DECIMAL(18,4) | No | Granel (PMOVIL 25/26) |
 | `currentVersion` | Number | Sí | Versión vigente |
 | `versions[]` | Array | Sí | Ver subdocumento |
 | `notes[]` | Array | No | `{ title, text, at, by }` (`PRESUPU_NOTAS`) |
 | `advancePayments[]` | Array | No | `{ paymentId, amount, appliedAmount }` (M07) |
 | `generatedDocuments[]` | Array | No | `{ salesOrderId?, invoiceId?, at }` (`PRESUPU_COMPROBANTES`) |
-| `stockReservationIds[]` | ObjectId | No | Reservas en M13 |
+| `stockReservationIds[]` | uniqueidentifier | No | Reservas en M13 |
 | `status` | Enum | Sí | Ver §8.2 |
 | `sentAt`, `acceptedAt`, `rejectedAt`, `rejectReason`, `cancelledAt`, `cancelReason`, `toInvoiceAt` | Date/String | No | Fechas de transición |
 | `validUntil` | Date | Sí | Validez (P2788) |
@@ -365,14 +367,14 @@ Conjunto (`groups[]`): `{ groupId, name, quantity, order }` (`PRESUIT_CONJUNTOS`
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `quoteId`, `quoteVersion` | ObjectId, Number | Sí | Versión exacta: `quoteId` → M11 `salesQuotes`; `quoteVersion` no es referencia (número de `versions[]`; PA-VEN-12) |
+| `quoteId`, `quoteVersion` | uniqueidentifier, Number | Sí | Versión exacta: `quoteId` → M11 `salesQuotes`; `quoteVersion` no es referencia (número de `versions[]`; PA-VEN-12) |
 | `decision` | Enum | Sí | `accepted`, `rejected` |
 | `reason` | String | Si rechazo | Motivo |
 | `actor` | Object | Sí | `{ type: user\|verifiedContact\|employee, userId?, contact?, otpVerificationId? }` |
 | `channel` | Enum | Sí | `pwa`, `publicLink`, `office`, `field` |
 | `pdfHash` | String | Sí | Hash del documento aceptado |
 | `ip`, `userAgent`, `at` | String, String, Date | Sí | Evidencia técnica |
-| `signatureFileId` | ObjectId | No | Firma en campo |
+| `signatureFileId` | uniqueidentifier | No | Firma en campo |
 
 Índice `{tenantId, quoteId, quoteVersion}`. Sin equivalente ProCoop.
 
@@ -381,14 +383,14 @@ Conjunto (`groups[]`): `{ groupId, name, quantity, order }` (`PRESUIT_CONJUNTOS`
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | String | Sí | Número interno por punto de venta |
-| `pointOfSaleId`, `branchId` | ObjectId | Sí | `pointOfSaleId` → `pointsOfSale` (M06); `branchId` → `branches` (T04) |
-| `legalEntityId` | ObjectId → `legalEntities` (T04) | Sí | Entidad jurídica que vende; la resuelve T04 (RF-CFG-137) y debe coincidir con la del punto de venta (DEC-064) |
+| `pointOfSaleId`, `branchId` | uniqueidentifier | Sí | `pointOfSaleId` → `pointsOfSale` (M06); `branchId` → `branches` (T04) |
+| `legalEntityId` | uniqueidentifier → `legalEntities` (T04) | Sí | Entidad jurídica que vende; la resuelve T04 (RF-CFG-137) y debe coincidir con la del punto de venta (DEC-064) |
 | `kind` | Enum | Sí | `standard`, `quick`, `pos`, `field`, `imported`, `fromQuote`, `fromWorkOrder` |
-| `accountId`, `holderId`, `personId` | ObjectId | Sí (uno) | Cliente |
-| `contractId`, `serviceCode` | ObjectId/String | No | Servicio vinculado |
-| `salesRepId` | ObjectId | Según config | |
-| `quoteId`, `workOrderId`, `posSessionId`, `importBatchId` | ObjectId | No | Orígenes (`CMPORDE`, `PRESUPU_COMPROBANTES`) |
-| `priceListId` | ObjectId | Sí | |
+| `accountId`, `holderId`, `personId` | uniqueidentifier | Sí (uno) | Cliente |
+| `contractId`, `serviceCode` | uniqueidentifier/String | No | Servicio vinculado |
+| `salesRepId` | uniqueidentifier | Según config | |
+| `quoteId`, `workOrderId`, `posSessionId`, `importBatchId` | uniqueidentifier | No | Orígenes (`CMPORDE`, `PRESUPU_COMPROBANTES`) |
+| `priceListId` | uniqueidentifier | Sí | |
 | `currency`, `exchangeRate` | | Sí | |
 | `paymentTerms` | Object | Sí | `{ mode: cash\|installments\|account, financingPlanId?, downPayment?, cashDiscountPct?, stampTax? }` |
 | `items[]` | Array | Sí | `{ itemId, productId, description, quantity, unitPrice, discountPct, discountAmount, vatRate, surchargeVatRate, net, vat, perceptions[], pendingDeliveryQty, serials[], warehouseId, appliedRuleIds[], note, status }` (`IT_COMPV`: `COD_PRO`, `CAN_ITE`, `PRE_VSI`, `CAN_PEN`, `ID_OBS`, `COD_CVI`, `ESTADO`, `DES_PRO`, `IVA1`…) |
@@ -396,7 +398,7 @@ Conjunto (`groups[]`): `{ groupId, name, quantity, order }` (`PRESUIT_CONJUNTOS`
 | `totals` | Object | Sí | `{ net, discounts, vat[], perceptions[], interest, total }` |
 | `creditRiskCheck` | Object | No | `{ overdueDebt, limit, result, overrideBy? }` |
 | `fiscalDocuments[]` | Array | No | `{ invoiceId, type, status }` (M05) |
-| `installmentIds[]` | ObjectId | No | |
+| `installmentIds[]` | uniqueidentifier | No | |
 | `deliveryStatus` | Enum | Sí | `none`, `partial`, `complete` |
 | `status` | Enum | Sí | Ver §8.3 |
 | `soldEquipment[]` | Array | No | `{ serializedItemId, serial, deliveredAt }` (`MAQUINAS`) |
@@ -415,10 +417,10 @@ Conjunto (`groups[]`): `{ groupId, name, quantity, order }` (`PRESUIT_CONJUNTOS`
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `code`, `name` | String | Sí | |
-| `installmentsCount`, `minDownPaymentPct`, `maxInstallmentAmount` | Number/Decimal128 | Sí/No/No | |
+| `installmentsCount`, `minDownPaymentPct`, `maxInstallmentAmount` | Number/DECIMAL(18,4) | Sí/No/No | |
 | `method` | Enum | Sí | `noInterest`, `french`, `direct` |
-| `nominalRate`, `periodicity` | Decimal128, Enum | Sí | `monthly`, `bimonthly` |
-| `interestConceptId` | ObjectId | Si hay interés | P2089 |
+| `nominalRate`, `periodicity` | DECIMAL(18,4), Enum | Sí | `monthly`, `bimonthly` |
+| `interestConceptId` | uniqueidentifier | Si hay interés | P2089 |
 | `stampTaxConceptId`, `stampTaxPct` | | No | Sellado (P676) |
 | `installmentType` | String | Sí | Tipo de cuota (`TIPO_FAC`) |
 | `fiscalModel` | Enum | Sí | `invoiceTotalUpfront`, `invoicePerInstallment` (PA-VEN-02) |
@@ -430,17 +432,17 @@ Conjunto (`groups[]`): `{ groupId, name, quantity, order }` (`PRESUIT_CONJUNTOS`
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `originType`, `originId` | Enum, ObjectId | Sí | `salesOrder`, `operationCharge`, `quote`. `originType` no es referencia: discriminador de `originId`, polimórfica (→ M11 `salesOrders` · `operationCharges` · `salesQuotes`; PA-VEN-12) |
+| `originType`, `originId` | Enum, uniqueidentifier | Sí | `salesOrder`, `operationCharge`, `quote`. `originType` no es referencia: discriminador de `originId`, polimórfica (→ M11 `salesOrders` · `operationCharges` · `salesQuotes`; PA-VEN-12) |
 | `accountId`, `contractId`, `serviceCode` | | Sí/No/No | |
 | `number`, `of` | Number | Sí | Cuota N de M |
 | `kind` | Enum | Sí | `regular` (`TPCUOTA = 0`), `deferredInterest` (`TPCUOTA = 1`) |
 | `dueDate` | Date | Sí | |
-| `principal`, `interest`, `vat`, `surchargeVat`, `interestVat`, `perceptions[]`, `total` | Decimal128 | Sí | |
-| `remainingPrincipal` | Decimal128 | Sí | (`CAP_RES`) |
-| `installmentType`, `billingGroupId` | String, ObjectId | Sí/No | `installmentType` no es referencia: código del tipo de comprobante de la cuota (`TIPO_FAC`, igual a `voucherTypes.code` de M05); `billingGroupId` → M05 `billingGroups` (PA-VEN-12) |
+| `principal`, `interest`, `vat`, `surchargeVat`, `interestVat`, `perceptions[]`, `total` | DECIMAL(18,4) | Sí | |
+| `remainingPrincipal` | DECIMAL(18,4) | Sí | (`CAP_RES`) |
+| `installmentType`, `billingGroupId` | String, uniqueidentifier | Sí/No | `installmentType` no es referencia: código del tipo de comprobante de la cuota (`TIPO_FAC`, igual a `voucherTypes.code` de M05); `billingGroupId` → M05 `billingGroups` (PA-VEN-12) |
 | `includeInServiceInvoice` | Boolean | Sí | |
-| `invoiceId`, `billedAt` | ObjectId, Date | No | (`ID_FAC`) |
-| `paidAmount`, `paymentStatus` | Decimal128, Enum | Sí | Desde M07 |
+| `invoiceId`, `billedAt` | uniqueidentifier, Date | No | (`ID_FAC`) |
+| `paidAmount`, `paymentStatus` | DECIMAL(18,4), Enum | Sí | Desde M07 |
 | `status` | Enum | Sí | Valores: `scheduled`, `billed`, `partiallyPaid`, `paid`, `earlyPaidOff`, `voided`, `credited` (§8.4 y §8.6; PA-VEN-12); antes "Ver §8.4" |
 | `adjustments[]` | Array | No | `{ type, before, after, reason, batchId, at, by }` |
 
@@ -487,44 +489,44 @@ Corrección de consistencia (categorías 2, 3 y 4 de `_trabajo/correccion-incons
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `conceptVersionId` | ObjectId | → M02 `billableConcepts` (versión vigente del concepto) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `conceptVersionId` | uniqueidentifier | → M02 `billableConcepts` (versión vigente del concepto) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `sourceType` | enum | No es referencia: discriminador de `sourceId` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `sourceId` | ObjectId | Polimórfica según `sourceType`: → M09 `crmCases` · M10 `workOrders` · M08 `interruptionCases` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `discountAmount` | Decimal128 | No es referencia: importe (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `sourceId` | uniqueidentifier | Polimórfica según `sourceType`: → M09 `crmCases` · M10 `workOrders` · M08 `interruptionCases` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `discountAmount` | DECIMAL(18,4) | No es referencia: importe (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `discountReason` | string | No es referencia: motivo en texto libre (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `discountApprovalId` | ObjectId | → T11 `approvalRequests` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `financingPlanId` | ObjectId | `salesFinancingPlans` (M11); antes implícita por el nombre |
-| `installmentIds` | ObjectId[] | `salesInstallments` (M11); antes implícita por el nombre |
+| `discountApprovalId` | uniqueidentifier | → T11 `approvalRequests` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `financingPlanId` | uniqueidentifier | `salesFinancingPlans` (M11); antes implícita por el nombre |
+| `installmentIds` | uniqueidentifier[] | `salesInstallments` (M11); antes implícita por el nombre |
 | `invoiceRefs` | object[] | `invoices` (M05); antes implícita por el nombre |
 
 #### 7.14.2 `salesQuotes` (COL-VEN-03) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `premiseAddressId` | ObjectId | → M01 `addresses` (domicilio de prestación) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `salesRepId` | ObjectId | `salesReps` (M11); antes implícita por el nombre |
-| `conditionIds` | ObjectId[] | `salesConditions` (M11); antes implícita por el nombre |
-| `projectId` | ObjectId | → M09 `crmProjects` (T05 §7.2.1) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `feasibilityId` | ObjectId | `feasibilityRequests` (M10); antes implícita por el nombre |
-| `stockReservationIds` | ObjectId[] | `stockReservations` (M13); antes implícita por el nombre |
+| `premiseAddressId` | uniqueidentifier | → M01 `addresses` (domicilio de prestación) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `salesRepId` | uniqueidentifier | `salesReps` (M11); antes implícita por el nombre |
+| `conditionIds` | uniqueidentifier[] | `salesConditions` (M11); antes implícita por el nombre |
+| `projectId` | uniqueidentifier | → M09 `crmProjects` (T05 §7.2.1) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `feasibilityId` | uniqueidentifier | `feasibilityRequests` (M10); antes implícita por el nombre |
+| `stockReservationIds` | uniqueidentifier[] | `stockReservations` (M13); antes implícita por el nombre |
 
 #### 7.14.3 `salesQuoteAcceptances` (COL-VEN-04) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `quoteId` | ObjectId | `salesQuotes` (M11); antes implícita por el nombre |
+| `quoteId` | uniqueidentifier | `salesQuotes` (M11); antes implícita por el nombre |
 | `quoteVersion` | int | No es referencia: número de versión dentro de `salesQuotes.versions[]` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.14.4 `salesOrders` (COL-VEN-05) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `salesRepId` | ObjectId | `salesReps` (M11); antes implícita por el nombre |
-| `quoteId` | ObjectId | `salesQuotes` (M11); antes implícita por el nombre |
-| `posSessionId` | ObjectId | `posSessions` (M11); antes implícita por el nombre |
-| `importBatchId` | ObjectId | → T07 `migrationBatches` (T05 §7.2.1) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `priceListId` | ObjectId | `salesPriceLists` (M11); antes implícita por el nombre |
-| `installmentIds` | ObjectId[] | `salesInstallments` (M11); antes implícita por el nombre |
+| `salesRepId` | uniqueidentifier | `salesReps` (M11); antes implícita por el nombre |
+| `quoteId` | uniqueidentifier | `salesQuotes` (M11); antes implícita por el nombre |
+| `posSessionId` | uniqueidentifier | `posSessions` (M11); antes implícita por el nombre |
+| `importBatchId` | uniqueidentifier | → T07 `migrationBatches` (T05 §7.2.1) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `priceListId` | uniqueidentifier | `salesPriceLists` (M11); antes implícita por el nombre |
+| `installmentIds` | uniqueidentifier[] | `salesInstallments` (M11); antes implícita por el nombre |
 
 #### 7.14.5 `salesDeliveries` (COL-VEN-06)
 
@@ -532,16 +534,16 @@ Lista original: §7.6.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `salesOrderId` | ObjectId | [VERIFICAR] | — | `salesOrders` (M11); antes implícita por el nombre |
+| `salesOrderId` | uniqueidentifier | [VERIFICAR] | — | `salesOrders` (M11); antes implícita por el nombre |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `deliveredAt` | Date | [VERIFICAR] | — | — |
-| `warehouseId` | ObjectId | [VERIFICAR] | — | `warehouses` (M13) |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | — | `warehouses` (M13) |
 | `items` | array | [VERIFICAR] | [{ itemId, quantity, serials[] }] | — |
 | `receiverName` | string | [VERIFICAR] | — | — |
 | `receiverDocument` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `signatureFileId` | ObjectId | No | — | `storedFiles` (T01) |
+| `signatureFileId` | uniqueidentifier | No | — | `storedFiles` (T01) |
 | `stockMovementIds` | array | [VERIFICAR] | — | `stockMovements` (M13); antes implícita por el nombre |
-| `freightSettlementId` | ObjectId | No | — | → M18 `tripSettlements` (rendición de viaje; CTR-DAT-53) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `freightSettlementId` | uniqueidentifier | No | — | → M18 `tripSettlements` (rendición de viaje; CTR-DAT-53) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `status` | enum | [VERIFICAR] | Valores: `draft`, `confirmed`, `voided`. | — |
 
 #### 7.14.6 `salesReturns` (COL-VEN-07)
@@ -550,25 +552,25 @@ Lista original: §7.6.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `salesOrderId` | ObjectId | [VERIFICAR] | — | `salesOrders` (M11); antes implícita por el nombre |
+| `salesOrderId` | uniqueidentifier | [VERIFICAR] | — | `salesOrders` (M11); antes implícita por el nombre |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `returnedAt` | Date | [VERIFICAR] | — | — |
 | `reason` | string | [VERIFICAR] | — | — |
 | `items` | array | [VERIFICAR] | [{ itemId, quantity, serials[], condition: resaleable\|defective }] | — |
-| `creditNoteRequestId` | ObjectId | No | — | → M05 `invoiceAnnulmentRequests` (pedido de nota de crédito) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `creditNoteRequestId` | uniqueidentifier | No | — | → M05 `invoiceAnnulmentRequests` (pedido de nota de crédito) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `installmentActions` | array | [VERIFICAR] | [{ installmentId, action: void\|credit\|refund }] | — |
 | `stockReceiptIds` | array | [VERIFICAR] | — | → M13 `stockDocuments` (reingreso de stock; no son recibos de cobranza) (PA-VEN-12; antes "`receipts` (M07)") |
 | `status` | enum | [VERIFICAR] | Valores: `draft`, `approved`, `completed`, `cancelled`. | — |
-| `approvalId` | ObjectId | No | }`. Índice `{tenantId, salesOrderId | `approvalRequests` (T11) |
+| `approvalId` | uniqueidentifier | No | }`. Índice `{tenantId, salesOrderId | `approvalRequests` (T11) |
 
 #### 7.14.7 `salesInstallments` (COL-VEN-09) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
 | `originType` | enum | No es referencia: discriminador de `originId` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `originId` | ObjectId | Polimórfica según `originType`: → M11 `salesOrders` · `operationCharges` · `salesQuotes` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `originId` | uniqueidentifier | Polimórfica según `originType`: → M11 `salesOrders` · `operationCharges` · `salesQuotes` (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `installmentType` | string | No es referencia: código `TIPO_FAC` (igual a `voucherTypes.code` de M05) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `billingGroupId` | ObjectId | `billingGroups` (M05); antes implícita por el nombre |
+| `billingGroupId` | uniqueidentifier | `billingGroups` (M05); antes implícita por el nombre |
 
 #### 7.14.8 `salesReps` (COL-VEN-10)
 
@@ -577,15 +579,15 @@ Lista original: §7.9.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
-| `personId` | ObjectId | Sí | Persona del vendedor; alta asistida de M01 con control de duplicados (DEC-097). | `persons` (M01) |
+| `personId` | uniqueidentifier | Sí | Persona del vendedor; alta asistida de M01 con control de duplicados (DEC-097). | `persons` (M01) |
 | `name` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.displayName` (M01). Fila anterior: "`name` · string · [VERIFICAR]". | — |
 | `address` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.addresses` (M01). Fila anterior: "`address` · object · [VERIFICAR] · { street, number, floor, apartment, neighborhood, province, locality, postalCode }". | — |
 | `phone` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.contacts` (M01). Fila anterior: "`phone` · [VERIFICAR] · [VERIFICAR]". | — |
 | `fax` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.contacts` tipo `fax` (M01). Fila anterior: "`fax` · [VERIFICAR] · [VERIFICAR]". | — |
 | `mobile` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.contacts` tipo `mobile` (M01). Fila anterior: "`mobile` · [VERIFICAR] · [VERIFICAR]". | — |
 | `email` | — | — | **Reemplazado (10-11-2026, DEC-097):** se lee de `persons.contacts` tipo `email` (M01). Fila anterior: "`email` · [VERIFICAR] · [VERIFICAR]". | — |
-| `userId` | ObjectId | No | — | `memberships` (T02) |
-| `employeeId` | ObjectId | No | — | `employees` (M16) |
+| `userId` | uniqueidentifier | No | — | `memberships` (T02) |
+| `employeeId` | uniqueidentifier | No | — | `employees` (M16) |
 | `branchIds` | array | [VERIFICAR] | — | `branches` (T04) |
 | `active` | bool | [VERIFICAR] | }`. Índice `{tenantId, code | — |
 
@@ -610,11 +612,11 @@ Lista original: §7.10.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
-| `productId` | ObjectId | [VERIFICAR] | — | → M02 `serviceProducts` (T05 §7.2.1) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `productId` | uniqueidentifier | [VERIFICAR] | — | → M02 `serviceProducts` (T05 §7.2.1) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `type` | enum | [VERIFICAR] | Valores: `discount`, `surcharge`, `bonusProduct`. | — |
-| `valuePct` | Decimal128 | No | — | — |
-| `valueAmount` | Decimal128 | No | — | — |
-| `bonusProductId` | ObjectId | No | — | → M02 `serviceProducts` (producto bonificado) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `valuePct` | DECIMAL(18,4) | No | — | — |
+| `valueAmount` | DECIMAL(18,4) | No | — | — |
+| `bonusProductId` | uniqueidentifier | No | — | → M02 `serviceProducts` (producto bonificado) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `conditions` | object | [VERIFICAR] | { accountProperty{ code, value }?, holderActive?: Boolean, paymentMethods[], excludedDocumentTypes[], maxOverdueDays?, monthlyQuantityLimit? } | — |
 | `validFrom` | Date | [VERIFICAR] | — | — |
 | `validTo` | Date | [VERIFICAR] | — | — |
@@ -628,14 +630,14 @@ Lista original: §7.11.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
-| `pointOfSaleId` | ObjectId | [VERIFICAR] | — | `pointsOfSale` (M06) |
-| `warehouseId` | ObjectId | [VERIFICAR] | — | `warehouses` (M13) |
-| `priceListId` | ObjectId | [VERIFICAR] | — | `salesPriceLists` (M11); antes implícita por el nombre |
-| `cashRegisterId` | ObjectId | [VERIFICAR] | M07 | `cashRegisters` (M07); antes implícita por el nombre |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
+| `pointOfSaleId` | uniqueidentifier | [VERIFICAR] | — | `pointsOfSale` (M06) |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | — | `warehouses` (M13) |
+| `priceListId` | uniqueidentifier | [VERIFICAR] | — | `salesPriceLists` (M11); antes implícita por el nombre |
+| `cashRegisterId` | uniqueidentifier | [VERIFICAR] | M07 | `cashRegisters` (M07); antes implícita por el nombre |
 | `printer` | object | [VERIFICAR] | { mode: browser\|agent, agentId? } | — |
-| `defaultAccountId` | ObjectId | [VERIFICAR] | P1007 | → M01 `accounts` (cuenta por defecto del POS, P1007) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `defaultSalesRepId` | ObjectId | [VERIFICAR] | P1008 | `salesReps` (M11); antes implícita por el nombre |
+| `defaultAccountId` | uniqueidentifier | [VERIFICAR] | P1007 | → M01 `accounts` (cuenta por defecto del POS, P1007) (PA-VEN-12; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `defaultSalesRepId` | uniqueidentifier | [VERIFICAR] | P1008 | `salesReps` (M11); antes implícita por el nombre |
 | `active` | bool | [VERIFICAR] | — | — |
 
 #### 7.14.12 `posSessions` (COL-VEN-14)
@@ -644,19 +646,19 @@ Lista original: §7.11.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `posTerminalId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `terminalId` en este anexo. | `posTerminals` (M11); antes implícita por el nombre |
+| `posTerminalId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `terminalId` en este anexo. | `posTerminals` (M11); antes implícita por el nombre |
 | `openedAt` | Date | [VERIFICAR] | — | — |
-| `openedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `openedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `openingFloat` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `closedAt` | Date | [VERIFICAR] | — | — |
-| `closedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `closedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `totalsBySalesType` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `totalsByPaymentMethod` | array | [VERIFICAR] | — | — |
 | `invoices` | array | [VERIFICAR] | — | — |
 | `countedCash` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `difference` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | Valores: `open`, `closed`, `reconciled`. | — |
-| `cashSessionId` | ObjectId | [VERIFICAR] | (M07) }`. Índice `{tenantId, terminalId, status | `cashSessions` (M07); antes implícita por el nombre |
+| `cashSessionId` | uniqueidentifier | [VERIFICAR] | (M07) }`. Índice `{tenantId, terminalId, status | `cashSessions` (M07); antes implícita por el nombre |
 | `open` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 ### 7.15 Residuales del 5-11-2026: referencias y valores de estado (PA-VEN-12)
@@ -665,21 +667,21 @@ Ronda de residuales detectados al regenerar los entregables (categorías 1 y 2 d
 
 | Colección | Campo | Tipo | Referencia | Antes |
 |---|---|---|---|---|
-| `operationCharges` | `conceptVersionId` | ObjectId | → M02 `billableConcepts` | sin destino |
-| `operationCharges` | `sourceType` / `sourceId` | enum / ObjectId | Discriminador / polimórfica (`crmCases`, `workOrders`, `interruptionCases`) | sin destino |
-| `operationCharges` | `discountAmount`, `discountReason` | Decimal128 / string | No es referencia | sin destino |
-| `operationCharges` | `discountApprovalId` | ObjectId | → T11 `approvalRequests` | sin destino |
-| `salesQuotes` | `premiseAddressId` | ObjectId | → M01 `addresses` | sin destino |
-| `salesQuotes` | `projectId` | ObjectId | → M09 `crmProjects` | sin destino |
+| `operationCharges` | `conceptVersionId` | uniqueidentifier | → M02 `billableConcepts` | sin destino |
+| `operationCharges` | `sourceType` / `sourceId` | enum / uniqueidentifier | Discriminador / polimórfica (`crmCases`, `workOrders`, `interruptionCases`) | sin destino |
+| `operationCharges` | `discountAmount`, `discountReason` | DECIMAL(18,4) / string | No es referencia | sin destino |
+| `operationCharges` | `discountApprovalId` | uniqueidentifier | → T11 `approvalRequests` | sin destino |
+| `salesQuotes` | `premiseAddressId` | uniqueidentifier | → M01 `addresses` | sin destino |
+| `salesQuotes` | `projectId` | uniqueidentifier | → M09 `crmProjects` | sin destino |
 | `salesQuoteAcceptances` | `quoteVersion` | int | No es referencia | sin destino |
-| `salesOrders` | `importBatchId` | ObjectId | → T07 `migrationBatches` | sin destino |
-| `salesDeliveries` | `freightSettlementId` | ObjectId | → M18 `tripSettlements` | sin destino |
-| `salesReturns` | `creditNoteRequestId` | ObjectId | → M05 `invoiceAnnulmentRequests` | sin destino |
-| `salesReturns` | `stockReceiptIds` | ObjectId[] | → M13 `stockDocuments` | `receipts` (M07) |
-| `salesInstallments` | `originType` / `originId` | enum / ObjectId | Discriminador / polimórfica (`salesOrders`, `operationCharges`, `salesQuotes`) | sin destino |
+| `salesOrders` | `importBatchId` | uniqueidentifier | → T07 `migrationBatches` | sin destino |
+| `salesDeliveries` | `freightSettlementId` | uniqueidentifier | → M18 `tripSettlements` | sin destino |
+| `salesReturns` | `creditNoteRequestId` | uniqueidentifier | → M05 `invoiceAnnulmentRequests` | sin destino |
+| `salesReturns` | `stockReceiptIds` | uniqueidentifier[] | → M13 `stockDocuments` | `receipts` (M07) |
+| `salesInstallments` | `originType` / `originId` | enum / uniqueidentifier | Discriminador / polimórfica (`salesOrders`, `operationCharges`, `salesQuotes`) | sin destino |
 | `salesInstallments` | `installmentType` | string | No es referencia (código `TIPO_FAC`) | sin destino |
-| `salesDiscountRules` | `productId`, `bonusProductId` | ObjectId | → M02 `serviceProducts` | sin destino |
-| `posTerminals` | `defaultAccountId` | ObjectId | → M01 `accounts` | sin destino |
+| `salesDiscountRules` | `productId`, `bonusProductId` | uniqueidentifier | → M02 `serviceProducts` | sin destino |
+| `posTerminals` | `defaultAccountId` | uniqueidentifier | → M01 `accounts` | sin destino |
 
 ## 8. Estados y transiciones
 

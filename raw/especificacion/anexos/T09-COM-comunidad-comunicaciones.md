@@ -438,14 +438,16 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 | RN-COM-063 | Recorte de canal por estado de la cuenta: para socios con servicio dado de baja, solo transaccionales de deuda/baja y regulatorias; las campañas `community` siguen si es asociado activo. | BASE §53. | Adoptado. | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Convenciones del módulo
 
-- Todas las colecciones llevan `tenantId` (ObjectId, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, salvo indicación, `deletedAt` (borrado lógico). Las colecciones de evidencia (`communications`, `communicationAttempts`, `communicationEvents`, `consentRecords`, `moderationCases`, `contentReports`, `communitySanctions`) **no admiten borrado lógico ni físico** fuera del job de retención (JOB-COM-19) y de la anonimización aprobada (AGR-033).
+- Todas las colecciones llevan `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, salvo indicación, `deletedAt` (borrado lógico). Las colecciones de evidencia (`communications`, `communicationAttempts`, `communicationEvents`, `consentRecords`, `moderationCases`, `contentReports`, `communitySanctions`) **no admiten borrado lógico ni físico** fuera del job de retención (JOB-COM-19) y de la anonimización aprobada (AGR-033).
 - Los medios se guardan como **referencia a objeto privado** (`{ objectKey, mime, sizeBytes, width?, height?, durationSec?, alt? }`) y se sirven con URL firmada (CNX §10 V-01); nunca URL pública persistida.
 - Los textos visibles se guardan como contenido del tenant; las etiquetas de UI son `dict:`.
 - Las fechas se guardan en UTC; vigencias y programaciones se interpretan en la zona del tenant (`America/Argentina/Cordoba` por defecto).
-- Los importes (costo de mensajería, beneficios de monto fijo) son `Decimal128` con `currency`.
+- Los importes (costo de mensajería, beneficios de monto fijo) son `DECIMAL(18,4)` con `currency`.
 - El tenant `PLATFORM` usa las mismas colecciones para los avisos de plataforma (`platformNotices`).
 - Cada ficha indica su COL-ID de T05. Las fichas que antes estaban solo en prosa tienen tabla de campos con columna **Referencia** (colección destino, COL-ID y anexo dueño). En esas tablas, “Oblig.” se dedujo de los únicos de T05, de los índices y del flujo; “Sistema” = lo completa el motor. Cuando T05 usa otro nombre para el mismo campo, prevalece T05 y la fila dice “antes `x`”.
 
@@ -457,20 +459,20 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 | `unit` | enum `person`, `account`, `serviceContract` | Sí (default `person`) | Unidad de destino y deduplicación (RF-COM-112). |
 | `purpose` | enum de finalidad (§3) | Sí | Determina dimensiones permitidas (RF-COM-119) y reglas de opt-out. |
 | `include.recipientTypes[]` | enum `member`, `holder`, `adherent`, `authorizedUser`, `employee`, `councilor`, `supplier`, `guest` | No | Tipo de destinatario. |
-| `include.branchIds[]`, `zoneIds[]`, `sectorIds[]`, `routeIds[]`, `localityIds[]`, `neighborhoodIds[]`, `streetIds[]` | ObjectId[] | No | Geografía y organización (T04, M01). |
-| `include.serviceIds[]`, `serviceStatuses[]`, `tariffCategoryIds[]`, `planIds[]`, `billingGroupIds[]` | ObjectId[] / enum[] | No | Servicio y comercial (M02, M04). `serviceStatuses`: `requested`, `active`, `suspended`, `disconnected`, `terminated`. |
+| `include.branchIds[]`, `zoneIds[]`, `sectorIds[]`, `routeIds[]`, `localityIds[]`, `neighborhoodIds[]`, `streetIds[]` | uniqueidentifier[] | No | Geografía y organización (T04, M01). |
+| `include.serviceIds[]`, `serviceStatuses[]`, `tariffCategoryIds[]`, `planIds[]`, `billingGroupIds[]` | uniqueidentifier[] / enum[] | No | Servicio y comercial (M02, M04). `serviceStatuses`: `requested`, `active`, `suspended`, `disconnected`, `terminated`. |
 | `include.debtStatus` | { `kinds[]`: `none`, `notDue`, `overdue`; `minDaysOverdue`, `maxDaysOverdue`: Int; `moraStageIds[]`; `inAgreement`: Bool } | No | Estado de deuda (M07/M08). |
 | `include.invoiceDeliveryModes[]` | enum `digital`, `paper` | No | Modalidad de factura (M05). |
 | `include.hasChannels[]` | enum de canal | No | Tiene contacto utilizable para el canal. |
-| `include.roleIds[]`, `profileIds[]`, `crewIds[]` | ObjectId[] | No | Empleados (T02, M10, M16). |
-| `include.networkNodeIds[]` | ObjectId[] | No | Ramal, transformador, nodo, OLT, celda (M10). |
+| `include.roleIds[]`, `profileIds[]`, `crewIds[]` | uniqueidentifier[] | No | Empleados (T02, M10, M16). |
+| `include.networkNodeIds[]` | uniqueidentifier[] | No | Ramal, transformador, nodo, OLT, celda (M10). |
 | `include.customAttributes[]` | [{ `key`, `op` (`eq`,`neq`,`in`,`gt`,`lt`,`exists`), `value` }] | No | Atributos de M01 (`PERSONAS_EXTRAS`). |
 | `include.memberSince` | { `from`, `to` } | No | Antigüedad como asociado (M17). |
 | `include.birthdayToday` | Bool | No | Saludos. |
 | `include.inactiveDays` | Int | No | Sin ingreso a la app N días (RF-COM-192). |
-| `personIds[]` | ObjectId[] | No | Modo `users` o agregado en `restricted`. |
-| `importListIds[]` | ObjectId[] → `audienceImportLists` | No | Modo `import`. |
-| `segmentId` | ObjectId → `audienceSegments` | No | Modo `segment`. |
+| `personIds[]` | uniqueidentifier[] | No | Modo `users` o agregado en `restricted`. |
+| `importListIds[]` | uniqueidentifier[] → `audienceImportLists` | No | Modo `import`. |
+| `segmentId` | uniqueidentifier → `audienceSegments` | No | Modo `segment`. |
 | `exclude` | { `personIds[]`, `importListIds[]`, `segmentIds[]` } | No | Exclusiones explícitas. |
 | `clamp` | { `grantHash`, `clampedAt`, `removedDimensions[]`, `changed`: Bool } | Sistema | Resultado de `clampAudienceToGrant`. |
 | `hash` | String (SHA-256 de la definición normalizada) | Sistema | Identifica la definición en snapshots. |
@@ -485,33 +487,33 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 | `body` | String (HTML sanitizado de lista blanca) | No | Cuerpo enriquecido. |
 | `bodyText` | String | Sistema | Texto plano para búsqueda y detección de datos personales. |
 | `type` | enum `noticia`, `aviso`, `corte_programado`, `asamblea`, `beneficio`, `evento`, `institucional`, `celebracion`, `general` | Sí | RF-COM-005. |
-| `categoryId` | ObjectId → `postCategories` | No | Categoría. |
+| `categoryId` | uniqueidentifier → `postCategories` | No | Categoría. |
 | `section` | String ≤80 | No | Hashtag/sección. |
 | `cover`, `gallery[]`, `video`, `audio` | Media | No | Medios privados. |
 | `layout` | enum `vertical`, `horizontal`, `banner` | Sí (default `vertical`) | |
 | `channels[]` | enum `landing`, `members`, `employees` | Sí (≥1) | Canal de publicación. |
 | `origin` | enum `admin`, `supervisor`, `system` | Sí | Nunca `member` (DEC-008, CTR-COM-01). |
-| `authorUserId`, `authorDisplay` | ObjectId; { `kind`: `institution`/`person`, `name` } | Sí | Autor real (→ `memberships`, COL-IAM-04, T02) y autor visible (`authorDisplay` no es referencia: objeto de presentación). |
+| `authorUserId`, `authorDisplay` | uniqueidentifier; { `kind`: `institution`/`person`, `name` } | Sí | Autor real (→ `memberships`, COL-IAM-04, T02) y autor visible (`authorDisplay` no es referencia: objeto de presentación). |
 | `status` | enum `draft`, `pending_review`, `scheduled`, `published`, `rejected`, `archived` | Sí | §8.1. |
 | `scheduledAt`, `publishedAt`, `archivedAt`, `expiresAt` | Date | No | |
 | `pinned`, `pinnedUntil` | Bool, Date | No | Fijado con vencimiento. |
 | `priority` | Int 0–100 | No (default 50) | Orden en feed y boletín. |
 | `approval` | { `required`, `requestedAt`, `requestedBy`, `wflRequestId`, `decision` (`approved`/`rejected`), `decidedBy`, `decidedAt`, `note` } | No | RF-COM-007. `wflRequestId` → `approvalRequests` (COL-WFL-24, T11). |
 | `audience` | AudienceDefinition | Sí | Para `landing` siempre `all` (RN-COM-010). |
-| `audienceSnapshotId` | ObjectId | Sistema | Al publicar. → `audienceSnapshots` (COL-COM-33). |
-| `audienceSegmentId` | ObjectId | No | Segmento guardado usado como audiencia → `audienceSegments` (COL-COM-30). Según T05. |
+| `audienceSnapshotId` | uniqueidentifier | Sistema | Al publicar. → `audienceSnapshots` (COL-COM-33). |
+| `audienceSegmentId` | uniqueidentifier | No | Segmento guardado usado como audiencia → `audienceSegments` (COL-COM-30). Según T05. |
 | `slug` | String | Sí al publicar en `landing` | Identificador legible único por tenant para la ruta pública `/posts/:slug` (API-COM-112). Según T05. |
 | `notify` | { `inApp`, `push`, `email`: Bool; `communicationTypeCode` } | No | RF-COM-009. |
 | `reactionsEnabled`, `commentsEnabled` | Bool | Sí (default según PRM-COM-001/005) | |
 | `commentModerationMode` | enum `inherit`, `pre`, `ai_assisted`, `post` | Sí (default `inherit`) | RF-COM-040. |
 | `commentsClosedAt`, `autoCloseCommentsDays` | Date, Int | No | RF-COM-036. |
-| `linkedSurveyId`, `linkedEventId`, `linkedBenefitId`, `linkedOutageNoticeId` | ObjectId | No | Vinculaciones. |
+| `linkedSurveyId`, `linkedEventId`, `linkedBenefitId`, `linkedOutageNoticeId` | uniqueidentifier | No | Vinculaciones. |
 | `kb` | { `articleId`, `promotedAt`, `promotedBy` } | No | RF-COM-022. |
 | `greeting` | { `ruleId`, `eventType`, `forPersonIds[]`, `runKey` } | No | RF-COM-020. |
 | `ai` | { `draftUsed`, `provider`, `model`, `confirmedBy`, `confirmedAt` } | No | RF-COM-021. |
 | `piiWarnings[]` | [{ `kind` (`dni`,`cuit`,`email`,`phone`,`account`,`cbu`), `excerpt`, `acknowledgedBy`, `acknowledgedAt` }] | Sistema | RF-COM-024. |
 | `counters` | { `impressions`, `views`, `reactions` (mapa clave→Int), `comments`, `shares`, `saves`, `hides` } | Sistema | Desnormalizados, recalculables. |
-| `copiedFromPostId` | ObjectId | No | RF-COM-025. |
+| `copiedFromPostId` | uniqueidentifier | No | RF-COM-025. |
 
 Índices: `{tenantId, status, pinned, priority, publishedAt}`; `{tenantId, status, scheduledAt}`; `{tenantId, channels, status, publishedAt}`; `{tenantId, type, publishedAt}`; `{tenantId, authorUserId, createdAt}`; único parcial `{tenantId, greeting.runKey}`; único parcial `{tenantId, slug}` (T05); texto `{tenantId, title, bodyText}`.
 
@@ -524,7 +526,7 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 | `slug` | String | No | — | — |
 | `icon` | String | No | — | — |
 | `color` | String | No | — | — |
-| `parentId` | ObjectId | No | — | `postCategories` (COL-COM-02, T09) |
+| `parentId` | uniqueidentifier | No | — | `postCategories` (COL-COM-02, T09) |
 | `order` | Int | No | — | — |
 | `active` | Bool | No | — | — |
 | `system` | Bool | No | Bool, no borrable | — |
@@ -552,8 +554,8 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `postId` | ObjectId | Sí | — | `posts` (COL-COM-01, T09) |
-| `membershipId` | ObjectId | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
+| `postId` | uniqueidentifier | Sí | — | `posts` (COL-COM-01, T09) |
+| `membershipId` | uniqueidentifier | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
 | `reaction` | String (clave) | No | clave del catálogo PRM-COM-005 | — |
 | `reactedAt` | Date | No | — | — |
 
@@ -563,8 +565,8 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `postId` | ObjectId | Sí | — | `posts` (COL-COM-01, T09) |
-| `userId` | ObjectId | Sí | — | `memberships` (COL-IAM-04, T02) |
+| `postId` | uniqueidentifier | Sí | — | `posts` (COL-COM-01, T09) |
+| `userId` | uniqueidentifier | Sí | — | `memberships` (COL-IAM-04, T02) |
 | `kind` | enum `impression`/`detail` | Sí | — | — |
 | `channel` | enum `pwa`/`landing`/`email` | Sí | — | — |
 | `dayKey` | String (`yyyymmdd`) | Sí | `yyyymmdd` en zona del tenant | — |
@@ -575,7 +577,7 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `postId` | ObjectId | Sí | — | `posts` (COL-COM-01, T09) |
+| `postId` | uniqueidentifier | Sí | — | `posts` (COL-COM-01, T09) |
 | `date` | String (`yyyymmdd`) | Sí | (antes `dayKey`; nombre según T05) | — |
 | `impressions` | Int | Sistema | — | — |
 | `views` | Int | Sistema | — | — |
@@ -590,8 +592,8 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `postId` | ObjectId | Sí | — | `posts` (COL-COM-01, T09) |
-| `membershipId` | ObjectId | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
+| `postId` | uniqueidentifier | Sí | — | `posts` (COL-COM-01, T09) |
+| `membershipId` | uniqueidentifier | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
 | `kind` | enum `saved`/`hidden` | Sí | — | — |
 | `at` | Date | No | — | — |
 
@@ -604,7 +606,7 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 | `name` | String | Sí | — | — |
 | `eventType` | enum `birthday`, `memberAnniversary`, `employeeAnniversary` | No | — | — |
 | `audience` | AudienceDefinition | No | — | — |
-| `postTemplateId` | ObjectId | No | — | `postTemplates` (COL-COM-03, T09) |
+| `postTemplateId` | uniqueidentifier | No | — | `postTemplates` (COL-COM-03, T09) |
 | `channels[]` | enum[] `landing`, `members`, `employees` | No | — | — |
 | `sendTime` | String (HH:mm) | No | — | — |
 | `active` | Bool | No | — | — |
@@ -617,13 +619,13 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `postId` | ObjectId | Sí | |
-| `parentId` | ObjectId | No | Solo un nivel: si el padre ya tiene `parentId`, se rechaza. |
-| `authorUserId`, `authorPersonId` | ObjectId | Sí / No | → `memberships` (COL-IAM-04, T02) / `persons` (COL-PER-01, M01). |
+| `postId` | uniqueidentifier | Sí | |
+| `parentId` | uniqueidentifier | No | Solo un nivel: si el padre ya tiene `parentId`, se rechaza. |
+| `authorUserId`, `authorPersonId` | uniqueidentifier | Sí / No | → `memberships` (COL-IAM-04, T02) / `persons` (COL-PER-01, M01). |
 | `text` | String ≤ PRM-COM-016 (4000) | Sí (o media) | Texto original (evidencia). |
 | `textDisplayed` | String | Sistema | Texto mostrado (con enmascarado por regla `mask`). |
 | `media` | Media (`image`/`gif`) | No | Si el tenant lo habilita. |
-| `mentions[]` | ObjectId[] (userId) | No | ≤10 (RN-COM-011). → `memberships` (COL-IAM-04, T02). |
+| `mentions[]` | uniqueidentifier[] (userId) | No | ≤10 (RN-COM-011). → `memberships` (COL-IAM-04, T02). |
 | `status` | enum `pending_review`, `visible`, `hidden`, `rejected`, `deleted_by_author`, `removed` | Sí | §8.2. |
 | `moderation` | { `modeApplied`, `ruleHits[]` [{ `ruleId`, `ruleVersion`, `action` }], `ai` { `status` (`pending`,`done`,`error`,`skipped`), `provider`, `model`, `risk` (`low`,`medium`,`high`), `score`, `categories[]`, `policyFlags[]`, `reasons[]`, `suggestedAction`, `summary`, `analyzedAt`, `error` }, `imageAi` (ídem), `crmCaseId` } | Sistema | RF-COM-042. |
 | `adminReply` | { `text`, `userId`, `at` } | No | RF-COM-033. |
@@ -641,7 +643,7 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 | `commentsEnabled` | Bool | No | — | — |
 | `defaultMode` | enum `pre`, `ai_assisted`, `post` | No | — | — |
 | `aiEnabled` | Bool | No | — | — |
-| `aiConnectorId` | ObjectId | No | T06 | `integrationConnections` (COL-INT-02, T06) |
+| `aiConnectorId` | uniqueidentifier | No | T06 | `integrationConnections` (COL-INT-02, T06) |
 | `riskThresholds` | Objeto | No | { `medium`, `high` } (0–1) | — |
 | `categoryActions` | Objeto (mapa) | No | mapa categoría de política → `block`/`review`/`mask`/`allow` | — |
 | `reportThreshold` | Int | No | — | — |
@@ -655,7 +657,7 @@ Reglas de alcance: el grant efectivo es la unión de rol y usuario (CNX §2.4); 
 | `reincidenceWindowDays` | Int | No | — | — |
 | `evidenceRetentionDays` | Int | No | — | — |
 | `slaMinutes` | Objeto | No | { `high`, `medium`, `low` } | — |
-| `currentGuidelinesId` | ObjectId | No | — | `communityGuidelines` (COL-COM-15, T09) |
+| `currentGuidelinesId` | uniqueidentifier | No | — | `communityGuidelines` (COL-COM-15, T09) |
 | `version` | String | No | — | — |
 | `publishedAt` | Date | No | — | — |
 | `code` | String | Sí | Código único por tenant (según T05). La política de tenant usa `tenant`. | — |
@@ -671,12 +673,12 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `config` | Objeto | No | términos con modo `exact`/`stem`, patrón, umbral | — |
 | `action` | enum `block`, `review`, `mask`, `allow` | No | — | — |
 | `appliesTo` | enum `comments`, `comment_images`, `post_landing_check` | No | — | — |
-| `categoryIds[]` | ObjectId[] | No | — | `postCategories` (COL-COM-02, T09): categorías de publicación (PA-COM-19, Asumida DEC-072; antes "[VERIFICAR: el ER infiere `serviceCategories` de M02; por el contexto son categorías de publicación]") |
+| `categoryIds[]` | uniqueidentifier[] | No | — | `postCategories` (COL-COM-02, T09): categorías de publicación (PA-COM-19, Asumida DEC-072; antes "[VERIFICAR: el ER infiere `serviceCategories` de M02; por el contexto son categorías de publicación]") |
 | `priority` | Int | No | — | — |
 | `active` | Bool | No | — | — |
 | `ruleVersion` | Int | No | — | — |
 | `code` | String | Sí | Código único por tenant (según T05). | — |
-| `policyId` | ObjectId | Sí | Política a la que pertenece la regla (según T05). | `moderationPolicies` (COL-COM-10, T09) |
+| `policyId` | uniqueidentifier | Sí | Política a la que pertenece la regla (según T05). | `moderationPolicies` (COL-COM-10, T09) |
 
 Índice `{tenantId, active, priority}`.
 
@@ -685,15 +687,15 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `targetRef` | { `type` (`comment`, `comment_image`), `id` } | Sí | Sujeto del caso → `comments` (COL-COM-09). Antes `subjectType` + `subjectId`; nombre según T05. |
-| `postId`, `authorUserId` | ObjectId | Sí | → `posts` (COL-COM-01) / `memberships` (COL-IAM-04, T02). |
+| `postId`, `authorUserId` | uniqueidentifier | Sí | → `posts` (COL-COM-01) / `memberships` (COL-IAM-04, T02). |
 | `origin` | enum `ai`, `rule`, `report`, `manual`, `ai_error` | Sí | |
 | `priority` | enum `low`, `medium`, `high` | Sí | Alta si reportes ≥ umbral o riesgo `high`. |
 | `riskSnapshot` | copia de `moderation.ai` al abrir | No | |
 | `ruleHits[]`, `reportIds[]` | | No | |
 | `status` | enum `open`, `assigned`, `decided`, `escalated`, `appealed`, `closed` | Sí | §8.3. |
-| `assignedTo`, `slaDueAt` | ObjectId, Date | No | |
+| `assignedTo`, `slaDueAt` | uniqueidentifier, Date | No | |
 | `decision` | { `action` (`approve`, `hide`, `hide_and_reply`, `derive_crm`, `accept_ai`, `ignore_ai`, `escalate`, `request_evidence_removal`), `reasonCode`, `note`, `by`, `at`, `aiSuggestion`, `matchedAi`: Bool } | No | RF-COM-045. |
-| `crmCaseId`, `sanctionId`, `evidenceRemovalWflId` | ObjectId | No | → `crmCases` (COL-CRM-01, M09) / `communitySanctions` (COL-COM-14) / `approvalRequests` (COL-WFL-24, T11). |
+| `crmCaseId`, `sanctionId`, `evidenceRemovalWflId` | uniqueidentifier | No | → `crmCases` (COL-CRM-01, M09) / `communitySanctions` (COL-COM-14) / `approvalRequests` (COL-WFL-24, T11). |
 | `history[]` | [{ `at`, `by`, `action`, `from`, `to`, `note` }] | Sistema | Bitácora (además de auditoría T02). |
 
 Índices: `{tenantId, status, priority, slaDueAt}`; `{tenantId, targetRef.type, targetRef.id}` único parcial con `status ≠ closed` (antes `subjectType`, `subjectId`); `{tenantId, assignedTo, status}`.
@@ -703,12 +705,12 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `targetRef` | Objeto { `type` (`comment`), `id` } | Sí | Comentario reportado (antes `commentId`; nombre según T05). | `comments` (COL-COM-09, T09) |
-| `postId` | ObjectId | No | — | `posts` (COL-COM-01, T09) |
-| `reporterUserId` | ObjectId | Sí | — | `memberships` (COL-IAM-04, T02) |
+| `postId` | uniqueidentifier | No | — | `posts` (COL-COM-01, T09) |
+| `reporterUserId` | uniqueidentifier | Sí | — | `memberships` (COL-IAM-04, T02) |
 | `reasonCode` | enum `insult`, `hate`, `threat`, `sexual`, `spam`, `personal_data`, `misinformation`, `service_claim`, `other` | No | — | — |
 | `text` | String | No | ≤500 | — |
 | `status` | enum `open`, `upheld`, `dismissed` | Sí | — | — |
-| `crmCaseId` | ObjectId | No | — | `crmCases` (COL-CRM-01, M09) |
+| `crmCaseId` | uniqueidentifier | No | — | `crmCases` (COL-CRM-01, M09) |
 | `resolvedAt` | Date | No | — | — |
 | `reporterNotifiedAt` | Date | No | — | — |
 
@@ -718,18 +720,18 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `membershipId` | ObjectId | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
-| `personId` | ObjectId | No | — | `persons` (COL-PER-01, M01) |
+| `membershipId` | uniqueidentifier | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
+| `personId` | uniqueidentifier | No | — | `persons` (COL-PER-01, M01) |
 | `kind` | enum `warning`, `mute`, `comment_ban`, `permanent_ban` | Sí | — | — |
 | `reasonCode` | String | No | — | — |
-| `caseIds[]` | ObjectId[] | No | — | `moderationCases` (COL-COM-12, T09) |
+| `caseIds[]` | uniqueidentifier[] | No | — | `moderationCases` (COL-COM-12, T09) |
 | `offenseNumber` | Int | No | — | — |
 | `startsAt` | Date | No | — | — |
 | `endsAt` | Date | No | null en permanente y advertencia | — |
 | `status` | enum `active`, `expired`, `revoked`, `appeal_pending`, `appeal_upheld`, `appeal_revoked` | Sí | — | — |
 | `suggestedBySystem` | Bool | No | — | — |
-| `appliedBy` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
-| `revokedBy` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `appliedBy` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
+| `revokedBy` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `revokeReason` | String | No | — | — |
 | `appeal` | Objeto | No | { `submittedAt`, `text`, `reviewerId`, `decision` (`upheld`/`revoked`/`reduced`), `decidedAt`, `note` } | — |
 | `notifiedAt` | Date | No | — | — |
@@ -750,7 +752,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `membershipId` | ObjectId | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
+| `membershipId` | uniqueidentifier | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
 | `guidelinesVersion` | String | Sí | — | — |
 | `acceptedAt` | Date | No | — | — |
 | `device` | Objeto | No | — | — |
@@ -790,12 +792,12 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `ruleId` | ObjectId | Sí | — | `newsletterRules` (COL-COM-17, T09) |
+| `ruleId` | uniqueidentifier | Sí | — | `newsletterRules` (COL-COM-17, T09) |
 | `subject` | String | No | — | — |
 | `status` | enum `pending_review`, `approved`, `sending`, `sent`, `rejected`, `cancelled` | Sí | — | — |
 | `format` | String | No | — | — |
 | `posts[]` | Objeto[] | No | snapshot inmutable: `postId`, `title`, `type`, `excerpt`, `cover` | — |
-| `featuredPostId` | ObjectId | No | — | `posts` (COL-COM-01, T09) |
+| `featuredPostId` | uniqueidentifier | No | — | `posts` (COL-COM-01, T09) |
 | `lede` | String | No | — | — |
 | `ledeAi` | Bool | No | — | — |
 | `greetingTemplate` | String | No | — | — |
@@ -803,7 +805,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `variants[]` | Objeto[] | No | [{ `fingerprint`, `postIds[]`, `summary`, `recipientCount`, `emailableCount` }] | — |
 | `totals` | Objeto | Sistema | { `recipients`, `included`, `emailable`, `sent`, `delivered`, `opened`, `failed` } | — |
 | `actors` | Objeto | No | { `createdBy`, `reviewedBy`, `approvedBy`, `rejectedBy`, `sentBy`, `cancelledBy` con `at` y `note` } | — |
-| `audienceSnapshotId` | ObjectId | No | — | `audienceSnapshots` (COL-COM-33, T09) |
+| `audienceSnapshotId` | uniqueidentifier | No | — | `audienceSnapshots` (COL-COM-33, T09) |
 | `runKey` | String | No | único | — |
 | `number` | String | Sistema | Número correlativo del boletín por tenant (según T05; numeración de T11). | — |
 
@@ -813,15 +815,15 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `newsletterId` | ObjectId | Sí | — | `newsletters` (COL-COM-18, T09) |
-| `personId` | ObjectId | Sí | — | `persons` (COL-PER-01, M01) |
-| `userId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `newsletterId` | uniqueidentifier | Sí | — | `newsletters` (COL-COM-18, T09) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (COL-PER-01, M01) |
+| `userId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `fingerprint` | String | No | — | — |
-| `postIds[]` | ObjectId[] | No | — | `posts` (COL-COM-01, T09) |
+| `postIds[]` | uniqueidentifier[] | No | — | `posts` (COL-COM-01, T09) |
 | `included` | Bool | No | — | — |
 | `isExternal` | Bool | No | — | — |
 | `canEmail` | Bool | No | — | — |
-| `communicationIds[]` | ObjectId[] | No | — | `communications` (COL-COM-39, T09) |
+| `communicationIds[]` | uniqueidentifier[] | No | — | `communications` (COL-COM-39, T09) |
 | `deliveryStatus` | enum `created`, `queued`, `sent_to_provider`, `accepted`, `delivered`, `read`, `opened`, `clicked`, `failed`, `bounced`, `complained`, `undeliverable`, `expired`, `cancelled`, `suppressed` | No | Proyección del estado de la última comunicación del destinatario (§8.6.1; valores de `communications.status`, §8.10). Valores explícitos desde el 5-11-2026; antes "enum (estados de `communications`, §8.10)". | — |
 | `sentAt` | Date | No | — | — |
 | `error` | String | No | — | — |
@@ -846,7 +848,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `surveyVersion` | Int | Sí | Incrementa al editar publicada (nueva versión, respuestas previas conservan la suya). |
 | `versionHistory[]` | máx. 20 [{ `version`, `savedAt`, `authorName`, `questions`, `pages` }] | Sistema | RF-COM-080. |
 | `audience` | AudienceDefinition | Sí | |
-| `audienceSnapshotId` | ObjectId | Sistema | → `audienceSnapshots` (COL-COM-33). |
+| `audienceSnapshotId` | uniqueidentifier | Sistema | → `audienceSnapshots` (COL-COM-33). |
 | `startsAt`, `endsAt`, `timezone` | Date, String | `startsAt` Sí al publicar | |
 | `presentation` | { `questionFlow` (`all`,`one_by_one`,`pages`), `showProgress`, `allowBack`, `requireReview`, `allowEditAfterSubmit`, `allowMultiple`, `periodDays` } | Sí | |
 | `anonymous` | Bool | Sí | RN-COM-049. |
@@ -861,7 +863,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `sampling` | { `probabilityPct`, `mandatory`, `repeatable`, `repeatIntervalDays` } | No | RF-COM-093 (`ENCUESTAS.PROBABILIDAD/OBLIGATORIA/REPETIBLE/INTERVALO_REPITE`). |
 | `external` | { `enabled`, `tokenKid`, `expiresAt`, `rateLimitPerIp`, `captchaAfter` } | No | RF-COM-081. |
 | `printQr` | Bool | No | QR en factura (RF-COM-195). |
-| `languages[]`, `defaultLanguage`, `webhookConnectorId`, `templateId`, `categoryId`, `tags[]`, `estimatedMinutes` | String[], String, ObjectId, ObjectId, ObjectId, String[], Int | No | `webhookConnectorId` → `integrationConnections` (COL-INT-02, T06); `templateId` → `surveyTemplates` (COL-COM-23); `categoryId` → `surveyCategories` (COL-COM-24) [VERIFICAR: el ER lo dibuja hacia `serviceCategories` de M02]. |
+| `languages[]`, `defaultLanguage`, `webhookConnectorId`, `templateId`, `categoryId`, `tags[]`, `estimatedMinutes` | String[], String, uniqueidentifier, uniqueidentifier, uniqueidentifier, String[], Int | No | `webhookConnectorId` → `integrationConnections` (COL-INT-02, T06); `templateId` → `surveyTemplates` (COL-COM-23); `categoryId` → `surveyCategories` (COL-COM-24) [VERIFICAR: el ER lo dibuja hacia `serviceCategories` de M02]. |
 | `exportAudit[]` | [{ `at`, `userId`, `format`, `includeRespondents` }] | Sistema | |
 | `aiCache` | { `analysis`, `provider`, `model`, `basedOnAnswered`, `at` } | Sistema | Capa B (RF-COM-090). |
 | `externalId` | String | No | Migración (`ENCUESTAS.ID_ENCUESTA`). |
@@ -872,12 +874,12 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `surveyId` | ObjectId | Sí | — | `surveys` (COL-COM-20, T09) |
+| `surveyId` | uniqueidentifier | Sí | — | `surveys` (COL-COM-20, T09) |
 | `surveyVersion` | Int | No | — | — |
-| `invitationId` | ObjectId | No | — | `surveyInvitations` (COL-COM-22, T09) |
-| `fieldAssignmentId` | ObjectId | No | — | `workOrders` (COL-TEC-12, M10): orden de trabajo en la que el técnico aplica la encuesta como checklist o inspección de campo (RF-COM-092; PA-COM-19, Asumida DEC-072; antes "`tasks` (COL-WFL-28, T11) [VERIFICAR: asignación de formulario de campo; T05 no la declara]") |
-| `userId` | ObjectId | No | null si anónima o externa | `memberships` (COL-IAM-04, T02) |
-| `personId` | ObjectId | No | null si anónima | `persons` (COL-PER-01, M01) |
+| `invitationId` | uniqueidentifier | No | — | `surveyInvitations` (COL-COM-22, T09) |
+| `fieldAssignmentId` | uniqueidentifier | No | — | `workOrders` (COL-TEC-12, M10): orden de trabajo en la que el técnico aplica la encuesta como checklist o inspección de campo (RF-COM-092; PA-COM-19, Asumida DEC-072; antes "`tasks` (COL-WFL-28, T11) [VERIFICAR: asignación de formulario de campo; T05 no la declara]") |
+| `userId` | uniqueidentifier | No | null si anónima o externa | `memberships` (COL-IAM-04, T02) |
+| `personId` | uniqueidentifier | No | null si anónima | `persons` (COL-PER-01, M01) |
 | `respondentKey` | String | No | (anónima: HMAC(sal de encuesta, unidad de elector)) (antes `respondentHash`; nombre según T05) | — |
 | `guestKey` | String | No | — | — |
 | `guestLabel` | String | No | — | — |
@@ -905,14 +907,14 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `surveyId` | ObjectId | Sí | — | `surveys` (COL-COM-20, T09) |
-| `personId` | ObjectId | No | — | `persons` (COL-PER-01, M01) |
-| `userId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
-| `sourceEventId` | ObjectId | No | evento disparador | evento del outbox (`eventTypes`, COL-WFL-01, T11; id del evento) |
+| `surveyId` | uniqueidentifier | Sí | — | `surveys` (COL-COM-20, T09) |
+| `personId` | uniqueidentifier | No | — | `persons` (COL-PER-01, M01) |
+| `userId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
+| `sourceEventId` | uniqueidentifier | No | evento disparador | evento del outbox (`eventTypes`, COL-WFL-01, T11; id del evento) |
 | `idempotencyKey` | String | Sí | = encuesta + evento + persona | — |
 | `status` | enum `created`, `delivered`, `opened`, `responded`, `expired`, `cancelled` | Sí | — | — |
 | `channels[]` | enum[] de canal (`email`, `sms`, `whatsapp`, `push`, `in_app`, …) | No | — | — |
-| `communicationIds[]` | ObjectId[] | No | — | `communications` (COL-COM-39, T09) |
+| `communicationIds[]` | uniqueidentifier[] | No | — | `communications` (COL-COM-39, T09) |
 | `sampledIn` | Bool | No | Bool, semilla RN-COM-051 | — |
 | `expiresAt` | Date | No | — | — |
 | `remindersSent` | Int | Sistema | — | — |
@@ -930,8 +932,8 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `pages` | Objeto[] | No | — | — |
 | `scoring` | Objeto | No | — | — |
 | `consent` | Objeto | No | — | — |
-| `serviceIds[]` | ObjectId[] | No | — | `tenantServices` (COL-CAT-02, M02) |
-| `platformTemplateId` | ObjectId | No | heredada | `surveyTemplates` (COL-COM-23, T09; fila del tenant `PLATFORM`) |
+| `serviceIds[]` | uniqueidentifier[] | No | — | `tenantServices` (COL-CAT-02, M02) |
+| `platformTemplateId` | uniqueidentifier | No | heredada | `surveyTemplates` (COL-COM-23, T09; fila del tenant `PLATFORM`) |
 | `active` | Bool | No | — | — |
 | `code` | String | Sí | Código único por tenant (según T05). | — |
 
@@ -966,7 +968,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `cover` | Media | No | — | — |
 | `status` | enum `draft`, `published`, `cancelled`, `finished` | Sí | — | — |
 | `reminders[]` | Objeto[] | No | [{ `offsetMinutes` }] | — |
-| `postId` | ObjectId | No | — | `posts` (COL-COM-01, T09) |
+| `postId` | uniqueidentifier | No | — | `posts` (COL-COM-01, T09) |
 | `changeLog[]` | Objeto[] | No | [{ `at`, `field`, `from`, `to` }] | — |
 | `counters` | Objeto | Sistema | { `registered`, `waitlisted`, `checkedIn` } | — |
 | `code` | String | Sí | Código único por tenant (según T05). | — |
@@ -977,15 +979,15 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `eventId` | ObjectId | Sí | — | `events` (COL-COM-25, T09) |
-| `personId` | ObjectId | Sí | — | `persons` (COL-PER-01, M01) |
-| `userId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `eventId` | uniqueidentifier | Sí | — | `events` (COL-COM-25, T09) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (COL-PER-01, M01) |
+| `userId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `companions` | Int | No | — | — |
 | `status` | enum `registered`, `pending_approval`, `waitlisted`, `cancelled`, `rejected`, `checked_in`, `no_show` | Sí | — | — |
 | `waitlistPosition` | Int | Sistema | — | — |
 | `qrToken` | String | No | firmado | — |
 | `checkedInAt` | Date | No | — | — |
-| `checkedInBy` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `checkedInBy` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `clientMutationId` | String | No | — | — |
 
 Único `{tenantId, eventId, personId}`.
@@ -998,7 +1000,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `taxId` | String | No | opcional (No es referencia: CUIT del comercio (texto).) | — |
 | `contact` | Objeto | No | — | — |
 | `addressText` | String | No | — | — |
-| `validatorUserIds[]` | ObjectId[] | No | — | `memberships` (COL-IAM-04, T02) |
+| `validatorUserIds[]` | uniqueidentifier[] | No | — | `memberships` (COL-IAM-04, T02) |
 | `validationLinkEnabled` | Bool | No | — | — |
 | `active` | Bool | No | — | — |
 | `code` | String | Sí | Código único por tenant (según T05). | — |
@@ -1009,9 +1011,9 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 |---|---|---|---|---|
 | `title` | String | Sí | — | — |
 | `description` | String | No | — | — |
-| `benefitPartnerId` | ObjectId | No | (antes `partnerId`; nombre según T05) | `benefitPartners` (COL-COM-27, T09) |
+| `benefitPartnerId` | uniqueidentifier | No | (antes `partnerId`; nombre según T05) | `benefitPartners` (COL-COM-27, T09) |
 | `kind` | enum `percent_discount`, `fixed_discount`, `two_for_one`, `service`, `raffle`, `other` | Sí | — | — |
-| `value` | Decimal128 | No | Decimal128, según tipo | — |
+| `value` | DECIMAL(18,4) | No | DECIMAL(18,4), según tipo | — |
 | `currency` | String (ISO 4217) | No | — | — |
 | `conditions` | String | No | — | — |
 | `validFrom` | Date | No | — | — |
@@ -1024,7 +1026,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `cover` | Media | No | — | — |
 | `status` | enum `draft`, `published`, `paused`, `expired`, `cancelled` | Sí | — | — |
 | `counters` | Objeto | Sistema | { `issued`, `redeemed` } | — |
-| `postId` | ObjectId | No | — | `posts` (COL-COM-01, T09) |
+| `postId` | uniqueidentifier | No | — | `posts` (COL-COM-01, T09) |
 | `code` | String | Sí | Código único por tenant (según T05). | — |
 
 Índices `{tenantId, status, validTo}`.
@@ -1033,17 +1035,17 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `benefitId` | ObjectId | Sí | — | `benefits` (COL-COM-28, T09) |
-| `personId` | ObjectId | No | — | `persons` (COL-PER-01, M01) |
-| `userId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `benefitId` | uniqueidentifier | Sí | — | `benefits` (COL-COM-28, T09) |
+| `personId` | uniqueidentifier | No | — | `persons` (COL-PER-01, M01) |
+| `userId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `code` | String | Sí | único por tenant, alfanumérico 8–10, sin caracteres ambiguos | — |
 | `qrToken` | String | No | — | — |
 | `status` | enum `issued`, `redeemed`, `expired`, `cancelled` | Sí | — | — |
 | `issuedAt` | Date | No | — | — |
 | `expiresAt` | Date | No | — | — |
 | `redeemedAt` | Date | No | — | — |
-| `redeemedBy` | ObjectId | No | usuario validador o `partner_link` | `memberships` (COL-IAM-04, T02) |
-| `partnerId` | ObjectId | No | — | `benefitPartners` (COL-COM-27, T09) |
+| `redeemedBy` | uniqueidentifier | No | usuario validador o `partner_link` | `memberships` (COL-IAM-04, T02) |
+| `partnerId` | uniqueidentifier | No | — | `benefitPartners` (COL-COM-27, T09) |
 
 Únicos `{tenantId, code}`, `{tenantId, benefitId, personId, status}` parcial según cupo por persona.
 
@@ -1055,11 +1057,11 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
 | `description` | String | No | — | — |
-| `ownerUserId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `ownerUserId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `visibility` | enum `private`, `shared` | No | — | — |
 | `definition` | AudienceDefinition | No | AudienceDefinition sin `segmentId` recursivo | — |
 | `evaluation` | enum `dynamic`, `snapshot` | No | — | — |
-| `lastSnapshotId` | ObjectId | Sistema | — | `audienceSnapshots` (COL-COM-33, T09) |
+| `lastSnapshotId` | uniqueidentifier | Sistema | — | `audienceSnapshots` (COL-COM-33, T09) |
 | `lastCount` | Int | Sistema | — | — |
 | `lastEvaluatedAt` | Date | Sistema | — | — |
 | `active` | Bool | No | — | — |
@@ -1076,18 +1078,18 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `rowsMatched` | Int | Sistema | — | — |
 | `rowsUnmatched` | Int | Sistema | — | — |
 | `status` | enum `uploaded`, `validated`, `confirmed`, `discarded` | Sí | — | — |
-| `importedBy` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `importedBy` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `confirmedAt` | Date | No | — | — |
 
 **`audienceImportRows`** (COL-COM-32)
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `listId` | ObjectId | Sí | — | `audienceImportLists` (COL-COM-31, T09) |
+| `listId` | uniqueidentifier | Sí | — | `audienceImportLists` (COL-COM-31, T09) |
 | `rowNumber` | Int | No | — | — |
 | `raw` | Objeto | No | hash + campos de cruce | — |
-| `personId` | ObjectId | No | — | `persons` (COL-PER-01, M01) |
-| `accountId` | ObjectId | No | — | `accounts` (COL-PER-05, M01) |
+| `personId` | uniqueidentifier | No | — | `persons` (COL-PER-01, M01) |
+| `accountId` | uniqueidentifier | No | — | `accounts` (COL-PER-05, M01) |
 | `matchStatus` | enum `matched`, `unmatched`, `ambiguous`, `duplicate` | No | — | — |
 | `error` | String | No | — | — |
 
@@ -1098,24 +1100,24 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `ownerType` | enum `post`, `survey`, `newsletter`, `campaign`, `event`, `benefit`, `outageNotice`, `segment` | No | — | — |
-| `ownerId` | ObjectId | No | — | referencia polimórfica según `ownerType` (`posts`, `surveys`, `newsletters`, `campaigns`, `events`, `benefits`, `outageNotices`, `audienceSegments`; T09) |
+| `ownerId` | uniqueidentifier | No | — | referencia polimórfica según `ownerType` (`posts`, `surveys`, `newsletters`, `campaigns`, `events`, `benefits`, `outageNotices`, `audienceSegments`; T09) |
 | `definitionHash` | String | No | — | — |
 | `definition` | AudienceDefinition | No | copia | — |
 | `grantHash` | String | No | — | — |
 | `capturedAt` | Date | No | — | — |
 | `counts` | Objeto | Sistema | { `persons`, `accounts`, `serviceContracts`, `byChannel` { canal → Int }, `excludedByReason` { `no_contact`, `opt_out`, `suppressed`, `quiet_hours`, `sanction`, `outside_grant`, `sensitive_filter`, `deduplicated` → Int } } | — |
-| `estimatedCost` | Objeto[] | Sistema | [{ `channel`, `amount` (Decimal128), `currency` }] | — |
-| `segmentId` | ObjectId | No | Segmento evaluado cuando `ownerType = segment` o la audiencia usa `mode = segment` (según T05). | `audienceSegments` (COL-COM-30, T09) |
+| `estimatedCost` | Objeto[] | Sistema | [{ `channel`, `amount` (DECIMAL(18,4)), `currency` }] | — |
+| `segmentId` | uniqueidentifier | No | Segmento evaluado cuando `ownerType = segment` o la audiencia usa `mode = segment` (según T05). | `audienceSegments` (COL-COM-30, T09) |
 
 **`audienceSnapshotMembers`** (COL-COM-34)
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `snapshotId` | ObjectId | Sí | — | `audienceSnapshots` (COL-COM-33, T09) |
-| `personId` | ObjectId | No | — | `persons` (COL-PER-01, M01) |
-| `accountId` | ObjectId | No | — | `accounts` (COL-PER-05, M01) |
-| `contractId` | ObjectId | No | — | `serviceContracts` (COL-CAT-18, M02) |
-| `userId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `snapshotId` | uniqueidentifier | Sí | — | `audienceSnapshots` (COL-COM-33, T09) |
+| `personId` | uniqueidentifier | No | — | `persons` (COL-PER-01, M01) |
+| `accountId` | uniqueidentifier | No | — | `accounts` (COL-PER-05, M01) |
+| `contractId` | uniqueidentifier | No | — | `serviceContracts` (COL-CAT-18, M02) |
+| `userId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `resolvedChannels[]` | enum[] de canal (`email`, `sms`, `whatsapp`, `push`, `in_app`, …) | No | — | — |
 | `excludedReason` | enum | No | — | — |
 
@@ -1136,7 +1138,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `allowedChannels[]`, `defaultChannels[]`, `fallbackOrder[]` | enum de canal | Sí | |
 | `optOut` | enum `never`, `channel_only` (al menos uno activo), `full` | Sí | RF-COM-171. |
 | `quietHoursExempt` | Bool | Sí | RN-COM-054. |
-| `priority` | enum `critical`, `high`, `normal`, `low` | Sí | Cola BullMQ por prioridad. |
+| `priority` | enum `critical`, `high`, `normal`, `low` | Sí | Cola Azure Queue Storage por prioridad. |
 | `sendWindow` | { `notBefore`, `notAfter`, `businessDaysOnly` } | No | |
 | `ttlHours` | Int | No | Pasado el TTL → `expired`. |
 | `requiredMilestone` | enum `accepted`, `delivered`, `read`, `physical_ack`, `none` | Sí | RF-COM-182. |
@@ -1147,7 +1149,7 @@ Versionada: cada cambio crea versión nueva (T04 configuración versionada).
 | `grouping` | enum `none`, `byAccount`, `byHolder`, `byHolderAndPhone` | No | RF-COM-147. |
 | `templateIds` | mapa canal → `messageTemplates._id` | Sí por canal por defecto | |
 | `status` | enum `active`, `inactive` | Sí | `inactive` solo si `optOut ≠ never` y la finalidad del tipo no es de seguridad ni regulatoria (5-11-2026: redacción sin los códigos de finalidad entre comillas invertidas, que se leían como estados; antes "la finalidad no es security/regulatory"). |
-| `platformTypeId`, `overridden` | ObjectId, Bool | No | Herencia: `platformTypeId` → `communicationTypes` (COL-COM-35, fila del tenant `PLATFORM`); `overridden` no es referencia. |
+| `platformTypeId`, `overridden` | uniqueidentifier, Bool | No | Herencia: `platformTypeId` → `communicationTypes` (COL-COM-35, fila del tenant `PLATFORM`); `overridden` no es referencia. |
 
 Índice único `{tenantId, code}`.
 
@@ -1157,13 +1159,13 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `communicationTypeId` | ObjectId | Sí | Tipo de comunicación, obligatorio en toda plantilla (PA-COM-18, Asumida DEC-072). Las plantillas de campaña o de texto libre, que antes usaban los valores `campaign`/`free` en este campo, usan el tipo genérico "Campaña" (`code = com.campaign.generic`). Antes: "quedan sin tipo y se distinguen por `channel` y por su uso en `campaigns` [VERIFICAR]". (Antes `communicationTypeCode`; nombre según T05) | `communicationTypes` (COL-COM-35, T09) |
+| `communicationTypeId` | uniqueidentifier | Sí | Tipo de comunicación, obligatorio en toda plantilla (PA-COM-18, Asumida DEC-072). Las plantillas de campaña o de texto libre, que antes usaban los valores `campaign`/`free` en este campo, usan el tipo genérico "Campaña" (`code = com.campaign.generic`). Antes: "quedan sin tipo y se distinguen por `channel` y por su uso en `campaigns` [VERIFICAR]". (Antes `communicationTypeCode`; nombre según T05) | `communicationTypes` (COL-COM-35, T09) |
 | `channel` | enum | Sí | — | — |
 | `locale` | String | Sí | `es-AR` default | — |
 | `name` | String | Sí | — | — |
-| `currentVersionId` | ObjectId | No | — | `messageTemplateVersions` (COL-COM-37, T09) |
+| `currentVersionId` | uniqueidentifier | No | — | `messageTemplateVersions` (COL-COM-37, T09) |
 | `status` | enum `active`, `retired` | Sí | — | — |
-| `platformTemplateId` | ObjectId | No | — | `messageTemplates` (COL-COM-36, T09; fila del tenant `PLATFORM`) |
+| `platformTemplateId` | uniqueidentifier | No | — | `messageTemplates` (COL-COM-36, T09; fila del tenant `PLATFORM`) |
 | `whatsapp` | Objeto | No | { `providerTemplateName`, `category` (`utility`, `marketing`, `authentication`), `language`, `approvalStatus` (`draft`, `submitted`, `approved`, `rejected`, `paused`, `disabled`), `syncedAt`, `positionalMap[]` [{ `position`, `variablePath` }] } | — |
 | `code` | String | Sí | Código único por tenant (según T05). | — |
 
@@ -1173,7 +1175,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `templateId` | ObjectId | Sí | — | `messageTemplates` (COL-COM-36, T09) |
+| `templateId` | uniqueidentifier | Sí | — | `messageTemplates` (COL-COM-36, T09) |
 | `versionNumber` | Int | Sí | — | — |
 | `status` | enum `draft`, `published`, `retired` | Sí | — | — |
 | `subject` | String | No | email | — |
@@ -1188,7 +1190,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `dictionaryVersion` | String | No | — | — |
 | `smsStats` | Objeto | Sistema | { `encoding` (`GSM7`/`UCS2`), `chars`, `segments` } | — |
 | `publishedAt` | Date | No | — | — |
-| `publishedBy` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `publishedBy` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `changeNote` | String | No | — | — |
 
 Único `{tenantId, templateId, versionNumber}`. Inmutable una vez publicada.
@@ -1220,22 +1222,22 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `purpose` | enum | Sí | Copia del tipo al crear. |
 | `origin` | { `kind` (`event`, `command`, `campaign`, `newsletter`, `manual`, `survey`, `system`), `eventId`, `eventName`, `module`, `campaignId`, `requestedBy` } | Sí | `campaignId` → `campaigns` (COL-COM-47). |
 | `sourceRef` | { `type`, `id` } (ej. `invoice`, `noticeId`) | Sí | Objeto de negocio que origina la comunicación. Antes `origin.businessRef`; nombre según T05. En el comando (API-COM-75, `com.notify`) y en los eventos el parámetro se sigue llamando `businessRef`. Referencia polimórfica al objeto del módulo emisor. |
-| `personId` | ObjectId | Sí si el destinatario es persona | Copia indexable de `recipient.personId` → `persons` (COL-PER-01, M01). Según T05. |
+| `personId` | uniqueidentifier | Sí si el destinatario es persona | Copia indexable de `recipient.personId` → `persons` (COL-PER-01, M01). Según T05. |
 | `recipient` | { `personId`, `accountId`, `userId`, `supplierId`, `contactPointId`, `address` (email/E.164 enmascarable), `displayName` } | Sí | |
 | `channel` | enum de canal | Sí | |
-| `templateVersionId`, `templateVersionNumber` | ObjectId, Int | Sí (salvo texto libre) | |
+| `templateVersionId`, `templateVersionNumber` | uniqueidentifier, Int | Sí (salvo texto libre) | |
 | `render` | { `subject`, `title`, `bodyText`, `bodyHtmlRef` (objeto privado), `variablesHash`, `variablesSnapshotRef` (objeto privado cifrado), `contentHash` (SHA-256), `dictionaryVersion`, `segments` } | Sí | RN-COM-060. |
 | `attachments[]` | [{ `objectKey`, `sha256`, `mode` }] | No | |
 | `status` | enum §8.10 | Sí | |
 | `statusHistory[]` | [{ `status`, `at`, `source` (`system`, `provider`, `user`), `detail` }] | Sistema | |
 | `failureClass` | enum `hard`, `soft`, `blocked`, `invalid`, `policy` | No | |
-| `providerConnectorId`, `providerMessageId` | ObjectId, String | No | `providerConnectorId` → `integrationConnections` (COL-INT-02, T06); `providerMessageId` es identificador externo del proveedor. |
+| `providerConnectorId`, `providerMessageId` | uniqueidentifier, String | No | `providerConnectorId` → `integrationConnections` (COL-INT-02, T06); `providerMessageId` es identificador externo del proveedor. |
 | `priority`, `scheduledFor`, `expiresAt` | enum (igual que el tipo), Date, Date | Sí | |
 | `attemptCount` | Int | Sistema | |
 | `fallback` | { `fromCommunicationId`, `toCommunicationId`, `reason` } | No | Alternativa de canal. |
 | `milestone` | { `required`, `reachedAt`, `notifiedAt` } | Sistema | |
 | `idempotencyKey` | String | Sí | RF-COM-145. |
-| `costEstimate`, `costActual` | Decimal128 + `currency` | No | |
+| `costEstimate`, `costActual` | DECIMAL(18,4) + `currency` | No | |
 | `proofDocumentRef` | objeto privado (PDF de constancia) | No | → `documents` (COL-WFL-34, T11). |
 | `environment` | enum `production`, `sandbox` | Sí | RN-COM-061. |
 | `legalHold` | Bool | No | Bloquea purga (caso judicial). |
@@ -1246,9 +1248,9 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `communicationId` | ObjectId | Sí | — | `communications` (COL-COM-39, T09) |
+| `communicationId` | uniqueidentifier | Sí | — | `communications` (COL-COM-39, T09) |
 | `attemptNumber` | Int | Sistema | — | — |
-| `connectorId` | ObjectId | No | — | `integrationConnections` (COL-INT-02, T06) |
+| `connectorId` | uniqueidentifier | No | — | `integrationConnections` (COL-INT-02, T06) |
 | `startedAt` | Date | No | — | — |
 | `finishedAt` | Date | No | — | — |
 | `result` | enum `accepted`, `rejected`, `timeout`, `error` | No | — | — |
@@ -1256,7 +1258,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `providerMessage` | String | No | — | — |
 | `retryable` | Bool | No | — | — |
 | `nextRetryAt` | Date | No | — | — |
-| `intOperationId` | ObjectId | No | T06 | `integrationOperations` (COL-INT-06, T06) |
+| `intOperationId` | uniqueidentifier | No | T06 | `integrationOperations` (COL-INT-06, T06) |
 
 Índice `{tenantId, communicationId, attemptNumber}` único. Origen: `ENVIOS`, `RESULTADOS`.
 
@@ -1264,14 +1266,14 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `communicationId` | ObjectId | Sí | — | `communications` (COL-COM-39, T09) |
+| `communicationId` | uniqueidentifier | Sí | — | `communications` (COL-COM-39, T09) |
 | `providerMessageId` | String | No | (identificador externo del proveedor, no es referencia) | — |
 | `kind` | enum `accepted`, `delivered`, `read`, `opened`, `clicked`, `bounced_hard`, `bounced_soft`, `complained`, `unsubscribed`, `failed` | Sí | — | — |
 | `occurredAt` | Date | No | — | — |
 | `receivedAt` | Date | Sistema | — | — |
 | `providerEventId` | String | Sí | deduplicación (identificador externo del proveedor, no es referencia) | — |
 | `payloadRef` | String (objeto privado) | No | — | — |
-| `linkId` | ObjectId | No | — | `trackedLinks` (COL-COM-42, T09) |
+| `linkId` | uniqueidentifier | No | — | `trackedLinks` (COL-COM-42, T09) |
 | `provider` | String | Sí | Proveedor que emitió el evento (`ses`, `meta_cloud`, `trii`, …); forma con `providerEventId` el único de T05. | — |
 
 Único `{tenantId, providerEventId}`.
@@ -1280,14 +1282,14 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `communicationId` | ObjectId | Sí | — | `communications` (COL-COM-39, T09) |
-| `campaignId` | ObjectId | No | — | `campaigns` (COL-COM-47, T09) |
+| `communicationId` | uniqueidentifier | Sí | — | `communications` (COL-COM-39, T09) |
+| `campaignId` | uniqueidentifier | No | — | `campaigns` (COL-COM-47, T09) |
 | `code` | String | Sí | acortador propio, único global por dominio corto (antes `slug`; nombre según T05) | — |
 | `targetUrl` | String (URL) | No | lista blanca de dominios del tenant y de la plataforma | — |
 | `clicks` | Int | Sistema | — | — |
 | `firstClickAt` | Date | Sistema | — | — |
 
-Índice único `{code}` (colección técnica con `tenantId`). Índices con los nombres de T05 (antes `slug` → `code`).
+Índice único `{code}` (colección técnica con `TenantId`). Índices con los nombres de T05 (antes `slug` → `code`).
 
 **`senderIdentities`** (RN-COM-020; reemplaza `CORREOS_INTERNOS`) (COL-COM-43)
 
@@ -1299,7 +1301,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `fromName` | String | No | V2 709 / PRM-COM-P1-001 | — |
 | `fromAddress` / `senderId` | String | No | (SMS alfanumérico ≤11, V2 2812 / PRM-COM-P1-003) o `phoneNumberId` (WhatsApp) | No es referencia: remitente o identificador del proveedor (aclarado el 5-11-2026) |
 | `replyTo` | String (email) | No | — | — |
-| `connectorId` | ObjectId | No | T06; las credenciales viven en bóveda | `integrationConnections` (COL-INT-02, T06) |
+| `connectorId` | uniqueidentifier | No | T06; las credenciales viven en bóveda | `integrationConnections` (COL-INT-02, T06) |
 | `verificationStatus` | enum `pending`, `verified`, `failed` | No | — | — |
 | `default` | Bool | No | Bool por canal | — |
 | `address` | String | Sí | Dirección o remitente normalizado del canal (email, alfanumérico SMS o número WhatsApp); forma el único `{channel, address}` de T05. Agrupa `fromAddress`/`senderId`. | — |
@@ -1312,7 +1314,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `enabled` | Bool | No | V2 2693 / PRM-COM-P1-004 para SMS | — |
-| `connectionId` | ObjectId | No | (antes `connectorId`; nombre según T05) | `integrationConnections` (COL-INT-02, T06) |
+| `connectionId` | uniqueidentifier | No | (antes `connectorId`; nombre según T05) | `integrationConnections` (COL-INT-02, T06) |
 | `providerKind` | enum (por canal) | No | email: `ses`, `smtp`; SMS: `sns`, `gateway_api`; WhatsApp: `meta_cloud`, `trii`; push: `webpush` | — |
 | `throttle` | Objeto | No | { `perSecond`, `batchSize`, `batchPauseSec` } | — |
 | `maxAttempts` | Int | No | — | — |
@@ -1320,7 +1322,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `circuitBreaker` | Objeto | No | { `errorThreshold`, `windowSec`, `cooldownSec` } | — |
 | `quietHours` | Objeto | No | { `from`, `to`, `days[]`, `holidays` } | — |
 | `dailyCapPerRecipient` | Int | No | — | — |
-| `monthlyBudget` | Decimal128 | No | Decimal128 | — |
+| `monthlyBudget` | DECIMAL(18,4) | No | DECIMAL(18,4) | — |
 | `bccForBulk[]` | String[] (email) | No | V2 2904 | — |
 | `allowEditTemplateOnSingleSend` | Bool | No | V2 2884 | — |
 | `smsMaxChars` | Int | No | V2 2745 | — |
@@ -1343,7 +1345,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `count` | Int | Sistema | — | — |
 | `segments` | Int | Sistema | SMS | — |
 | `conversations` | Int | Sistema | WhatsApp por categoría | — |
-| `costAmount` | Decimal128 | Sistema | Decimal128 | — |
+| `costAmount` | DECIMAL(18,4) | Sistema | DECIMAL(18,4) | — |
 | `currency` | String (ISO 4217) | No | — | — |
 
 Único `{tenantId, dayKey, channel, purpose, communicationTypeCode}`. Consumido por T01 (licencias/consumo).
@@ -1380,11 +1382,11 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `link` | { `targetType` (`screen`, `post`, `survey`, `event`, `benefit`, `document`, `url`), `targetId`, `url` } | No | |
 | `schedule` | { `mode` (`now`, `at`, `recurring`), `at`, `rrule`, `timezone`, `window` { `from`, `to` } } | Sí | |
 | `throttleOverride` | { `perSecond`, `batchSize` } | No | ≤ límites del canal. |
-| `costCap` | Decimal128 + `currency` | No | Detiene al alcanzar. |
+| `costCap` | DECIMAL(18,4) + `currency` | No | Detiene al alcanzar. |
 | `testRecipients[]` | userIds internos | No | |
 | `status` | enum §8.11 | Sí | |
 | `approval` | { `required`, `reasons[]` (`purpose`, `size`, `cost`), `wflRequestId`, `decidedBy`, `decidedAt`, `note` } | No | `wflRequestId` → `approvalRequests` (COL-WFL-24, T11). |
-| `audienceSnapshotId` | ObjectId | Sistema | → `audienceSnapshots` (COL-COM-33). |
+| `audienceSnapshotId` | uniqueidentifier | Sistema | → `audienceSnapshots` (COL-COM-33). |
 | `metrics` | { `snapshot`, `excludedByReason`, `queued`, `sent`, `accepted`, `delivered`, `opened`, `uniqueClicks`, `totalClicks`, `bouncedHard`, `bouncedSoft`, `complaints`, `unsubscribes`, `failed`, `costActual` } por canal y total | Sistema | RF-COM-193. |
 | `runs[]` | [{ `runKey`, `startedAt`, `finishedAt`, `status` }] | Sistema | Recurrentes. |
 
@@ -1394,18 +1396,18 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `campaignId` | ObjectId | No | opcional | `campaigns` (COL-COM-47, T09) |
+| `campaignId` | uniqueidentifier | No | opcional | `campaigns` (COL-COM-47, T09) |
 | `text` | String | No | ≤ PRM-COM-047 caracteres | — |
 | `area` | enum `header`, `body`, `footer`, `back` | No | — | — |
 | `priority` | Int | No | — | — |
 | `audience` | AudienceDefinition | No | — | — |
-| `serviceIds[]` | ObjectId[] | No | — | `tenantServices` (COL-CAT-02, M02) |
+| `serviceIds[]` | uniqueidentifier[] | No | — | `tenantServices` (COL-CAT-02, M02) |
 | `billingPeriods[]` / `validFrom` / `validTo` | String[] (`yyyymm`) / Date / Date | No | — | — |
 | `qr` | Objeto | No | { `targetType`, `targetId` } | — |
 | `status` | enum `draft`, `approved`, `active`, `expired`, `cancelled` | Sí | — | — |
-| `approvedBy` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `approvedBy` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `code` | String | Sí | Código único por tenant (según T05). | — |
-| `segmentId` | ObjectId | No | Segmento guardado usado como audiencia (alternativa a `audience`, según T05). | `audienceSegments` (COL-COM-30, T09) |
+| `segmentId` | uniqueidentifier | No | Segmento guardado usado como audiencia (alternativa a `audience`, según T05). | `audienceSegments` (COL-COM-30, T09) |
 
 Índice `{tenantId, status, validFrom, validTo}`. M05 consulta `GET /api/internal/com/invoice-messages/resolve` por comprobante. Origen: leyendas de `CIRCULAR`.
 
@@ -1415,8 +1417,8 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `personId` | ObjectId | Sí | — | `persons` (COL-PER-01, M01) |
-| `userId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (COL-PER-01, M01) |
+| `userId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `byPurpose` | Objeto | No | { finalidad → { `channels` { canal → Bool }, `preferredChannel` } } | — |
 | `byType` | Objeto | No | excepciones por `communicationTypeCode` | — |
 | `locale` | String | No | — | — |
@@ -1437,11 +1439,11 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `addressHmac` | String | Sí | (antes `addressHash`; nombre según T05) | — |
 | `addressMasked` | String | No | — | — |
 | `reason` | enum `hard_bounce`, `invalid_number`, `complaint`, `unsubscribe_all`, `court_order`, `manual`, `carrier_block` | No | — | — |
-| `sourceCommunicationId` | ObjectId | No | — | `communications` (COL-COM-39, T09) |
+| `sourceCommunicationId` | uniqueidentifier | No | — | `communications` (COL-COM-39, T09) |
 | `since` | Date | No | — | — |
 | `until` | Date | No | null = indefinido | — |
 | `status` | enum `active`, `lifted` | Sí | — | — |
-| `liftedBy` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `liftedBy` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `liftEvidenceRef` | String (objeto privado) | No | — | — |
 
 Único `{tenantId, channel, addressHmac, status:active}`. Índices con los nombres de T05 (antes `addressHash` → `addressHmac`).
@@ -1452,18 +1454,18 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `membershipId` | ObjectId | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
-| `personId` | ObjectId | No | — | `persons` (COL-PER-01, M01) |
+| `membershipId` | uniqueidentifier | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
+| `personId` | uniqueidentifier | No | — | `persons` (COL-PER-01, M01) |
 | `kind` | enum | Sí | clave de `notifKinds` | — |
 | `title` | String | Sí | — | — |
 | `body` | String | No | — | — |
 | `link` | String | No | ruta interna | — |
 | `image` | Media | No | — | — |
 | `refType` | String | No | — | — |
-| `refId` | ObjectId | No | — | referencia polimórfica según `refType` (objeto del módulo emisor) |
-| `senderUserId` | ObjectId | No | — | `memberships` (COL-IAM-04, T02) |
+| `refId` | uniqueidentifier | No | — | referencia polimórfica según `refType` (objeto del módulo emisor) |
+| `senderUserId` | uniqueidentifier | No | — | `memberships` (COL-IAM-04, T02) |
 | `senderDisplay` | String | No | — | — |
-| `communicationId` | ObjectId | No | — | `communications` (COL-COM-39, T09) |
+| `communicationId` | uniqueidentifier | No | — | `communications` (COL-COM-39, T09) |
 | `readAt` | Date | No | — | — |
 | `dismissedAt` | Date | No | — | — |
 | `actionPending` | Bool | No | — | — |
@@ -1476,7 +1478,7 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `membershipId` | ObjectId | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
+| `membershipId` | uniqueidentifier | Sí | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
 | `endpointHash` | String (hash) | Sí | hash único (antes `endpoint`; nombre según T05) | — |
 | `keys` | Objeto (cifrado) | No | cifradas | — |
 | `device` | Objeto | No | { `ua`, `platform` } | — |
@@ -1495,21 +1497,21 @@ Tipo genérico "Campaña" (PA-COM-18): fila de plataforma `com.campaign.generic`
 | `kind` | enum `maintenance`, `release`, `product_news`, `survey`, `incident` | Sí | — | — |
 | `title` | String | Sí | — | — |
 | `body` | String | No | — | — |
-| `targetTenants` | String (`all`) u ObjectId[] | No | `all` o lista, por plan | `tenants` (COL-PLA-01, T01) cuando es lista (agregado el 5-11-2026) |
+| `targetTenants` | String (`all`) u uniqueidentifier[] | No | `all` o lista, por plan | `tenants` (COL-PLA-01, T01) cuando es lista (agregado el 5-11-2026) |
 | `targetRoles[]` | String[] (códigos de rol T02) | No | — | — |
 | `permanence` | enum `pinned_1d`, `normal_5d`, `long_20d` | No | — | — |
 | `startsAt` | Date | No | — | — |
 | `endsAt` | Date | No | — | — |
-| `surveyId` | ObjectId | No | — | `surveys` (COL-COM-20, T09) |
+| `surveyId` | uniqueidentifier | No | — | `surveys` (COL-COM-20, T09) |
 | `status` | enum `draft`, `published`, `expired`, `withdrawn` | Sí | Ciclo propio de T09 (§8.13.1; PA-COM-17, Asumida DEC-072); antes "enum" sin valores. No usa los estados de tenant de T01. | — |
 
 **`platformNoticeReads`** (COL-COM-55)
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `noticeId` | ObjectId | Sí | — | `platformNotices` (COL-COM-54, T09) |
-| `tenantId` | ObjectId | Sí | (tenant lector; la colección es de plataforma) | `tenants` (COL-PLA-01, T01) |
-| `membershipId` | ObjectId | No | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
+| `noticeId` | uniqueidentifier | Sí | — | `platformNotices` (COL-COM-54, T09) |
+| `TenantId` | uniqueidentifier | Sí | (tenant lector; la colección es de plataforma) | `tenants` (COL-PLA-01, T01) |
+| `membershipId` | uniqueidentifier | No | (antes `userId`; nombre según T05) | `memberships` (COL-IAM-04, T02) |
 | `readAt` | Date | No | — | — |
 
 Origen: `RSSFEED`, `clsRss`, panel de noticias de `Inicio_ProCoop`, `ENCUESTAS`/`RESPUESTAS` (proveedor → cooperativa).
@@ -1522,20 +1524,20 @@ Origen: `RSSFEED`, `clsRss`, panel de noticias de `Inicio_ProCoop`, `ENCUESTAS`/
 |---|---|---|---|
 | `number` | String | Sistema | Número correlativo del aviso por tenant (según T05; numeración de T11). |
 | `kind` | enum `scheduled`, `unscheduled` | Sí | |
-| `serviceIds[]` | ObjectId[] | Sí | → `tenantServices` (COL-CAT-02, M02). T05 declara `serviceId` (singular); un corte puede afectar varios servicios de la misma red, por lo que se conserva la lista; la corrección de T05 queda a cargo de T05 (PA 3 del cierre, Asumida DEC-072; antes [VERIFICAR]). |
-| `zoneIds[]` | ObjectId[] | No | Zonas afectadas → `zones` (COL-CFG-16, T04). Antes `area.zoneIds[]`; nombre y ubicación según T05. |
+| `serviceIds[]` | uniqueidentifier[] | Sí | → `tenantServices` (COL-CAT-02, M02). T05 declara `serviceId` (singular); un corte puede afectar varios servicios de la misma red, por lo que se conserva la lista; la corrección de T05 queda a cargo de T05 (PA 3 del cierre, Asumida DEC-072; antes [VERIFICAR]). |
+| `zoneIds[]` | uniqueidentifier[] | No | Zonas afectadas → `zones` (COL-CFG-16, T04). Antes `area.zoneIds[]`; nombre y ubicación según T05. |
 | `reason` | String + `reasonCode` | Sí | |
 | `area` | { `localityIds[]`, `streetSegments[]` [{ `streetId`, `fromNumber`, `toNumber` }], `networkNodeIds[]`, `polygon` (GeoJSON) } | Sí (≥1) | |
 | `window` | { `startsAt`, `estimatedEndAt`, `actualStartAt`, `restoredAt` } | Sí | |
 | `status` | enum `draft`, `published`, `in_progress`, `restored`, `cancelled`, `rescheduled` | Sí | §8.12. |
 | `source` | { `kind` (`manual`, `tec_outage_plan`, `crm_incident`, `tec_device_down`), `refId` } | Sí | |
 | `publishOn` | { `wall`, `landing`, `strip` } | Sí | |
-| `postId`, `audienceSnapshotId` | ObjectId | Sistema | → `posts` (COL-COM-01) / `audienceSnapshots` (COL-COM-33). |
+| `postId`, `audienceSnapshotId` | uniqueidentifier | Sistema | → `posts` (COL-COM-01) / `audienceSnapshots` (COL-COM-33). |
 | `notifyChannels[]` | enum de canal | Sí | |
 | `affected` | { `persons`, `accounts`, `serviceContracts`, `criticalCount` } | Sistema | `criticalCount`: electrodependientes, solo número (RF-COM-163). |
-| `minNoticeHoursApplied`, `lateNoticeAcknowledgedBy` | Int, ObjectId | No | RF-COM-162. `minNoticeHoursApplied` no es referencia (horas aplicadas de PRM-COM-060); `lateNoticeAcknowledgedBy` → `memberships` (COL-IAM-04, T02). |
+| `minNoticeHoursApplied`, `lateNoticeAcknowledgedBy` | Int, uniqueidentifier | No | RF-COM-162. `minNoticeHoursApplied` no es referencia (horas aplicadas de PRM-COM-060); `lateNoticeAcknowledgedBy` → `memberships` (COL-IAM-04, T02). |
 | `updates[]` | [{ `at`, `text`, `notified` }] | No | |
-| `rescheduledFromId` | ObjectId | No | Aviso original reprogramado → `outageNotices` (COL-COM-56). |
+| `rescheduledFromId` | uniqueidentifier | No | Aviso original reprogramado → `outageNotices` (COL-COM-56). |
 
 Índices `{tenantId, status, window.startsAt}`, `{tenantId, source.kind, source.refId}` único parcial.
 

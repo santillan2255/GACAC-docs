@@ -571,8 +571,10 @@ Columnas: **Decisión** R = Replicar, M = Mejorar, Z = Reemplazar, D = Descartar
 | RN-FIS-133 | Obligaciones y exenciones propias (DEC-095; RF-FIS-169): (1) `ownTaxObligations` no trae filas precargadas por la plataforma ni por la demo productiva; (2) un registro pasa de `draft` a `active` solo con fundamento normativo, dictamen del contador (`basis.accountantOpinion`), adjunto de respaldo y aprobación del responsable fiscal con MFA; (3) no puede haber dos registros activos del mismo tipo para (entidad jurídica, impuesto, jurisdicción, actividad o servicio) con vigencias superpuestas; (4) el registro describe la posición propia de la cooperativa como contribuyente: no altera tributos, percepciones ni retenciones calculados a terceros, no se traslada al socio (RF-FIS-011, RF-FIS-141) y no reemplaza a `taxExemptions` (exclusiones de terceros); (5) una contribución con `capitalBase.source = m17CapitalBase` toma la base de M17 por entidad jurídica y fecha (`ins.capitalBase.get({ legalEntityId, asOf })` con `asOf` = fin del período del registro; RF-INS-109, RN-INS-054): usa el componente `capitalBase.component` (`subscribed`, `paid`, `pendingToPay`, `reserved`, `refundsApprovedUnpaid`) sumado sobre todos los rubros o solo sobre `capitalBase.capitalItemIds[]`; crea en `taxObligations` la obligación con `ownTaxObligationId`, `legalEntityId`, importe calculado con la alícuota del registro y vencimiento de `fiscalDeadlines`, y publica `fis.obligation.created`; con `capitalBase.requireFinal = true` (default) espera la base congelada (`final = true`) del evento `ins.capitalBase.closed` (EVT-INS-22); sin base de M17 la obligación queda `pending` sin importe y alerta al responsable (*Reemplazado (10-11-2026, alineación con M17 RF-INS-109): "(5) una contribución con `capitalBase.source` `perService` o `perEvent` pide la base a M17 al cierre del período o al ocurrir el evento de capital, y crea en `taxObligations` la obligación…"*); (6) al vencer `validTo` el registro pasa a `expired` y deja de generar obligaciones; un cambio normativo se registra como registro nuevo, no editando el anterior; (7) al recibir `ins.capitalBase.reopened` M06 marca para revisión las obligaciones que usaron esa base (`capitalClosingId`): las `pending` y las `ordered` sin pago ejecutado se anulan con motivo `capitalBaseReopened` (EVT-FIS-26, que M15 usa para el contraasiento) y se recalculan al llegar el nuevo `ins.capitalBase.closed` (`fis.obligation.created` con `replacesObligationId`); las `paid` no se tocan: la diferencia se registra como obligación complementaria o como saldo a favor con dictamen del contador; una `ordered` cuyo pago M14 ya entregó o envió al banco (`paymentExecutions.status` `delivered` o `sentToBank`, que M14 no anula sola: M14 §8.9) no se anula directamente, sigue el punto 9; (8) revocar un registro anula con EVT-FIS-26 sus obligaciones `pending` (motivo `ownObligationRevoked`) y lleva las `ordered` al punto 9; (9) **anulación con el pago en curso** (DEC-095, 10-11-2026): toda anulación o recálculo de una obligación `ordered` (motivo `manual`, `ownObligationRevoked`, `capitalBaseReopened` o `recalculated`) la pasa a `cancellationPending` ("anulación pendiente de conciliación del pago"), guarda `paymentConflict` y publica EVT-FIS-26 con `cancellationStatus = pendingPaymentReconciliation`, para que M14 anule la ejecución si todavía no salió dinero o avise al tesorero si está `delivered` o `sentToBank`; la obligación queda en la bandeja fiscal con alerta al responsable fiscal hasta que M14 confirme el resultado: (a) con `tes.paymentExecution.voided` (EVT-TES-15) la ejecución se anuló o el banco devolvió el pago, y la obligación pasa a `cancelled` (`paymentConflict.resolution = paymentVoided`); (b) con `tes.paymentExecution.executed` el pago salió, y la obligación pasa a `cancelled` con `creditBalanceAmount` = importe pagado, que queda como **saldo a favor ante el organismo** de esa entidad jurídica, impuesto y jurisdicción (`paymentConflict.resolution = paymentExecuted`), a compensar con la obligación recalculada o a reclamar según dictamen del contador [VERIFICAR con el contador si el organismo admite la compensación o exige pedido de devolución]; en ambos casos M06 vuelve a publicar EVT-FIS-26 con `cancellationStatus = final` (y `creditBalanceAmount` si lo hay), que es el que M15 usa para el contraasiento de M-137. Una `tes.paymentExecution.rejected` no resuelve: la obligación sigue `cancellationPending` y el tesorero anula la ejecución en lugar de reinstrumentarla. La obligación recalculada (`replacesObligationId`) se crea sin esperar la resolución y muestra el conflicto de la anterior. Una obligación `pending` se anula directamente (`cancelled`, EVT-FIS-26 con `cancellationStatus = final`). | Sin equivalente en ProCoop (se lleva en planillas) | Nueva (DEC-095) | — | Cada norma la confirma el contador (PA-FIS-25) |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Todas las colecciones llevan los campos comunes de la guía (`tenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`) y, cuando aplica, `status`, `validFrom`/`validTo`, `recordedAt` y `deletedAt`. Los importes son `Decimal128`. Los documentos fiscales y económicos **no se borran**: se anulan, se rectifican o se revierten. Todos los índices comienzan por `tenantId`. Las colecciones de plataforma usan `tenantId = PLATFORM`.
+
+Todas las colecciones llevan los campos comunes de la guía (`TenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`) y, cuando aplica, `status`, `validFrom`/`validTo`, `recordedAt` y `deletedAt`. Los importes son `DECIMAL(18,4)`. Los documentos fiscales y económicos **no se borran**: se anulan, se rectifican o se revierten. Todos los índices comienzan por `TenantId`. Las colecciones de plataforma usan `tenantId = PLATFORM`.
 
 ### 7.1 `normativeTables` (plataforma) — catálogo de tablas normativas
 
@@ -601,7 +603,7 @@ Propósito: identifica cada tabla normativa fiscal o regulatoria.
 | `source` | object | Sí | `{ normType, normNumber, year, organism, url, consultedAt, notes }` (ej. RG ARCA 5746/2025 [MER18]) |
 | `rows` | array | Sí | Filas validadas por el esquema |
 | `diffFromPrevious` | object | No | Altas/bajas/cambios |
-| `publishedBy` / `publishedAt` | ObjectId / date | No | Publicación |
+| `publishedBy` / `publishedAt` | uniqueidentifier / date | No | Publicación |
 | `environment` | enum | No | `homologation`, `production` (tablas `arcaParam`) |
 
 Índices: `{tenantId, tableCode, versionNumber}` único; `{tenantId, tableCode, status, validFrom}`.
@@ -611,13 +613,13 @@ Propósito: identifica cada tabla normativa fiscal o regulatoria.
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `tableCode` | string | Sí | Tabla adoptada |
-| `platformVersionId` | ObjectId | Sí | Versión publicada adoptada Referencia: `normativeTableVersions` (M06). |
+| `platformVersionId` | uniqueidentifier | Sí | Versión publicada adoptada Referencia: `normativeTableVersions` (M06). |
 | `effectiveFrom` | date | Sí | Fecha efectiva para el tenant |
 | `recordedAt` | date | Sí | Fecha de registro (AGR-010) |
 | `status` | enum | Sí | `proposed`, `approved`, `superseded`, `rejected` |
 | `tenantRows` | array | No | Filas propias (solo tablas extensibles), cada una con `basis` (fundamento) obligatorio |
-| `approvedBy` / `approvedAt` | ObjectId / date | No | Responsable fiscal |
-| `simulationId` | ObjectId | No | Simulación previa (RF-FIS-009) Referencia: simulación de M04, asumida en PA-FIS-20 (DEC-072; T05 debe declarar la colección); antes [VERIFICAR] simulación de adopción. |
+| `approvedBy` / `approvedAt` | uniqueidentifier / date | No | Responsable fiscal |
+| `simulationId` | uniqueidentifier | No | Simulación previa (RF-FIS-009) Referencia: simulación de M04, asumida en PA-FIS-20 (DEC-072; T05 debe declarar la colección); antes [VERIFICAR] simulación de adopción. |
 
 Índices: `{tenantId, tableCode, effectiveFrom}`; `{tenantId, status}`.
 
@@ -625,7 +627,7 @@ Propósito: identifica cada tabla normativa fiscal o regulatoria.
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `legalEntityId` | ObjectId → T04 `legalEntities` | Sí | Entidad jurídica emisora (DEC-064): un perfil fiscal vigente por entidad; razón social, CUIT y condiciones son de esa entidad (ProCoop `EMPRESAS`/`COD_EMP`). |
+| `legalEntityId` | uniqueidentifier → T04 `legalEntities` | Sí | Entidad jurídica emisora (DEC-064): un perfil fiscal vigente por entidad; razón social, CUIT y condiciones son de esa entidad (ProCoop `EMPRESAS`/`COD_EMP`). |
 | `legalName` | string | Sí | Razón social (V2 518) |
 | `cuit` | string(11) | Sí | CUIT (V2 519) |
 | `vatConditionCode` | int | Sí | Código ARCA de la condición IVA (V2 527) |
@@ -633,10 +635,10 @@ Propósito: identifica cada tabla normativa fiscal o regulatoria.
 | `activityStartDate` | date | Sí | Inicio de actividades |
 | `fiscalAddress` | object | Sí | Domicilio fiscal (referencia M01 geografía) |
 | `arcaActivities` | array | No | Códigos de actividad |
-| `fiscalLogoStoredFileId` | ObjectId → `storedFiles` | No | Logo fiscal (V2 709; T05 §7.2 — antes ~~`fiscalLogoAssetId`~~) |
+| `fiscalLogoStoredFileId` | uniqueidentifier → `storedFiles` | No | Logo fiscal (V2 709; T05 §7.2 — antes ~~`fiscalLogoAssetId`~~) |
 | `mipymeStatus` | object | No | `{ isMipyme, category, validFrom }`. No es un campo de estado: objeto de condición MiPyME sin máquina (§8.11; PA-FIS-22). |
 | `regulatoryMap` | array | No | `{ serviceId, regulator, tariffAuthority, concession, validFrom }` (RF-FIS-150) |
-| `surveyId` | ObjectId | Sí | Relevamiento fiscal aprobado vigente (RF-FIS-006) |
+| `surveyId` | uniqueidentifier | Sí | Relevamiento fiscal aprobado vigente (RF-FIS-006) |
 | `validFrom` / `validTo` | date | Sí / No | Versionado |
 
 Índices: `{tenantId, legalEntityId, validFrom}` (DEC-064; COL-FIS-04; antes `{tenantId, validFrom}`).
@@ -651,7 +653,7 @@ Campos de `fiscalSurveys` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | DEC-064 | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | DEC-064 | `legalEntities` (T04) |
 | `items[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `draft`, `inReview`, `approved`, `superseded` | — |
 | `approvedBy` | [VERIFICAR] | [VERIFICAR] | — | `memberships` (T02) |
@@ -661,7 +663,7 @@ Campos de `fiscalSurveys` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica que es agente (DEC-064) |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica que es agente (DEC-064) |
 | `organism` | enum | Sí | `ARCA`, `RentasCordoba`, `ARBA`, `ATER`, `APISantaFe`, `DGRLaPampa`, `ARTRioNegro`, `ComisionArbitral`, `municipio:<code>`, otros del catálogo |
 | `tax` | enum | Sí | `IVA`, `Ganancias`, `IIBB`, `SUSS`, `Municipal` |
 | `regime` | string | Sí | Código del régimen (ej. RG 830, RN 01/2017) |
@@ -679,12 +681,12 @@ Campos de `fiscalSurveys` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica titular del certificado (DEC-064); `representedCuit` debe ser el CUIT de su perfil fiscal |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica titular del certificado (DEC-064); `representedCuit` debe ser el CUIT de su perfil fiscal |
 | `environment` | enum | Sí | `homologation`, `production` |
 | `representedCuit` | string(11) | Sí | CUIT representado (RF-FIS-029) |
 | `certificateCuit` | string(11) | Sí | CUIT del certificado (puede diferir si hay delegación) |
 | `alias` | string | Sí | Alias del certificado en ARCA |
-| `credentialRef` | ObjectId → `integrationSecrets` (T06) | Sí | Referencia al secreto en la bóveda de T06 (DEC-074; CTR-DAT-72), nunca el secreto. Contiene certificado y clave privada; si la clave y el CSR se generaron en la plataforma la clave privada nunca sale de la bóveda, y también se admite importar un PFX existente (DEC-053). Antes ~~`vaultRef`~~ y ~~`csrVaultRef`~~ (absorbidos en esta referencia). |
+| `credentialRef` | uniqueidentifier → `integrationSecrets` (T06) | Sí | Referencia al secreto en la bóveda de T06 (DEC-074; CTR-DAT-72), nunca el secreto. Contiene certificado y clave privada; si la clave y el CSR se generaron en la plataforma la clave privada nunca sale de la bóveda, y también se admite importar un PFX existente (DEC-053). Antes ~~`vaultRef`~~ y ~~`csrVaultRef`~~ (absorbidos en esta referencia). |
 | `issuer`, `serialNumber` | string | Sí | Metadatos |
 | `notBefore` / `notAfter` | date | Sí | Vigencia (equivale a V2 2925) |
 | `authorizedServices` | array | Sí | `wsfe`, `ws_sr_padron_a13`, `ws_sr_constancia_inscripcion`, otros |
@@ -701,11 +703,11 @@ Campos de `arcaAccessTickets` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `arcaCredentialId` | ObjectId | Sí | Antes `credentialId`; nombre de T05 | `arcaCredentials` (M06) |
+| `arcaCredentialId` | uniqueidentifier | Sí | Antes `credentialId`; nombre de T05 | `arcaCredentials` (M06) |
 | `service` | [VERIFICAR] | Sí | — | — |
 | `environment` | [VERIFICAR] | Sí | — | — |
 | `representedCuit` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `uniqueId` | ObjectId | [VERIFICAR] | — | no es referencia: `uniqueId` del ticket WSAA |
+| `uniqueId` | uniqueidentifier | [VERIFICAR] | — | no es referencia: `uniqueId` del ticket WSAA |
 | `generationTime` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `expirationTime` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `tokenEnc` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -716,7 +718,7 @@ Campos de `arcaAccessTickets` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica del punto de venta (DEC-064); el mismo número puede existir en dos entidades |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica del punto de venta (DEC-064); el mismo número puede existir en dos entidades |
 | `number` | int (1–99999) | Sí | Número ARCA (ProCoop `PTOVENTA.SUC_COM`) |
 | `description` | string | Sí | `DES_POS` |
 | `emissionSystem` | enum | Sí | `webServiceCae`, `webServiceCaea`, `cai`, `cesp` |
@@ -733,8 +735,8 @@ Campos de `arcaAccessTickets` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica emisora, copiada del comprobante (DEC-064); determina CUIT y credencial ARCA |
-| `documentRef` | ObjectId | Sí | Comprobante M05/M07/M11/M18 (o `gatewayDocuments`) Antes `documentId` (nombre de T05). |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica emisora, copiada del comprobante (DEC-064); determina CUIT y credencial ARCA |
+| `documentRef` | uniqueidentifier | Sí | Comprobante M05/M07/M11/M18 (o `gatewayDocuments`) Antes `documentId` (nombre de T05). |
 | `sourceModule` | enum | Sí | `fac`, `cob`, `ven`, `soc`, `gateway` |
 | `pointOfSale` / `arcaCbteType` / `number` | int | Sí | Clave fiscal |
 | `issueDate` | date | Sí | `CbteFch` |
@@ -751,7 +753,7 @@ Campos de `arcaAccessTickets` (tabla normalizada el 05-11-2026 a partir del text
 | `caeaReported` | object | No | `{ at, submissionId, result }` |
 | `reconciliation` | object | No | `{ at, arcaCae, arcaTotal, diff, proposal, approvedBy }` |
 | `idempotencyKey` | string | Sí | `tenantId:cuit:pos:type:number` |
-| `pointOfSaleId` | ObjectId | Sí | Punto de venta (T05); `pointOfSale` conserva el número ARCA. Referencia: `pointsOfSale` (M06). |
+| `pointOfSaleId` | uniqueidentifier | Sí | Punto de venta (T05); `pointOfSale` conserva el número ARCA. Referencia: `pointsOfSale` (M06). |
 | `issueAttempt` | int | Sí | Intento de emisión del comprobante en M05 (`invoices.issueAttempt`); cada número asignado al mismo comprobante genera una autorización nueva (DEC-107) |
 | `rejectionKind` | enum | Cond. | `dataError`, `sequenceOnly`; obligatorio en `rejected` (DEC-107, RF-FIS-053) |
 | `cancelReason` | enum | Cond. | `annulledBeforeSend`, `numberReleased`; obligatorio en `cancelled` (DEC-107) |
@@ -773,17 +775,17 @@ Campos de `arcaSubmissions` (tabla normalizada el 05-11-2026 a partir del texto 
 | `rangeFrom` | date | [VERIFICAR] | — | — |
 | `rangeTo` | date | [VERIFICAR] | — | — |
 | `count` | int | [VERIFICAR] | — | — |
-| `authorizationIds[]` | ObjectId[] | [VERIFICAR] | — | `fiscalAuthorizations` (M06) |
+| `authorizationIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `fiscalAuthorizations` (M06) |
 | `requestMaskedRef` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `responseMaskedRef` | [VERIFICAR] | [VERIFICAR] | Almacenamiento privado, sin token/sign | — |
 | `headerResult` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `errors[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `durationMs` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `sending`, `answered`, `timeout`, `transportError` | — |
-| `jobId` | ObjectId | [VERIFICAR] | — | `jobRuns` (T01) |
-| `correlationId` | ObjectId | [VERIFICAR] | — | no es referencia: id de correlación |
-| `legalEntityId` | ObjectId | [VERIFICAR] | DEC-064 | `legalEntities` (T04) |
-| `integrationOperationId` | ObjectId | [VERIFICAR] | Operación de integración (T05 lo declara en claves). | `integrationOperations` (T06) |
+| `jobId` | uniqueidentifier | [VERIFICAR] | — | `jobRuns` (T01) |
+| `correlationId` | uniqueidentifier | [VERIFICAR] | — | no es referencia: id de correlación |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | DEC-064 | `legalEntities` (T04) |
+| `integrationOperationId` | uniqueidentifier | [VERIFICAR] | Operación de integración (T05 lo declara en claves). | `integrationOperations` (T06) |
 
 ### 7.12 `caeaPeriods` (tenant)
 
@@ -793,7 +795,7 @@ Campos de `caeaPeriods` (tabla normalizada el 05-11-2026 a partir del texto ante
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | DEC-064 | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | DEC-064 | `legalEntities` (T04) |
 | `period` | string | Sí | `YYYY-MM`, convención de T05; ARCA usa `yyyyMM` y se convierte en la integración | — |
 | `order` | int | Sí | 1/2 | — |
 | `caea` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -812,16 +814,16 @@ Campos de `cespAuthorizations` (tabla normalizada el 05-11-2026 a partir del tex
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | [VERIFICAR] | DEC-064 | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | DEC-064 | `legalEntities` (T04) |
 | `description` | string | [VERIFICAR] | — | — |
 | `cesp` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 | `expiresAt` | datetime | [VERIFICAR] | — | — |
 | `pointOfSale` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `voucherTypeIds[]` | ObjectId[] | [VERIFICAR] | — | `voucherTypes` (M05) |
+| `voucherTypeIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `voucherTypes` (M05) |
 | `status` | enum | Sí | `active`, `expired`, `cancelled` | — |
-| `pointOfSaleId` | ObjectId | Sí | Punto de venta (T05); `pointOfSale` conserva el número ARCA. | `pointsOfSale` (M06) |
+| `pointOfSaleId` | uniqueidentifier | Sí | Punto de venta (T05); `pointOfSale` conserva el número ARCA. | `pointsOfSale` (M06) |
 
 ### 7.14 `provincialValidationCodes` (tenant) — CVP
 
@@ -833,13 +835,13 @@ Campos de `provincialValidationCodes` (tabla normalizada el 05-11-2026 a partir 
 |---|---|---|---|---|
 | `jurisdiction` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `pointOfSale` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `voucherTypeId` | ObjectId | Sí | — | `voucherTypes` (M05) |
+| `voucherTypeId` | uniqueidentifier | Sí | — | `voucherTypes` (M05) |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 | `code` | string | [VERIFICAR] | — | — |
 | `legend` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `active`, `expired` (§8.11; PA-FIS-21). | — |
-| `pointOfSaleId` | ObjectId | Sí | Punto de venta; único con `voucherTypeId` y `validFrom` (T05). | `pointsOfSale` (M06) |
+| `pointOfSaleId` | uniqueidentifier | Sí | Punto de venta; único con `voucherTypeId` y `validFrom` (T05). | `pointsOfSale` (M06) |
 
 ### 7.15 `vatConditionSettings` (tenant) — configuración por condición IVA
 
@@ -850,7 +852,7 @@ Campos de `provincialValidationCodes` (tabla normalizada el 05-11-2026 a partir 
 | `label` | dictKey | Sí | Descripción |
 | `isRegistered` | bool | Sí | Equivale a `IVARI` |
 | `vatLedgerCriterion` | enum | Sí | `invoiced`, `collected` (ProCoop `PERCIBIDO`) |
-| `perceptionMinimum` | Decimal128 | No | `MIN_PERCEPCION` |
+| `perceptionMinimum` | DECIMAL(18,4) | No | `MIN_PERCEPCION` |
 | `perceptionOnNet` | bool | Sí | `PERCEPCION_SOBRE_NETO` |
 | `isUncategorized` | bool | Sí | Equivale a V2 544 |
 | `offlineRegistryCode` | string | No | `COD_EMPAFIP` |
@@ -863,15 +865,15 @@ Campos de `provincialValidationCodes` (tabla normalizada el 05-11-2026 a partir 
 
 ### 7.16 `vatRates` y `vatRateMatrix` (tenant, sobre tabla normativa)
 
-`vatRates`: `rate` (Decimal128), `kind` (`taxed`, `exempt`, `untaxed`, `notSubject`), `arcaVatId` (3, 4, 5, 6, 8, 9), `validFrom/validTo`. Origen `ALI_IVA`. Sin cuentas contables: van en `entityAccountAssignments` de M15 (`entityType = vatRate`, `usage` `sales`, `purchases`, `salesPerception`; antes `accounts{ sales, purchases, salesPerception }` (M15) en esta colección).
+`vatRates`: `rate` (DECIMAL(18,4)), `kind` (`taxed`, `exempt`, `untaxed`, `notSubject`), `arcaVatId` (3, 4, 5, 6, 8, 9), `validFrom/validTo`. Origen `ALI_IVA`. Sin cuentas contables: van en `entityAccountAssignments` de M15 (`entityType = vatRate`, `usage` `sales`, `purchases`, `salesPerception`; antes `accounts{ sales, purchases, salesPerception }` (M15) en esta colección).
 
 Campos de `vatRates` (tabla normalizada el 05-11-2026 a partir del texto anterior, que se conserva, y de T05):
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `rate` | decimal | [VERIFICAR] | Decimal128 | — |
+| `rate` | decimal | [VERIFICAR] | DECIMAL(18,4) | — |
 | `kind` | enum | [VERIFICAR] | `taxed`, `exempt`, `untaxed`, `notSubject` | — |
-| `arcaVatId` | int (antes ObjectId) | Sí | (3, 4, 5, 6, 8, 9) (antes la celda incluía `accounts{ sales, purchases, salesPerception }` (M15), que pasan a `entityAccountAssignments`) | no es referencia: código ARCA de alícuota de la tabla normativa (`normativeTables`, M06); por eso el tipo es entero |
+| `arcaVatId` | int (antes uniqueidentifier) | Sí | (3, 4, 5, 6, 8, 9) (antes la celda incluía `accounts{ sales, purchases, salesPerception }` (M15), que pasan a `entityAccountAssignments`) | no es referencia: código ARCA de alícuota de la tabla normativa (`normativeTables`, M06); por eso el tipo es entero |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 
@@ -885,13 +887,13 @@ Campos de `vatRateMatrix` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `vatRateId` | ObjectId | Sí | — | `vatRates` (M06) |
-| `vatConditionSettingId` | ObjectId | Sí | — | `vatConditionSettings` (M06) |
+| `vatRateId` | uniqueidentifier | Sí | — | `vatRates` (M06) |
+| `vatConditionSettingId` | uniqueidentifier | Sí | — | `vatConditionSettings` (M06) |
 | `vatPct` | decimal | [VERIFICAR] | — | — |
 | `vatPct2` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `perceptionPct` | decimal | [VERIFICAR] | — | — |
-| `perceptionTaxId` | ObjectId | No | Tributo de percepción aplicable a la combinación. | → `taxDefinitions` (M06) |
-| `supplyUsageClasses[]` | enum[] | No | Condición opcional por clase de uso del suministro: `residential`, `commercial`, `industrial`, `rural`, `other` (clase normalizada `premiseUsages.usageClass` de M01, RF-PER-089); vacío = la fila vale para cualquier uso. Solo se evalúa si PRM-FIS-125 está activo para el tenant y el servicio (default desactivado; DEC-102, PA-FIS-26). La clase se obtiene de `premises.usageId` del inmueble del suministro (M01 §7.7) → `premiseUsages.usageClass` (M01 §7.18). Al ser un enum de plataforma, una fila de la tabla normativa vale para todos los tenants aunque cada uno tenga sus propios usos. *Reemplazado (10-11-2026, alineación con M01): "`supplyUsageIds[]` \| ObjectId[] \| … uso del catálogo … \| `enumerationItems` (T04), catálogo `premiseUsages`", que dependía de IDs del tenant.* | `premiseUsages.usageClass` (M01 §7.18) |
+| `perceptionTaxId` | uniqueidentifier | No | Tributo de percepción aplicable a la combinación. | → `taxDefinitions` (M06) |
+| `supplyUsageClasses[]` | enum[] | No | Condición opcional por clase de uso del suministro: `residential`, `commercial`, `industrial`, `rural`, `other` (clase normalizada `premiseUsages.usageClass` de M01, RF-PER-089); vacío = la fila vale para cualquier uso. Solo se evalúa si PRM-FIS-125 está activo para el tenant y el servicio (default desactivado; DEC-102, PA-FIS-26). La clase se obtiene de `premises.usageId` del inmueble del suministro (M01 §7.7) → `premiseUsages.usageClass` (M01 §7.18). Al ser un enum de plataforma, una fila de la tabla normativa vale para todos los tenants aunque cada uno tenga sus propios usos. *Reemplazado (10-11-2026, alineación con M01): "`supplyUsageIds[]` \| uniqueidentifier[] \| … uso del catálogo … \| `enumerationItems` (T04), catálogo `premiseUsages`", que dependía de IDs del tenant.* | `premiseUsages.usageClass` (M01 §7.18) |
 | `supplyUsageKey` | string | Sí | Derivado: `supplyUsageClasses[]` ordenado y concatenado (vacío si no hay uso); solo existe para el índice único (DEC-102; antes derivado de `supplyUsageIds[]`). | — |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
@@ -946,13 +948,13 @@ Campos de `taxpayerRegistries` (tabla normalizada el 05-11-2026 a partir del tex
 |---|---|---|---|---|
 | `kind` | enum | Sí | `arcaOfflineCondition`, `iibbRates`, `exclusions` | — |
 | `maintainedBy` | enum | [VERIFICAR] | `platform`, `tenant`; RN-FIS-132, PA-FIS-18 | — |
-| `legalEntityId` | ObjectId | [VERIFICAR] | Obligatorio si `maintainedBy = tenant`; entidad agente, DEC-064 | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | Obligatorio si `maintainedBy = tenant`; entidad agente, DEC-064 | `legalEntities` (T04) |
 | `jurisdiction` | [VERIFICAR] | Sí | — | — |
 | `regime` | [VERIFICAR] | Sí | Ej. `RN-01-2017-CBA`, `ARBA`, `ATER-RN-208-24` | — |
 | `publishedAt` | datetime | [VERIFICAR] | — | — |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
-| `storedFileId` | ObjectId | Sí | T05 §7.2; antes ~~`fileAssetId`~~ | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | Sí | T05 §7.2; antes ~~`fileAssetId`~~ | `storedFiles` (T01) |
 | `fileHash` | string | [VERIFICAR] | — | — |
 | `rowCount` | int | [VERIFICAR] | — | — |
 | `errors[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
@@ -967,11 +969,11 @@ Campos de `taxpayerRegistryEntries` (tabla normalizada el 05-11-2026 a partir de
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `registryId` | ObjectId | Sí | — | `taxpayerRegistries` (M06) |
+| `registryId` | uniqueidentifier | Sí | — | `taxpayerRegistries` (M06) |
 | `cuit` | string | Sí | — | — |
 | `cuit2` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `accountId` | ObjectId | Sí | Si se vinculó, ProCoop `COD_SUM` | `accounts` (M01) |
+| `accountId` | uniqueidentifier | Sí | Si se vinculó, ProCoop `COD_SUM` | `accounts` (M01) |
 | `vatCode` | string | [VERIFICAR] | — | — |
 | `monotributoCode` | string | [VERIFICAR] | — | — |
 | `grossIncomeConditionCode` | string | [VERIFICAR] | `COD_SIB` | — |
@@ -988,12 +990,12 @@ Campos de `determinedRates` (tabla normalizada el 05-11-2026 a partir del texto 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
 | `jurisdiction` | [VERIFICAR] | Sí | — | — |
 | `regime` | [VERIFICAR] | Sí | — | — |
 | `rate` | decimal | [VERIFICAR] | — | — |
 | `reason` | string | [VERIFICAR] | — | — |
-| `evidenceId` | ObjectId | [VERIFICAR] | — | `documents` (T11) |
+| `evidenceId` | uniqueidentifier | [VERIFICAR] | — | `documents` (T11) |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 | `approvedBy` | [VERIFICAR] | [VERIFICAR] | — | `memberships` (T02) |
@@ -1007,7 +1009,7 @@ Campos de `taxExemptions` (tabla normalizada el 05-11-2026 a partir del texto an
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `partyType` | enum | [VERIFICAR] | `account`, `person`, `supplier` | — |
-| `partyId` | ObjectId | Sí | — | polimórfica según `partyType`: `accounts` (M01), `persons` (M01) o `suppliers` (M12) |
+| `partyId` | uniqueidentifier | Sí | — | polimórfica según `partyType`: `accounts` (M01), `persons` (M01) o `suppliers` (M12) |
 | `cuit` | string | [VERIFICAR] | — | — |
 | `tax` | [VERIFICAR] | Sí | — | — |
 | `regime` | [VERIFICAR] | Sí | — | — |
@@ -1016,7 +1018,7 @@ Campos de `taxExemptions` (tabla normalizada el 05-11-2026 a partir del texto an
 | `certificateNumber` | int | [VERIFICAR] | — | — |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
-| `evidenceId` | ObjectId | [VERIFICAR] | — | `documents` (T11) |
+| `evidenceId` | uniqueidentifier | [VERIFICAR] | — | `documents` (T11) |
 | `source` | enum | [VERIFICAR] | `manual`, `registry` | — |
 
 ### 7.22 `taxCalculationTraces` (tenant)
@@ -1058,8 +1060,8 @@ Campos de `withholdingTypes` (tabla normalizada el 05-11-2026 a partir del texto
 | `annualMinimumDiscount` | int | [VERIFICAR] | `DESC_ANUAL` | — |
 | `ownNumbering` | [VERIFICAR] | [VERIFICAR] | `NUMERO` | — |
 | `baseTypeCode` | string | [VERIFICAR] | `RETE_TIPO_BASE` | — |
-| `taxAgentRegistrationId` | ObjectId | Sí | Antes `agentRegistrationId`; nombre de T05 | `taxAgentRegistrations` (M06) |
-| `ledgerAccountId` | ObjectId | Sí | Antes `accountId`; nombre de T05 | `ledgerAccounts` (M15) |
+| `taxAgentRegistrationId` | uniqueidentifier | Sí | Antes `agentRegistrationId`; nombre de T05 | `taxAgentRegistrations` (M06) |
+| `ledgerAccountId` | uniqueidentifier | Sí | Antes `accountId`; nombre de T05 | `ledgerAccounts` (M15) |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 
@@ -1071,7 +1073,7 @@ Campos de `withholdingScales` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `withholdingTypeId` | ObjectId | Sí | — | `withholdingTypes` (M06) |
+| `withholdingTypeId` | uniqueidentifier | Sí | — | `withholdingTypes` (M06) |
 | `from` | [VERIFICAR] | Sí | `IMP_MIN` | — |
 | `to` | [VERIFICAR] | [VERIFICAR] | `IMP_MAX` | — |
 | `fixedAmount` | decimal | [VERIFICAR] | `RET_PES` | — |
@@ -1089,8 +1091,8 @@ Campos de `withholdingAssignments` (tabla normalizada el 05-11-2026 a partir del
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `targetType` | enum | Sí | `supplier`, `product`, `purchaseConcept` | — |
-| `targetId` | ObjectId | Sí | — | polimórfica según `targetType` |
-| `withholdingTypeId` | ObjectId | Sí | — | `withholdingTypes` (M06) |
+| `targetId` | uniqueidentifier | Sí | — | polimórfica según `targetType` |
+| `withholdingTypeId` | uniqueidentifier | Sí | — | `withholdingTypes` (M06) |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 
@@ -1098,20 +1100,20 @@ Campos de `withholdingAssignments` (tabla normalizada el 05-11-2026 a partir del
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica agente de retención (DEC-064) |
-| `paymentOrderId` | ObjectId | Sí | OP de M12/M14. Referencia: → `paymentOrders` (M12). |
-| `supplierId` / `supplierCuit` | ObjectId / string | Sí | Sujeto retenido. Referencia: `supplierId` → `suppliers` (M12); `supplierCuit` no es referencia (CUIT del sujeto a la fecha de la retención). La CUIT se toma de la persona de M01 del proveedor (`suppliers.personId`, obligatorio por DEC-097; identificación CUIT de `persons.identifiers`) o, si M01 no responde, de la copia `suppliers.identitySnapshot.taxId`; nunca de un campo propio del proveedor, que dejó de existir (10-11-2026, DEC-097; antes sin fuente declarada). |
-| `supplierPersonId` | ObjectId | Sí | Persona de M01 del sujeto retenido, copiada de `suppliers.personId` al confirmar la retención (DEC-097, 10-11-2026); clave para el certificado, el padrón y las exclusiones (`taxExemptions` con `partyType = person`) | `persons` (M01) |
-| `withholdingTypeId` | ObjectId | Sí | Tipo. Referencia: → `withholdingTypes` (M06). |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica agente de retención (DEC-064) |
+| `paymentOrderId` | uniqueidentifier | Sí | OP de M12/M14. Referencia: → `paymentOrders` (M12). |
+| `supplierId` / `supplierCuit` | uniqueidentifier / string | Sí | Sujeto retenido. Referencia: `supplierId` → `suppliers` (M12); `supplierCuit` no es referencia (CUIT del sujeto a la fecha de la retención). La CUIT se toma de la persona de M01 del proveedor (`suppliers.personId`, obligatorio por DEC-097; identificación CUIT de `persons.identifiers`) o, si M01 no responde, de la copia `suppliers.identitySnapshot.taxId`; nunca de un campo propio del proveedor, que dejó de existir (10-11-2026, DEC-097; antes sin fuente declarada). |
+| `supplierPersonId` | uniqueidentifier | Sí | Persona de M01 del sujeto retenido, copiada de `suppliers.personId` al confirmar la retención (DEC-097, 10-11-2026); clave para el certificado, el padrón y las exclusiones (`taxExemptions` con `partyType = person`) | `persons` (M01) |
+| `withholdingTypeId` | uniqueidentifier | Sí | Tipo. Referencia: → `withholdingTypes` (M06). |
 | `date` | date | Sí | Fecha de la retención |
 | `reportingPeriod` | string | Sí | Período de información (`FEC_INF`, V2 2045) |
-| `base`, `fixedAmount`, `pct`, `excess`, `amount` | Decimal128 | Sí | Cálculo (`BASE_IMP`, `RET_PES`, `RET_POR`, `RET_EXE`, `RETENCION`) |
+| `base`, `fixedAmount`, `pct`, `excess`, `amount` | DECIMAL(18,4) | Sí | Cálculo (`BASE_IMP`, `RET_PES`, `RET_POR`, `RET_EXE`, `RETENCION`) |
 | `accumulation` | object | No | `{ windowFrom, windowTo, paidInWindow, withheldInWindow }` |
 | `certificate` | object | Sí | `{ internalNumber (NROEMI), pointOfSale, year, storedFileId (antes ~~`pdfAssetId`~~), officialCode, officialObtainedAt }` |
 | `manualOverride` | object | No | `{ originalAmount, reason, by }` (V2 2836) |
 | `status` | enum | Sí | Ver §8.6 |
-| `filingId` | ObjectId | No | Declaración donde se informó. Referencia: → `regimeFilings` (M06). |
-| `obligationId` | ObjectId | No | Obligación fiscal. Referencia: → `taxObligations` (M06). |
+| `filingId` | uniqueidentifier | No | Declaración donde se informó. Referencia: → `regimeFilings` (M06). |
+| `obligationId` | uniqueidentifier | No | Obligación fiscal. Referencia: → `taxObligations` (M06). |
 
 Índices: `{tenantId, legalEntityId, withholdingTypeId, "certificate.internalNumber"}` único (COL-FIS-28); `{tenantId, supplierId, date}`; `{tenantId, reportingPeriod, withholdingTypeId}`; `{tenantId, paymentOrderId}`. Origen `RET_COM`.
 
@@ -1127,7 +1129,7 @@ Campos de `withholdingSufferedTypes` (tabla normalizada el 05-11-2026 a partir d
 | `label` | string | [VERIFICAR] | — | — |
 | `tax` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `regime` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `ledgerAccountId` | ObjectId | Sí | `CTA_CONT`; T05 §7.2 — antes ~~`accountId`~~ | `ledgerAccounts` (M15) |
+| `ledgerAccountId` | uniqueidentifier | Sí | `CTA_CONT`; T05 §7.2 — antes ~~`accountId`~~ | `ledgerAccounts` (M15) |
 | `requiresCertificate` | bool | [VERIFICAR] | — | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
@@ -1140,9 +1142,9 @@ Campos de `taxObligations` (tabla normalizada el 05-11-2026 a partir del texto a
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | DEC-064 | `legalEntities` (T04) |
-| `taxAgentRegistrationId` | ObjectId | Cond. | Obligatorio si la obligación nace como agente (retenciones, percepciones, regímenes); nulo si nace de `ownTaxObligationId` (DEC-095; antes "Sí") | `taxAgentRegistrations` (M06) |
-| `ownTaxObligationId` | ObjectId | Cond. | Obligatorio si la obligación es propia de la cooperativa como contribuyente (RN-FIS-133); excluyente con `taxAgentRegistrationId` (DEC-095) | `ownTaxObligations` (M06) |
+| `legalEntityId` | uniqueidentifier | Sí | DEC-064 | `legalEntities` (T04) |
+| `taxAgentRegistrationId` | uniqueidentifier | Cond. | Obligatorio si la obligación nace como agente (retenciones, percepciones, regímenes); nulo si nace de `ownTaxObligationId` (DEC-095; antes "Sí") | `taxAgentRegistrations` (M06) |
+| `ownTaxObligationId` | uniqueidentifier | Cond. | Obligatorio si la obligación es propia de la cooperativa como contribuyente (RN-FIS-133); excluyente con `taxAgentRegistrationId` (DEC-095) | `ownTaxObligations` (M06) |
 | `tax` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `regime` | [VERIFICAR] | Sí | — | — |
 | `period` | string | Sí | — | — |
@@ -1153,9 +1155,9 @@ Campos de `taxObligations` (tabla normalizada el 05-11-2026 a partir del texto a
 | `paymentConflict` | object | Cond. | Obligatorio con `cancellationPending` y conservado al resolverse: `{ requestedReason, requestedAt, requestedBy, paymentExecutionId, resolution (paymentVoided, paymentExecuted), resolvedAt, resolvedByEventId }` (RN-FIS-133 punto 9; DEC-095, 10-11-2026) | `paymentExecutions` (M14) |
 | `creditBalanceAmount` | decimal | Cond. | Importe pagado de una obligación anulada cuyo pago M14 ejecutó igual (`paymentConflict.resolution = paymentExecuted`): saldo a favor ante el organismo, a compensar o reclamar según dictamen del contador (RN-FIS-133 punto 9; DEC-095, 10-11-2026) | — |
 | `capitalBaseRef` | object | Cond. | Para obligaciones propias sobre el capital: `{ capitalClosingId, asOf, component, baseAmount, final }` copiado de la respuesta de M17 (RN-FIS-133 puntos 5 y 7; 10-11-2026) | `capitalClosings` (M17) |
-| `cancelReason` / `replacesObligationId` / `replacedByObligationId` | enum / ObjectId / ObjectId | Cond. | Motivo de anulación (`manual`, `ownObligationRevoked`, `capitalBaseReopened`, `recalculated`) y enlace entre la obligación anulada y la recalculada (EVT-FIS-26; 10-11-2026) | `taxObligations` (M06) |
-| `treasuryMovementId` | ObjectId | Sí | M14 | `treasuryMovements` (M14) |
-| `journalEntryId` | ObjectId | Sí | M15 | `journalEntries` (M15) |
+| `cancelReason` / `replacesObligationId` / `replacedByObligationId` | enum / uniqueidentifier / uniqueidentifier | Cond. | Motivo de anulación (`manual`, `ownObligationRevoked`, `capitalBaseReopened`, `recalculated`) y enlace entre la obligación anulada y la recalculada (EVT-FIS-26; 10-11-2026) | `taxObligations` (M06) |
+| `treasuryMovementId` | uniqueidentifier | Sí | M14 | `treasuryMovements` (M14) |
+| `journalEntryId` | uniqueidentifier | Sí | M15 | `journalEntries` (M15) |
 
 ### 7.27 `vatLedgers` y `vatLedgerLines` (tenant)
 
@@ -1165,7 +1167,7 @@ Campos de `vatLedgers` (tabla normalizada el 05-11-2026 a partir del texto anter
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | DEC-064: un libro por entidad jurídica; índice `{tenantId, legalEntityId, kind, period, rectificationNo}`, COL-FIS-31 | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | DEC-064: un libro por entidad jurídica; índice `{tenantId, legalEntityId, kind, period, rectificationNo}`, COL-FIS-31 | `legalEntities` (T04) |
 | `kind` | enum | Sí | `sales`, `purchases` | — |
 | `period` | string | Sí | — | — |
 | `criterion` | enum | [VERIFICAR] | `invoiced`, `collected`, `invoicedAndCollected`, `installmentsDue` | — |
@@ -1187,7 +1189,7 @@ Campos de `vatLedgerLines` (tabla normalizada el 05-11-2026 a partir del texto a
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `ledgerId` | ObjectId | Sí | — | `vatLedgers` (M06) |
+| `ledgerId` | uniqueidentifier | Sí | — | `vatLedgers` (M06) |
 | `documentRef` | [VERIFICAR] | Sí | Antes `documentId`; nombre de T05 | polimórfica: comprobante de M05/M07/M11/M18 o `gatewayDocuments` (M06) |
 | `date` | date | [VERIFICAR] | — | — |
 | `arcaCbteType` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1203,8 +1205,8 @@ Campos de `vatLedgerLines` (tabla normalizada el 05-11-2026 a partir del texto a
 | `otherTaxes[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `total` | decimal | [VERIFICAR] | — | — |
 | `activityCode` | string | [VERIFICAR] | — | — |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
 | `installmentFinanced` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `lqsp` | [VERIFICAR] | [VERIFICAR] | — | — |
 
@@ -1216,11 +1218,11 @@ Campos de `arcaReceivedImports` (tabla normalizada el 05-11-2026 a partir del te
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | DEC-064 | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | DEC-064 | `legalEntities` (T04) |
 | `kind` | enum | Sí | `issued`, `received` | — |
 | `period` | string | Sí | — | — |
 | `format` | enum | [VERIFICAR] | `csv`, `xlsxLegacy` | — |
-| `storedFileId` | ObjectId | Sí | Antes ~~`fileAssetId`~~ | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | Sí | Antes ~~`fileAssetId`~~ | `storedFiles` (T01) |
 | `rows[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `errors[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `fileHash` | string | Sí | Hash del archivo; único con `legalEntityId`, `kind`, `period` (T05). | — |
@@ -1233,8 +1235,8 @@ Campos de `vatReconciliations` (tabla normalizada el 05-11-2026 a partir del tex
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `importId` | ObjectId | Sí | — | `arcaReceivedImports` (M06) |
-| `ledgerId` | ObjectId | Sí | — | `vatLedgers` (M06) |
+| `importId` | uniqueidentifier | Sí | — | `arcaReceivedImports` (M06) |
+| `ledgerId` | uniqueidentifier | Sí | — | `vatLedgers` (M06) |
 | `tolerance` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `results[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `open`, `reviewed`, `closed` | — |
@@ -1253,7 +1255,7 @@ Campos de `informationRegimes` (tabla normalizada el 05-11-2026 a partir del tex
 | `fileNamePattern` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `encoding` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `periodicity` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `fileLayoutId` | ObjectId | Sí | Antes `layoutRef`; nombre de T05 | `fileLayouts` (T06) |
+| `fileLayoutId` | uniqueidentifier | Sí | Antes `layoutRef`; nombre de T05 | `fileLayouts` (T06) |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 | `source` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1266,12 +1268,12 @@ Campos de `regimeFilings` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | DEC-064 | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | DEC-064 | `legalEntities` (T04) |
 | `regimeCode` | string | Sí | — | — |
 | `formatVersion` | int | [VERIFICAR] | — | — |
 | `period` | string | Sí | — | — |
 | `jurisdiction` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `originalFilingId` | ObjectId | [VERIFICAR] | Rectificativas | `regimeFilings` (M06) |
+| `originalFilingId` | uniqueidentifier | [VERIFICAR] | Rectificativas | `regimeFilings` (M06) |
 | `rectificationNumber` | int | Sí | — | — |
 | `universe` | [VERIFICAR] | [VERIFICAR] | Criterio y conteos | — |
 | `files[]` | array [VERIFICAR] | [VERIFICAR] | `{ storedFileId (antes ~~`assetId`~~), name, hash, lines }`, `validation{ ok, errors[] }` | — |
@@ -1292,9 +1294,9 @@ Campos de `regimeFilings` (tabla normalizada el 05-11-2026 a partir del texto an
 | `collectionFee` | object | No | Comisión de cobranza (pct o fijo) y tratamiento fiscal |
 | `partialPaymentPolicy` | enum | Sí | `prorata`, `thirdPartyFirst`, `ownFirst` (PA-FIS-05) |
 | `remittance` | object | Sí | `{ periodicity, dayOfMonth, format, recipientEmails[], treasuryAccountId (M14 `treasuryAccounts`; T05 §7.2 — antes ~~`bankAccountRef`~~) }` |
-| `liabilityLedgerAccountId` | ObjectId | Sí | Cuenta de pasivo (M15) Antes `liabilityAccountId` (nombre de T05). Referencia: `ledgerAccounts` (M15). |
+| `liabilityLedgerAccountId` | uniqueidentifier | Sí | Cuenta de pasivo (M15) Antes `liabilityAccountId` (nombre de T05). Referencia: `ledgerAccounts` (M15). |
 | `moraPolicy` | object | Sí | Saldo de terceros en mora (RF-FIS-164, RN-FIS-127; HUECO-TAS-02): `{ includeInEligibleBalance: bool (default false), surcharge: null \| { kind: fixedPct\|dailyPct\|index\|fixedAmount, value, indexRef, beneficiary: thirdParty\|cooperative, basis }, allowServiceCut: bool (default false), cutNormativeRef: null \| { norm, number, validationStatus: pending\|validated } }`. `allowServiceCut = true` solo autoriza a M08 a considerar esa deuda para suspensión o corte del servicio principal si además `cutNormativeRef.validationStatus = validated` (RN-FIS-128; RN-MOR-141 de M08); sin ambas, M08 aplica `thirdPartyDebtNoCut`. El contrato con perfil "convenio de terceros" del socio es accesorio y propio (DEC-083). |
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica que recauda por cuenta del tercero (DEC-064) |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica que recauda por cuenta del tercero (DEC-064) |
 | `validFrom` / `validTo` | date | Sí / No | Vigencia |
 | `status` | enum | Sí | `draft`, `active`, `suspended`, `expired` |
 | `code` | string | Sí | Código del convenio (único en T05). |
@@ -1307,15 +1309,15 @@ Campos de `thirdPartyCharges` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agreementId` | ObjectId | Sí | — | `thirdPartyAgreements` (M06) |
+| `agreementId` | uniqueidentifier | Sí | — | `thirdPartyAgreements` (M06) |
 | `conceptIndex` | [VERIFICAR] | Sí | — | — |
-| `invoiceId` | ObjectId | Sí | Antes `documentId`; nombre de T05 | `invoices` (M05) |
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
+| `invoiceId` | uniqueidentifier | Sí | Antes `documentId`; nombre de T05 | `invoices` (M05) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
 | `period` | string | [VERIFICAR] | — | — |
 | `amount` | decimal | [VERIFICAR] | — | — |
 | `collectedAmount` | decimal | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `billed`, `partiallyCollected`, `collected`, `cancelled` | — |
-| `remittanceId` | ObjectId | [VERIFICAR] | — | `thirdPartyRemittances` (M06) |
+| `remittanceId` | uniqueidentifier | [VERIFICAR] | — | `thirdPartyRemittances` (M06) |
 
 `thirdPartyRemittances`: `agreementId`, `periodFrom/To`, `billedTotal`, `collectedTotal`, `fee`, `netToRemit`, `reportStoredFileId` (T05 §7.2; antes ~~`reportAssetId`~~), `paymentOrderId` (M14), `status` (§8.8), `reconciledAt`.
 
@@ -1325,15 +1327,15 @@ Campos de `thirdPartyRemittances` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `agreementId` | ObjectId | Sí | — | `thirdPartyAgreements` (M06) |
+| `agreementId` | uniqueidentifier | Sí | — | `thirdPartyAgreements` (M06) |
 | `periodFrom` | date | Sí | — | — |
 | `periodTo` | date | [VERIFICAR] | — | — |
 | `billedTotal` | decimal | [VERIFICAR] | — | — |
 | `collectedTotal` | decimal | [VERIFICAR] | — | — |
 | `fee` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `netToRemit` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `reportStoredFileId` | ObjectId | [VERIFICAR] | T05 §7.2; antes ~~`reportAssetId`~~ | `storedFiles` (T01) |
-| `paymentOrderId` | ObjectId | Sí | M14 | `paymentOrders` (M12; pago por M14) |
+| `reportStoredFileId` | uniqueidentifier | [VERIFICAR] | T05 §7.2; antes ~~`reportAssetId`~~ | `storedFiles` (T01) |
+| `paymentOrderId` | uniqueidentifier | Sí | M14 | `paymentOrders` (M12; pago por M14) |
 | `status` | enum | Sí | §8.8 | — |
 | `reconciledAt` | datetime | [VERIFICAR] | — | — |
 
@@ -1405,7 +1407,7 @@ Campos de `publicAdminSelections` (tabla normalizada el 05-11-2026 a partir del 
 | `items[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `filters` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `active`, `replaced` | — |
-| `replacedById` | ObjectId | [VERIFICAR] | — | `publicAdminSelections` (M06) |
+| `replacedById` | uniqueidentifier | [VERIFICAR] | — | `publicAdminSelections` (M06) |
 
 ### 7.34 `gatewayDocuments` (tenant) — modo pasarela
 
@@ -1415,9 +1417,9 @@ Campos de `gatewayDocuments` (tabla normalizada el 05-11-2026 a partir del texto
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `externalSystemId` | ObjectId | [VERIFICAR] | — | `apiClients` (T02), asumido en PA-FIS-20 (DEC-072); antes [VERIFICAR] sistema externo (posible `integrationConnections`, T06) |
+| `externalSystemId` | uniqueidentifier | [VERIFICAR] | — | `apiClients` (T02), asumido en PA-FIS-20 (DEC-072); antes [VERIFICAR] sistema externo (posible `integrationConnections`, T06) |
 | `sourceFileName` | string | [VERIFICAR] | — | — |
-| `apiClientId` | ObjectId | [VERIFICAR] | — | `apiClients` (T02) |
+| `apiClientId` | uniqueidentifier | [VERIFICAR] | — | `apiClients` (T02) |
 | `arcaCbteType` | [VERIFICAR] | Sí | — | — |
 | `pointOfSale` | [VERIFICAR] | Sí | — | — |
 | `number` | int | Sí | — | — |
@@ -1441,7 +1443,7 @@ Campos de `gatewayDocuments` (tabla normalizada el 05-11-2026 a partir del texto
 | `taxes[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 | `cancelled` | [VERIFICAR] | [VERIFICAR] | S/N | — |
 | `related[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
-| `fiscalAuthorizationId` | ObjectId | Sí | Antes `authorizationId`; nombre de T05 | `fiscalAuthorizations` (M06) |
+| `fiscalAuthorizationId` | uniqueidentifier | Sí | Antes `authorizationId`; nombre de T05 | `fiscalAuthorizations` (M06) |
 | `exportStatus` | enum | [VERIFICAR] | `pending`, `exportedOk`, `exportedError` | — |
 
 ### 7.35 `fiscalDeadlines` (tenant)
@@ -1457,7 +1459,7 @@ Campos de `fiscalDeadlines` (tabla normalizada el 05-11-2026 a partir del texto 
 | `dueDate` | date | [VERIFICAR] | — | — |
 | `source` | [VERIFICAR] | [VERIFICAR] | Tabla normativa de vencimientos y terminación de CUIT | — |
 | `status` | enum | Sí | `upcoming`, `due`, `filed`, `overdue` | — |
-| `filingId` | ObjectId | [VERIFICAR] | — | `regimeFilings` (M06) |
+| `filingId` | uniqueidentifier | [VERIFICAR] | — | `regimeFilings` (M06) |
 
 ### 7.36 Mapeo a tablas ProCoop (CAT §5 completo)
 
@@ -1502,10 +1504,10 @@ Tratamiento fiscal explícito de conceptos que no se resuelven solo con la alíc
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `conceptId` | ObjectId → M02 | Sí | Concepto facturable (ej. "Aporte de capital", "Derecho de sepultura — adquisición", "Mantenimiento de sepultura", "Inhumación") |
+| `conceptId` | uniqueidentifier → M02 | Sí | Concepto facturable (ej. "Aporte de capital", "Derecho de sepultura — adquisición", "Mantenimiento de sepultura", "Inhumación") |
 | `caseCode` | enum | Sí | `capitalContribution`, `burialRightAcquisition`, `burialRightMaintenance`, `burialAct`, `guaranteeDeposit` (RF-FIS-165), `subsidyFundContribution`, `publicServiceAccessoryOnly` (el caso solo registra la marca de accesorio de la LQSP y no cambia la clase ni la alícuota, que siguen la cascada de RF-FIS-080; DEC-093), `other` |
 | `fiscalClass` | enum | Sí (salvo `publicServiceAccessoryOnly`) | `gravado`, `exento`, `noGravado`, `noAlcanzado`, `capitalContribution`, `outsideTaxBase` (depósito en garantía: fuera de la base imponible y no gravado; RN-FIS-128) |
-| `vatRateId` | ObjectId | Cond. | Obligatorio si `fiscalClass = gravado` |
+| `vatRateId` | uniqueidentifier | Cond. | Obligatorio si `fiscalClass = gravado` |
 | `wsfeBucket` | enum | Sí (salvo `publicServiceAccessoryOnly`) | `ImpNeto`, `ImpOpEx`, `ImpTotConc`, `outsideFiscalDocument` |
 | `publicServiceAccessory` | bool | Sí | Concepto accesorio admitido dentro de la liquidación de servicios públicos (tasas, contribuciones y cargos regulados que acompañan al servicio público). Default `false`: sin marca, el concepto va a la factura común y nunca a la LQSP (DEC-093; RN-FIS-122; RN-FAC-040 de M05). Internet, telefonía, TV, sepelio y servicios sociales no se marcan (recomendación de PA-FIS-23). Vale para cualquier `caseCode` (por ejemplo, un aporte de capital puede declararse accesorio si el contador lo admite). |
 | `accessoryApproval` | object | Cond. | Obligatorio si `publicServiceAccessory = true`: `{ basis (norma o dictamen del contador), approvedBy, approvedAt, evidenceId }`; sin aprobación la marca no rige (PA-FIS-23). Referencia: `approvedBy` → `memberships` (T02); `evidenceId` → `documents` (T11). |
@@ -1513,7 +1515,7 @@ Tratamiento fiscal explícito de conceptos que no se resuelven solo con la alíc
 | `fiscalMoment` | enum | Cond. | Para `burialRightAcquisition`: `perInstallment` (default, PRM-FIS-123) o `atAcquisition` |
 | `invoiceSection` / `legendKey` | string / dictKey | No | Sección y leyenda en el comprobante |
 | `basis` | object | Sí | Fundamento (norma, dictamen del contador, fecha) |
-| `normativeVersionId` | ObjectId | No | Versión de tabla normativa adoptada Referencia: `normativeTableVersions` (M06). |
+| `normativeVersionId` | uniqueidentifier | No | Versión de tabla normativa adoptada Referencia: `normativeTableVersions` (M06). |
 | `validFrom` / `validTo` | date | Sí / No | Vigencia |
 | `status` | enum | Sí | `draft`, `active`, `superseded` |
 
@@ -1538,20 +1540,20 @@ Colección nueva (10-11-2026, DEC-095; RF-FIS-169, RN-FIS-133): posición de la 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica contribuyente (DEC-064). | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica contribuyente (DEC-064). | `legalEntities` (T04) |
 | `code` / `name` | string | Sí | Identificación visible del registro. | — |
 | `tax` | object | Sí | Impuesto o contribución: `{ label, taxDefinitionId }`; `taxDefinitionId` opcional, solo si existe una definición con `nature = ownTax`. | `taxDefinitionId` → `taxDefinitions` (M06) |
 | `jurisdiction` | object | Sí | `{ level: national/provincial/municipal, code }` (nación, provincia o municipio). | — |
 | `activityScope` | object | Sí | Actividad o sección alcanzada: `{ arcaActivityCodes[], provincialActivityCodes[], serviceIds[], section }`; al menos uno no vacío o `section = wholeEntity`. | `arcaActivityCodes[]` → `normativeTables` (`arcaActivities`, M06); `serviceIds[]` → `tenantServices` (M02) |
 | `kind` | enum | Sí | `exemption`, `partialExemption`, `contribution`, `specialRegime`, `otherObligation`. | — |
-| `effect` | object | Cond. | Para `partialExemption`: `{ pct }`; para `contribution`: `{ rate, minimumAmount }` (Decimal128). | — |
+| `effect` | object | Cond. | Para `partialExemption`: `{ pct }`; para `contribution`: `{ rate, minimumAmount }` (DECIMAL(18,4)). | — |
 | `capitalBase` | object | Cond. | Para contribuciones sobre el capital: `{ source: none/m17CapitalBase, component: subscribed/paid/pendingToPay/reserved/refundsApprovedUnpaid, capitalItemIds[], requireFinal }`; la base la provee M17 por entidad jurídica y fecha con `ins.capitalBase.get({ legalEntityId, asOf })` y EVT-INS-22 (RF-INS-109; RN-FIS-133). M17 no abre la base por servicio ni por evento, por lo que se quitan `serviceIds[]` y `capitalEventTypes[]` y se resuelve el [VERIFICAR] anterior (10-11-2026). *Reemplazado: "`{ source: none/perService/perEvent, serviceIds[], capitalEventTypes[] }`" con referencia "`capitalEventTypes[]` → catálogo de eventos de capital de M17 [VERIFICAR]".* El componente que corresponde a cada contribución lo confirma el contador (PA-FIS-25). | `capitalItemIds[]` → `capitalItems` (M17) |
 | `basis` | object | Sí | Fundamento normativo: `{ norm, article, issuer, url, consultedAt, accountantOpinion }`. | — |
-| `evidenceIds[]` | ObjectId[] | Sí (para activar) | Adjuntos de respaldo (norma, dictamen, constancia de exención). | `documents` (T11) |
+| `evidenceIds[]` | uniqueidentifier[] | Sí (para activar) | Adjuntos de respaldo (norma, dictamen, constancia de exención). | `documents` (T11) |
 | `deadlineRule` | object | No | Periodicidad y regla de vencimiento para `fiscalDeadlines` (RF-FIS-007). | — |
 | `validFrom` / `validTo` | date | Sí / No | Vigencia. | — |
 | `status` | enum | Sí | `draft`, `active`, `expired`, `revoked` (§8.13). | — |
-| `approvedBy` / `approvedAt` | ObjectId / datetime | Cond. | Obligatorios para `active` (aprobación con MFA). | `approvedBy` → `memberships` (T02) |
+| `approvedBy` / `approvedAt` | uniqueidentifier / datetime | Cond. | Obligatorios para `active` (aprobación con MFA). | `approvedBy` → `memberships` (T02) |
 
 Índices: `{tenantId, legalEntityId, kind, "jurisdiction.code", validFrom}`; `{tenantId, status, validTo}`. La no superposición de registros activos del mismo tipo y alcance se valida al activar (RN-FIS-133).
 

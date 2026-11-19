@@ -443,6 +443,8 @@ Regla de separación: quien edita el diccionario o la marca puede publicar solo 
 | RN-UXD-068 | **Notificaciones al portal** (`NOTI_COOP`: por cuenta, no leída, vigencia 1 mes, asunto, detalle) se presentan en la bandeja de avisos de la PWA con `notifKinds` y textos del diccionario para "singular/plural" del resultado | RN-10 §3.6 | Replicar (presentación); dominio T09 | — | — |
 
 ## 7. Design system y modelo de datos de experiencia
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 Sección adaptada (anexo transversal): **7.A** es el design system normativo (tokens); **7.B** es el modelo de datos de las colecciones propiedad de UXD.
 
@@ -612,9 +614,9 @@ Cada módulo declara su mapa `estado → tono + ícono + dict:estado.<entidad>.<
 | **Ayuda** | `uxd.ScreenHelpArticles` + anexo `T03-UXD-screenhelp-base-m01-t02.md` | Claves `dict:` en contenido |
 | **Publicación marca/diccionario** | Versiones en SQL + invalidación CDN/caché por tenant | Misma transacción que auditoría T02 cuando aplique |
 
-Traducción lógica → física: `tenantId` → `TenantId`; colección → tabla `uxd.*`. **§7.B.1 en adelante** conserva tipos lógicos; RF/RN no cambian.
+Traducción lógica → física: `TenantId` → `TenantId`; colección → tabla `uxd.*`. **§7.B.1 en adelante** conserva tipos lógicos; RF/RN no cambian.
 
-Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:* ObjectId y nombres de colección en tablas siguientes.
+Campos comunes (**vigente**): `TenantId`, auditoría, `RowVersion`. *Histórico:* uniqueidentifier y nombres de colección en tablas siguientes.
 
 #### 7.B.1 `tenantBrandings`
 
@@ -642,7 +644,7 @@ Propósito: identidad visual del tenant, versionada (borrador y publicada).
 | `loginOptions` | Object | No | `backgroundAssetId`, `helpLinkEnabled` (PRM-UXD-031), `showCooperativeName` |
 | `splash` | Object | No | `assetId`, `backgroundColor` (default `#000`), `maxMs` (≤ 1200) |
 | `notes` | String | No | Nota de la publicación |
-| `publishedAt`, `publishedBy` | Date, ObjectId | Si publicada | — |
+| `publishedAt`, `publishedBy` | Date, uniqueidentifier | Si publicada | — |
 
 Resolución de marca de un documento: si la entidad jurídica emisora tiene `brandingVariantKey` (T04), se usa la variante de la publicación vigente al renderizar y, slot por slot, lo que la variante no define se toma de la marca base; sin valor, o con una clave inexistente en la publicación, se usa la marca base del tenant y se registra una advertencia en la publicación (no bloquea la emisión). Publicar una versión que elimine una `variantKey` referenciada por alguna entidad activa exige confirmación explícita. La versión usada queda congelada en el documento (RN-UXD-013).
 
@@ -654,7 +656,7 @@ Resolución de marca de un documento: si la entidad jurídica emisora tiene `bra
 |---|---|---|---|
 | `kind` | enum (abajo) | Sí | Tipo de recurso |
 | `channel` | enum `admin`, `desktop`, `pwa`, `pwa-socio`, `pwa-empleado`, `pwa-campo`, `landing`, `documentos`, `email`, `todos` | Sí | Canal de destino |
-| `branchId` | ObjectId | No | Sucursal (logos jerárquicos) |
+| `branchId` | uniqueidentifier | No | Sucursal (logos jerárquicos) |
 | `storageKey` | String | Sí | Clave en almacenamiento (T08); recursos públicos en el bucket público por tenant con hash |
 | `public` | Boolean | Sí | RN-UXD-035 |
 | `mime` | enum `image/svg+xml`, `image/png`, `image/webp`, `image/jpeg` | Sí | — |
@@ -733,7 +735,7 @@ Límite de peso: 2 MB por archivo (PRM-UXD-011). Índices: `{tenantId, kind, cha
 | `value` | Object `{ one, other, title?, short?, zero? }` o `{ text }` | Sí | Valor del tenant |
 | `gender` | enum | Si `term` | Puede cambiar respecto del base ("Gestión" f → "Ticket" m) |
 | `state` | enum `draft`, `published`, `deleted` | Sí | `deleted` = volver al base en el próximo release |
-| `draftOf` | ObjectId | No | Entrada publicada a la que reemplaza; → `tenantDictionaryEntries` |
+| `draftOf` | uniqueidentifier | No | Entrada publicada a la que reemplaza; → `tenantDictionaryEntries` |
 | `note` | String | No | Motivo del cambio |
 | `validation` | Object | Sí (calculado) | `lengthOk`, `variablesOk`, `ambiguityWarnings[]`, `contrastIrrelevant` |
 
@@ -750,14 +752,14 @@ Límite de peso: 2 MB por archivo (PRM-UXD-011). Índices: `{tenantId, kind, cha
 | `revertedFrom` | Int | No | Si es una reversión |
 | `bundleHashes` | Object `{ <canal>: sha256 }` | Sí | Paquetes compilados por canal |
 | `publishedAt` | Date | Sí | Fecha de publicación (antes en la fila conjunta `publishedAt`, `publishedBy`, `note`) |
-| `publishedBy` | ObjectId | Sí | Quien publicó; → `memberships` |
+| `publishedBy` | uniqueidentifier | Sí | Quien publicó; → `memberships` |
 | `note` | String | No | Motivo del release |
 
 Índices: `{tenantId, releaseNumber}` único. Inmutable (sin `updatedAt` operativo).
 
 #### 7.B.6 `dictionaryMissingKeys`
 
-`tenantId`, `key`, `channel`, `screenId`, `appVersion`, `firstSeenAt`, `lastSeenAt`, `count`, `resolvedAt`. Índice `{tenantId, key, channel}` único. Alimenta el indicador IND-UXD-01.
+`TenantId`, `key`, `channel`, `screenId`, `appVersion`, `firstSeenAt`, `lastSeenAt`, `count`, `resolvedAt`. Índice `{tenantId, key, channel}` único. Alimenta el indicador IND-UXD-01.
 
 #### 7.B.7 `screenHelpArticles`
 
@@ -782,7 +784,7 @@ Límite de peso: 2 MB por archivo (PRM-UXD-011). Índices: `{tenantId, kind, cha
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `userId` | ObjectId | Único por tenant + usuario |
+| `userId` | uniqueidentifier | Único por tenant + usuario |
 | `theme` | enum `dark`, `light`, `system` | Si la política lo permite |
 | `density` | enum `comfortable`, `compact` | Admin |
 | `fontScale` | enum `100`, `115`, `130` | PWA |
@@ -826,7 +828,7 @@ Estructura TypeScript en `packages/shared/siteMap/{admin,pwa,landing,platform}.t
 
 #### 7.B.13 Tablas de campos de las colecciones definidas en texto
 
-Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `tenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-UXD-18 (Asumida, DEC-072).
+Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `TenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-UXD-18 (Asumida, DEC-072).
 
 **`dictionaryMissingKeys`** — Claves faltantes detectadas (COL-UXD-06; definición en texto en §7)
 
@@ -848,7 +850,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `tableId` | string | Sí | — | ej. `per.titulares.list` |
 | `name` | string | Sí | — | Según la definición en texto del §7 |
-| `ownerId` | ObjectId | Sí | `memberships` (T02) | destino → `memberships` |
+| `ownerId` | uniqueidentifier | Sí | `memberships` (T02) | destino → `memberships` |
 | `shared` | bool | No | — | Boolean |
 | `isDefault` | bool | No | — | Según la definición en texto del §7 |
 | `filters` | object | No | — | Object validado por el esquema de la tabla |
@@ -864,7 +866,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `fabDefault` | string | No | — | acción por defecto en Inicio |
 | `hiddenItems` | array | No | — | Según la definición en texto del §7 |
 | `menuOrder` | array de string | No | — | Según la definición en texto del §7 |
-| `screenProfileId` | ObjectId | Sí | `screenProfiles` (T02) | destino → `screenProfiles` |
+| `screenProfileId` | uniqueidentifier | Sí | `screenProfiles` (T02) | destino → `screenProfiles` |
 | `app` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 

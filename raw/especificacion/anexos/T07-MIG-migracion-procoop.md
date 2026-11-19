@@ -316,6 +316,8 @@ Reglas de permisos: la aprobación de una conciliación y su ejecución nunca la
 | RN-MIG-058 | **Personas sin ningún documento** (DEC-099). Una persona de ProCoop que no tiene ningún documento (sin tipo y número de documento, sin CDI y sin CUIT/CUIL en `PERSONAS` ni en `SOCIOS`; tampoco en los maestros de rol de RN-MIG-014 que no traen documento, como `CHOFERES` y `MEDICOS`) se carga con `identificationStatus = documentPending` de M01 (RN-PER-136, RF-PER-175), sin inventar un número: queda fuera del control de duplicados por documento y se compara por nombre normalizado y domicilio, con aviso y sin fusión automática; figura en el informe de migración (sección "personas con documento pendiente", con cantidad por lote y lista por persona); y M01 abre una tarea de regularización en M09 por persona o por lote (RF-PER-175). Mientras siga pendiente, M05 no le emite comprobantes fiscales que exijan identificar al receptor por documento (RN-FAC-162). **No es lo mismo que un documento inválido** (RF-MIG-021, PA-MIG-11): la persona que trae un CUIT/CUIL o DNI con dígito verificador incorrecto, fuera de rango o de relleno se carga con su documento marcado `invalid` y va a la cola de saneamiento; la persona sin ningún documento no tiene qué validar y va a regularización. Un documento de relleno (por ejemplo `0`) se trata como inválido, no como ausente, salvo que el perfilado de F1 demuestre que la cooperativa lo usaba para "sin documento" y la cooperativa apruebe tratarlo como ausente. Urgente para LAG (piloto). | DEC-099 (aporte A7); `PERSONAS.TIP_DNI/NUM_DNI/CDI`, `SOCIOS.CUIT` | Adoptar. | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Destino físico y pipeline (impacto stack)
 
@@ -325,15 +327,15 @@ Reglas de permisos: la aprobación de una conciliación y su ejecución nunca la
 | **Destino operativo** | **Azure SQL** compartida; tablas de negocio con `TenantId` | Catálogo y DDL en `07-*`; matriz §19 sin cambio funcional |
 | **Staging / control mig** | Tablas esquema `mig` (`migrationProjects`, `migStagingRecords`, …) | Mismo almacén SQL; no segunda base Mongo por cooperativa |
 | **Snapshots crudos** | **Azure Blob** privado, cifrado, manifiesto con hash | RF-MIG-011; JSON Lines/Parquet en blob, no en motor transaccional |
-| **Colas / jobs ETL** | **Azure Queue** + workers .NET | Idempotencia y reintentos; equivalente a outbox/BullMQ en lógica |
+| **Colas / jobs ETL** | **Azure Queue** + workers .NET | Idempotencia y reintentos; equivalente a outbox/Azure Queue Storage en lógica |
 | **Carga a dominio** | Servicio del módulo dueño + transacción SQL | DEC-003; `legacy` / `legacyIdMap` según T05 §19 y §7.13 |
 | **Convivencia / portal** | Misma base multitenant; portal y staff en React | Sincronización según RF de coexistencia; MySQL portal sigue siendo **origen** hasta corte |
 
-En §7.1 en adelante, «colección» y `ObjectId` describen el **contrato lógico** del anexo; tipos físicos y FK en `07-ddl` (esquema `mig` + módulos destino).
+En §7.1 en adelante, «colección» y `uniqueidentifier` describen el **contrato lógico** del anexo; tipos físicos y FK en `07-ddl` (esquema `mig` + módulos destino).
 
 Todas las entidades de control de migración llevan **`TenantId`**, auditoría estándar y control optimista (`version`) como en T05 §6.1.
 
-*Redacción histórica en subsecciones:* `tenantId` ObjectId, índices Mongo, staging “en Mongo” — usar la fila **Vigente** de la tabla anterior al implementar.
+*Redacción histórica en subsecciones:* `TenantId` uniqueidentifier, índices Mongo, staging “en Mongo” — usar la fila **Vigente** de la tabla anterior al implementar.
 
 ### 7.1 `migrationProjects`
 
@@ -348,7 +350,7 @@ Todas las entidades de control de migración llevan **`TenantId`**, auditoría e
 | `strategy` | `{ domains[]: { domain, annex, wave, coexistenceRole: procoopMaster\|parallel\|goodappsMaster\|procoopOff, cutoverId } }` | Sí | Plan por dominio. |
 | `tableInventory[]` | `{ catSection, table, rowCount, strategy, destination, ownerAnnex, wave, overriddenReason }` | Sí | Precargado desde §19. |
 | `responsibles[]` | `{ userId, role, domains[] }` | Sí | |
-| `acceptanceActId` | ObjectId | No | Acta en `documents` de T11 con tipo documental `DOC-ACTA-MIG` de T11 §18.6 (PA-MIG-20; antes `acta`; antes "Documento T11 del acta"). |
+| `acceptanceActId` | uniqueidentifier | No | Acta en `documents` de T11 con tipo documental `DOC-ACTA-MIG` de T11 §18.6 (PA-MIG-20; antes `acta`; antes "Documento T11 del acta"). |
 
 Índices: `{ tenantId, code }` único; `{ tenantId, status }`.
 
@@ -356,13 +358,13 @@ Todas las entidades de control de migración llevan **`TenantId`**, auditoría e
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `projectId` | ObjectId | Sí | |
+| `projectId` | uniqueidentifier | Sí | |
 | `kind` | enum `full\|delta\|final` | Sí | |
 | `asOf` | date | Sí | Fecha de corte de datos. |
-| `baseSnapshotId` | ObjectId | No | Para deltas; → `legacySnapshots`. |
+| `baseSnapshotId` | uniqueidentifier | No | Para deltas; → `legacySnapshots`. |
 | `manifest[]` | `{ table, rows, columns[], sha256, objectKey, extractedAt, suppressedColumns[] }` | Sí | `suppressedColumns` = credenciales suprimidas (RN-MIG-013). |
 | `anonymized` | boolean | Sí | |
-| `anonymizationProfileId` | ObjectId | No | |
+| `anonymizationProfileId` | uniqueidentifier | No | |
 | `retentionUntil` | date | Sí | Plazo de conservación (DEC-070: 10 años). |
 | `secretScan` | `{ startedAt, finishedAt, scannedTables, scannedColumns, findings[]: { table, column, kind: cardNumber\|credentialLike, rowCount, classification: credential\|cardNumber\|falsePositive\|null, classifiedBy, classifiedAt, issueId }, status: clean\|blocked\|cleared }` | Sí | Escaneo previo de RN-MIG-013 (DEC-103). Nunca guarda valores, fragmentos ni filas de muestra: solo tabla, columna, tipo y cantidad. `cleared` = todos los hallazgos clasificados y la extracción repetida con la columna suprimida. |
 | `status` | enum `scanning\|blocked\|extracting\|ready\|failed\|expired` | Sí | `scanning` y `blocked` agregados por DEC-103 (escaneo previo); *Reemplazado (10-11-2026): "enum `extracting\|ready\|failed\|expired`"*. |
@@ -377,7 +379,7 @@ Todas las entidades de control de migración llevan **`TenantId`**, auditoría e
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `mappingSetId` | ObjectId | Sí | → `migrationMappingSets` (antes `setId`; nombre canónico de T05). |
+| `mappingSetId` | uniqueidentifier | Sí | → `migrationMappingSets` (antes `setId`; nombre canónico de T05). |
 | `ruleCode` | string | Sí | Ej. `MAP-PER-SOCIOS-001`; clave natural, no referencia (antes `ruleId`). |
 | `sourceTable` | string | Sí | Tabla CAT. |
 | `sourceColumns[]` | string[] | Sí | |
@@ -397,11 +399,11 @@ Todas las entidades de control de migración llevan **`TenantId`**, auditoría e
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `projectId`, `snapshotId`, `mappingSetId` | ObjectId | Sí | Reproducibilidad. |
+| `projectId`, `snapshotId`, `mappingSetId` | uniqueidentifier | Sí | Reproducibilidad. |
 | `kind` | enum `profile\|dryRun\|load\|reprocess\|delta\|parallelImport\|final` | Sí | |
 | `scope` | `{ domains[], tables[], filters }` | Sí | |
 | `targetEnvironment` | enum `test\|staging\|production` | Sí | |
-| `targetTenantId` | ObjectId | Sí | Tenant de ensayo o productivo. |
+| `targetTenantId` | uniqueidentifier | Sí | Tenant de ensayo o productivo. |
 | `status` | enum (§8.2) | Sí | `queued`\|`extracting`\|`reading`\|`transforming`\|`validating`\|`awaitingApproval`\|`loading`\|`loaded`\|`reconciling`\|`accepted`\|`rejected`\|`cancelled`\|`failed`\|`purged`; inicial `queued` (§8.8). |
 | `stats` | `{ read, transformed, valid, warnings, rejected, excluded, loaded, unchanged, updated, conflicts }` por tabla | Sí | |
 | `startedAt`, `finishedAt`, `executedBy` | | Sí | |
@@ -413,13 +415,13 @@ Todas las entidades de control de migración llevan **`TenantId`**, auditoría e
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `runId` | ObjectId | Sí | |
+| `runId` | uniqueidentifier | Sí | |
 | `sourceTable`, `sourceKey` | string | Sí | Clave serializada (`COD_SUM=1234`; compuestas `COD_TAL=..;ID_REC=..`). |
 | `sourceHash` | string | Sí | SHA-256 del registro normalizado. |
 | `raw` | object | Sí | Registro origen (sin columnas suprimidas). |
 | `transformed` | object | No | Documento destino propuesto. |
 | `status` | enum `extracted\|transformed\|valid\|warning\|rejected\|excluded\|loaded\|conflict` | Sí | |
-| `issues[]` | ObjectId → `migrationIssues` | No | |
+| `issues[]` | uniqueidentifier → `migrationIssues` | No | |
 | `targetRef` | `{ collection, _id }` | No | |
 | `expiresAt` | date | Sí | TTL (PRM-MIG-050). |
 
@@ -434,12 +436,12 @@ Todas las entidades de control de migración llevan **`TenantId`**, auditoría e
 | `sourceSystem` | `procoop` | Sí | |
 | `sourceTable`, `sourceKey` | string | Sí | |
 | `targetAnnex`, `targetCollection` | string | Sí | |
-| `targetId` | ObjectId | Sí | |
-| `firstRunId`, `lastRunId` | ObjectId | Sí | |
+| `targetId` | uniqueidentifier | Sí | |
+| `firstRunId`, `lastRunId` | uniqueidentifier | Sí | |
 | `lastSourceHash` | string | Sí | Idempotencia (RF-MIG-043). |
 | `targetVersionAtLoad` | int | Sí | Para detectar cambios operativos posteriores (RN-MIG-042). |
 | `status` | enum `active\|superseded\|merged\|deleted-in-source` | Sí | `merged` = persona fusionada. |
-| `mergedIntoId` | ObjectId | No | |
+| `mergedIntoId` | uniqueidentifier | No | |
 
 Índices: `{ tenantId, sourceTable, sourceKey }` único; `{ tenantId, targetCollection, targetId }`.
 
@@ -455,9 +457,9 @@ En cada documento destino: `legacy: { system: 'procoop', table, key, displayKey,
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `projectId`, `runId` | ObjectId | Sí | |
+| `projectId`, `runId` | uniqueidentifier | Sí | |
 | `domain` | enum (PER, SUM, MED, TAR, DEU, FAC, COB, FIN, STK, CON, CMP, SUE, INS, …) | Sí | |
-| `checks[]` | `{ code, description, sourceValue (Decimal128\|int), targetValue, difference, tolerance, status: ok\|explained\|failed, explanation }` | Sí | |
+| `checks[]` | `{ code, description, sourceValue (DECIMAL(18,4)\|int), targetValue, difference, tolerance, status: ok\|explained\|failed, explanation }` | Sí | |
 | `breakdown[]` | `{ key (titular/servicio/depósito/cuenta contable), source, target, diff }` | No | Detalle descargable. |
 | `status` | enum `draft\|submitted\|approved\|rejected` | Sí | |
 | `approvedBy`, `approvedAt`, `evidenceDocId` | | No | Segregación RN-MIG-041. |
@@ -470,10 +472,10 @@ En cada documento destino: `legacy: { system: 'procoop', table, key, displayKey,
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `parallelRunId` | ObjectId | → `parallelRuns`. |
-| `accountId`, `contractId`, `billingGroupId` | ObjectId | → `accounts` (M01), `serviceContracts` (M02), `billingGroups` (M05). |
+| `parallelRunId` | uniqueidentifier | → `parallelRuns`. |
+| `accountId`, `contractId`, `billingGroupId` | uniqueidentifier | → `accounts` (M01), `serviceContracts` (M02), `billingGroups` (M05). |
 | `procoopInvoiceKey` | string | `COD_COM-SUC_COM-NUM_COM` / `ID_FAC`. |
-| `goodappsSimDocId` | ObjectId | → `documents` (T11). |
+| `goodappsSimDocId` | uniqueidentifier | → `documents` (T11). |
 | `diffs[]` | `{ dimension: quantity\|concept\|tax\|total\|dueDate\|dueAmount\|group\|category\|tariffVersion, key, procoop, goodapps, delta }` | |
 | `classification` | enum `equal\|rounding\|configuration\|migratedData\|intendedFix\|goodappsDefect\|procoopKnownDefect\|pending` | |
 | `explanation`, `responsibleId`, `ticketRef` | | `responsibleId` → `memberships` (T02). |
@@ -498,7 +500,7 @@ En cada documento destino: `legacy: { system: 'procoop', table, key, displayKey,
 | `recordDate` | date | Fecha principal del registro (para filtros). |
 | `payload` | object | Registro origen sin columnas suprimidas, con nombres originales. |
 | `schemaRef` | string | Versión de esquema ProCoop. |
-| `runId` | ObjectId | |
+| `runId` | uniqueidentifier | |
 
 Índices: `{ tenantId, 'links.accountId', recordDate }`, `{ tenantId, sourceTable, sourceKey }` único. Sin endpoints de escritura.
 
@@ -512,7 +514,7 @@ Toda colección listada como destino en la matriz §19 debe aceptar el subdocume
 
 ### 7.14 Tablas de campos de las colecciones definidas en texto
 
-Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto (`migrationMappingRules` y `parallelComparisons` ya tenían tabla en §7.3 y §7.9). Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `tenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-MIG-21 (Asumida, DEC-072).
+Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto (`migrationMappingRules` y `parallelComparisons` ya tenían tabla en §7.3 y §7.9). Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `TenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-MIG-21 (Asumida, DEC-072).
 
 **`migrationValueMaps`** — Mapas de valores (enums, códigos) (COL-MIG-05; definición en texto en §7.3)
 
@@ -520,7 +522,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `code` | string | Sí | — | ej. `SITIVA→taxConditions` |
 | `defaultAction` | enum | No | — | `reject`\/`warn-and-default` |
-| `mappingSetId` | ObjectId | Sí | `migrationMappingSets` (T07) | destino → `migrationMappingSets` |
+| `mappingSetId` | uniqueidentifier | Sí | `migrationMappingSets` (T07) | destino → `migrationMappingSets` |
 | `domain` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 | `sourceValue` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
@@ -528,7 +530,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `runId` | ObjectId | Sí | `migrationRuns` (T07) | destino → `migrationRuns` |
+| `runId` | uniqueidentifier | Sí | `migrationRuns` (T07) | destino → `migrationRuns` |
 | `table` | string | No | — | Según la definición en texto del §7 |
 | `seq` | string | No | — | Según la definición en texto del §7 |
 | `fromKey` | string | No | — | Según la definición en texto del §7 |
@@ -556,12 +558,12 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `runId` | ObjectId | No | `migrationRuns` (T07) | destino → `migrationRuns` |
-| `snapshotId` | ObjectId | No | `legacySnapshots` (T07) | Hallazgo del escaneo previo, que ocurre antes de que exista una corrida (DEC-103) |
-| `stagingRecordId` | ObjectId | No | `migStagingRecords` (T07) | destino → `migStagingRecords` |
+| `runId` | uniqueidentifier | No | `migrationRuns` (T07) | destino → `migrationRuns` |
+| `snapshotId` | uniqueidentifier | No | `legacySnapshots` (T07) | Hallazgo del escaneo previo, que ocurre antes de que exista una corrida (DEC-103) |
+| `stagingRecordId` | uniqueidentifier | No | `migStagingRecords` (T07) | destino → `migStagingRecords` |
 | `sourceTable` | string | No | — | Según la definición en texto del §7 |
 | `sourceKey` | string | No | — | Según la definición en texto del §7 |
-| `ruleId` | ObjectId | No | `migrationMappingRules` (T07) | destino → `migrationMappingRules` |
+| `ruleId` | uniqueidentifier | No | `migrationMappingRules` (T07) | destino → `migrationMappingRules` |
 | `code` | string | Sí | — | ej. `PER-TAXID-DV`, `SUM-NO-HOLDER`, `FAC-GROUP-FISCAL`, `PER-DOC-PENDING` (persona sin documento, aviso; RN-MIG-058, DEC-099), `ORG-BRANCH-UNCONFIRMED` (RN-MIG-057, DEC-098), `PER-USAGE-CLASS-UNCONFIRMED` (aviso; matriz §19 `USOINM`, DEC-102), `SEC-CARD-PAN` y `SEC-CREDENTIAL-LIKE` (escaneo previo, bloqueantes; RN-MIG-013, DEC-103) || `severity` | enum | No | — | `error`\/`warning`\/`info` |
 | `field` | string | No | — | Según la definición en texto del §7 |
 | `value` | string | No | — | enmascarado si es dato personal; siempre vacío en los hallazgos `SEC-*` del escaneo previo, que no guardan el valor ni enmascarado (DEC-103) |
@@ -571,7 +573,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `assignedTo` | string | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `open`\/`fixed`\/`excluded`\/`accepted` |
 | `resolution` | string | No | — | Según la definición en texto del §7 |
-| `resolvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `resolvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `resolvedAt` | Date | No | — | Según la definición en texto del §7 |
 | `batchId` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
@@ -579,7 +581,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `projectId` | ObjectId | Sí | `migrationProjects` (T07) | destino → `migrationProjects` |
+| `projectId` | uniqueidentifier | Sí | `migrationProjects` (T07) | destino → `migrationProjects` |
 | `status` | enum | Sí | — | `draft`\/`approved`\/`active`\/`closed`\/`cancelled`; §8.7; antes sin valores |
 | `moduleCode` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
@@ -599,10 +601,10 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `projectId` | ObjectId | Sí | `migrationProjects` (T07) | destino → `migrationProjects` |
+| `projectId` | uniqueidentifier | Sí | `migrationProjects` (T07) | destino → `migrationProjects` |
 | `scope` | string | No | — | dominios |
 | `freezeAt` | Date | No | — | Según la definición en texto del §7 |
-| `finalSnapshotId` | ObjectId | No | `legacySnapshots` (T07) | destino → `legacySnapshots` |
+| `finalSnapshotId` | uniqueidentifier | No | `legacySnapshots` (T07) | destino → `legacySnapshots` |
 | `rollbackDeadline` | string | No | — | RF-MIG-089 |
 | `status` | enum | Sí | — | `draft`\/`planned`\/`go`\/`executing`\/`completed`\/`rolledBack`\/`cancelled`; §8.7; antes sin valores |
 
@@ -610,14 +612,14 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `cutoverId` | ObjectId | No | `cutoverPlans` (T07) | destino → `cutoverPlans` |
+| `cutoverId` | uniqueidentifier | No | `cutoverPlans` (T07) | destino → `cutoverPlans` |
 | `eventType` | string | No | — | Según la definición en texto del §7 |
 | `entityRef` | string | No | — | Según la definición en texto del §7 |
 | `occurredAt` | Date | No | — | Según la definición en texto del §7 |
 | `payloadForProcoop` | string | No | — | formato exportable |
 | `exportedAt` | Date | No | — | Según la definición en texto del §7 |
 | `rollbackDeadline` | string | No | — | Según la definición en texto del §7 |
-| `runId` | ObjectId | Sí | `migrationRuns` (T07) | destino → `migrationRuns` |
+| `runId` | uniqueidentifier | Sí | `migrationRuns` (T07) | destino → `migrationRuns` |
 
 **`anonymizationProfiles`** — Perfiles de anonimización para ensayos (COL-MIG-20; definición en texto en §7.12)
 

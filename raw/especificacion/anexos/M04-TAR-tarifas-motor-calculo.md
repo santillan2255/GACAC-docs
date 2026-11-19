@@ -653,11 +653,13 @@ Columnas: **ID** · **Regla** (comportamiento exigido en CoopApps) · **ProCoop 
 | RN-TAR-251 | Cupo de correo y pack SMS (DEC-084): (1) el plan del servicio (M02) define `includedQuota` y la unidad (`sms`, `mailbox`, `gb`); el precio del cargo fijo y el `excessUnitPrice` se versionan en `productPrices` (`kind = tic_quota`); (2) cantidad de exceso = máx(0, consumo del período − cupo); (3) el cupo no usado no se acumula salvo PRM-TAR-171; (4) el alta o baja en el período prorratea el cargo fijo (RN-TAR-046) y el cupo en la misma fracción, redondeado hacia abajo; (5) sin consumo informado a la fecha de cálculo se emite solo el cargo fijo con `TAR-W-QUOTA-USAGE-MISSING` y el exceso se liquida en el período siguiente, identificado por período de origen; (6) el envío y la medición son de T06/T09/M10; M04 solo precia. **Contrato de datos del consumo:** T06 recibe el consumo del proveedor (EVT-INT-24 `int.serviceUsage.received`, FI-INT-112), M10 lo atribuye al contrato y publica EVT-TEC-38 `tec.quotaUsage.reported` (`contractId`, `serviceId`, `period`, `unit`, `quantity`, `revision`, `reportedAt`); al calcular, M04 lee la última revisión con API-TEC-56 `tec.getQuotaUsage({ contractId, period })` y la congela en la traza del cálculo (`calculations`) con `revision`; `null` ⇒ punto (5). Una revisión que llega para un período ya facturado no recalcula: se registra en la traza y el ajuste, si corresponde, se hace por el circuito de retroactivos. | No existe (ProCoop cobra el pack SMS como abono tipo 16 sin control de cupo; PRM-TAR-092). | Mejorar (DEC-084) | PRM-TAR-092, PRM-TAR-171 | Consumo negativo o de un período ya facturado ⇒ se rechaza y se registra en la traza. |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Convenciones del modelo
 
-- Todo documento lleva `tenantId` (ObjectId, obligatorio), `createdAt`, `createdBy`, `updatedAt`, `updatedBy`; los índices compuestos empiezan por `tenantId` (DEC-002). Las colecciones de catálogo de plataforma (`formulaFunctions` nativas) usan el tenant `PLATFORM` y pueden tener extensión por tenant.
-- Importes y precios en `Decimal128` (lectura/escritura con `decimal.js`); precisión por concepto según PRM-TAR-150 (precio unitario 6 decimales, cantidad 4, fracción 6, importe 2) — PA-TAR-15.
+- Todo documento lleva `TenantId` (uniqueidentifier, obligatorio), `createdAt`, `createdBy`, `updatedAt`, `updatedBy`; los índices compuestos empiezan por `TenantId` (DEC-002). Las colecciones de catálogo de plataforma (`formulaFunctions` nativas) usan el tenant `PLATFORM` y pueden tener extensión por tenant.
+- Importes y precios en `DECIMAL(18,4)` (lectura/escritura con `decimal.js`); precisión por concepto según PRM-TAR-150 (precio unitario 6 decimales, cantidad 4, fracción 6, importe 2) — PA-TAR-15.
 - Fechas de vigencia como fecha civil (`YYYY-MM-DD`) interpretada en la zona horaria del tenant; marcas de tiempo en UTC.
 - Toda entidad versionada tiene `status`, `validFrom`, `validTo` (exclusivo, nulo = abierta), `version` (entero creciente por clave), `supersedesId`, `approvals[]` (`userId`, `role`, `at`, `decision`, `comment`), `normativeRefs[]` (→ `normativeDocuments`) y `contentHash` (SHA-256 del contenido canónico). Una versión publicada es **inmutable**: cualquier cambio crea una nueva versión (CTR-TAR-01, CTR-TAR-02).
 - Las referencias a otros módulos son por ID (`serviceId`, `categoryId`, `planId`, `productId`, `contractId`, `accountId`, `conceptId`, `taxRateIds` (solo IVA → `vatRates`), `taxIds` (otros tributos → `taxDefinitions`)…; antes `taxRateId`…); TAR no copia datos maestros ajenos salvo en la instantánea de cálculo.
@@ -671,7 +673,7 @@ Propósito: cabecera de una versión de cuadro por servicio (y opcionalmente pla
 |---|---|---|---|
 | `code` | string | Sí | Código estable del cuadro (ej. `ag_residencial`). |
 | `name` | string | Sí | Nombre visible. |
-| `serviceId` | ObjectId | Sí | Servicio de M02. |
+| `serviceId` | uniqueidentifier | Sí | Servicio de M02. |
 | `scope` | object | No | `planIds[]`, `zoneIds[]`, `jurisdiction` (país, provincia, localidad), `regulatorCode`. |
 | `version` | int | Sí | Versión correlativa por `code`. |
 | `status` | enum | Sí | `draft`, `submitted`, `approved`, `rejected`, `scheduled`, `active`, `superseded`, `closed`, `voided` (sección 8.1). |
@@ -680,11 +682,11 @@ Propósito: cabecera de una versión de cuadro por servicio (y opcionalmente pla
 | `currency` | string | Sí | Moneda ISO (ARS por defecto). |
 | `changeKind` | enum | Sí | `commercial`, `fiscal`, `presentation` (AGR-009). |
 | `origin` | enum | Sí | `manual`, `copy`, `mass_update`, `import`, `migration`. |
-| `sourceScheduleId` | ObjectId | No | Versión de la que se copió. Referencia: → `tariffSchedules` (M04). |
+| `sourceScheduleId` | uniqueidentifier | No | Versión de la que se copió. Referencia: → `tariffSchedules` (M04). |
 | `massUpdate` | object | No | Parámetros de la actualización masiva (`mode`: `percent`/`fixed`/`formula`; `value`; `fields[]`; `rounding`). |
-| `simulationRunId` | ObjectId | Cond. | Simulación vinculada; obligatoria para pasar a `submitted` según PRM-TAR-005 (PA-TAR-09). |
+| `simulationRunId` | uniqueidentifier | Cond. | Simulación vinculada; obligatoria para pasar a `submitted` según PRM-TAR-005 (PA-TAR-09). |
 | `approvals[]`, `normativeRefs[]`, `contentHash`, `supersedesId` | — | — | Ver 7.0. |
-| `publishedAt`, `publishedBy`, `activatedAt` | datetime/ObjectId | No | Trazas de publicación y activación. |
+| `publishedAt`, `publishedBy`, `activatedAt` | datetime/uniqueidentifier | No | Trazas de publicación y activación. |
 | `legacy` | object | No | `cuadroCode` (`CUADROS.COD_CUA`), `hisRange` (rango `HIS_*`), `legacyHash`. |
 
 Índices: `{tenantId, code, version}` único; `{tenantId, serviceId, status, validFrom}`; `{tenantId, status, validFrom}` (activación). Mapeo: `CUADROS`, `HIS_*` (fotos), `CUADRI` (cuadro–servicio).
@@ -695,10 +697,10 @@ Propósito: comportamiento de cálculo del servicio, versionado (separa lo que e
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `serviceId` | ObjectId | Sí | Servicio M02. |
+| `serviceId` | uniqueidentifier | Sí | Servicio M02. |
 | `version`, `status`, `validFrom`, `validTo` | — | Sí | Versionado. |
 | `calcType` | enum | Sí | 17 estrategias: `metered_block` (1), `metered_tiers` (2), `gas` (3), `metered_fixed_by_range` (4), `phone` (5), `fixed` (6), `quantity_block` (7), `quantity_tiers` (8), `adherents_by_count` (9), `adherents_by_count_and_age` (10), `adherents_by_assigned_rate` (11), `adherents_by_all_rates` (12), `adherents_by_auto_rate` (13), `mobile_phone` (14), `water_by_property` (15), `sms_pack` (16), `works_installments` (17). |
-| `consumptionSourceServiceId` | ObjectId | No | Servicio del que toma consumos (`REL_SER`/`USA_COT`). |
+| `consumptionSourceServiceId` | uniqueidentifier | No | Servicio del que toma consumos (`REL_SER`/`USA_COT`). |
 | `daysFactorMode` | enum | Sí | `none`, `scale_quantity`, `scale_limits` (PA-TAR-02). |
 | `standardDays` | int | Cond. | Días estándar (30 por defecto) si hay factor de días. |
 | `fixedCharge` | object | Sí | `enabled`, `byDays`, `byTier`, `proportional`, `proration`, `chargeWhenPendingOrDown`, `firstFeeBonified`, `onceByPeriod`. |
@@ -725,20 +727,20 @@ Propósito: comportamiento de cálculo del servicio, versionado (separa lo que e
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `scheduleId` | ObjectId | Sí | Versión de cuadro. |
-| `categoryId` | ObjectId | Sí | Categoría tarifaria de M02. |
-| `fixedCharge` | object | Sí | `amount` (Decimal128), `quantity`, `conceptId`, `currency`, `byDays`. |
+| `scheduleId` | uniqueidentifier | Sí | Versión de cuadro. |
+| `categoryId` | uniqueidentifier | Sí | Categoría tarifaria de M02. |
+| `fixedCharge` | object | Sí | `amount` (DECIMAL(18,4)), `quantity`, `conceptId`, `currency`, `byDays`. |
 | `minimum` | object | No | `quantity`, `amount`, `conceptId`. |
-| `bonusQuantity` | Decimal128 | No | Unidades bonificadas. |
+| `bonusQuantity` | DECIMAL(18,4) | No | Unidades bonificadas. |
 | `contractedDemand` | object | No | Precio de demanda contratada, tolerancia, penalidad. |
 | `powerFactor` | object | No | Umbral, recargo, bonificación por categoría. |
 | `prepaid` | bool | No | Categoría prepaga. |
-| `taxRateIds` | ObjectId[] (antes object) | No | Solo alícuotas de IVA de la categoría (cascada RN-TAR-166) → `vatRates` (M06). Antes "IVA/IIBB de la categoría" (PA-TAR-21). |
-| `taxIds` | ObjectId[] | No | IIBB, percepciones y demás tributos de la categoría (cascada RN-TAR-166) → `taxDefinitions` (M06); separado de `taxRateIds` (T05 PA-DAT-04, PA-TAR-21). |
+| `taxRateIds` | uniqueidentifier[] (antes object) | No | Solo alícuotas de IVA de la categoría (cascada RN-TAR-166) → `vatRates` (M06). Antes "IVA/IIBB de la categoría" (PA-TAR-21). |
+| `taxIds` | uniqueidentifier[] | No | IIBB, percepciones y demás tributos de la categoría (cascada RN-TAR-166) → `taxDefinitions` (M06); separado de `taxRateIds` (T05 PA-DAT-04, PA-TAR-21). |
 | `coefficients[]` | array | No | Coeficientes por categoría (→ `categoryCoefficients`). |
 | `extras` | object | No | Propiedades extra tipadas (ex `CATE_SER_EXTRAS`). |
 | `daysFactorMode` | enum | No | Sobrescribe el modo del servicio para tarifa por bloque (`scale_quantity` / `scale_limits`, RN-TAR-027). |
-| `forcedVoucherTypeId` | ObjectId | No | Tipo de comprobante forzado por la categoría (RN-TAR-010). Antes `forcedInvoiceTypeId` (nombre de T05). Referencia: `voucherTypes` (M05). |
+| `forcedVoucherTypeId` | uniqueidentifier | No | Tipo de comprobante forzado por la categoría (RN-TAR-010). Antes `forcedInvoiceTypeId` (nombre de T05). Referencia: `voucherTypes` (M05). |
 | `chargeMinimumWhenDown` | bool | No | Cobra mínimo en baja (RN-TAR-037). |
 | `legacy` | object | No | `catSerCode`, `catTarifCode`. |
 
@@ -748,15 +750,15 @@ Propósito: comportamiento de cálculo del servicio, versionado (separa lo que e
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `scheduleId`, `categoryId` | ObjectId | Sí | Pertenencia. |
+| `scheduleId`, `categoryId` | uniqueidentifier | Sí | Pertenencia. |
 | `energyType` | enum | Sí | `A` (o vacío), `R`, `DP`, `DFP`, `DV`, `INJ` (inyectada). |
-| `conceptId` | ObjectId | Sí | Concepto facturable (M02). |
+| `conceptId` | uniqueidentifier | Sí | Concepto facturable (M02). |
 | `timeBand` | string | No | Franja/banda horaria. |
-| `stepMin`, `stepMax` | Decimal128 | Sí | Escalón `[stepMin, stepMax)`; admite negativos para neto negativo. |
-| `price` | Decimal128 | Sí | Precio unitario (6 decimales). |
-| `fixedChargeForRange` | Decimal128 | No | Cargo fijo por tramo (tipo 4 / `byTier`). |
-| `taxRateIds` | ObjectId[] (antes object) | No | Solo alícuotas de IVA de la fila → `vatRates` (M06). Antes "IVA/IIBB de la fila" (PA-TAR-21). |
-| `taxIds` | ObjectId[] | No | IIBB, percepciones y demás tributos de la fila → `taxDefinitions` (M06) (T05 PA-DAT-04, PA-TAR-21). |
+| `stepMin`, `stepMax` | DECIMAL(18,4) | Sí | Escalón `[stepMin, stepMax)`; admite negativos para neto negativo. |
+| `price` | DECIMAL(18,4) | Sí | Precio unitario (6 decimales). |
+| `fixedChargeForRange` | DECIMAL(18,4) | No | Cargo fijo por tramo (tipo 4 / `byTier`). |
+| `taxRateIds` | uniqueidentifier[] (antes object) | No | Solo alícuotas de IVA de la fila → `vatRates` (M06). Antes "IVA/IIBB de la fila" (PA-TAR-21). |
+| `taxIds` | uniqueidentifier[] | No | IIBB, percepciones y demás tributos de la fila → `taxDefinitions` (M06) (T05 PA-DAT-04, PA-TAR-21). |
 | `subsidy` | object | No | `costSubsidy`, `fixedChargeWithSubsidy`, `costPrice`, `costPist`, `costMem`, `costTne`, `uniformGasPrice` (RN-TAR-173). |
 | `order` | int | Sí | Orden estable para copia por **clave** (CTR-TAR-28). |
 | `rowKey` | string | Sí | Clave natural (`energyType\|conceptId\|timeBand\|stepMin`). |
@@ -773,16 +775,16 @@ Campos de `adherentRates` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `scheduleId` | ObjectId | [VERIFICAR] | — | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
-| `categoryId` | ObjectId | Sí | — | `serviceCategories` (M02) |
+| `scheduleId` | uniqueidentifier | [VERIFICAR] | — | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
+| `categoryId` | uniqueidentifier | Sí | — | `serviceCategories` (M02) |
 | `kind` | enum | [VERIFICAR] | `by_count`, `by_age`, `by_relationship`, `by_occupation`, `assigned` | — |
 | `minCount` | int | [VERIFICAR] | — | — |
 | `minAge` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `relationshipTypeId` | ObjectId | [VERIFICAR] | — | `enumerationItems` (T04), catálogo `relationshipTypes` de M01 |
-| `occupationTypeId` | ObjectId | [VERIFICAR] | — | `enumerationItems` (T04), catálogo `occupations` de M01 |
+| `relationshipTypeId` | uniqueidentifier | [VERIFICAR] | — | `enumerationItems` (T04), catálogo `relationshipTypes` de M01 |
+| `occupationTypeId` | uniqueidentifier | [VERIFICAR] | — | `enumerationItems` (T04), catálogo `occupations` de M01 |
 | `price` | decimal | [VERIFICAR] | — | — |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
-| `autoCategoryId` | ObjectId | [VERIFICAR] | Recategorización | `serviceCategories` (M02) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `autoCategoryId` | uniqueidentifier | [VERIFICAR] | Recategorización | `serviceCategories` (M02) |
 | `franchise` | [VERIFICAR] | [VERIFICAR] | Cantidad sin cargo | — |
 
 ### 7.6 `productPrices` — precios de productos/servicios por versión
@@ -795,8 +797,8 @@ Campos de `productPrices` (tabla normalizada el 05-11-2026 a partir del texto an
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceProductId` | ObjectId | Sí | (antes `productId`; nombre de T05) (M02) | `serviceProducts` (M02) |
-| `scheduleId` | ObjectId | [VERIFICAR] | (opcional) o lista de precios propia (`priceListCode`) | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
+| `serviceProductId` | uniqueidentifier | Sí | (antes `productId`; nombre de T05) (M02) | `serviceProducts` (M02) |
+| `scheduleId` | uniqueidentifier | [VERIFICAR] | (opcional) o lista de precios propia (`priceListCode`) | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
 | `version` | int | [VERIFICAR] | — | — |
 | `status` | enum | Sí | — | — |
 | `validFrom` | date | Sí | — | — |
@@ -804,10 +806,10 @@ Campos de `productPrices` (tabla normalizada el 05-11-2026 a partir del texto an
 | `price` | decimal | [VERIFICAR] | — | — |
 | `currency` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `priceIncludesVat` | [VERIFICAR] | [VERIFICAR] | Bool | — |
-| `taxRateIds` | ObjectId[] | [VERIFICAR] | Solo alícuotas de IVA (PA-TAR-21; T05 PA-DAT-04). | `vatRates` (M06); antes "`vatRates` o `taxDefinitions` (M06), asumido en PA-TAR-20 (DEC-072); antes [VERIFICAR]" |
-| `taxIds` | ObjectId[] | No | IIBB, percepciones y demás tributos del precio (PA-TAR-21; T05 PA-DAT-04). | `taxDefinitions` (M06) |
+| `taxRateIds` | uniqueidentifier[] | [VERIFICAR] | Solo alícuotas de IVA (PA-TAR-21; T05 PA-DAT-04). | `vatRates` (M06); antes "`vatRates` o `taxDefinitions` (M06), asumido en PA-TAR-20 (DEC-072); antes [VERIFICAR]" |
+| `taxIds` | uniqueidentifier[] | No | IIBB, percepciones y demás tributos del precio (PA-TAR-21; T05 PA-DAT-04). | `taxDefinitions` (M06) |
 | `perceptionRate` | decimal | [VERIFICAR] | — | — |
-| `categoryId` | ObjectId | Sí | Opcional, precio por categoría | `serviceCategories` (M02) |
+| `categoryId` | uniqueidentifier | Sí | Opcional, precio por categoría | `serviceCategories` (M02) |
 | `kind` | enum | Sí | `product`, `postal`, `housing`, `installation`, `equipment`, `cemetery_right`, `cemetery_maintenance`, `trip`, `other` | — |
 
 ### 7.7 `eventCharges` — cargos por evento (catálogo aprobado)
@@ -815,7 +817,7 @@ Campos de `productPrices` (tabla normalizada el 05-11-2026 a partir del texto an
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `code`, `name` | string | Sí | Identificación. |
-| `serviceIds[]` | ObjectId | Sí | Servicios donde está habilitado. |
+| `serviceIds[]` | uniqueidentifier | Sí | Servicios donde está habilitado. |
 | `trigger` | enum | Sí | `contract_approved`, `installation_completed`, `activation`, `period_start`, `technical_event`, `reconnection`, `meter_change`, `manual`, `other_milestone`, `equipment_not_returned` (EVT-STK-07/08; RF-TAR-115), `social_act` (EVT-SOC-06; RF-TAR-117), `social_trip` (EVT-SOC-07; RF-TAR-118). **No admite** `termination_requested` (RN-TAR-219). |
 | `technicalEventCodes[]` | string | Cond. | Tipos de orden/evento de M10 que lo disparan. |
 | `socialActTypes[]` | string | Cond. | Para `social_act`: tipos de acto de cementerio (inhumación, exhumación, reducción, traslado, otros) que disparan el cargo. |
@@ -840,12 +842,12 @@ Campos de `eventChargeBonuses` (tabla normalizada el 05-11-2026 a partir del tex
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `eventChargeId` | ObjectId | Sí | — | `eventCharges` (M04) |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `eventChargeId` | uniqueidentifier | Sí | — | `eventCharges` (M04) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `transactionCode` | string | [VERIFICAR] | — | — |
-| `categoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `categoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
 | `bonifiedQuantity` | [VERIFICAR] | [VERIFICAR] | Cantidad bonificada | — |
 | `percent` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `amount` | decimal | [VERIFICAR] | — | — |
@@ -856,16 +858,16 @@ Campos de `eventChargeBonuses` (tabla normalizada el 05-11-2026 a partir del tex
 
 ### 7.9 `categoryCoefficients` — coeficientes por categoría
 
-Campos: `scheduleId`, `categoryId`, `code` (ej. `coef1`…`coef4`, `update1`, `update2`, `min_quota1`, `min_quota2`), `value` (Decimal128), `validFrom/validTo`. Mapeo: `CATE_SER_COEFICIENTES` (`FEC_COEF`, `COEFICIENTE` a `COEFICIENTE4`). `USOINM` y `ESTINM` (usos y estados de inmueble) son de M01; TAR los lee como condición de reglas y para agua por inmueble.
+Campos: `scheduleId`, `categoryId`, `code` (ej. `coef1`…`coef4`, `update1`, `update2`, `min_quota1`, `min_quota2`), `value` (DECIMAL(18,4)), `validFrom/validTo`. Mapeo: `CATE_SER_COEFICIENTES` (`FEC_COEF`, `COEFICIENTE` a `COEFICIENTE4`). `USOINM` y `ESTINM` (usos y estados de inmueble) son de M01; TAR los lee como condición de reglas y para agua por inmueble.
 
 Campos de `categoryCoefficients` (tabla normalizada el 05-11-2026 a partir del texto anterior, que se conserva, y de T05):
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `scheduleId` | ObjectId | [VERIFICAR] | — | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
-| `categoryId` | ObjectId | Sí | — | `serviceCategories` (M02) |
+| `scheduleId` | uniqueidentifier | [VERIFICAR] | — | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
+| `categoryId` | uniqueidentifier | Sí | — | `serviceCategories` (M02) |
 | `code` | string | Sí | Ej. `coef1`…`coef4`, `update1`, `update2`, `min_quota1`, `min_quota2` | — |
-| `value` | decimal | [VERIFICAR] | Decimal128 | — |
+| `value` | decimal | [VERIFICAR] | DECIMAL(18,4) | — |
 | `validFrom` | date | Sí | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 
@@ -879,8 +881,8 @@ Campos de `gasCalorificFactors` (tabla normalizada el 05-11-2026 a partir del te
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
-| `zoneId` | ObjectId | Sí | — | `zones` (T04) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
+| `zoneId` | uniqueidentifier | Sí | — | `zones` (T04) |
 | `period` | string | Sí | `YYYY-MM`; CTR-DAT-31 — antes ~~`periodYear`, `periodMonth`~~ | — |
 | `calorificValue` | decimal | [VERIFICAR] | — | — |
 | `pressureFactor` | decimal | [VERIFICAR] | — | — |
@@ -903,7 +905,7 @@ Campos de `gasCalorificFactors` (tabla normalizada el 05-11-2026 a partir del te
 | `base` | object | Sí | `kind` (`fixed_charge`, `quantity`, `component`, `subtotal`, `rule`, `explicit`), `componentKinds[]`, `ruleCodes[]`, `baseMode` (`cascade`, `original`). |
 | `action` | object | Sí | `operation` (`fixed_amount`, `percent`, `scale`, `block`, `minimum`, `maximum`, `threshold`, `formula`), `quantityFormula`, `unitFormula`, `valueFormula`, `taxBaseFormula`, `scale[]`. |
 | `sign` | enum | Sí | `add`, `subtract`. |
-| `conceptId` | ObjectId | Sí | Concepto del renglón. |
+| `conceptId` | uniqueidentifier | Sí | Concepto del renglón. |
 | `taxRef` | object | Cond. | Para `tax`: `fisTaxId` del catálogo de M06 (obligatorio, CTR-TAR-04). |
 | `compatibility` | object | No | `stackable`, `exclusiveWith[]`, `capAmount`, `capPercent`, `conflictPolicy` (`priority`, `review`). |
 | `applyOnce` | object | No | `perPeriod`, `perContract`, `untilDate` (ex `APLICA_UNA_VEZ`, CTR-TAR-10). |
@@ -946,12 +948,12 @@ Campos de `benefitGroupMembers` (tabla normalizada el 05-11-2026 a partir del te
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `groupId` | ObjectId | Sí | — | `benefitGroups` (M04) |
-| `contractId` | ObjectId | Sí | `personId`/`accountId` (suministro; CTR-DAT-30 — antes también ~~`supplyId`~~) | `serviceContracts` (M02) |
+| `groupId` | uniqueidentifier | Sí | — | `benefitGroups` (M04) |
+| `contractId` | uniqueidentifier | Sí | `personId`/`accountId` (suministro; CTR-DAT-30 — antes también ~~`supplyId`~~) | `serviceContracts` (M02) |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 | `reason` | string | [VERIFICAR] | — | — |
-| `evidenceDocIds[]` | ObjectId[] | [VERIFICAR] | — | `documents` (T11) |
+| `evidenceDocIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `documents` (T11) |
 | `source` | enum | [VERIFICAR] | `manual`, `roll`, `criteria` | — |
 | `addedBy` | [VERIFICAR] | [VERIFICAR] | — | `memberships` (T02) |
 | `removedBy` | [VERIFICAR] | [VERIFICAR] | — | `memberships` (T02) |
@@ -983,7 +985,7 @@ Campos de `subsidyRegimes` (tabla normalizada el 05-11-2026 a partir del texto a
 | `name` | string | [VERIFICAR] | — | — |
 | `authority` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `jurisdiction` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `serviceIds[]` | ObjectId[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `serviceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `componentKinds[]` | array [VERIFICAR] | [VERIFICAR] | Sobre qué componente aplica: energía, cargo fijo, bloque de consumo | — |
 | `blockLimit` | [VERIFICAR] | [VERIFICAR] | Cantidad subsidiada | — |
 | `benefitRuleCode` | string | [VERIFICAR] | Regla de beneficio | — |
@@ -1002,8 +1004,8 @@ Campos de `subsidyRollImports` (tabla normalizada el 05-11-2026 a partir del tex
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `regimeId` | ObjectId | Sí | — | `subsidyRegimes` (M04) |
-| `storedFileId` | ObjectId | Sí | (antes `fileDocId`; nombre de T05) (almacenamiento privado) | `storedFiles` (T01) |
+| `regimeId` | uniqueidentifier | Sí | — | `subsidyRegimes` (M04) |
+| `storedFileId` | uniqueidentifier | Sí | (antes `fileDocId`; nombre de T05) (almacenamiento privado) | `storedFiles` (T01) |
 | `period` | string | Sí | — | — |
 | `rowsTotal` | decimal | [VERIFICAR] | — | — |
 | `rowsMatched` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1024,15 +1026,15 @@ Campos de `subsidyEnrollments` (tabla normalizada el 05-11-2026 a partir del tex
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `regimeId` | ObjectId | Sí | — | `subsidyRegimes` (M04) |
-| `contractId` | ObjectId | Sí | `accountId` (CTR-DAT-30 — antes ~~`supplyId`~~) | `serviceContracts` (M02) |
-| `personId` | ObjectId | Sí | — | `persons` (M01) |
+| `regimeId` | uniqueidentifier | Sí | — | `subsidyRegimes` (M04) |
+| `contractId` | uniqueidentifier | Sí | `accountId` (CTR-DAT-30 — antes ~~`supplyId`~~) | `serviceContracts` (M02) |
+| `personId` | uniqueidentifier | Sí | — | `persons` (M01) |
 | `level` | [VERIFICAR] | [VERIFICAR] | Ej. nivel de segmentación | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | — | — |
 | `source` | enum | [VERIFICAR] | `roll`, `manual`, `request` | — |
-| `rollImportId` | ObjectId | [VERIFICAR] | — | `subsidyRollImports` (M04) |
-| `evidenceDocIds[]` | ObjectId[] | [VERIFICAR] | — | `documents` (T11) |
+| `rollImportId` | uniqueidentifier | [VERIFICAR] | — | `subsidyRollImports` (M04) |
+| `evidenceDocIds[]` | uniqueidentifier[] | [VERIFICAR] | — | `documents` (T11) |
 | `status` | enum | Sí | `active`, `suspended`, `ended` | — |
 | `consumptionCap` | [VERIFICAR] | [VERIFICAR] | Tope de consumo subsidiado | — |
 
@@ -1046,8 +1048,8 @@ Campos de `promotions` (tabla normalizada el 05-11-2026 a partir del texto anter
 |---|---|---|---|---|
 | `code` | string | Sí | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `serviceIds[]` | ObjectId[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
-| `planIds[]` | ObjectId[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `serviceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `planIds[]` | uniqueidentifier[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `effect` | enum | [VERIFICAR] | `percent`, `fixed_amount`, `price_override`, `free_cycles` | — |
 | `value` | decimal | [VERIFICAR] | — | — |
 | `baseKinds[]` | array [VERIFICAR] | [VERIFICAR] | Abono, instalación… | — |
@@ -1058,7 +1060,7 @@ Campos de `promotions` (tabla normalizada el 05-11-2026 a partir del texto anter
 | `eligibility` | [VERIFICAR] | [VERIFICAR] | Predicado: altas nuevas, canal, zona | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
 | `validTo` | date | [VERIFICAR] | Ventana de adhesión | — |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
 | `funding` | [VERIFICAR] | [VERIFICAR] | `cooperative` | — |
 | `version` | int | Sí | — | — |
 | `status` | enum | Sí | — | — |
@@ -1071,14 +1073,14 @@ Campos de `promotionAssignments` (tabla normalizada el 05-11-2026 a partir del t
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `promotionId` | ObjectId | Sí | — | `promotions` (M04) |
+| `promotionId` | uniqueidentifier | Sí | — | `promotions` (M04) |
 | `promotionVersion` | int | [VERIFICAR] | — | — |
-| `contractId` | ObjectId | Sí | — | `serviceContracts` (M02) |
+| `contractId` | uniqueidentifier | Sí | — | `serviceContracts` (M02) |
 | `assignedAt` | datetime | [VERIFICAR] | — | — |
 | `startDate` | date | [VERIFICAR] | — | — |
 | `cyclesTotal` | decimal | [VERIFICAR] | — | — |
 | `cyclesConsumed` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `consumedInvoiceIds[]` | ObjectId[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
+| `consumedInvoiceIds[]` | uniqueidentifier[] | [VERIFICAR] | — | [VERIFICAR] destino no declarado |
 | `status` | enum | Sí | `pending`, `active`, `exhausted`, `ended`, `cancelled` | — |
 | `endReason` | string | [VERIFICAR] | — | — |
 | `noticeSentAt` | datetime | [VERIFICAR] | — | — |
@@ -1093,14 +1095,14 @@ Campos de `worksInstallmentPlans` (tabla normalizada el 05-11-2026 a partir del 
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | — | `serviceContracts` (M02) |
+| `contractId` | uniqueidentifier | Sí | — | `serviceContracts` (M02) |
 | `workCode` | string | Sí | — | — |
 | `totalAmount` | decimal | [VERIFICAR] | — | — |
 | `installments` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `installmentAmount` | decimal | [VERIFICAR] | — | — |
 | `startPeriod` | string | [VERIFICAR] | — | — |
 | `billedInstallments` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
 | `indexation` | [VERIFICAR] | [VERIFICAR] | Opcional | — |
 | `status` | enum | Sí | — | — |
 
@@ -1113,14 +1115,14 @@ Campos de `roundingPolicies` (tabla normalizada el 05-11-2026 a partir del texto
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `scope` | enum | Sí | `global`, `invoiceType` | — |
-| `voucherTypeId` | ObjectId | Sí | Antes `invoiceTypeId`; nombre de T05 | `voucherTypes` (M05) |
+| `voucherTypeId` | uniqueidentifier | Sí | Antes `invoiceTypeId`; nombre de T05 | `voucherTypes` (M05) |
 | `itemDecimals` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `totalMode` | enum | [VERIFICAR] | `none`, `type_policy`, `global` | — |
 | `roundingType` | [VERIFICAR] | [VERIFICAR] | 1 decimales, 2 arrastre, 3 pares | — |
 | `decimals` | [VERIFICAR] | [VERIFICAR] | −100, −50, −20, −10, −5, 0, 1, 2 | — |
 | `carryScope` | enum | [VERIFICAR] | `account`, `account_invoice_type` | — |
 | `skipWhenIssueEqualsFirstDue` | [VERIFICAR] | [VERIFICAR] | PA-TAR-07 | — |
-| `conceptIds` | ObjectId[] | [VERIFICAR] | `rounding`, `previousRounding` | [VERIFICAR] destino no declarado |
+| `conceptIds` | uniqueidentifier[] | [VERIFICAR] | `rounding`, `previousRounding` | [VERIFICAR] destino no declarado |
 | `version` | int | Sí | — | — |
 | `status` | enum | Sí | — | — |
 | `validFrom` | date | [VERIFICAR] | — | — |
@@ -1133,12 +1135,12 @@ Campos de `roundingCarryEntries` (tabla normalizada el 05-11-2026 a partir del t
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
-| `voucherTypeId` | ObjectId | [VERIFICAR] | — | `voucherTypes` (M05) |
-| `invoiceId` | ObjectId | Sí | — | `invoices` (M05) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
+| `voucherTypeId` | uniqueidentifier | [VERIFICAR] | — | `voucherTypes` (M05) |
+| `invoiceId` | uniqueidentifier | Sí | — | `invoices` (M05) |
 | `amount` | decimal | [VERIFICAR] | +/− | — |
 | `balanceAfter` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `calculationId` | ObjectId | [VERIFICAR] | — | `calculations` (M04) |
+| `calculationId` | uniqueidentifier | [VERIFICAR] | — | `calculations` (M04) |
 | `status` | enum | Sí | `proposed`, `confirmed`, `reversed` | — |
 
 ### 7.18 Telefonía: `phoneRatePlans`, `phoneTimeBands`, `phoneBandAssignments`, `phoneRates`, `phoneDiscountPlans`, `phoneFreeNumbers`
@@ -1151,7 +1153,7 @@ Campos de `phoneRatePlans` (tabla normalizada el 05-11-2026 a partir del texto a
 |---|---|---|---|---|
 | `code` | string | Sí | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
 | `prepaid` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `minimumCharge` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `fractionRules` | [VERIFICAR] | [VERIFICAR] | Fracción inicial y siguientes en segundos | — |
@@ -1177,8 +1179,8 @@ Campos de `phoneBandAssignments` (tabla normalizada el 05-11-2026 a partir del t
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `ratePlanId` | ObjectId | Sí | — | `phoneRatePlans` (M04) |
-| `bandId` | ObjectId | Sí | — | `phoneTimeBands` (M04) |
+| `ratePlanId` | uniqueidentifier | Sí | — | `phoneRatePlans` (M04) |
+| `bandId` | uniqueidentifier | Sí | — | `phoneTimeBands` (M04) |
 | `callTypeCode` | string | Sí | Opcional, con fallback sin tipo | — |
 | `bandTypeCode` | string | Sí | — | — |
 - `phoneRates`: `ratePlanId`, `destinationKey` (clave del plan de numeración M10), `callTypeCode`, `bandTypeCode`, `pricePerFraction`, `initialFractionSeconds`, `nextFractionSeconds`, `setupCharge`, `currency`, `validFrom`. Mapeo clase `Tasacion`. Es la referencia de tasación de `callRecords` de M10 junto con `phoneRatePlans` (CTR-DAT-70 de T05: `callRatings` no existe).
@@ -1189,7 +1191,7 @@ Campos de `phoneRates` (tabla normalizada el 05-11-2026 a partir del texto anter
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `ratePlanId` | ObjectId | Sí | — | `phoneRatePlans` (M04) |
+| `ratePlanId` | uniqueidentifier | Sí | — | `phoneRatePlans` (M04) |
 | `destinationKey` | string | Sí | Clave del plan de numeración M10 | — |
 | `callTypeCode` | string | Sí | — | — |
 | `bandTypeCode` | string | Sí | — | — |
@@ -1238,7 +1240,7 @@ Campos de `calculationRuns` (tabla normalizada el 05-11-2026 a partir del texto 
 |---|---|---|---|---|
 | `kind` | enum | [VERIFICAR] | `billing_batch`, `single`, `simulation`, `retroactive`, `rerating` | — |
 | `requestedBy` | [VERIFICAR] | [VERIFICAR] | Módulo/usuario | `memberships` (T02) |
-| `billingRunId` | ObjectId | Sí | (antes `batchId`; nombre de T05) (M05) | `billingRuns` (M05) |
+| `billingRunId` | uniqueidentifier | Sí | (antes `batchId`; nombre de T05) (M05) | `billingRuns` (M05) |
 | `period` | string | [VERIFICAR] | — | — |
 | `referenceDate` | date | [VERIFICAR] | — | — |
 | `filters` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1251,13 +1253,13 @@ Campos de `calculationRuns` (tabla normalizada el 05-11-2026 a partir del texto 
 | `status` | enum | Sí | `queued`, `running`, `completed`, `completed_with_exclusions`, `failed`, `aborted`, `cancelled` (`failed` agregado el 05-11-2026 para alinear con §8.6) | — |
 | `startedAt` | datetime | [VERIFICAR] | — | — |
 | `finishedAt` | datetime | [VERIFICAR] | — | — |
-| `jobId` | ObjectId | Sí | — | `jobRuns` (T01) |
+| `jobId` | uniqueidentifier | Sí | — | `jobRuns` (T01) |
 
 **`calculations`** (una por cuenta/comprobante propuesto):
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `calculationRunId`, `accountId`, `contractIds[]`, `voucherTypeId` | ObjectId | Sí | Contexto. Antes `runId` (nombre de T05). |
+| `calculationRunId`, `accountId`, `contractIds[]`, `voucherTypeId` | uniqueidentifier | Sí | Contexto. Antes `runId` (nombre de T05). |
 | `period`, `sequence`, `referenceDate` | — | Sí | Período/secuencia y fecha de referencia tarifaria. |
 | `inputSnapshot` | object | Sí | Instantánea de entradas (consumos, contratos, categorías, padrones, saldos consultados), comprimida. |
 | `inputHash`, `resultHash` | string | Sí | SHA-256 canónicos (reproducibilidad). |
@@ -1269,7 +1271,7 @@ Campos de `calculationRuns` (tabla normalizada el 05-11-2026 a partir del texto 
 | `proposedEffects[]` | array | Sí | Efectos diferidos: `type` (`promotion_consume`, `rounding_carry`, `advance_apply`, `fixed_charge_mark`, `postal_mark`, `contracted_demand_update`, `category_change`, `first_fee_consumed`, `injected_credit_account`), `payload`, `targetModule`, `status` (`proposed`, `confirmed`, `discarded`). |
 | `warnings[]`, `errors[]` | array | No | Códigos `TAR-W-*`/`TAR-E-*` con contexto. |
 | `status` | enum | Sí | `draft`, `observed`, `approved`, `issued`, `discarded` (sección 8.5). |
-| `invoiceId` | ObjectId | No | Comprobante emitido (al confirmar). |
+| `invoiceId` | uniqueidentifier | No | Comprobante emitido (al confirmar). |
 | `requiresReview` | bool | No | Grandes usuarios sobre umbral PRM-TAR-014, diferencias de paralelo. |
 
 Índices: `{tenantId, calculationRunId, accountId}` único; `{tenantId, accountId, period, sequence}`; `{tenantId, invoiceId}`; `{tenantId, status, calculationRunId}`. Retención: los cálculos `issued` se conservan con el comprobante (inmutables); los `draft`/`discarded` de simulación se purgan según PRM-TAR-151. Mapeo: tablas temporales de facturación de ProCoop y detalle de comprobantes de M05 (ProCoop no guarda traza de cálculo).
@@ -1291,7 +1293,7 @@ Campos de `simulationRuns` (tabla normalizada el 05-11-2026 a partir del texto a
 | `consumptionSource` | enum | [VERIFICAR] | `actual_period`, `historic_period`, `manual_quantity` | — |
 | `status` | enum | Sí | `queued`, `running`, `completed`, `failed`, `cancelled` | — |
 | `summary` | [VERIFICAR] | [VERIFICAR] | Totales base/candidato, variación %, por servicio/categoría/grupo/concepto, percentiles, cuentas con variación > umbral | — |
-| `linkedScheduleId` | ObjectId | Sí | — | `tariffSchedules` (M04) |
+| `linkedScheduleId` | uniqueidentifier | Sí | — | `tariffSchedules` (M04) |
 | `requestedBy` | [VERIFICAR] | [VERIFICAR] | — | `memberships` (T02) |
 | `expiresAt` | datetime | [VERIFICAR] | — | — |
 
@@ -1303,10 +1305,10 @@ Campos de `simulationResults` (tabla normalizada el 05-11-2026 a partir del text
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `simulationRunId` | ObjectId | Sí | — | `simulationRuns` (M04) |
-| `accountId` | ObjectId | Sí | — | `accounts` (M01) |
-| `contractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
-| `categoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `simulationRunId` | uniqueidentifier | Sí | — | `simulationRuns` (M04) |
+| `accountId` | uniqueidentifier | Sí | — | `accounts` (M01) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `categoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
 | `baselineTotals` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `candidateTotals` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `diffAmount` | decimal | [VERIFICAR] | — | — |
@@ -1323,14 +1325,14 @@ Campos de `retroactiveDiffRuns` (tabla normalizada el 05-11-2026 a partir del te
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `scheduleId` | ObjectId | [VERIFICAR] | `ruleIds[]` (cambio con vigencia pasada) | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
+| `scheduleId` | uniqueidentifier | [VERIFICAR] | `ruleIds[]` (cambio con vigencia pasada) | `tariffSchedules` (M04; T05 §7.2 admite `scheduleId` dentro de M04) |
 | `periodFrom` | date | [VERIFICAR] | — | — |
 | `periodTo` | date | [VERIFICAR] | — | — |
 | `universe` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | `queued`, `running`, `computed`, `approved`, `rejected`, `adjustments_requested`, `failed` | — |
 | `results` | [VERIFICAR] | [VERIFICAR] | Por comprobante emitido: `invoiceId`, `originalTotal`, `recalculatedTotal`, `diff`, `lines[]` | — |
 | `approval` | [VERIFICAR] | [VERIFICAR] | Doble firma | — |
-| `adjustmentRequestIds[]` | ObjectId[] | No (antes [VERIFICAR]) | Pedidos a M05 de NC/ND | `invoiceAnnulmentRequests` (M05, modos `partialCredit` y `debitAdjustment`; PA-FAC-22); antes «pedido de ajuste de M05 (NC/ND)» (PA-TAR-20) y [VERIFICAR] |
+| `adjustmentRequestIds[]` | uniqueidentifier[] | No (antes [VERIFICAR]) | Pedidos a M05 de NC/ND | `invoiceAnnulmentRequests` (M05, modos `partialCredit` y `debitAdjustment`; PA-FAC-22); antes «pedido de ajuste de M05 (NC/ND)» (PA-TAR-20) y [VERIFICAR] |
 | `normativeRefs[]` | array [VERIFICAR] | [VERIFICAR] | — | — |
 
 ### 7.22 `normativeDocuments`
@@ -1348,7 +1350,7 @@ Campos de `normativeDocuments` (tabla normalizada el 05-11-2026 a partir del tex
 | `date` | date | [VERIFICAR] | — | — |
 | `publishedIn` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `jurisdiction` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `storedFileId` | ObjectId | Sí | PDF en almacenamiento privado, URL firmada | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | Sí | PDF en almacenamiento privado, URL firmada | `storedFiles` (T01) |
 | `summary` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `linkedEntities[]` | array [VERIFICAR] | [VERIFICAR] | `collection`, `id`, `version` | — |
 
@@ -1397,7 +1399,7 @@ Campos de `bonusRecalcRuns` (tabla normalizada el 05-11-2026 a partir del texto 
 | `status` | enum | Sí | `draft`, `previewed`, `applied`, `discarded` | — |
 | `appliedBy` | [VERIFICAR] | [VERIFICAR] | — | `memberships` (T02) |
 | `appliedAt` | datetime | [VERIFICAR] | — | — |
-| `m02ChangeIds[]` | ObjectId[] | [VERIFICAR] | — | Versión de contrato de M02 con el cambio de categoría, asumida en PA-TAR-20 (DEC-072); antes [VERIFICAR] (posible `bulkContractOperations`) |
+| `m02ChangeIds[]` | uniqueidentifier[] | [VERIFICAR] | — | Versión de contrato de M02 con el cambio de categoría, asumida en PA-TAR-20 (DEC-072); antes [VERIFICAR] (posible `bulkContractOperations`) |
 
 ## 8. Estados y transiciones
 

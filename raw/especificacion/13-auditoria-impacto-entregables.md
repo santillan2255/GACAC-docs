@@ -1,27 +1,29 @@
 # 13b — Auditoría impacto stack — entregables (C-10)
 
 Generado **19-11-2026** por `_trabajo/audit_entregables_stack.py`.
-Carpeta: `docs/entregables-analisis-diseno/` (522 archivos `.md`).
+Carpeta: `docs/entregables-analisis-diseno/` (523 archivos `.md`).
 
 ## Resumen
 
 | Métrica | Valor |
 |---|---|
-| Archivos revisados | 522 |
-| Con norma impacto en texto | 5 (índice, OpenAPI, pruebas, C4, STRIDE, CP maestro; ver §12.3 en `06`) |
+| Archivos revisados | 523 |
+| Con norma impacto en texto | 8 (índice, OpenAPI, pruebas, C4, STRIDE, CP maestro; ver §12.3 en `06`) |
 | Mencionan Azure SQL | 5 |
-| Líneas Mongo (revisar) | 10793 |
+| Líneas Mongo (revisar) | 10796 |
 | Líneas Node/Vue (revisar) | 30 |
 | Líneas DEC-001 (revisar) | 39 |
 
 ### Interpretación (C-10)
 
-- **Hecho para export comercial:** índice entregables + `18-contratos-api` declaran rol OpenAPI y stack Azure.
-- **Barrido pendiente:** casos de prueba y C4/pruebas conservan escenarios escritos contra Mongo; alinear por ola o marcar nota histórica.
-- Cerrar **C-10** cuando el barrido esté aceptado o inventariado como «caso de prueba histórico».
+- **C-10 cerrado (19-11-2026):** política §12.3 + `entregables/00-C10-CIERRE-STACK.md`; norma en índice, OpenAPI, C4, pruebas, ER índice.
+- Las métricas Mongo/Node abajo son **residuos históricos inventariados** (CP, diagramas ER, figuras C4); no bloquean export ni contradicen DEC-111.
+- Barrido de wording CP/C4 por ola = mejora opcional; C-05 aplica a **anexos** `docs/especificacion/`.
 
-## Mongo / Mongoose / ObjectId (10793 líneas)
+## Mongo / Mongoose / ObjectId (10796 líneas)
 
+- `docs/entregables-analisis-diseno/00-C10-CIERRE-STACK.md` L23: | `20-casos-prueba/` (~5.710 CP) | Mongo, Mongoose, Vue, BullMQ en Dado/Cuando/Entonces | Wording de
+- `docs/entregables-analisis-diseno/00-C10-CIERRE-STACK.md` L24: | `03-er/` y partes `03*` | `ObjectId` en diagramas ER | Vista de diseño lógico; físico en `07-model
 - `docs/entregables-analisis-diseno/02-arquitectura-c4.md` L15: > **Norma stack CoopApps (C-10, DEC-111–113, DEC-110).** Diagramas que muestran MongoDB, Redis, Node
 - `docs/entregables-analisis-diseno/02-arquitectura-c4.md` L67: - **Datos**: una sola base MongoDB 7 compartida, con `tenantId` obligatorio en todo documento de neg
 - `docs/entregables-analisis-diseno/02-arquitectura-c4.md` L68: - **Asincronía**: outbox transaccional (`outboxEvents`) más BullMQ sobre Redis; consumidores idempot
@@ -100,9 +102,7 @@ Carpeta: `docs/entregables-analisis-diseno/` (522 archivos `.md`).
 - `docs/entregables-analisis-diseno/03-er/M01-PER-personas-titulares-cuentas.md` L194: ObjectId usageId FK "T04 enumerationItems"
 - `docs/entregables-analisis-diseno/03-er/M01-PER-personas-titulares-cuentas.md` L195: ObjectId stateId FK "T04 enumerationItems"
 - `docs/entregables-analisis-diseno/03-er/M01-PER-personas-titulares-cuentas.md` L205: ObjectId id PK "_id"
-- `docs/entregables-analisis-diseno/03-er/M01-PER-personas-titulares-cuentas.md` L207: ObjectId addressId FK "→ addresses"
-- `docs/entregables-analisis-diseno/03-er/M01-PER-personas-titulares-cuentas.md` L208: ObjectId premiseId FK "→ premises"
-- _… y 10713 más._
+- _… y 10716 más._
 
 ## Node / Vue (30 líneas)
 

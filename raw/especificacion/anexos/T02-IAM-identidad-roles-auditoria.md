@@ -3122,6 +3122,8 @@ Para la **navegación**: pantalla visible según RN-IAM-021. Para la **UI**: `ca
 Caché: el conjunto efectivo (`G`, `D`, alcances por capability, límites, franjas) se cachea en Redis por `(mid, azv)`; cualquier cambio de asignación, rol, perfil, licencia o activación incrementa `azv` de las pertenencias afectadas.
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Mapeo lógico → físico (DEC-111, DEC-110)
 
@@ -3136,9 +3138,9 @@ Caché: el conjunto efectivo (`G`, `D`, alcances por capability, límites, franj
 | **Concurrencia** | `version` + filtro `WHERE Id AND TenantId AND Version` (optimistic concurrency EF) | Reemplaza `BLOQUEO_FILAS` |
 | **API externa** | Client credentials sobre `/api/v1/ext/oauth/token`; mismos scopes y rate limits | Tablas `iam.ApiClients`, credenciales hasheadas |
 
-Traducción lógica → física: igual que T05 §7.0 (`tenantId` ObjectId → `TenantId`, colección → tabla `iam.*`). **§7.1–7.20** conservan tipos lógicos; RF/RN no cambian.
+Traducción lógica → física: igual que T05 §7.0 (`TenantId` uniqueidentifier → `TenantId`, colección → tabla `iam.*`). **§7.1–7.20** conservan tipos lógicos; RF/RN no cambian.
 
-Convenciones (**vigente**): `TenantId`, auditoría, `version`, campos `secret`/`sensitive` según T08. *Histórico:* «plugin de tenancy», ObjectId, nombres de colección.
+Convenciones (**vigente**): `TenantId`, auditoría, `version`, campos `secret`/`sensitive` según T08. *Histórico:* «plugin de tenancy», uniqueidentifier, nombres de colección.
 
 ### 7.1 `identities` (ámbito plataforma)
 
@@ -3146,7 +3148,7 @@ Propósito: identidad de acceso común (AGR-006).
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | Siempre `PLATFORM` |
+| `TenantId` | uniqueidentifier | Sí | Siempre `PLATFORM` |
 | `status` | enum | Sí | `pendingActivation`, `active`, `locked`, `suspended`, `disabled` |
 | `primaryEmail` | string | Sí (salvo socio solo con teléfono, PA-IAM-01) | Minúsculas, NFKC; único |
 | `emailVerifiedAt` | Date | No | |
@@ -3163,7 +3165,7 @@ Propósito: identidad de acceso común (AGR-006).
 | `lockedUntil` | Date | No | |
 | `lastLoginAt` | Date | No | |
 | `sessionEpoch` | int | Sí | Inicia en 1 |
-| `mfa` | `{ enrolled: bool, defaultFactorId: ObjectId }` | Sí | `defaultFactorId` → `authFactors` |
+| `mfa` | `{ enrolled: bool, defaultFactorId: uniqueidentifier }` | Sí | `defaultFactorId` → `authFactors` |
 | `platformMember` | bool | Sí | true si tiene pertenencia en `PLATFORM` |
 | `deletedAt` | Date | No | Supresión: se anonimiza (T08) |
 
@@ -3173,7 +3175,7 @@ Propósito: identidad de acceso común (AGR-006).
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `identityId` | ObjectId | Sí | |
+| `identityId` | uniqueidentifier | Sí | |
 | `type` | enum | Sí | `emailOtp`, `smsOtp`, `totp`, `webauthn`, `recoveryCodes` |
 | `status` | enum | Sí | `pending`, `active`, `revoked` |
 | `label` | string | No | "Teléfono de Ana" |
@@ -3189,12 +3191,12 @@ Propósito: identidad de acceso común (AGR-006).
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `identityId` | ObjectId | Sí | |
+| `identityId` | uniqueidentifier | Sí | |
 | `provider` | enum | Sí | `google`, `oidcTenant`, `cidi` |
 | `issuer` | string | Sí | `https://accounts.google.com`, emisor del IdP del tenant, CiDi |
 | `subject` | string | Sí | Identificador estable (`sub`) [SEG4] |
-| `scopeTenantId` | ObjectId | No | Obligatorio para `oidcTenant` y `cidi`; nulo para `google` |
-| `idpConfigId` | ObjectId | No | Para `oidcTenant`/`cidi`; → `identityProviderConfigs` |
+| `scopeTenantId` | uniqueidentifier | No | Obligatorio para `oidcTenant` y `cidi`; nulo para `google` |
+| `idpConfigId` | uniqueidentifier | No | Para `oidcTenant`/`cidi`; → `identityProviderConfigs` |
 | `emailAtLink` | string | No | Solo informativo |
 | `assuranceLevel` | string | No | Nivel CiDi o `acr` del IdP |
 | `status` | enum | Sí | `active`, `revoked` |
@@ -3208,8 +3210,8 @@ Propósito: pertenencia privada identidad–tenant con contextos.
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | Tenant de la pertenencia (o `PLATFORM`) |
-| `identityId` | ObjectId | Sí | |
+| `TenantId` | uniqueidentifier | Sí | Tenant de la pertenencia (o `PLATFORM`) |
+| `identityId` | uniqueidentifier | Sí | |
 | `status` | enum | Sí | `invited`, `active`, `suspended`, `revoked` |
 | `staff` | subdoc | No | Ver abajo |
 | `portal` | subdoc | No | Ver abajo |
@@ -3229,7 +3231,7 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | `PLATFORM` para plantillas y roles de plataforma |
+| `TenantId` | uniqueidentifier | Sí | `PLATFORM` para plantillas y roles de plataforma |
 | `code` | string | Sí | `T-CAJ`, `CAJ-NOCHE` |
 | `nameKey` | string | Sí | `dict:iam.rol.cajero` o nombre propio |
 | `description` | string | No | |
@@ -3248,7 +3250,7 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId`, `code`, `nameKey` | | Sí | |
+| `TenantId`, `code`, `nameKey` | | Sí | |
 | `origin`, `templateCode` | | Sí/No | |
 | `apps` | [enum] | Sí | `admin`, `pwa-socio`, `pwa-empleado`, `pwa-campo` (reemplazo de `PERFILES.ACCESO` web) |
 | `screens` | [string] | Sí | PAN-ID de `screenCatalog` |
@@ -3260,21 +3262,21 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId`, `membershipId`, `roleId` | ObjectId | Sí | |
-| `scope` | subdoc | Sí | `mode` (`tenant`, `restricted`, `own`), `legalEntities[]` (ObjectId → `legalEntities` de T04; vacía = todas; DEC-096, RF-IAM-065), `branches[]`, `pointsOfSale[]`, `cashBoxes[]`, `zones[]`, `routes[]`, `services[]`, `crews[]`, `warehouses[]`, `areas[]` (ObjectId → `crmAreas` de M09; DEC-104, CTR-IAM-25), `portfolios[]` |
-| `limits` | `[{ capability, maxAmount: Decimal128, currency }]` | No | |
+| `TenantId`, `membershipId`, `roleId` | uniqueidentifier | Sí | |
+| `scope` | subdoc | Sí | `mode` (`tenant`, `restricted`, `own`), `legalEntities[]` (uniqueidentifier → `legalEntities` de T04; vacía = todas; DEC-096, RF-IAM-065), `branches[]`, `pointsOfSale[]`, `cashBoxes[]`, `zones[]`, `routes[]`, `services[]`, `crews[]`, `warehouses[]`, `areas[]` (uniqueidentifier → `crmAreas` de M09; DEC-104, CTR-IAM-25), `portfolios[]` |
+| `limits` | `[{ capability, maxAmount: DECIMAL(18,4), currency }]` | No | |
 | `denyCapabilities` | [string] | No | |
 | `validFrom`, `validTo` | Date | Sí/No | |
 | `status` | enum | Sí | `active`, `suspended`, `expired`, `revoked` |
 | `grantedBy`, `grantedAt`, `justification` | | Sí | |
-| `sodExceptionId` | ObjectId | No | |
+| `sodExceptionId` | uniqueidentifier | No | |
 | `lastRecertifiedAt`, `recertifiedBy` | | No | |
 
 Índices: `{tenantId, membershipId, status}`; `{tenantId, roleId}`; `{tenantId, "scope.legalEntities"}` (revisión de accesos por entidad, DEC-096).
 
 ### 7.8 `profileAssignments`
 
-`tenantId`, `membershipId`, `screenProfileId` (→ `screenProfiles`; antes `profileId`), `validFrom`, `validTo`, `status` (`active`, `expired`, `revoked`), `grantedBy`, `grantedAt`. Índice `{tenantId, membershipId, status}`.
+`TenantId`, `membershipId`, `screenProfileId` (→ `screenProfiles`; antes `profileId`), `validFrom`, `validTo`, `status` (`active`, `expired`, `revoked`), `grantedBy`, `grantedAt`. Índice `{tenantId, membershipId, status}`.
 
 ### 7.9 `capabilityCatalog` y `screenCatalog` (ámbito plataforma, generados desde código)
 
@@ -3284,16 +3286,16 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 ### 7.10 `sodRules` y `sodExceptions`
 
-`sodRules`: `tenantId` (o `PLATFORM` para el set por defecto), `code`, `type` (`static`, `dynamic`), `capabilitiesA[]`, `capabilitiesB[]`, `enforcement` (`block`, `warn`), `descriptionKey`, `status` (`active`, `inactive`).
+`sodRules`: `TenantId` (o `PLATFORM` para el set por defecto), `code`, `type` (`static`, `dynamic`), `capabilitiesA[]`, `capabilitiesB[]`, `enforcement` (`block`, `warn`), `descriptionKey`, `status` (`active`, `inactive`).
 
-`sodExceptions`: `tenantId`, `membershipId`, `ruleCode`, `justification`, `compensatingControl`, `requestedBy`, `approvedBy`, `approvedAt`, `validTo`, `status` (`requested`, `approved`, `rejected`, `expired`, `revoked`).
+`sodExceptions`: `TenantId`, `membershipId`, `ruleCode`, `justification`, `compensatingControl`, `requestedBy`, `approvedBy`, `approvedAt`, `validTo`, `status` (`requested`, `approved`, `rejected`, `expired`, `revoked`).
 
 ### 7.11 `sessions`
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | Tenant del ámbito |
-| `identityId`, `membershipId` | ObjectId | Sí | |
+| `TenantId` | uniqueidentifier | Sí | Tenant del ámbito |
+| `identityId`, `membershipId` | uniqueidentifier | Sí | |
 | `context` | enum | Sí | `staff`, `portal`, `platform`, `support` |
 | `refreshTokenHash` | string `secret` | Sí | |
 | `refreshFamilyId` | string | Sí | Familia de rotación del refresh (identificador técnico, no referencia); nombre canónico de T05 (antes `familyId`) |
@@ -3304,7 +3306,7 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 | `authTime`, `mfaTime` | Date | Sí/No | |
 | `operatingContext` | `{ branchId, pointOfSaleId, cashBoxId, warehouseId, workstationId }` | No | |
 | `ip`, `userAgent`, `deviceLabel`, `geoApprox` | string | No | |
-| `supportGrantId` | ObjectId | No | Sesiones de soporte; → `supportAccessGrants` |
+| `supportGrantId` | uniqueidentifier | No | Sesiones de soporte; → `supportAccessGrants` |
 | `lastUsedAt`, `expiresAt`, `absoluteExpiresAt` | Date | Sí | TTL sobre `expiresAt` + 1 día |
 | `revokedAt`, `revokedReason` | | No | `logout`, `logoutAll`, `reuseDetected`, `admin`, `passwordChanged`, `membershipRevoked` |
 | `status` | enum | Sí | `active`, `rotated`, `revoked`, `expired` (§8.4; antes implícito en el texto del §8) |
@@ -3313,17 +3315,17 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 | Colección | Campos | TTL |
 |---|---|---|
-| `authTransactions` | `tenantId`, `identityId`, `step` (`passwordOk`, `mfaPending`, `scopePending`), `candidateMemberships[]`, `amr[]`, `attempts`, `ip`, `expiresAt` | 10 min |
-| `trustedDevices` | `tenantId` (PLATFORM), `identityId`, `tokenHash` `secret`, `label`, `ip`, `userAgent`, `createdAt`, `lastUsedAt`, `expiresAt`, `revokedAt` | `expiresAt` |
+| `authTransactions` | `TenantId`, `identityId`, `step` (`passwordOk`, `mfaPending`, `scopePending`), `candidateMemberships[]`, `amr[]`, `attempts`, `ip`, `expiresAt` | 10 min |
+| `trustedDevices` | `TenantId` (PLATFORM), `identityId`, `tokenHash` `secret`, `label`, `ip`, `userAgent`, `createdAt`, `lastUsedAt`, `expiresAt`, `revokedAt` | `expiresAt` |
 | `otpChallenges` | `identityId` o `destinationHash`, `purpose` (`login`, `stepUp`, `recovery`, `verifyEmail`, `verifyPhone`, `unlock`, `passwordlessLogin`, `supervisorApproval`), `channel`, `codeHash` `secret`, `attempts`, `maxAttempts`, `expiresAt`, `consumedAt` | `expiresAt` |
-| `actionTokens` | `type` (`invitation`, `passwordReset`, `emailVerify`, `magicLink`, `accountLinkProof`), `tokenHash` `secret`, `identityId`/`email`, `tenantId`, `membershipId`, `payload`, `createdBy`, `expiresAt`, `consumedAt` | `expiresAt` + 7 días |
-| `editPresence` | `tenantId`, `entity` (`collection`, `id`), `membershipId`, `displayName`, `startedAt`, `heartbeatAt` | 120 s |
+| `actionTokens` | `type` (`invitation`, `passwordReset`, `emailVerify`, `magicLink`, `accountLinkProof`), `tokenHash` `secret`, `identityId`/`email`, `TenantId`, `membershipId`, `payload`, `createdBy`, `expiresAt`, `consumedAt` | `expiresAt` + 7 días |
+| `editPresence` | `TenantId`, `entity` (`collection`, `id`), `membershipId`, `displayName`, `startedAt`, `heartbeatAt` | 120 s |
 
 ### 7.13 `authorizationRequests`
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | |
+| `TenantId` | uniqueidentifier | Sí | |
 | `code` | string | Sí | `AUT-000123` (secuencia por tenant) |
 | `mode` | enum | Sí | `inline`, `deferred` |
 | `capability` | string | Sí | Capability requerida (reemplazo de `NOMBRE_PERMISO`) |
@@ -3331,9 +3333,9 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 | `resource` | `{ collection, id, displayRef }` | No | |
 | `actionHash` | string | Sí | SHA-256 de capability + recurso + parámetros relevantes + importe |
 | `summaryKey`, `summaryParams` | string/obj | Sí | Para mostrar la acción |
-| `amount` | Decimal128 | No | |
+| `amount` | DECIMAL(18,4) | No | |
 | `currency` | string | No | |
-| `requestedBy` | ObjectId (membership) | Sí | |
+| `requestedBy` | uniqueidentifier (membership) | Sí | |
 | `requestReason` | string | Sí | |
 | `status` | enum | Sí | `pending`, `approved`, `rejected`, `expired`, `cancelled`, `consumed` |
 | `approverRequirement` | `{ capability, scopeRef, minLimit }` | Sí | |
@@ -3345,17 +3347,17 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 ### 7.14 `supportAccessGrants`
 
-`tenantId`, `code`, `agentIdentityId`, `agentMembershipId` (PLATFORM), `ticketRef` (T01), `mode` (`observe`, `operate`), `capabilities[]`, `scope`, `justification`, `status` (`requested`, `approved`, `active`, `expired`, `revoked`, `rejected`), `approvalType` (`tenant`, `emergency`), `approvedBy`, `approvedAt`, `startsAt`, `expiresAt`, `revokedBy`, `revokedAt`, `actionsCount`, `postReviewBy`, `postReviewAt`.
+`TenantId`, `code`, `agentIdentityId`, `agentMembershipId` (PLATFORM), `ticketRef` (T01), `mode` (`observe`, `operate`), `capabilities[]`, `scope`, `justification`, `status` (`requested`, `approved`, `active`, `expired`, `revoked`, `rejected`), `approvalType` (`tenant`, `emergency`), `approvedBy`, `approvedAt`, `startsAt`, `expiresAt`, `revokedBy`, `revokedAt`, `actionsCount`, `postReviewBy`, `postReviewAt`.
 
 ### 7.15 `identityProviderConfigs`
 
-`tenantId`, `type` (`oidc`, `googleWorkspace`, `cidi`), `displayNameKey`, `issuer`, `discoveryUrl`, `clientId`, `clientSecretRef` (referencia de bóveda T06), `scopes[]`, `claimMapping` (`email`, `name`, `groups`, `document`), `allowedEmailDomains[]`, `enabledFor[]` (`staff`, `portal`), `acceptIdpMfa` (bool), `buttonLogoRef`, `status` (`draft`, `active`, `disabled`), `lastTestAt`, `lastTestResult`.
+`TenantId`, `type` (`oidc`, `googleWorkspace`, `cidi`), `displayNameKey`, `issuer`, `discoveryUrl`, `clientId`, `clientSecretRef` (referencia de bóveda T06), `scopes[]`, `claimMapping` (`email`, `name`, `groups`, `document`), `allowedEmailDomains[]`, `enabledFor[]` (`staff`, `portal`), `acceptIdpMfa` (bool), `buttonLogoRef`, `status` (`draft`, `active`, `disabled`), `lastTestAt`, `lastTestResult`.
 
 ### 7.16 `apiClients` y `apiCredentials`
 
-`apiClients`: `tenantId`, `code` (`CLI-BI-A`), `name`, `purpose`, `ownerMembershipId`, `grantTypes[]` (`client_credentials`, `authorization_code`), `scopes[]`, `ipAllowlist[]`, `rateLimitTier`, `status` (`active`, `suspended`, `revoked`), `lastUsedAt`, `legacyWsKeyCode`.
+`apiClients`: `TenantId`, `code` (`CLI-BI-A`), `name`, `purpose`, `ownerMembershipId`, `grantTypes[]` (`client_credentials`, `authorization_code`), `scopes[]`, `ipAllowlist[]`, `rateLimitTier`, `status` (`active`, `suspended`, `revoked`), `lastUsedAt`, `legacyWsKeyCode`.
 
-`apiCredentials`: `tenantId`, `apiClientId`, `clientId` (público), `secretPrefix`, `secretHash` `secret`, `createdAt`, `expiresAt`, `lastUsedAt`, `revokedAt`, `rotatedFromId` (→ `apiCredentials`), `status` (`active`, `rotating`, `expired`, `revoked`; §8.8).
+`apiCredentials`: `TenantId`, `apiClientId`, `clientId` (público), `secretPrefix`, `secretHash` `secret`, `createdAt`, `expiresAt`, `lastUsedAt`, `revokedAt`, `rotatedFromId` (→ `apiCredentials`), `status` (`active`, `rotating`, `expired`, `revoked`; §8.8).
 
 ### 7.17 Auditoría
 
@@ -3363,19 +3365,19 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 | Campo | Tipo | Oblig. | Notas |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | `PLATFORM` para cambios globales |
+| `TenantId` | uniqueidentifier | Sí | `PLATFORM` para cambios globales |
 | `eventId` | string (ULID) | Sí | Único |
 | `seq` | long | Sí | Secuencia por tenant y partición |
 | `occurredAt` | Date | Sí | Hora del servidor |
 | `actor` | subdoc | Sí | `type` (`user`, `system`, `integration`, `bot`, `api`, `support`), `identityId`, `membershipId`, `displayName`, `onBehalfOf`, `initiatedBy`, `supportGrantId`, `apiClientId`, `jobName`, `jobRunId` |
 | `origin` | subdoc | Sí | `channel` (`admin`, `pwa`, `landing`, `api`, `job`, `integration`, `bot`, `migration`), `ip`, `userAgent`, `requestId`, `correlationId`, `screenId` |
 | `entity` | subdoc | Sí | `module`, `collection`, `id`, `displayRef`, `versionBefore`, `versionAfter` |
-| `legalEntityId` | ObjectId → `legalEntities` (T04) | Si el objeto lo tiene | Entidad jurídica del objeto auditado, copiada al registrar; vacío para objetos compartidos del tenant (DEC-096, RF-IAM-130) |
+| `legalEntityId` | uniqueidentifier → `legalEntities` (T04) | Si el objeto lo tiene | Entidad jurídica del objeto auditado, copiada al registrar; vacío para objetos compartidos del tenant (DEC-096, RF-IAM-130) |
 | `operation` | enum | Sí | `create`, `update`, `softDelete`, `stateChange`, `approve`, `reject`, `revert`, `import`, `publish`, `assign`, `unassign`, `login`(no; va a `auditAccess`) |
 | `changes` | `[{ path, before, after, redacted: bool, encrypted: bool }]` | Sí | |
 | `fileRefs` | `[{ path, objectKey, sha256 }]` | No | |
 | `reason` | string | No | |
-| `authorizationRequestId` | ObjectId | No | |
+| `authorizationRequestId` | uniqueidentifier | No | |
 | `result` | enum | Sí | `committed`, `denied`, `failed` |
 | `errorCode` | string | No | |
 | `prevHash`, `hash` | string | Sí | Cadena |
@@ -3385,29 +3387,29 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 #### `auditAccess`
 
-`tenantId` (o `PLATFORM`), `eventId`, `occurredAt`, `identityId` (nulo si desconocida), `identifierHash` (HMAC del identificador intentado), `membershipId`, `sessionId`, `event` (`preLogin`, `loginSuccess`, `loginFailure`, `mfaChallenge`, `mfaSuccess`, `mfaFailure`, `logout`, `logoutAll`, `refreshReuseDetected`, `sessionRevoked`, `lockout`, `unlock`, `passwordChanged`, `passwordResetRequested`, `passwordResetCompleted`, `factorAdded`, `factorRemoved`, `recoveryCodeUsed`, `trustedDeviceAdded`, `trustedDeviceRevoked`, `scopeSelected`, `scopeSwitched`, `federatedLogin`, `federatedLinked`, `supportAccessStarted`, `supportAccessEnded`, `idleLock`, `idleUnlock`, `outsideWindowDenied`), `method`, `result`, `reasonCode`, `ip`, `userAgent`, `deviceId`, `geoApprox`, `workstationId` (reemplazo de `EQUIPO`), `prevHash`, `hash`.
+`TenantId` (o `PLATFORM`), `eventId`, `occurredAt`, `identityId` (nulo si desconocida), `identifierHash` (HMAC del identificador intentado), `membershipId`, `sessionId`, `event` (`preLogin`, `loginSuccess`, `loginFailure`, `mfaChallenge`, `mfaSuccess`, `mfaFailure`, `logout`, `logoutAll`, `refreshReuseDetected`, `sessionRevoked`, `lockout`, `unlock`, `passwordChanged`, `passwordResetRequested`, `passwordResetCompleted`, `factorAdded`, `factorRemoved`, `recoveryCodeUsed`, `trustedDeviceAdded`, `trustedDeviceRevoked`, `scopeSelected`, `scopeSwitched`, `federatedLogin`, `federatedLinked`, `supportAccessStarted`, `supportAccessEnded`, `idleLock`, `idleUnlock`, `outsideWindowDenied`), `method`, `result`, `reasonCode`, `ip`, `userAgent`, `deviceId`, `geoApprox`, `workstationId` (reemplazo de `EQUIPO`), `prevHash`, `hash`.
 
 #### `auditReads`
 
-`tenantId`, `eventId`, `occurredAt`, `actor`, `legalEntityId` (entidad del recurso leído o filtro de entidad del informe o exportación; vacío si abarca recursos compartidos o varias entidades, que se listan en `filterSummary`; DEC-096), `category` (`sensitiveField`, `sensitiveRecord`, `report`, `export`, `bulkDownload`, `broadSearch`, `auditView`), `resource` (`collection`/`id` o `reportId`), `fields[]`, `filterSummary`, `rowsCount`, `fileRef` (`objectKey`, `sha256`), `viewType` (reemplazo de `INFO_AUD.TIP_VIS`: `screen`, `print`, `pdf`, `xlsx`, `csv`), `prevHash`, `hash`.
+`TenantId`, `eventId`, `occurredAt`, `actor`, `legalEntityId` (entidad del recurso leído o filtro de entidad del informe o exportación; vacío si abarca recursos compartidos o varias entidades, que se listan en `filterSummary`; DEC-096), `category` (`sensitiveField`, `sensitiveRecord`, `report`, `export`, `bulkDownload`, `broadSearch`, `auditView`), `resource` (`collection`/`id` o `reportId`), `fields[]`, `filterSummary`, `rowsCount`, `fileRef` (`objectKey`, `sha256`), `viewType` (reemplazo de `INFO_AUD.TIP_VIS`: `screen`, `print`, `pdf`, `xlsx`, `csv`), `prevHash`, `hash`.
 
 #### `auditMessages`
 
-`tenantId`, `messageId` (T09), `channel` (`email`, `sms`, `whatsapp`, `push`), `toMasked`, `toHash`, `ccCount`, `subject`, `templateId`, `templateVersion`, `relatedEntity`, `triggeredBy` (actor), `status` (`queued`, `sent`, `delivered`, `opened`, `bounced`, `failed`, `rejected`), `providerMessageId`, `providerResponseCode`, `attachments[]` (`name`, `sha256`), `queuedAt`, `sentAt`, `statusAt`.
+`TenantId`, `messageId` (T09), `channel` (`email`, `sms`, `whatsapp`, `push`), `toMasked`, `toHash`, `ccCount`, `subject`, `templateId`, `templateVersion`, `relatedEntity`, `triggeredBy` (actor), `status` (`queued`, `sent`, `delivered`, `opened`, `bounced`, `failed`, `rejected`), `providerMessageId`, `providerResponseCode`, `attachments[]` (`name`, `sha256`), `queuedAt`, `sentAt`, `statusAt`.
 
 #### `auditAi`
 
-`tenantId`, `eventId`, `occurredAt`, `actor` (usuario o S-BOT), `function` (`crmClassify`, `crmReplySuggest`, `moderation`, `newsDraft`, `surveyInsights`, `formulaAssistant`, `meterPhotoOcr`, `invoiceOcr`, `biQuery`, `tenantOnboardingDraft`, otras registradas en catálogo), `provider`, `model`, `modelVersion`, `promptTemplateCode` (código de la plantilla de prompt versionada en código, no colección; antes `promptTemplateId`), `promptTemplateVersion`, `inputRefs[]`, `inputRedacted` (texto minimizado), `outputRef`, `outputSummary`, `tokensIn`, `tokensOut`, `cost` (Decimal128), `currency`, `latencyMs`, `confidence`, `safetyFlags[]` (`promptInjectionSuspected`, `piiDetected`, `toxicity`, `lowConfidence`), `decision` (`status`: `pending`, `accepted`, `edited`, `rejected`, `expired`; `decidedBy`; `decidedAt`; `finalRef`), `result` (`ok`, `error`, `timeout`, `blocked`).
+`TenantId`, `eventId`, `occurredAt`, `actor` (usuario o S-BOT), `function` (`crmClassify`, `crmReplySuggest`, `moderation`, `newsDraft`, `surveyInsights`, `formulaAssistant`, `meterPhotoOcr`, `invoiceOcr`, `biQuery`, `tenantOnboardingDraft`, otras registradas en catálogo), `provider`, `model`, `modelVersion`, `promptTemplateCode` (código de la plantilla de prompt versionada en código, no colección; antes `promptTemplateId`), `promptTemplateVersion`, `inputRefs[]`, `inputRedacted` (texto minimizado), `outputRef`, `outputSummary`, `tokensIn`, `tokensOut`, `cost` (DECIMAL(18,4)), `currency`, `latencyMs`, `confidence`, `safetyFlags[]` (`promptInjectionSuspected`, `piiDetected`, `toxicity`, `lowConfidence`), `decision` (`status`: `pending`, `accepted`, `edited`, `rejected`, `expired`; `decidedBy`; `decidedAt`; `finalRef`), `result` (`ok`, `error`, `timeout`, `blocked`).
 
 #### `legacyAuditRecords`
 
-`tenantId`, `sourceTable` (`AUDITO`, `AUDITORIA`, `AUDIT_IA`, `AUDIT_MAIL`, `INFO_AUD`, `AUTORIZACIONES`), `sourceKey`, `occurredAt`, `legacyUser`, `payloadEnc` (cifrado; la columna `SENTENCIA` puede contener datos personales), `importBatchId`. Solo lectura con `iam.auditoria.cambios.ver` + filtro "origen ProCoop".
+`TenantId`, `sourceTable` (`AUDITO`, `AUDITORIA`, `AUDIT_IA`, `AUDIT_MAIL`, `INFO_AUD`, `AUTORIZACIONES`), `sourceKey`, `occurredAt`, `legacyUser`, `payloadEnc` (cifrado; la columna `SENTENCIA` puede contener datos personales), `importBatchId`. Solo lectura con `iam.auditoria.cambios.ver` + filtro "origen ProCoop".
 
 ### 7.18 `accessReviews` y `securityAlerts`
 
-`accessReviews`: `tenantId`, `period`, `reviewerMembershipId`, `items[]` (`membershipId`, `roleAssignmentId`, `decision`: `keep`, `revoke`, `modify`; `comment`), `status` (`open`, `completed`, `overdue`), `dueAt`.
+`accessReviews`: `TenantId`, `period`, `reviewerMembershipId`, `items[]` (`membershipId`, `roleAssignmentId`, `decision`: `keep`, `revoke`, `modify`; `comment`), `status` (`open`, `completed`, `overdue`), `dueAt`.
 
-`securityAlerts`: `tenantId` (o `PLATFORM`), `type`, `severity` (`low`, `medium`, `high`, `critical`), `subject`, `sourceEventIds[]`, `dedupKey`, `status` (`open`, `acknowledged`, `resolved`, `falsePositive`), `assignedTo`, `acknowledgedAt`, `resolvedAt`, `resolution`.
+`securityAlerts`: `TenantId` (o `PLATFORM`), `type`, `severity` (`low`, `medium`, `high`, `critical`), `subject`, `sourceEventIds[]`, `dedupKey`, `status` (`open`, `acknowledged`, `resolved`, `falsePositive`), `assignedTo`, `acknowledgedAt`, `resolvedAt`, `resolution`.
 
 ### 7.19 Mapeo a tablas ProCoop
 
@@ -3436,18 +3438,18 @@ Subdocumento `portal`: `enabled`, `status` (`registered`, `linked`, `blocked`), 
 
 ### 7.20 Tablas de campos de las colecciones definidas en texto
 
-Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `tenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-IAM-18 (Asumida, DEC-072).
+Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `TenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-IAM-18 (Asumida, DEC-072).
 
 **`profileAssignments`** — Perfil de pantalla asignado (COL-IAM-08; definición en texto en §7.8)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `membershipId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `screenProfileId` | ObjectId | Sí | `screenProfiles` (T02) | antes `profileId` en el texto del §7 (nombre canónico de T05); destino → `screenProfiles` |
+| `membershipId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `screenProfileId` | uniqueidentifier | Sí | `screenProfiles` (T02) | antes `profileId` en el texto del §7 (nombre canónico de T05); destino → `screenProfiles` |
 | `validFrom` | Date | No | — | Según la definición en texto del §7 |
 | `validTo` | Date | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `active`, `expired`, `revoked` (§8.11) |
-| `grantedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `grantedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `grantedAt` | Date | No | — | Según la definición en texto del §7 |
 
 **`capabilityCatalog`** — Catálogo cod.recurso.accion (COL-IAM-09; definición en texto en §7.9)
@@ -3501,22 +3503,22 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `membershipId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `membershipId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `ruleCode` | string | No | — | Según la definición en texto del §7 |
 | `justification` | string | No | — | Según la definición en texto del §7 |
 | `compensatingControl` | string | No | — | Según la definición en texto del §7 |
-| `requestedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `approvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `requestedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `approvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `approvedAt` | Date | No | — | Según la definición en texto del §7 |
 | `validTo` | Date | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `requested`, `approved`, `rejected`, `expired`, `revoked` |
-| `sodRuleId` | ObjectId | Sí | `sodRules` (T02) | destino → `sodRules` |
+| `sodRuleId` | uniqueidentifier | Sí | `sodRules` (T02) | destino → `sodRules` |
 
 **`authTransactions`** — Transacciones de pre-login y login; TTL (COL-IAM-14; definición en texto en §7.12)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `identityId` | ObjectId | No | `identities` (T02) | destino → `identities` |
+| `identityId` | uniqueidentifier | No | `identities` (T02) | destino → `identities` |
 | `step` | enum | No | — | `passwordOk`, `mfaPending`, `scopePending` |
 | `candidateMemberships` | array | No | — | Según la definición en texto del §7 |
 | `amr` | array de string | No | — | Según la definición en texto del §7 |
@@ -3529,7 +3531,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `identityId` | ObjectId | Sí | `identities` (T02) | destino → `identities` |
+| `identityId` | uniqueidentifier | Sí | `identities` (T02) | destino → `identities` |
 | `tokenHash.secret` | string | No | — | Según la definición en texto del §7 |
 | `label` | string | No | — | Según la definición en texto del §7 |
 | `ip` | string | No | — | Según la definición en texto del §7 |
@@ -3551,7 +3553,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `maxAttempts` | int | No | — | Según la definición en texto del §7 |
 | `expiresAt` | Date | No | — | Según la definición en texto del §7 |
 | `consumedAt` | Date | No | — | Según la definición en texto del §7 |
-| `identityId` | ObjectId | Sí | `identities` (T02) | destino → `identities` |
+| `identityId` | uniqueidentifier | Sí | `identities` (T02) | destino → `identities` |
 
 **`actionTokens`** — Tokens de acción (recuperación, invitación); TTL (COL-IAM-17; definición en texto en §7.12)
 
@@ -3560,7 +3562,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `type` | enum | No | — | `invitation`, `passwordReset`, `emailVerify`, `magicLink`, `accountLinkProof` |
 | `tokenHash.secret` | string | No | — | Según la definición en texto del §7 |
 | `identityId.email` | string | No | — | Según la definición en texto del §7 |
-| `membershipId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `membershipId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `payload` | string | No | — | Según la definición en texto del §7 |
 | `expiresAt` | Date | No | — | Según la definición en texto del §7 |
 | `consumedAt` | Date | No | — | Según la definición en texto del §7 |
@@ -3571,7 +3573,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `entityRef` | enum | Sí | — | `collection`, `id`; antes `entity` en el texto del §7 (nombre canónico de T05) |
-| `membershipId` | ObjectId | Sí | `memberships` (T02) | destino → `memberships` |
+| `membershipId` | uniqueidentifier | Sí | `memberships` (T02) | destino → `memberships` |
 | `displayName` | string | No | — | Según la definición en texto del §7 |
 | `startedAt` | Date | No | — | Según la definición en texto del §7 |
 | `heartbeatAt` | Date | No | — | Según la definición en texto del §7 |
@@ -3605,7 +3607,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `code` | string | Sí | — | `CLI-BI-A` |
 | `name` | string | Sí | — | Según la definición en texto del §7 |
 | `purpose` | string | No | — | Según la definición en texto del §7 |
-| `ownerMembershipId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `ownerMembershipId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `grantTypes` | enum | No | — | `client_credentials`, `authorization_code` |
 | `scopes` | array | No | — | Según la definición en texto del §7 |
 | `ipAllowlist` | array de string | No | — | Según la definición en texto del §7 |
@@ -3619,7 +3621,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `apiClientId` | ObjectId | No | `apiClients` (T02) | destino → `apiClients` |
+| `apiClientId` | uniqueidentifier | No | `apiClients` (T02) | destino → `apiClients` |
 | `clientId` | string | No | — | público |
 | `secretPrefix` | string | No | — | Según la definición en texto del §7 |
 | `secretHash` | string | No | — | Según la definición en texto del §7 |
@@ -3627,7 +3629,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `expiresAt` | Date | No | — | Según la definición en texto del §7 |
 | `lastUsedAt` | Date | No | — | Según la definición en texto del §7 |
 | `revokedAt` | Date | No | — | Según la definición en texto del §7 |
-| `rotatedFromId` | ObjectId | No | `apiCredentials` (T02) | destino → `apiCredentials` |
+| `rotatedFromId` | uniqueidentifier | No | `apiCredentials` (T02) | destino → `apiCredentials` |
 | `keyPrefix` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 | `status` | enum | Sí | — | `active`, `rotating`, `expired`, `revoked` (§8.8) |
 
@@ -3637,9 +3639,9 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `eventId` | string | No | — | Según la definición en texto del §7 |
 | `occurredAt` | Date | No | — | Según la definición en texto del §7 |
-| `identityId` | ObjectId | No | `identities` (T02) | nulo si desconocida; destino → `identities` |
+| `identityId` | uniqueidentifier | No | `identities` (T02) | nulo si desconocida; destino → `identities` |
 | `identifierHash` | string | No | — | HMAC del identificador intentado |
-| `actorId` | ObjectId | Sí | `memberships` (T02) | antes `membershipId` en el texto del §7 (nombre canónico de T05); destino → `memberships` |
+| `actorId` | uniqueidentifier | Sí | `memberships` (T02) | antes `membershipId` en el texto del §7 (nombre canónico de T05); destino → `memberships` |
 | `sessionId` | string | No | — | Según la definición en texto del §7 |
 | `event` | enum | No | — | `preLogin`, `loginSuccess`, `loginFailure`, `mfaChallenge`, `mfaSuccess`, `mfaFailure`, `logout`, `logoutAll`, `refreshReuseDetected`, `sessionRevoked`, `lockout`, `unlock`, `passwordChanged`, `passwordResetRequested`, `passwordResetCompleted`, `factorAdded`, `factorRemoved`, `recoveryCodeUsed`, `trustedDeviceAdded`, `trustedDeviceRevoked`, `scopeSelected`, `scopeSwitched`, `federatedLogin`, `federatedLinked`, `supportAccessStarted`, `supportAccessEnded`, `idleLock`, `idleUnlock`, `outsideWindowDenied` |
 | `method` | string | No | — | Según la definición en texto del §7 |
@@ -3647,9 +3649,9 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `reasonCode` | string | No | — | Según la definición en texto del §7 |
 | `ip` | string | No | — | Según la definición en texto del §7 |
 | `userAgent` | string | No | — | Según la definición en texto del §7 |
-| `deviceId` | ObjectId | No | `trustedDevices` (T02) | destino → `trustedDevices` |
+| `deviceId` | uniqueidentifier | No | `trustedDevices` (T02) | destino → `trustedDevices` |
 | `geoApprox` | string | No | — | Según la definición en texto del §7 |
-| `workstationId` | ObjectId | No | `workstations` (T04) | reemplazo de `EQUIPO`; destino → `workstations` |
+| `workstationId` | uniqueidentifier | No | `workstations` (T04) | reemplazo de `EQUIPO`; destino → `workstations` |
 | `prevHash` | string | No | — | Según la definición en texto del §7 |
 | `hash` | string | No | — | Según la definición en texto del §7 |
 
@@ -3669,7 +3671,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `viewType` | string | No | — | reemplazo de `INFO_AUD.TIP_VIS`: `screen`, `print`, `pdf`, `xlsx`, `csv` |
 | `prevHash` | string | No | — | Según la definición en texto del §7 |
 | `hash` | string | No | — | Según la definición en texto del §7 |
-| `legalEntityId` | ObjectId | No | `legalEntities` (T04) | Entidad del recurso leído o filtro de entidad del informe o exportación; vacío si abarca recursos compartidos o varias entidades, que se listan en `filterSummary` (DEC-096; agregado el 10-11-2026 para alinear esta tabla con la definición en texto del §7) |
+| `legalEntityId` | uniqueidentifier | No | `legalEntities` (T04) | Entidad del recurso leído o filtro de entidad del informe o exportación; vacío si abarca recursos compartidos o varias entidades, que se listan en `filterSummary` (DEC-096; agregado el 10-11-2026 para alinear esta tabla con la definición en texto del §7) |
 | `entityRef` | — | — | — | **Reemplazado (10-11-2026):** el recurso leído es `resource` (definición en texto del §7); T05 COL-IAM-26 adopta `resource`. Fila anterior: "`entityRef` · string · Sí · Campo citado por T05 (referencias o clave única)" |
 
 **`auditMessages`** — Auditoría de mensajes enviados (COL-IAM-27; definición en texto en §7)
@@ -3682,10 +3684,10 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `toHash` | string | No | — | Según la definición en texto del §7 |
 | `ccCount` | int | No | — | Según la definición en texto del §7 |
 | `subject` | string | No | — | Según la definición en texto del §7 |
-| `templateId` | ObjectId | No | `messageTemplates` (T09) | destino → `messageTemplates` |
+| `templateId` | uniqueidentifier | No | `messageTemplates` (T09) | destino → `messageTemplates` |
 | `templateVersion` | string | No | — | Según la definición en texto del §7 |
 | `relatedEntity` | string | No | — | Según la definición en texto del §7 |
-| `triggeredBy` | ObjectId | No | `memberships` (T02) | actor; destino → `memberships` |
+| `triggeredBy` | uniqueidentifier | No | `memberships` (T02) | actor; destino → `memberships` |
 | `status` | enum | Sí | — | `queued`, `sent`, `delivered`, `opened`, `bounced`, `failed`, `rejected` |
 | `providerMessageId` | string | No | — | Según la definición en texto del §7 |
 | `providerResponseCode` | string | No | — | Según la definición en texto del §7 |
@@ -3693,7 +3695,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `queuedAt` | Date | No | — | Según la definición en texto del §7 |
 | `sentAt` | Date | No | — | Según la definición en texto del §7 |
 | `statusAt` | Date | No | — | Según la definición en texto del §7 |
-| `communicationId` | ObjectId | Sí | `communications` (T09) | destino → `communications` |
+| `communicationId` | uniqueidentifier | Sí | `communications` (T09) | destino → `communications` |
 
 **`auditAi`** — Auditoría de acciones asistidas por IA (COL-IAM-28; definición en texto en §7)
 
@@ -3714,14 +3716,14 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `outputSummary` | string | No | — | Según la definición en texto del §7 |
 | `tokensIn` | int | No | — | Según la definición en texto del §7 |
 | `tokensOut` | int | No | — | Según la definición en texto del §7 |
-| `cost` | Decimal128 | No | — | Decimal128 |
+| `cost` | DECIMAL(18,4) | No | — | DECIMAL(18,4) |
 | `currency` | string | No | — | Según la definición en texto del §7 |
 | `latencyMs` | int | No | — | Según la definición en texto del §7 |
 | `confidence` | string | No | — | Según la definición en texto del §7 |
 | `safetyFlags` | enum | No | — | `promptInjectionSuspected`, `piiDetected`, `toxicity`, `lowConfidence` |
 | `decision` | string | No | — | `status`: `pending`, `accepted`, `edited`, `rejected`, `expired`; `decidedBy`; `decidedAt`; `finalRef` |
 | `result` | enum | No | — | `ok`, `error`, `timeout`, `blocked` |
-| `aiUsageLogId` | ObjectId | Sí | `aiUsageLogs` (T06) | destino → `aiUsageLogs` |
+| `aiUsageLogId` | uniqueidentifier | Sí | `aiUsageLogs` (T06) | destino → `aiUsageLogs` |
 
 **`legacyAuditRecords`** — Auditoría ProCoop migrada solo lectura (COL-IAM-29; definición en texto en §7)
 
@@ -3732,14 +3734,14 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `occurredAt` | Date | No | — | Según la definición en texto del §7 |
 | `legacyUser` | string | No | — | Según la definición en texto del §7 |
 | `payloadEnc` | string | No | — | cifrado; la columna `SENTENCIA` puede contener datos personales |
-| `importBatchId` | ObjectId | No | `migrationBatches` (T07) | destino → `migrationBatches` |
+| `importBatchId` | uniqueidentifier | No | `migrationBatches` (T07) | destino → `migrationBatches` |
 
 **`accessReviews`** — Recertificación de accesos (COL-IAM-30; definición en texto en §7.18)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `period` | string | No | — | Según la definición en texto del §7 |
-| `reviewerMembershipId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `reviewerMembershipId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `items` | array | No | — | `membershipId`, `roleAssignmentId`, `decision`: `keep`, `revoke`, `modify`; `comment` |
 | `status` | enum | Sí | — | `open`, `completed`, `overdue` |
 | `dueAt` | Date | No | — | Según la definición en texto del §7 |
@@ -3752,14 +3754,14 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `type` | enum | No | — | Según la definición en texto del §7 |
 | `severity` | enum | No | — | `low`, `medium`, `high`, `critical` |
 | `subject` | string | No | — | Según la definición en texto del §7 |
-| `sourceEventIds` | array de ObjectId | No | `outboxEvents` (T01) | destino → `outboxEvents` |
+| `sourceEventIds` | array de uniqueidentifier | No | `outboxEvents` (T01) | destino → `outboxEvents` |
 | `dedupKey` | string | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `open`, `acknowledged`, `resolved`, `falsePositive` |
 | `assignedTo` | string | No | — | Según la definición en texto del §7 |
 | `acknowledgedAt` | Date | No | — | Según la definición en texto del §7 |
 | `resolvedAt` | Date | No | — | Según la definición en texto del §7 |
 | `resolution` | string | No | — | Según la definición en texto del §7 |
-| `identityId` | ObjectId | Sí | `identities` (T02) | destino → `identities` |
+| `identityId` | uniqueidentifier | Sí | `identities` (T02) | destino → `identities` |
 
 
 ## 8. Estados y transiciones

@@ -326,8 +326,10 @@ Capabilities renombradas al formato `modulo.recurso.accion` en camelCase (correc
 | RN-INT-065 | Un intento de corte/reconexión no se repite sin verificar. | Sin control explícito (RN-10 §9). | **Adoptar**: operación `uncertain` ⇒ `getStatus` del equipo antes de reintentar. | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Convenciones de la guía §5: todo documento de tenant lleva `tenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`; índices compuestos empiezan por `tenantId`. Las colecciones de catálogo de plataforma usan `tenantId = PLATFORM`. Ninguna colección guarda secretos en claro.
+
+Convenciones de la guía §5: todo documento de tenant lleva `TenantId`, `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`; índices compuestos empiezan por `TenantId`. Las colecciones de catálogo de plataforma usan `tenantId = PLATFORM`. Ninguna colección guarda secretos en claro.
 
 ### 7.1 `integrationProviders` (catálogo de plataforma)
 
@@ -360,7 +362,7 @@ Convenciones de la guía §5: todo documento de tenant lleva `tenantId`, `create
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | |
+| `TenantId` | uniqueidentifier | Sí | |
 | `providerCode` | string | Sí | Ref. `integrationProviders.code`. |
 | `adapterVersion` | string | Sí | Fijada a una versión (RF-INT-011). |
 | `name` | string | Sí | Ej. "SIRO convenio energía". |
@@ -369,18 +371,18 @@ Convenciones de la guía §5: todo documento de tenant lleva `tenantId`, `create
 | `status` | enum | Sí | Ver §8.1. |
 | `config` | object | Sí | Validado por `configSchema` (sin secretos). Ej. `{ convenio, cuit, cuitRepresentado, puntosVenta[], ente, nroEmpresa, posId, merchantId }`. |
 | `secretRefs` | object | Sí | `{ <credentialName>: secretId }`. |
-| `certificateRefs` | ObjectId[] | No | |
-| `legalEntityId` | ObjectId | No | Persona jurídica del tenant a la que pertenece la conexión (`legalEntities` de T04, DEC-064). Obligatorio en conexiones fiscales (ARCA), bancarias, de cobranza y de sueldos: cada entidad tiene su CUIT, certificado y puntos de venta, y `config.cuit` debe coincidir con el CUIT de la entidad. |
+| `certificateRefs` | uniqueidentifier[] | No | |
+| `legalEntityId` | uniqueidentifier | No | Persona jurídica del tenant a la que pertenece la conexión (`legalEntities` de T04, DEC-064). Obligatorio en conexiones fiscales (ARCA), bancarias, de cobranza y de sueldos: cada entidad tiene su CUIT, certificado y puntos de venta, y `config.cuit` debe coincidir con el CUIT de la entidad. |
 | `scope` | object | No | `{ serviceIds[], branchIds[], pointOfSaleIds[], cashBoxIds[], channelIds[], zoneIds[] }`. |
 | `defaultFor` | string[] | No | Propósitos para los que es la conexión por defecto. |
-| `fallbackConnectionIds` | ObjectId[] | No | Cadena de respaldo (RF-INT-010); → `integrationConnections`. |
+| `fallbackConnectionIds` | uniqueidentifier[] | No | Cadena de respaldo (RF-INT-010); → `integrationConnections`. |
 | `schedules` | array | No | `[{ jobCode, cron, timezone, enabled, lastRunAt, nextRunAt }]`. |
 | `overrides` | object | No | `retryPolicy`, `timeouts`, `rateLimits`, `circuitBreaker` del tenant (dentro de topes de plataforma). |
-| `webhookEndpointId` | ObjectId | No | |
+| `webhookEndpointId` | uniqueidentifier | No | |
 | `health` | object | No | `{ state: ok|degraded|down|unknown, lastSuccessAt, lastFailureAt, errorRate1h, p95Ms, backlog, circuit: closed|open|half_open, checkedAt }` (espejo de Redis). |
 | `contacts` | array | No | Responsables y canal de alertas. |
 | `validFrom` / `validTo` | Date | No | Vigencia. |
-| `approvalRequestId` | ObjectId | No | Aprobación pendiente (T11). |
+| `approvalRequestId` | uniqueidentifier | No | Aprobación pendiente (T11). |
 | `copiedFrom` | object | No | `{ tenantId, connectionId }` (BASE §81). |
 | `notes` | string | No | |
 
@@ -388,12 +390,12 @@ Convenciones de la guía §5: todo documento de tenant lleva `tenantId`, `create
 
 ### 7.3 `integrationSecrets` (bóveda)
 
-Cifrado por sobre propio en MongoDB con clave maestra en AWS KMS, detrás de una interfaz agnóstica de proveedor (DEC-074). Es la bóveda única de la plataforma: los demás anexos la referencian con el campo `credentialRef` (T05 §7.2, CTR-DAT-72).
+Cifrado por sobre propio en Azure SQL con clave maestra en AWS KMS, detrás de una interfaz agnóstica de proveedor (DEC-074). Es la bóveda única de la plataforma: los demás anexos la referencian con el campo `credentialRef` (T05 §7.2, CTR-DAT-72).
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | |
-| `connectionId` | ObjectId | Sí | |
+| `TenantId` | uniqueidentifier | Sí | |
+| `connectionId` | uniqueidentifier | Sí | |
 | `name` | string | Sí | Nombre del `credentialSchema`. |
 | `kind` | enum | Sí | Ver §7.1. |
 | `versionNo` | int | Sí | Versión del secreto. |
@@ -415,7 +417,7 @@ Cifrado por sobre propio en MongoDB con clave maestra en AWS KMS, detrás de una
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId`, `connectionId` | ObjectId | Sí | |
+| `TenantId`, `connectionId` | uniqueidentifier | Sí | |
 | `purpose` | enum | Sí | `arcaWsaa`, `digitalSignature`, `mtls`, `webhookSigning`. |
 | `alias` | string | Sí | Alias usado ante ARCA. |
 | `cuit` | string | Sí (ARCA) | CUIT del *subject*. |
@@ -423,7 +425,7 @@ Cifrado por sobre propio en MongoDB con clave maestra en AWS KMS, detrás de una
 | `notBefore`, `notAfter` | Date | Sí al activar | |
 | `csrPem` | string | No | CSR (público). |
 | `certificatePem` | string | No | Certificado (público). |
-| `privateKeySecretId` | ObjectId | Sí | Ref. a `integrationSecrets` (`kind: privateKey`). |
+| `privateKeySecretId` | uniqueidentifier | Sí | Ref. a `integrationSecrets` (`kind: privateKey`). |
 | `status` | enum | Sí | Ver §8.3. |
 | `alertsSent` | array | No | `[{ thresholdDays, sentAt }]`. |
 | `arcaServices` | string[] | No | Servicios autorizados en ARCA (`wsfe`, `wsfex`, `ws_sr_padron_a13`, `ws_sr_constancia_inscripcion`, `ws_sr_padron_a4`, `wscdc`, `wsfecred`). |
@@ -438,8 +440,8 @@ Campos del espejo de metadatos en Mongo (corrección del 05-11-2026; el valor de
 
 | Campo | Tipo | Obligatorio | Descripción | Referencia |
 |---|---|---|---|---|
-| `tenantId` | ObjectId | Sí | Tenant. | `tenants` (T01) |
-| `connectionId` | ObjectId | Sí | Conexión que obtuvo el token. | `integrationConnections` (T06) |
+| `TenantId` | uniqueidentifier | Sí | Tenant. | `tenants` (T01) |
+| `connectionId` | uniqueidentifier | Sí | Conexión que obtuvo el token. | `integrationConnections` (T06) |
 | `service` | String | Sí | Servicio del proveedor (ej. `wsfe`, `ws_sr_padron_a13`). | — |
 | `issuedAt` | Date | Sí | Emisión del token. | — |
 | `expiresAt` | Date | Sí | Vencimiento informado por el proveedor. | — |
@@ -449,7 +451,7 @@ Campos del espejo de metadatos en Mongo (corrección del 05-11-2026; el valor de
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId`, `connectionId` | ObjectId | Sí | |
+| `TenantId`, `connectionId` | uniqueidentifier | Sí | |
 | `operationType` | string | Sí | `<provider>.<capability>`, ej. `arca.wsfe.requestCae`. |
 | `idempotencyKey` | string | Sí | `tenantId + operationType + businessKey`. |
 | `businessRef` | object | Sí | `{ module, entity, id, displayRef }` (ej. `{ fac, invoice, …, "B 0022-00001234" }`). |
@@ -462,9 +464,9 @@ Campos del espejo de metadatos en Mongo (corrección del 05-11-2026; el valor de
 | `result` | object | No | Resultado neutral saneado (ej. `{ cae, caeDueDate, number }`, `{ externalId, checkoutUrl }`). |
 | `externalIds` | object | No | Ids devueltos por el proveedor. |
 | `correlationId` | string | Sí | |
-| `jobId` | string | No | Id BullMQ. |
-| `batchId` | ObjectId | No | Lote de negocio (ej. lote de facturación). |
-| `contingencyId` | ObjectId | No | |
+| `jobId` | string | No | Id Azure Queue Storage. |
+| `batchId` | uniqueidentifier | No | Lote de negocio (ej. lote de facturación). |
+| `contingencyId` | uniqueidentifier | No | |
 | `manualResolution` | object | No | `{ resolvedBy, approvedBy, evidenceStoredFileIds[], reason, at }` (antes `evidenceFileIds[]`, T05 §7.2). |
 | `startedAt`, `finishedAt` | Date | No | |
 
@@ -474,8 +476,8 @@ Campos del espejo de metadatos en Mongo (corrección del 05-11-2026; el valor de
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId`, `connectionId` | ObjectId | Sí | |
-| `operationId` | ObjectId | No | (los webhooks pueden no tener operación aún) |
+| `TenantId`, `connectionId` | uniqueidentifier | Sí | |
+| `operationId` | uniqueidentifier | No | (los webhooks pueden no tener operación aún) |
 | `direction` | enum | Sí | `outbound`, `inbound`. |
 | `channel` | enum | Sí | `http`, `soap`, `file`, `sftp`, `tcp`, `ssh`, `sql`, `smtp`, `webhook`, `websocket`. |
 | `endpoint` | string | Sí | Host + ruta sin query sensible. |
@@ -496,15 +498,15 @@ Campos del espejo de metadatos en Mongo (corrección del 05-11-2026; el valor de
 
 ### 7.8 `webhookEndpoints` y `webhookInbox`
 
-`webhookEndpoints`: `tenantId`, `connectionId`, `endpointKey` (aleatorio 32 bytes, único global), `signatureScheme`, `credentialRef` (bóveda, `integrationSecrets`; nombre canónico de T05 §7.2), `allowedIps[]`, `toleranceSeconds`, `status` (`active`, `rotating`, `disabled`), `previousKeyValidUntil`. Índice `{ endpointKey: 1 }` único.
+`webhookEndpoints`: `TenantId`, `connectionId`, `endpointKey` (aleatorio 32 bytes, único global), `signatureScheme`, `credentialRef` (bóveda, `integrationSecrets`; nombre canónico de T05 §7.2), `allowedIps[]`, `toleranceSeconds`, `status` (`active`, `rotating`, `disabled`), `previousKeyValidUntil`. Índice `{ endpointKey: 1 }` único.
 
-`webhookInbox`: `tenantId`, `endpointId`, `connectionId`, `receivedAt`, `sourceIp`, `headers` (saneados), `bodyRef` o `body` (saneado), `providerEventId`, `dedupKey`, `signatureValid` (bool), `status` (§8.6), `attempts`, `operationId`, `error`. Índices: `{ tenantId: 1, connectionId: 1, dedupKey: 1 }` único; `{ status: 1, receivedAt: 1 }`.
+`webhookInbox`: `TenantId`, `endpointId`, `connectionId`, `receivedAt`, `sourceIp`, `headers` (saneados), `bodyRef` o `body` (saneado), `providerEventId`, `dedupKey`, `signatureValid` (bool), `status` (§8.6), `attempts`, `operationId`, `error`. Índices: `{ tenantId: 1, connectionId: 1, dedupKey: 1 }` único; `{ status: 1, receivedAt: 1 }`.
 
 ### 7.9 `fileLayouts` (catálogo de plataforma, extensible por tenant)
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `tenantId` | ObjectId | Sí | `PLATFORM` o tenant (variantes propias). |
+| `TenantId` | uniqueidentifier | Sí | `PLATFORM` o tenant (variantes propias). |
 | `code`, `layoutVersion` | string | Sí | Ej. `redlink.debt.19-10`, `siro.debt.base`, `siro.remittance.integrado`, `redlink.remittance.lag`, `arca.lid.ventas`, `arca.sicore`, `sircar.percepciones`, `enargas.usr`. |
 | `providerCode` | string | Sí | |
 | `direction` | enum | Sí | `outbound`, `inbound`. |
@@ -523,33 +525,33 @@ Campos del espejo de metadatos en Mongo (corrección del 05-11-2026; el valor de
 
 ### 7.10 `integrationFileExchanges`
 
-`tenantId`, `connectionId`, `layoutCode`, `layoutVersion`, `direction`, `businessBatchRef` `{ module, entity, id }`, `fileName`, `storedFileId` (→ `storedFiles` de T01; antes `storageKey`, T05 §7.2 y COL-INT-11), `sha256`, `recordCount`, `controlTotals` `{ amount: Decimal128, count }`, `transport` (`manualDownload`, `manualUpload`, `sftp`, `api`, `email`), `status` (§8.7), `generatedAt`, `deliveredAt`, `acknowledgedAt`, `receivedAt`, `appliedAt`, `lineResults` (resumen) + `lineErrorsRef` (archivo de errores por línea), `approvedBy`, `supersedesId`, `externalTransactionNumber` (antes `externalTransactionId`; número de transacción del ente, no referencia) (ej. `nro_transaccion` SIRO). Índices: `{ tenantId: 1, connectionId: 1, sha256: 1 }` único para entrantes; `{ tenantId: 1, status: 1 }`.
+`TenantId`, `connectionId`, `layoutCode`, `layoutVersion`, `direction`, `businessBatchRef` `{ module, entity, id }`, `fileName`, `storedFileId` (→ `storedFiles` de T01; antes `storageKey`, T05 §7.2 y COL-INT-11), `sha256`, `recordCount`, `controlTotals` `{ amount: DECIMAL(18,4), count }`, `transport` (`manualDownload`, `manualUpload`, `sftp`, `api`, `email`), `status` (§8.7), `generatedAt`, `deliveredAt`, `acknowledgedAt`, `receivedAt`, `appliedAt`, `lineResults` (resumen) + `lineErrorsRef` (archivo de errores por línea), `approvedBy`, `supersedesId`, `externalTransactionNumber` (antes `externalTransactionId`; número de transacción del ente, no referencia) (ej. `nro_transaccion` SIRO). Índices: `{ tenantId: 1, connectionId: 1, sha256: 1 }` único para entrantes; `{ tenantId: 1, status: 1 }`.
 
 ### 7.11 `integrationReconciliations`
 
-`tenantId`, `connectionId`, `type` (`payments`, `debtPublication`, `fiscal`, `bank`, `messaging`, `metering`), `periodFrom`, `periodTo`, `external` `{ count, gross, fees, feesVat, net }` (Decimal128), `internal` `{ … }`, `differences[]` `{ kind: missingInternal|missingExternal|amountMismatch|dateMismatch|duplicate, externalId, businessRef, externalAmount, internalAmount, status: open|explained|adjusted|ignored, resolvedBy, note }`, `status` (§8.8), `actStoredFileId` (acta de conciliación en `storedFiles`; antes `actFileId`, T05 §7.2), `approvedBy`, `closedAt`.
+`TenantId`, `connectionId`, `type` (`payments`, `debtPublication`, `fiscal`, `bank`, `messaging`, `metering`), `periodFrom`, `periodTo`, `external` `{ count, gross, fees, feesVat, net }` (DECIMAL(18,4)), `internal` `{ … }`, `differences[]` `{ kind: missingInternal|missingExternal|amountMismatch|dateMismatch|duplicate, externalId, businessRef, externalAmount, internalAmount, status: open|explained|adjusted|ignored, resolvedBy, note }`, `status` (§8.8), `actStoredFileId` (acta de conciliación en `storedFiles`; antes `actFileId`, T05 §7.2), `approvedBy`, `closedAt`.
 
 ### 7.12 `integrationAlerts`
 
-`tenantId` (o `PLATFORM`), `connectionId`, `type` (`certificate_expiring`, `certificate_expired`, `credential_expiring`, `credential_rotation_due`, `circuit_open`, `error_rate`, `backlog`, `uncertain_operations`, `reconciliation_differences`, `webhook_signature_invalid`, `quota_near`, `quota_exceeded`, `schedule_missed`, `agent_offline`, `file_not_received`, `mode_mismatch`), `severity` (`info`, `warning`, `critical`), `status` (`open`, `acknowledged`, `resolved`), `dedupKey`, `count`, `firstAt`, `lastAt`, `notifiedTo[]`, `ackBy`, `resolvedBy`, `link`. Índice `{ tenantId: 1, dedupKey: 1, status: 1 }`.
+`TenantId` (o `PLATFORM`), `connectionId`, `type` (`certificate_expiring`, `certificate_expired`, `credential_expiring`, `credential_rotation_due`, `circuit_open`, `error_rate`, `backlog`, `uncertain_operations`, `reconciliation_differences`, `webhook_signature_invalid`, `quota_near`, `quota_exceeded`, `schedule_missed`, `agent_offline`, `file_not_received`, `mode_mismatch`), `severity` (`info`, `warning`, `critical`), `status` (`open`, `acknowledged`, `resolved`), `dedupKey`, `count`, `firstAt`, `lastAt`, `notifiedTo[]`, `ackBy`, `resolvedBy`, `link`. Índice `{ tenantId: 1, dedupKey: 1, status: 1 }`.
 
 ### 7.13 `integrationContingencies`
 
-`tenantId`, `connectionId`, `reason`, `trigger` (`manual`, `circuit`, `credential`, `provider_notice`), `mode` (`caea`, `manualFile`, `deferredQueue`, `alternateProvider`, `manualRecord`, `fieldOperation`), `startedAt`, `declaredBy`, `approvedBy`, `endedAt`, `endedBy`, `affectedOperations` (conteo), `closingReconciliationId` (→ `integrationReconciliations`), `status` (§8.9).
+`TenantId`, `connectionId`, `reason`, `trigger` (`manual`, `circuit`, `credential`, `provider_notice`), `mode` (`caea`, `manualFile`, `deferredQueue`, `alternateProvider`, `manualRecord`, `fieldOperation`), `startedAt`, `declaredBy`, `approvedBy`, `endedAt`, `endedBy`, `affectedOperations` (conteo), `closingReconciliationId` (→ `integrationReconciliations`), `status` (§8.9).
 
 ### 7.14 `externalReferences`
 
-`tenantId`, `system` (código de proveedor o sistema), `externalId`, `entity` `{ module, type, id }`, `kind` (`paymentId`, `intentId`, `qrId`, `debitAdhesionId`, `meterId`, `subscriberId`, `voucherId`, `legacyProcoopId`), `validFrom`, `validTo`, `supersededBy`. Índice único `{ tenantId: 1, system: 1, kind: 1, externalId: 1 }`; `{ tenantId: 1, "entity.type": 1, "entity.id": 1 }`.
+`TenantId`, `system` (código de proveedor o sistema), `externalId`, `entity` `{ module, type, id }`, `kind` (`paymentId`, `intentId`, `qrId`, `debitAdhesionId`, `meterId`, `subscriberId`, `voucherId`, `legacyProcoopId`), `validFrom`, `validTo`, `supersededBy`. Índice único `{ tenantId: 1, system: 1, kind: 1, externalId: 1 }`; `{ tenantId: 1, "entity.type": 1, "entity.id": 1 }`.
 
 ### 7.15 `localAgents` y `localAgentCommands`
 
-`localAgents`: `tenantId`, `branchId`, `name`, `os`, `agentVersion`, `publicKey`, `pairingCodeHash`, `pairingExpiresAt`, `status` (§8.10), `devices[]` `{ deviceId, type: thermalPrinter|fiscalPrinter|cardReader|billAcceptor|queueDisplay|queueKiosk|scale|scanner|barcodeReader|meterCollector|waterDispenser, model, port, config }`, `lastSeenAt`, `ip` (último), `capabilities[]`.
+`localAgents`: `TenantId`, `branchId`, `name`, `os`, `agentVersion`, `publicKey`, `pairingCodeHash`, `pairingExpiresAt`, `status` (§8.10), `devices[]` `{ deviceId, type: thermalPrinter|fiscalPrinter|cardReader|billAcceptor|queueDisplay|queueKiosk|scale|scanner|barcodeReader|meterCollector|waterDispenser, model, port, config }`, `lastSeenAt`, `ip` (último), `capabilities[]`.
 
-`localAgentCommands`: `tenantId`, `agentId`, `deviceId`, `command` (`print`, `display`, `readCard`, `readScale`, `scan`, `dispense`, `collectorDownload`, `collectorUpload`), `payloadRef`, `signature`, `expiresAt`, `status` (`queued`, `sent`, `acknowledged`, `done`, `failed`, `expired`), `result`, `operationId`.
+`localAgentCommands`: `TenantId`, `agentId`, `deviceId`, `command` (`print`, `display`, `readCard`, `readScale`, `scan`, `dispense`, `collectorDownload`, `collectorUpload`), `payloadRef`, `signature`, `expiresAt`, `status` (`queued`, `sent`, `acknowledged`, `done`, `failed`, `expired`), `result`, `operationId`.
 
 ### 7.16 `aiUsageLogs`
 
-`tenantId`, `connectionId`, `feature` (`invoiceExtraction`, `ticketNotesAnalysis`, `formulaAssistant`, `moderation`, `biAsk`, `surveyAnalysis`, `postGeneration`, `crmClassification`), `provider`, `model`, `promptHash`, `piiRedacted` (bool), `tokensIn`, `tokensOut`, `cost` (Decimal128), `currency`, `userId`, `businessRef`, `status` (`ok`, `error`, `blocked`; §8.12; PA-INT-26), `latencyMs`, `outcome` (`proposed`, `accepted`, `rejected`, `edited`). Equivale a `AUDIT_IA` (sin guardar el texto completo salvo política del tenant).
+`TenantId`, `connectionId`, `feature` (`invoiceExtraction`, `ticketNotesAnalysis`, `formulaAssistant`, `moderation`, `biAsk`, `surveyAnalysis`, `postGeneration`, `crmClassification`), `provider`, `model`, `promptHash`, `piiRedacted` (bool), `tokensIn`, `tokensOut`, `cost` (DECIMAL(18,4)), `currency`, `userId`, `businessRef`, `status` (`ok`, `error`, `blocked`; §8.12; PA-INT-26), `latencyMs`, `outcome` (`proposed`, `accepted`, `rejected`, `edited`). Equivale a `AUDIT_IA` (sin guardar el texto completo salvo política del tenant).
 
 ### 7.17 Mapeo con tablas ProCoop
 
@@ -596,13 +598,13 @@ Campos del espejo de metadatos en Mongo (corrección del 05-11-2026; el valor de
 
 ### 7.18 Tablas de campos de las colecciones definidas en texto
 
-Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `tenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-INT-27 (Asumida, DEC-072).
+Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `TenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-INT-27 (Asumida, DEC-072).
 
 **`webhookEndpoints`** — Endpoints de entrada por proveedor (COL-INT-08; definición en texto en §7.8)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `connectionId` | ObjectId | No | `integrationConnections` (T06) | destino → `integrationConnections` |
+| `connectionId` | uniqueidentifier | No | `integrationConnections` (T06) | destino → `integrationConnections` |
 | `endpointKey` | string | No | — | aleatorio 32 bytes, único global |
 | `signatureScheme` | string | No | — | Según la definición en texto del §7 |
 | `credentialRef` | string | No | `integrationSecrets` (T06) | bóveda, `integrationSecrets`; nombre canónico de T05 §7.2 |
@@ -616,8 +618,8 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `endpointId` | ObjectId | Sí | `webhookEndpoints` (T06) | destino → `webhookEndpoints` |
-| `connectionId` | ObjectId | No | `integrationConnections` (T06) | destino → `integrationConnections` |
+| `endpointId` | uniqueidentifier | Sí | `webhookEndpoints` (T06) | destino → `webhookEndpoints` |
+| `connectionId` | uniqueidentifier | No | `integrationConnections` (T06) | destino → `integrationConnections` |
 | `receivedAt` | Date | No | — | Según la definición en texto del §7 |
 | `sourceIp` | string | No | — | Según la definición en texto del §7 |
 | `headers` | array | No | — | saneados |
@@ -635,13 +637,13 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `connectionId` | ObjectId | Sí | `integrationConnections` (T06) | destino → `integrationConnections` |
+| `connectionId` | uniqueidentifier | Sí | `integrationConnections` (T06) | destino → `integrationConnections` |
 | `layoutCode` | string | No | — | Según la definición en texto del §7 |
 | `layoutVersion` | string | No | — | Según la definición en texto del §7 |
 | `direction` | string | No | — | Según la definición en texto del §7 |
 | `businessBatchRef` | string | No | — | Según la definición en texto del §7 |
 | `fileName` | string | No | — | Según la definición en texto del §7 |
-| `storedFileId` | ObjectId | No | `storedFiles` (T01) | → `storedFiles` de T01; antes `storageKey`, T05 §7.2 y COL-INT-11 |
+| `storedFileId` | uniqueidentifier | No | `storedFiles` (T01) | → `storedFiles` de T01; antes `storageKey`, T05 §7.2 y COL-INT-11 |
 | `sha256` | string | No | — | Según la definición en texto del §7 |
 | `recordCount` | int | No | — | Según la definición en texto del §7 |
 | `controlTotals` | array | No | — | Según la definición en texto del §7 |
@@ -654,17 +656,17 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `appliedAt` | Date | No | — | Según la definición en texto del §7 |
 | `lineResults` | array | No | — | resumen |
 | `lineErrorsRef` | string | No | — | archivo de errores por línea |
-| `approvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `supersedesId` | ObjectId | No | `integrationFileExchanges` (T06) | destino → `integrationFileExchanges` |
+| `approvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `supersedesId` | uniqueidentifier | No | `integrationFileExchanges` (T06) | destino → `integrationFileExchanges` |
 | `externalTransactionNumber` | string | No | — | Número de transacción del ente, ej. `nro_transaccion` SIRO (no referencia); antes `externalTransactionId` |
-| `fileLayoutId` | ObjectId | Sí | `fileLayouts` (T06) | destino → `fileLayouts` |
+| `fileLayoutId` | uniqueidentifier | Sí | `fileLayouts` (T06) | destino → `fileLayouts` |
 | `fileHash` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`integrationReconciliations`** — Conciliaciones técnicas con proveedores (COL-INT-12; definición en texto en §7.11)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `connectionId` | ObjectId | No | `integrationConnections` (T06) | destino → `integrationConnections` |
+| `connectionId` | uniqueidentifier | No | `integrationConnections` (T06) | destino → `integrationConnections` |
 | `type` | enum | No | — | `payments`, `debtPublication`, `fiscal`, `bank`, `messaging`, `metering` |
 | `periodFrom` | string | No | — | Según la definición en texto del §7 |
 | `periodTo` | string | No | — | Según la definición en texto del §7 |
@@ -672,15 +674,15 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `internal` | string | No | — | Según la definición en texto del §7 |
 | `differences` | array | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | §8.8 |
-| `actStoredFileId` | ObjectId | No | `storedFiles` (T01) | acta de conciliación en `storedFiles`; antes `actFileId`, T05 §7.2 |
-| `approvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `actStoredFileId` | uniqueidentifier | No | `storedFiles` (T01) | acta de conciliación en `storedFiles`; antes `actFileId`, T05 §7.2 |
+| `approvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `closedAt` | Date | No | — | Según la definición en texto del §7 |
 
 **`integrationAlerts`** — Alertas de integración (COL-INT-13; definición en texto en §7.12)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `connectionId` | ObjectId | No | `integrationConnections` (T06) | destino → `integrationConnections` |
+| `connectionId` | uniqueidentifier | No | `integrationConnections` (T06) | destino → `integrationConnections` |
 | `type` | enum | No | — | `certificate_expiring`, `certificate_expired`, `credential_expiring`, `credential_rotation_due`, `circuit_open`, `error_rate`, `backlog`, `uncertain_operations`, `reconciliation_differences`, `webhook_signature_invalid`, `quota_near`, `quota_exceeded`, `schedule_missed`, `agent_offline`, `file_not_received`, `mode_mismatch` |
 | `severity` | enum | No | — | `info`, `warning`, `critical` |
 | `status` | enum | Sí | — | `open`, `acknowledged`, `resolved` |
@@ -689,25 +691,25 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `firstAt` | Date | No | — | Según la definición en texto del §7 |
 | `lastAt` | Date | No | — | Según la definición en texto del §7 |
 | `notifiedTo` | array de string | No | — | Según la definición en texto del §7 |
-| `ackBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `resolvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `ackBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `resolvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `link` | string | No | — | Según la definición en texto del §7 |
 
 **`integrationContingencies`** — Contingencias declaradas (ARCA caída, pasarela caída) (COL-INT-14; definición en texto en §7.13)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `connectionId` | ObjectId | No | `integrationConnections` (T06) | destino → `integrationConnections` |
+| `connectionId` | uniqueidentifier | No | `integrationConnections` (T06) | destino → `integrationConnections` |
 | `reason` | string | No | — | Según la definición en texto del §7 |
 | `trigger` | enum | No | — | `manual`, `circuit`, `credential`, `provider_notice` |
 | `mode` | enum | No | — | `caea`, `manualFile`, `deferredQueue`, `alternateProvider`, `manualRecord`, `fieldOperation` |
 | `startedAt` | Date | No | — | Según la definición en texto del §7 |
-| `declaredBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `approvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `declaredBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `approvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `endedAt` | Date | No | — | Según la definición en texto del §7 |
-| `endedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `endedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `affectedOperations` | array | No | — | conteo |
-| `closingReconciliationId` | ObjectId | No | `integrationReconciliations` (T06) | destino → `integrationReconciliations` |
+| `closingReconciliationId` | uniqueidentifier | No | `integrationReconciliations` (T06) | destino → `integrationReconciliations` |
 | `status` | enum | Sí | — | §8.9 |
 
 **`externalReferences`** — Identificadores externos de entidades propias (COL-INT-15; definición en texto en §7.14)
@@ -720,7 +722,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `kind` | enum | No | — | `paymentId`, `intentId`, `qrId`, `debitAdhesionId`, `meterId`, `subscriberId`, `voucherId`, `legacyProcoopId` |
 | `validFrom` | Date | No | — | Según la definición en texto del §7 |
 | `validTo` | Date | No | — | Según la definición en texto del §7 |
-| `supersededBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `supersededBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `providerCode` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 | `entityType` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
@@ -728,7 +730,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `branchId` | ObjectId | No | `branches` (T04) | destino → `branches` |
+| `branchId` | uniqueidentifier | No | `branches` (T04) | destino → `branches` |
 | `name` | string | Sí | — | Según la definición en texto del §7 |
 | `os` | array | No | — | Según la definición en texto del §7 |
 | `agentVersion` | string | No | — | Según la definición en texto del §7 |
@@ -740,15 +742,15 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `lastSeenAt` | Date | No | — | Según la definición en texto del §7 |
 | `ip` | string | No | — | último |
 | `capabilities` | array | No | — | Según la definición en texto del §7 |
-| `workstationId` | ObjectId | Sí | `workstations` (T04) | destino → `workstations` |
+| `workstationId` | uniqueidentifier | Sí | `workstations` (T04) | destino → `workstations` |
 | `agentCode` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`localAgentCommands`** — Comandos al agente local; TTL (COL-INT-17; definición en texto en §7.15)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `agentId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `localAgentId` | ObjectId | Sí | `localAgents` (T06) | antes `deviceId` en el texto del §7 (nombre canónico de T05); destino → `localAgents` |
+| `agentId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `localAgentId` | uniqueidentifier | Sí | `localAgents` (T06) | antes `deviceId` en el texto del §7 (nombre canónico de T05); destino → `localAgents` |
 | `commandId` | enum | Sí | — | `print`, `display`, `readCard`, `readScale`, `scan`, `dispense`, `collectorDownload`, `collectorUpload`; antes `command` en el texto del §7 (nombre canónico de T05) |
 | `payloadRef` | string | No | — | Según la definición en texto del §7 |
 | `signature` | string | No | — | Según la definición en texto del §7 |
@@ -761,7 +763,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `connectionId` | ObjectId | No | `integrationConnections` (T06) | destino → `integrationConnections` |
+| `connectionId` | uniqueidentifier | No | `integrationConnections` (T06) | destino → `integrationConnections` |
 | `feature` | enum | No | — | `invoiceExtraction`, `ticketNotesAnalysis`, `formulaAssistant`, `moderation`, `biAsk`, `surveyAnalysis`, `postGeneration`, `crmClassification` |
 | `provider` | string | No | — | Según la definición en texto del §7 |
 | `model` | string | No | — | Según la definición en texto del §7 |
@@ -769,9 +771,9 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `piiRedacted` | bool | No | — | bool |
 | `tokensIn` | int | No | — | Según la definición en texto del §7 |
 | `tokensOut` | int | No | — | Según la definición en texto del §7 |
-| `cost` | Decimal128 | No | — | Decimal128 |
+| `cost` | DECIMAL(18,4) | No | — | DECIMAL(18,4) |
 | `currency` | string | No | — | Según la definición en texto del §7 |
-| `actorId` | ObjectId | Sí | `memberships` (T02) | antes `userId` en el texto del §7 (nombre canónico de T05); destino → `memberships` |
+| `actorId` | uniqueidentifier | Sí | `memberships` (T02) | antes `userId` en el texto del §7 (nombre canónico de T05); destino → `memberships` |
 | `businessRef` | string | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `ok`, `error`, `blocked`; §8.12; PA-INT-26 |
 | `latencyMs` | int | No | — | Según la definición en texto del §7 |

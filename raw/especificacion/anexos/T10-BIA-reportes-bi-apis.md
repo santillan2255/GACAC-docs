@@ -361,8 +361,10 @@ Cada reporte declara además **sus** capabilities del módulo dueño (p. ej. `co
 | RN-BIA-057 | Servicios a cortar: meses de deuda = (hoy − 1º vencimiento más antiguo impago) / 30. | `Get_CortarServicio` (RN-04 §10). | **Mejorar**: días exactos y meses calendario; se muestra ambos. | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Todas las colecciones llevan `tenantId` (ObjectId, obligatorio; `PLATFORM` para definiciones de sistema), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`. Todos los índices compuestos empiezan por `tenantId`. Ninguna colección BIA guarda importes de negocio "originales": las proyecciones `bi_*` son copias derivadas reconstruibles.
+
+Todas las colecciones llevan `TenantId` (uniqueidentifier, obligatorio; `PLATFORM` para definiciones de sistema), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`. Todos los índices compuestos empiezan por `TenantId`. Ninguna colección BIA guarda importes de negocio "originales": las proyecciones `bi_*` son copias derivadas reconstruibles.
 
 ### 7.1 `reportDefinitions`
 
@@ -378,7 +380,7 @@ Propósito: catálogo de reportes (sistema y personalizados). Reemplaza `INFO_SY
 | `grain` | Enum `person`/`account`/`contract`/`meter`/`reading`/`consumption`/`invoice`/`invoiceLine`/`payment`/`allocation`/`ledgerEntry`/`workOrder`/`ticket`/`product`/`stockMovement`/`supplierDocument`/`cashMovement`/`bankMovement`/`journalLine`/`employee`/`payrollLine`/`member`/`aggregate` | Sí | Granularidad (AGR-022). |
 | `source` | Enum `operational`/`analytical`/`both` | Sí | RN-BIA-048. |
 | `providerKey` | String | Sí (system) | Identificador del provider del módulo dueño. |
-| `datasetId` | ObjectId | Sí (custom) | Dataset semántico base. |
+| `datasetId` | uniqueidentifier | Sí (custom) | Dataset semántico base. |
 | `parameters[]` | `{ key, type: date/dateRange/period/cutoff/enum/multiEnum/entityRef/number/text/boolean, labelKey, required, default, relativeDefaults[], enumSource, entityType, min, max, dependsOn }` | Sí | Esquema; se genera Zod. |
 | `dateTypes[]` | Enum `issueDate`/`dueDate1`/`dueDate2`/`dueDate3`/`billingPeriod`/`readingDate`/`recordedAt`/`paymentDate`/`receiptDate`/`creditDate`/`accountingDate`/`effectiveDate` | No | Tipos de fecha admitidos (RF-BIA-094). |
 | `columns[]` | `{ fieldKey, labelKey, type: string/money/decimal/integer/date/datetime/enum/boolean/ref, currencyField, decimals, aggregations[]: sum/count/avg/min/max, sensitive: none/personal/financial, defaultVisible, drillTo }` | Sí | Contrato de columnas estable. |
@@ -388,7 +390,7 @@ Propósito: catálogo de reportes (sistema y personalizados). Reemplaza `INFO_SY
 | `sensitivity` | Enum `none`/`personal`/`financial`/`fiscal` | Sí | Dispara auditoría y enmascarado. |
 | `scopeDimensions[]` | Enum `branch`/`zone`/`service`/`crew`/`own`/`cashbox` | No | Dimensiones de alcance aplicables. |
 | `maxSyncRows`, `estimatedCostFn` | Number/String | No | Para decidir sync/async. |
-| `templateId` | ObjectId | No | Plantilla PDF por defecto. |
+| `templateId` | uniqueidentifier | No | Plantilla PDF por defecto. |
 | `legacy` | Object (T05 §19.1) | No | Fila migrada de origen cuando la definición viene de la base del tenant (`table` = `INFO_SYS`, `key` = código). Reemplaza `legacyRefs[]` (CTR-DAT-32 de T05). |
 | `procoopEquivalents[]` | String[] | No | Clases o pantallas de ProCoop equivalentes, solo como referencia funcional (ej. `INV clsInformes_Caja.PlanillaCaja`); no identifican filas migradas. |
 | `wave` | String | Sí | Ola. |
@@ -404,8 +406,8 @@ Propósito: catálogo de reportes (sistema y personalizados). Reemplaza `INFO_SY
 |---|---|---|---|
 | `reportCode` | String | Sí | — |
 | `name` | String | Sí | — |
-| `ownerUserId` | ObjectId | Sí | — |
-| `sharedWithRoleIds[]` | ObjectId[] | No | Requiere `bia.presets.compartir`. |
+| `ownerUserId` | uniqueidentifier | Sí | — |
+| `sharedWithRoleIds[]` | uniqueidentifier[] | No | Requiere `bia.presets.compartir`. |
 | `parameters` | Object | Sí | Valores (validados contra la versión vigente). |
 | `columns[]`, `sort[]`, `groupBy[]` | Array | No | — |
 | `isDefault` | Boolean | No | — |
@@ -422,24 +424,24 @@ Vistas guardadas de `DataTable` (pantallas operativas y reportes). Campos: `scre
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `reportCode`, `definitionVersion` | String/Integer | Sí | — |
-| `requestedBy` | ObjectId | Sí | Usuario o `scheduleId`/`apiClientId`. |
+| `requestedBy` | uniqueidentifier | Sí | Usuario o `scheduleId`/`apiClientId`. |
 | `trigger` | Enum `interactive`/`schedule`/`event`/`api`/`ai` | Sí | — |
 | `parameters` | Object | Sí | Ya resueltos (relativos → absolutos). |
 | `effectiveScope` | Object | Sí | Alcance aplicado (snapshot). |
 | `mode` | Enum `sync`/`async` | Sí | — |
 | `status` | Enum `queued`/`running`/`succeeded`/`failed`/`cancelled`/`expired` | Sí | §8.2. |
 | `progress` | `{ pct, rowsProcessed, stage }` | No | — |
-| `resultRef` | `{ storage: inline/collection/object, key, rowCount, totals }` | No | Resultado paginable (filas en la colección única `reportRunResults` con `tenantId` y TTL, o objeto NDJSON). Reemplaza la colección por tenant `bia_runResults_<tenant>` (DEC-002; CTR-DAT-50 de T05). |
+| `resultRef` | `{ storage: inline/collection/object, key, rowCount, totals }` | No | Resultado paginable (filas en la colección única `reportRunResults` con `TenantId` y TTL, o objeto NDJSON). Reemplaza la colección por tenant `bia_runResults_<tenant>` (DEC-002; CTR-DAT-50 de T05). |
 | `metadata` | `{ universeText, cutoffDate, dateType, grain, source, freshnessAt }` | Sí | RF-BIA-007. |
 | `error` | `{ code, messageKey, retriable }` | No | — |
 | `startedAt`, `finishedAt`, `durationMs` | Date/Number | No | — |
-| `jobId` | String | No | BullMQ. |
+| `jobId` | String | No | Azure Queue Storage. |
 | `idempotencyKey` | String | No | Evita duplicar corridas programadas. |
 | `expiresAt` | Date | Sí | TTL del resultado (`PRM-BIA-015`). |
 
 Índices: `{tenantId, requestedBy, createdAt:-1}`; `{tenantId, reportCode, createdAt:-1}`; `{tenantId, status}`; TTL sobre `expiresAt` para resultados (la fila de corrida se conserva `PRM-BIA-016` días).
 
-**`reportRunResults`** (COL-BIA-30 de T05): una sola colección para todos los tenants (DEC-002), con `tenantId`, `reportRunId`, `rowNo` (Integer), `row` (Object con las columnas de la definición) y `expiresAt` (copiado de `reportRuns.expiresAt`, `PRM-BIA-015`). Índices `{tenantId, reportRunId, rowNo}` único y TTL sobre `expiresAt`. Se lee solo a través de la corrida (`resultRef.storage = collection`, `key = reportRunId`) y con el filtro forzado por tenant; nunca se crea una colección por tenant.
+**`reportRunResults`** (COL-BIA-30 de T05): una sola colección para todos los tenants (DEC-002), con `TenantId`, `reportRunId`, `rowNo` (Integer), `row` (Object con las columnas de la definición) y `expiresAt` (copiado de `reportRuns.expiresAt`, `PRM-BIA-015`). Índices `{tenantId, reportRunId, rowNo}` único y TTL sobre `expiresAt`. Se lee solo a través de la corrida (`resultRef.storage = collection`, `key = reportRunId`) y con el filtro forzado por tenant; nunca se crea una colección por tenant.
 
 ### 7.5 `reportExports`
 
@@ -473,7 +475,7 @@ Reemplaza `EXPORTADOR` y `EXPORTADOR_COLUMNAS`.
 
 ### 7.9 `reportAccessLogs`
 
-Reemplaza `INFO_AUD` (`COD_AUD`, `COD_INF`, `FEC_REG`, `TIP_VIS`). Campos: `reportCode`, `runId`, `exportId`, `action` (`view`/`export`/`download`/`unmask`/`apiRead`), `userId` o `apiClientId`, `ip`, `userAgent`, `rowCount`, `containsPersonalData`, `legalEntityId` (ObjectId → `legalEntities` de T04, no obligatorio: entidad del filtro de la ejecución; vacío si abarca varias entidades o recursos compartidos; DEC-096, RF-BIA-034), `filterSummary` (entidades y demás filtros aplicados), `at`. Sólo inserción; índices `{tenantId, at:-1}`, `{tenantId, reportCode, at:-1}`, `{tenantId, legalEntityId, at:-1}` (DEC-096); retención `PRM-BIA-017`.
+Reemplaza `INFO_AUD` (`COD_AUD`, `COD_INF`, `FEC_REG`, `TIP_VIS`). Campos: `reportCode`, `runId`, `exportId`, `action` (`view`/`export`/`download`/`unmask`/`apiRead`), `userId` o `apiClientId`, `ip`, `userAgent`, `rowCount`, `containsPersonalData`, `legalEntityId` (uniqueidentifier → `legalEntities` de T04, no obligatorio: entidad del filtro de la ejecución; vacío si abarca varias entidades o recursos compartidos; DEC-096, RF-BIA-034), `filterSummary` (entidades y demás filtros aplicados), `at`. Sólo inserción; índices `{tenantId, at:-1}`, `{tenantId, reportCode, at:-1}`, `{tenantId, legalEntityId, at:-1}` (DEC-096); retención `PRM-BIA-017`.
 
 ### 7.10 `indicatorDefinitions`
 
@@ -485,7 +487,7 @@ Reemplaza `TABLERO` y `TIPO_TAB`.
 | `ownerModule` | Enum | Sí | — |
 | `nameKey`, `definitionKey` | String | Sí | — |
 | `formula` | `{ type: ratio/sum/count/countDistinct/avg/median/p90/difference/custom, numerator, denominator, measure, filters, expressionText }` | Sí | Expresión sobre dataset semántico (no SQL). |
-| `datasetId` | ObjectId | Sí | — |
+| `datasetId` | uniqueidentifier | Sí | — |
 | `grain` | Enum (como §7.1) | Sí | Nivel. |
 | `universe` | `{ includedStates[], excludedStates[], filters }` | Sí | — |
 | `dateBasis`, `periodType` | Enum | Sí | Fecha de imputación y período (`day`/`isoWeek`/`month`/`billingCycle`/`fiscalYear`/`asOf`). |
@@ -503,7 +505,7 @@ Reemplaza `TABLERO` y `TIPO_TAB`.
 
 ### 7.11 `indicatorSnapshots`
 
-Reemplaza `TENDTAB`. Campos: `indicatorId` (→ `indicatorDefinitions`, referencia), `indicatorCode` (copia desnormalizada del código del indicador; antes único campo de vínculo), `definitionVersion`, `periodType`, `periodKey` (`2026-10`, `2026-W44`, `2026-11-03`, `cycle:2026-10`), `dimensionKey` (hash de dimensiones, ex `REF_1..REF_4`), `dimensions` (Object), `value` (Decimal128 o null), `numerator`, `denominator`, `count`, `computedAt`, `sourceWatermark`, `isClosed` (Boolean, cierre mensual congelado), `scenarioId` (null en reales; → `simulationScenarios` de M15). Índices `{tenantId, indicatorCode, periodType, periodKey, dimensionKey}` único; `{tenantId, indicatorCode, computedAt:-1}`.
+Reemplaza `TENDTAB`. Campos: `indicatorId` (→ `indicatorDefinitions`, referencia), `indicatorCode` (copia desnormalizada del código del indicador; antes único campo de vínculo), `definitionVersion`, `periodType`, `periodKey` (`2026-10`, `2026-W44`, `2026-11-03`, `cycle:2026-10`), `dimensionKey` (hash de dimensiones, ex `REF_1..REF_4`), `dimensions` (Object), `value` (DECIMAL(18,4) o null), `numerator`, `denominator`, `count`, `computedAt`, `sourceWatermark`, `isClosed` (Boolean, cierre mensual congelado), `scenarioId` (null en reales; → `simulationScenarios` de M15). Índices `{tenantId, indicatorCode, periodType, periodKey, dimensionKey}` único; `{tenantId, indicatorCode, computedAt:-1}`.
 
 ### 7.12 `dashboards` y `dashboardUserPrefs`
 
@@ -523,7 +525,7 @@ Campos: `code` (`DS-<DOMINIO>`), `nameKey`, `descriptionKey`, `ownerModule`, `gr
 
 ### 7.15 Almacén analítico `bi_*`
 
-Base lógica separada (`<db>_analytics`) en el mismo cluster o miembro de réplica con etiqueta `analytics` (PA-BIA-01). Toda colección con `tenantId` primero en índices y `sourceVersion`, `sourceEventId`, `projectedAt`.
+Base lógica separada (`<db>_analytics`) en el mismo cluster o miembro de réplica con etiqueta `analytics` (PA-BIA-01). Toda colección con `TenantId` primero en índices y `sourceVersion`, `sourceEventId`, `projectedAt`.
 
 | Colección | Grano | Campos principales | Fuente (eventos) |
 |---|---|---|---|
@@ -573,7 +575,7 @@ Colección de **T02** (dueño físico: alta, hash de secretos, endpoint de token
 | `clientCode` | String | Sí | `CLI-<slug>`; `client_id` público `gac_<random>`. |
 | `name`, `description`, `purpose` | String | Sí | Finalidad (BASE §59). |
 | `systemType` | Enum `bi`/`municipality`/`federation`/`bot`/`prepaidVendor`/`gis`/`accounting`/`other` | Sí | — |
-| `responsibleUserId` | ObjectId | Sí | Responsable del tenant. |
+| `responsibleUserId` | uniqueidentifier | Sí | Responsable del tenant. |
 | `technicalContact` | `{ name, email, phone }` | Sí | — |
 | `authMethods[]` | Enum `clientCredentials`/`apiKey` | Sí | — |
 | `scopes[]` | String[] | Sí | §4.3. |
@@ -602,8 +604,8 @@ Campos: `apiClientId`, `type` (`clientSecret`/`apiKey`), `prefix` (8 primeros ca
 
 | Campo | Tipo | Obligatorio | Descripción | Referencia |
 |---|---|---|---|---|
-| `tenantId` | ObjectId | Sí | Tenant. | `tenants` (T01) |
-| `apiClientId` | ObjectId | Sí | Cliente API. | `apiClients` (T02) |
+| `TenantId` | uniqueidentifier | Sí | Tenant. | `tenants` (T01) |
+| `apiClientId` | uniqueidentifier | Sí | Cliente API. | `apiClients` (T02) |
 | `date` | Date (día en zona del tenant) | Sí | Día agregado (antes `day`; nombre canónico de T05). | — |
 | `route` | String | Sí | Plantilla de ruta (sin datos). | — |
 | `status` | Int | Sí | Código HTTP agregado (`200` a `599`); no es un estado de ciclo de vida. | — |
@@ -656,25 +658,25 @@ Campos: `datasetCode`, `slug`, `titleKey`, `descriptionKey`, `license` (`CC-BY-4
 
 ### 7.26 Tablas de campos de las colecciones definidas en texto
 
-Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `tenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-BIA-17 (Asumida, DEC-072).
+Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de este anexo que solo tenían la definición en texto. Los campos salen del texto del §7 y de las referencias y claves únicas de T05; la definición en texto sigue vigente y prevalece si hay diferencia. Los campos comunes (`_id`, `TenantId`, auditoría, `version`) no se repiten. La obligatoriedad se asume por regla (clave única, `status`, `code`, `name` y referencias de T05 = Sí; resto = No) y queda como PA-BIA-17 (Asumida, DEC-072).
 
 **`reportExports`** — Archivos exportados (COL-BIA-05; definición en texto en §7.5)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `reportRunId` | ObjectId | Sí | `reportRuns` (T10) | o `screenKey` + `filters` para exportación de grilla; antes `runId` en el texto del §7 (nombre canónico de T05); destino → `reportRuns` |
+| `reportRunId` | uniqueidentifier | Sí | `reportRuns` (T10) | o `screenKey` + `filters` para exportación de grilla; antes `runId` en el texto del §7 (nombre canónico de T05); destino → `reportRuns` |
 | `format` | enum | No | — | `xlsx`/`csv`/`pdf`/`layout`/`kml`/`geojson`/`zip` |
 | `csvDialect` | enum | No | — | `regional`/`technical` |
-| `layoutId` | ObjectId | No | `exportLayouts` (T10) | destino → `exportLayouts` |
+| `layoutId` | uniqueidentifier | No | `exportLayouts` (T10) | destino → `exportLayouts` |
 | `status` | enum | Sí | — | `queued`/`generating`/`ready`/`failed`/`expired`/`cancelled` |
-| `storedFileId` | ObjectId | No | `storedFiles` (T01) | → `storedFiles` de T01, objeto con prefijo `tenants/<tenantId>/bia/exports/<yyyy>/<mm>/<id>`; antes `storageKey`, T05 §7.2 y COL-BIA-05 |
+| `storedFileId` | uniqueidentifier | No | `storedFiles` (T01) | → `storedFiles` de T01, objeto con prefijo `tenants/<tenantId>/bia/exports/<yyyy>/<mm>/<id>`; antes `storageKey`, T05 §7.2 y COL-BIA-05 |
 | `fileName` | string | No | — | Según la definición en texto del §7 |
 | `sizeBytes` | int | No | — | Según la definición en texto del §7 |
 | `sha256` | string | No | — | Según la definición en texto del §7 |
 | `rowCount` | int | No | — | Según la definición en texto del §7 |
 | `containsPersonalData` | bool | No | — | Boolean |
 | `masked` | bool | No | — | Boolean |
-| `requestedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `requestedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `expiresAt` | Date | No | — | Según la definición en texto del §7 |
 | `downloads` | array de object | No | — | `{ at, userId, ip }` |
 | `error` | string | No | — | Según la definición en texto del §7 |
@@ -684,9 +686,9 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `reportCode` | string | No | — | Según la definición en texto del §7 |
-| `presetId` | ObjectId | No | `reportPresets` (T10) | destino → `reportPresets` |
+| `presetId` | uniqueidentifier | No | `reportPresets` (T10) | destino → `reportPresets` |
 | `parameters` | array | No | — | con relativos |
-| `ownerUserId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `ownerUserId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `recurrence` | array de object | No | — | `{ type: daily/weekly/monthly/businessDay/cron/event, daysOfWeek[], dayOfMonth, nthBusinessDay, cron, eventType, timeOfDay }` |
 | `timeZone` | string | No | — | Según la definición en texto del §7 |
 | `formats` | array | No | — | Según la definición en texto del §7 |
@@ -698,19 +700,19 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `consecutiveFailures` | int | No | — | Según la definición en texto del §7 |
 | `nextRunAt` | Date | No | — | Según la definición en texto del §7 |
 | `lastRunAt` | Date | No | — | Según la definición en texto del §7 |
-| `lastRunId` | ObjectId | No | `reportRuns` (T10) | destino → `reportRuns` |
+| `lastRunId` | uniqueidentifier | No | `reportRuns` (T10) | destino → `reportRuns` |
 | `validFrom` | Date | No | — | Según la definición en texto del §7 |
 | `validTo` | Date | No | — | Según la definición en texto del §7 |
-| `reportDefinitionId` | ObjectId | Sí | `reportDefinitions` (T10) | destino → `reportDefinitions` |
+| `reportDefinitionId` | uniqueidentifier | Sí | `reportDefinitions` (T10) | destino → `reportDefinitions` |
 | `code` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`reportDeliveries`** — Entregas programadas (COL-BIA-07; definición en texto en §7.6)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `scheduleId` | ObjectId | No | `reportSchedules` (T10) | destino → `reportSchedules` |
-| `runId` | ObjectId | No | `reportRuns` (T10) | destino → `reportRuns` |
-| `exportIds` | array de ObjectId | No | `reportExports` (T10) | destino → `reportExports` |
+| `scheduleId` | uniqueidentifier | No | `reportSchedules` (T10) | destino → `reportSchedules` |
+| `runId` | uniqueidentifier | No | `reportRuns` (T10) | destino → `reportRuns` |
+| `exportIds` | array de uniqueidentifier | No | `reportExports` (T10) | destino → `reportExports` |
 | `recipient` | string | No | — | Según la definición en texto del §7 |
 | `channel` | enum | No | — | `email`/`inApp` |
 | `status` | enum | Sí | — | `pending`/`sent`/`skippedNoPermission`/`failed`/`bounced` |
@@ -739,17 +741,17 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `reportCode` | string | No | — | Según la definición en texto del §7 |
-| `runId` | ObjectId | No | `reportRuns` (T10) | destino → `reportRuns` |
-| `exportId` | ObjectId | No | `reportExports` (T10) | destino → `reportExports` |
+| `runId` | uniqueidentifier | No | `reportRuns` (T10) | destino → `reportRuns` |
+| `exportId` | uniqueidentifier | No | `reportExports` (T10) | destino → `reportExports` |
 | `action` | enum | No | — | `view`/`export`/`download`/`unmask`/`apiRead` |
-| `userId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `apiClientId` | ObjectId | No | `apiClients` (T02) | destino → `apiClients` |
+| `userId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `apiClientId` | uniqueidentifier | No | `apiClients` (T02) | destino → `apiClients` |
 | `ip` | string | No | — | Según la definición en texto del §7 |
 | `userAgent` | string | No | — | Según la definición en texto del §7 |
 | `rowCount` | int | No | — | Según la definición en texto del §7 |
 | `containsPersonalData` | string | No | — | Según la definición en texto del §7 |
 | `at` | string | No | — | Según la definición en texto del §7 |
-| `reportDefinitionId` | ObjectId | Sí | `reportDefinitions` (T10) | destino → `reportDefinitions` |
+| `reportDefinitionId` | uniqueidentifier | Sí | `reportDefinitions` (T10) | destino → `reportDefinitions` |
 
 **`indicatorSnapshots`** — Valores calculados (COL-BIA-12; definición en texto en §7.11)
 
@@ -761,15 +763,15 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `periodKey` | enum | No | — | `2026-10`, `2026-W44`, `2026-11-03`, `cycle:2026-10` |
 | `dimensionKey` | string | No | — | hash de dimensiones, ex `REF_1..REF_4` |
 | `dimensions` | object | No | — | Object |
-| `value` | Decimal128 | No | — | Decimal128 o null |
+| `value` | DECIMAL(18,4) | No | — | DECIMAL(18,4) o null |
 | `numerator` | string | No | — | Según la definición en texto del §7 |
 | `denominator` | string | No | — | Según la definición en texto del §7 |
 | `count` | int | No | — | Según la definición en texto del §7 |
 | `computedAt` | Date | No | — | Según la definición en texto del §7 |
 | `sourceWatermark` | string | No | — | Según la definición en texto del §7 |
 | `isClosed` | bool | No | — | Boolean, cierre mensual congelado |
-| `scenarioId` | ObjectId | No | `simulationScenarios` (M15) | null en reales; destino → `simulationScenarios` |
-| `indicatorId` | ObjectId | Sí | `indicatorDefinitions` (T10) | destino → `indicatorDefinitions` |
+| `scenarioId` | uniqueidentifier | No | `simulationScenarios` (M15) | null en reales; destino → `simulationScenarios` |
+| `indicatorId` | uniqueidentifier | Sí | `indicatorDefinitions` (T10) | destino → `indicatorDefinitions` |
 | `date` | Date | Sí | — | Campo citado por T05 (referencias o clave única) |
 | `scopeKey` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
@@ -779,7 +781,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `code` | string | Sí | — | `DSH-<ROL>` |
 | `nameKey` | string | No | — | Según la definición en texto del §7 |
-| `audienceRoleIds` | array de ObjectId | No | `roles` (T02) | destino → `roles` |
+| `audienceRoleIds` | array de uniqueidentifier | No | `roles` (T02) | destino → `roles` |
 | `audienceType` | enum | No | — | `platform`/`tenant`/`area` |
 | `widgets` | array de object | No | — | `{ widgetId, type: kpi/series/bars/ranking/pie/table/heatmap/funnel/map/alertList/pendingList, indicatorCodes[], reportCode, dimensions[], period, size: s/m/l, position }` |
 | `globalFilters` | array | No | — | Según la definición en texto del §7 |
@@ -790,13 +792,13 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `membershipId` | ObjectId | Sí | `memberships` (T02) | antes `userId` en el texto del §7 (nombre canónico de T05); destino → `memberships` |
+| `membershipId` | uniqueidentifier | Sí | `memberships` (T02) | antes `userId` en el texto del §7 (nombre canónico de T05); destino → `memberships` |
 | `dashboardCode` | string | No | — | Según la definición en texto del §7 |
 | `pinned` | array de string | No | — | Según la definición en texto del §7 |
 | `hidden` | array de string | No | — | Según la definición en texto del §7 |
 | `order` | array de string | No | — | Según la definición en texto del §7 |
 | `filters` | array | No | — | Según la definición en texto del §7 |
-| `dashboardId` | ObjectId | Sí | `dashboards` (T10) | destino → `dashboards` |
+| `dashboardId` | uniqueidentifier | Sí | `dashboards` (T10) | destino → `dashboards` |
 
 **`kpiAlertRules`** — Alertas sobre indicadores (COL-BIA-15; definición en texto en §7.13)
 
@@ -811,23 +813,23 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `dedupWindowMinutes` | int | No | — | Según la definición en texto del §7 |
 | `escalation` | array de object | No | — | `{ afterMinutes, toRoleId }` |
 | `status` | enum | Sí | — | `active`/`paused` |
-| `indicatorId` | ObjectId | Sí | `indicatorDefinitions` (T10) | destino → `indicatorDefinitions` |
+| `indicatorId` | uniqueidentifier | Sí | `indicatorDefinitions` (T10) | destino → `indicatorDefinitions` |
 | `code` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`kpiAlerts`** — Alertas disparadas (COL-BIA-16; definición en texto en §7.13)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `kpiAlertRuleId` | ObjectId | Sí | `kpiAlertRules` (T10) | antes `ruleId` en el texto del §7 (nombre canónico de T05); destino → `kpiAlertRules` |
+| `kpiAlertRuleId` | uniqueidentifier | Sí | `kpiAlertRules` (T10) | antes `ruleId` en el texto del §7 (nombre canónico de T05); destino → `kpiAlertRules` |
 | `indicatorCode` | string | No | — | Según la definición en texto del §7 |
 | `dimensionKey` | string | No | — | Según la definición en texto del §7 |
 | `value` | string | No | — | Según la definición en texto del §7 |
 | `severity` | enum | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `open`/`acknowledged`/`resolved`/`muted` |
 | `openedAt` | Date | No | — | Según la definición en texto del §7 |
-| `acknowledgedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `acknowledgedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `acknowledgedAt` | Date | No | — | Según la definición en texto del §7 |
-| `resolvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `resolvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `resolvedAt` | Date | No | — | Según la definición en texto del §7 |
 | `resolutionNote` | string | No | — | Según la definición en texto del §7 |
 | `objectRef` | string | No | — | vínculo al objeto de origen |
@@ -857,26 +859,26 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
 | `code` | string | Sí | — | `REP-TEN-NNNN` |
-| `datasetId` | ObjectId | No | `analyticsDatasets` (T10) | destino → `analyticsDatasets` |
+| `datasetId` | uniqueidentifier | No | `analyticsDatasets` (T10) | destino → `analyticsDatasets` |
 | `fields` | array | No | — | Según la definición en texto del §7 |
 | `filters` | array | No | — | Según la definición en texto del §7 |
-| `groupBy` | array de ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `groupBy` | array de uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `measures` | array | No | — | Según la definición en texto del §7 |
 | `sort` | array de string | No | — | Según la definición en texto del §7 |
 | `chart` | object | No | — | `{ type, x, y }` |
 | `conditionalFormats` | array | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `draft`/`inReview`/`published`/`deprecated` |
-| `ownerUserId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
-| `publishedToRoleIds` | array de ObjectId | No | `roles` (T02) | destino → `roles` |
-| `approvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `ownerUserId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
+| `publishedToRoleIds` | array de uniqueidentifier | No | `roles` (T02) | destino → `roles` |
+| `approvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `approvedAt` | Date | No | — | Según la definición en texto del §7 |
-| `templateOriginId` | ObjectId | No | `customReports` (T10) | galería; destino → `customReports` |
+| `templateOriginId` | uniqueidentifier | No | `customReports` (T10) | galería; destino → `customReports` |
 
 **`aiQuestions`** — Preguntas analíticas a IA (COL-BIA-19; definición en texto en §7.17)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `userId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `userId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `room` | string | No | — | Según la definición en texto del §7 |
 | `questionText` | string | No | — | sin datos personales: se filtran entidades |
 | `catalogQuestionCode` | string | No | — | Código de la pregunta del catálogo de la sala (configuración, no colección); antes `catalogQuestionId` |
@@ -892,13 +894,13 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `tokensOut` | int | No | — | Según la definición en texto del §7 |
 | `feedback` | string | No | — | `up`/`down`, comentario |
 | `at` | string | No | — | Según la definición en texto del §7 |
-| `aiUsageLogId` | ObjectId | Sí | `aiUsageLogs` (T06) | destino → `aiUsageLogs` |
+| `aiUsageLogId` | uniqueidentifier | Sí | `aiUsageLogs` (T06) | destino → `aiUsageLogs` |
 
 **`extWebhookSubscriptions`** — Suscripciones de webhooks salientes (COL-BIA-24; definición en texto en §7.21)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `apiClientId` | ObjectId | No | `apiClients` (T02) | destino → `apiClients` |
+| `apiClientId` | uniqueidentifier | No | `apiClients` (T02) | destino → `apiClients` |
 | `url` | string | No | — | https obligatorio, sin IP privadas — anti SSRF |
 | `eventTypes` | array | No | — | Según la definición en texto del §7 |
 | `secretHash` | string | No | — | Según la definición en texto del §7 |
@@ -912,7 +914,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `subscriptionId` | ObjectId | Sí | `extWebhookSubscriptions` (T10) | destino → `extWebhookSubscriptions` |
+| `subscriptionId` | uniqueidentifier | Sí | `extWebhookSubscriptions` (T10) | destino → `extWebhookSubscriptions` |
 | `eventId` | string | Sí | — | Según la definición en texto del §7 |
 | `eventType` | string | No | — | Según la definición en texto del §7 |
 | `payloadRef` | string | No | — | Según la definición en texto del §7 |
@@ -927,8 +929,8 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `apiClientId` | ObjectId | No | `apiClients` (T02) | destino → `apiClients` |
-| `userId` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `apiClientId` | uniqueidentifier | No | `apiClients` (T02) | destino → `apiClients` |
+| `userId` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `datasetCode` | string | No | — | Según la definición en texto del §7 |
 | `resource` | string | No | — | Según la definición en texto del §7 |
 | `filters` | array | No | — | Según la definición en texto del §7 |
@@ -953,7 +955,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `refresh` | enum | No | — | `monthly`/`quarterly` |
 | `formats` | array | No | — | Según la definición en texto del §7 |
 | `status` | enum | Sí | — | `draft`/`approved`/`published`/`withdrawn` |
-| `approvedBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `approvedBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `approvedAt` | Date | No | — | Según la definición en texto del §7 |
 | `lastPublishedAt` | Date | No | — | Según la definición en texto del §7 |
 | `versions` | array de object | No | — | `{ version, storageKey, rows, publishedAt }` |
@@ -965,7 +967,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 |---|---|---|---|---|
 | `status` | enum | Sí | — | `optedIn`/`optedOut` |
 | `segmentAttributes` | array de object | No | — | `{ services[], sizeBand, province }` |
-| `consentBy` | ObjectId | No | `memberships` (T02) | destino → `memberships` |
+| `consentBy` | uniqueidentifier | No | `memberships` (T02) | destino → `memberships` |
 | `consentAt` | Date | No | — | Según la definición en texto del §7 |
 | `withdrawnAt` | Date | No | — | Según la definición en texto del §7 |
 | `period` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
@@ -990,7 +992,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `reportRunId` | ObjectId | Sí | `reportRuns` (T10) | destino → `reportRuns` |
+| `reportRunId` | uniqueidentifier | Sí | `reportRuns` (T10) | destino → `reportRuns` |
 | `rowNo` | int | Sí | — | Integer |
 | `row` | object | No | — | Object con las columnas de la definición |
 | `expiresAt` | Date | No | — | copiado de `reportRuns.expiresAt`, `PRM-BIA-015` |
@@ -1012,7 +1014,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `personId` | ObjectId | Sí | `persons` (M01) | destino → `persons` |
+| `personId` | uniqueidentifier | Sí | `persons` (M01) | destino → `persons` |
 | `tipo` | string | No | — | Según la definición en texto del §7 |
 | `condicion_IVA` | string | No | — | condición IVA |
 | `localidad` | string | No | — | Según la definición en texto del §7 |
@@ -1024,7 +1026,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `accountId` | ObjectId | Sí | `accounts` (M01) | destino → `accounts` |
+| `accountId` | uniqueidentifier | Sí | `accounts` (M01) | destino → `accounts` |
 | `titular` | string | No | — | Según la definición en texto del §7 |
 | `sucursal` | string | No | — | Según la definición en texto del §7 |
 | `zona` | string | No | — | Según la definición en texto del §7 |
@@ -1039,7 +1041,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `contractId` | ObjectId | Sí | `serviceContracts` (M02) | destino → `serviceContracts` |
+| `contractId` | uniqueidentifier | Sí | `serviceContracts` (M02) | destino → `serviceContracts` |
 | `servicio` | string | No | — | Según la definición en texto del §7 |
 | `plan` | string | No | — | Según la definición en texto del §7 |
 | `categoria` | string | No | — | categoría |
@@ -1057,7 +1059,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `serviceId` | ObjectId | Sí | `tenantServices` (M02) | destino → `tenantServices` |
+| `serviceId` | uniqueidentifier | Sí | `tenantServices` (M02) | destino → `tenantServices` |
 
 **`bi_dim_category`** — Dimensión categoría (COL-BIA-36; definición en texto en §7.15)
 
@@ -1067,7 +1069,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `categoryId` | ObjectId | Sí | `serviceCategories` (M02) | destino → `serviceCategories` |
+| `categoryId` | uniqueidentifier | Sí | `serviceCategories` (M02) | destino → `serviceCategories` |
 
 **`bi_dim_plan`** — Dimensión plan (COL-BIA-37; definición en texto en §7.15)
 
@@ -1077,7 +1079,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `planVersionId` | ObjectId | Sí | `servicePlanVersions` (M02) | destino → `servicePlanVersions` |
+| `planVersionId` | uniqueidentifier | Sí | `servicePlanVersions` (M02) | destino → `servicePlanVersions` |
 
 **`bi_dim_product`** — Dimensión producto (COL-BIA-38; definición en texto en §7.15)
 
@@ -1087,7 +1089,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `serviceProductId` | ObjectId | Sí | `serviceProducts` (M02) | destino → `serviceProducts` |
+| `serviceProductId` | uniqueidentifier | Sí | `serviceProducts` (M02) | destino → `serviceProducts` |
 
 **`bi_dim_concept`** — Dimensión concepto (COL-BIA-39; definición en texto en §7.15)
 
@@ -1097,7 +1099,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `conceptId` | ObjectId | Sí | `billableConcepts` (M02) | destino → `billableConcepts` |
+| `conceptId` | uniqueidentifier | Sí | `billableConcepts` (M02) | destino → `billableConcepts` |
 
 **`bi_dim_channel`** — Dimensión canal (COL-BIA-40; definición en texto en §7.15)
 
@@ -1117,7 +1119,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `cashRegisterId` | ObjectId | Sí | `cashRegisters` (M07) | destino → `cashRegisters` |
+| `cashRegisterId` | uniqueidentifier | Sí | `cashRegisters` (M07) | destino → `cashRegisters` |
 
 **`bi_dim_crew`** — Dimensión cuadrilla (COL-BIA-42; definición en texto en §7.15)
 
@@ -1127,7 +1129,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `crewId` | ObjectId | Sí | `crews` (M10) | destino → `crews` |
+| `crewId` | uniqueidentifier | Sí | `crews` (M10) | destino → `crews` |
 
 **`bi_dim_supplier`** — Dimensión proveedor (COL-BIA-43; definición en texto en §7.15)
 
@@ -1137,7 +1139,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `supplierId` | ObjectId | Sí | `suppliers` (M12) | destino → `suppliers` |
+| `supplierId` | uniqueidentifier | Sí | `suppliers` (M12) | destino → `suppliers` |
 
 **`bi_dim_glAccount`** — Dimensión cuenta contable (COL-BIA-44; definición en texto en §7.15)
 
@@ -1147,7 +1149,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `ledgerAccountId` | ObjectId | Sí | `ledgerAccounts` (M15) | destino → `ledgerAccounts` |
+| `ledgerAccountId` | uniqueidentifier | Sí | `ledgerAccounts` (M15) | destino → `ledgerAccounts` |
 
 **`bi_dim_costCenter`** — Dimensión centro de costo (COL-BIA-45; definición en texto en §7.15)
 
@@ -1157,9 +1159,9 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `costCenterId` | ObjectId | Sí | `costCenters` (M15) | destino → `costCenters` |
-| `legalEntityId` | ObjectId | Sí | `legalEntities` (T04) | Entidad dueña del centro (`costCenters.legalEntityId` de M15; DEC-096, RF-BIA-104) |
-| `sharedWithLegalEntityIds` | array ObjectId | No | `legalEntities` (T04) | Entidades con las que se comparte el centro (M15 RN-CON-127); el filtro por entidad incluye el centro si la entidad es la dueña o está en esta lista |
+| `costCenterId` | uniqueidentifier | Sí | `costCenters` (M15) | destino → `costCenters` |
+| `legalEntityId` | uniqueidentifier | Sí | `legalEntities` (T04) | Entidad dueña del centro (`costCenters.legalEntityId` de M15; DEC-096, RF-BIA-104) |
+| `sharedWithLegalEntityIds` | array uniqueidentifier | No | `legalEntities` (T04) | Entidades con las que se comparte el centro (M15 RN-CON-127); el filtro por entidad incluye el centro si la entidad es la dueña o está en esta lista |
 
 **`bi_dim_employee`** — Dimensión empleado (seudonimizada) (COL-BIA-46; definición en texto en §7.15)
 
@@ -1169,7 +1171,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `employeeId` | ObjectId | Sí | `employees` (M16) | destino → `employees` |
+| `employeeId` | uniqueidentifier | Sí | `employees` (M16) | destino → `employees` |
 
 **`bi_dim_branch`** — Dimensión sucursal (COL-BIA-47; definición en texto en §7.15)
 
@@ -1179,7 +1181,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `branchId` | ObjectId | Sí | `branches` (T04) | destino → `branches` |
+| `branchId` | uniqueidentifier | Sí | `branches` (T04) | destino → `branches` |
 
 **`bi_dim_zone`** — Dimensión zona (COL-BIA-48; definición en texto en §7.15)
 
@@ -1189,13 +1191,13 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `nombre` | string | No | — | Según la definición en texto del §7 |
 | `jerarquia` | string | No | — | jerarquía |
 | `vigencia` | string | No | — | Según la definición en texto del §7 |
-| `zoneId` | ObjectId | Sí | `zones` (T04) | destino → `zones` |
+| `zoneId` | uniqueidentifier | Sí | `zones` (T04) | destino → `zones` |
 
 **`bi_fact_invoice`** — Hecho factura (COL-BIA-49; definición en texto en §7.15)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `invoiceId` | ObjectId | Sí | `invoices` (M05) | destino → `invoices` |
+| `invoiceId` | uniqueidentifier | Sí | `invoices` (M05) | destino → `invoices` |
 | `tipo` | string | No | — | Según la definición en texto del §7 |
 | `letra` | string | No | — | Según la definición en texto del §7 |
 | `PV` | string | No | — | Según la definición en texto del §7 |
@@ -1216,7 +1218,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `invoiceId` | ObjectId | Sí | `invoices` (M05) | destino → `invoices` |
+| `invoiceId` | uniqueidentifier | Sí | `invoices` (M05) | destino → `invoices` |
 | `concepto` | string | No | — | Según la definición en texto del §7 |
 | `cantidad` | string | No | — | Según la definición en texto del §7 |
 | `precio` | string | No | — | Según la definición en texto del §7 |
@@ -1224,44 +1226,44 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `impuesto` | string | No | — | Según la definición en texto del §7 |
 | `tramo` | string | No | — | Según la definición en texto del §7 |
 | `categoria` | string | No | — | categoría |
-| `lineId` | ObjectId | Sí | `billableItems` (M05) | destino → `billableItems` |
+| `lineId` | uniqueidentifier | Sí | `billableItems` (M05) | destino → `billableItems` |
 
 **`bi_fact_payment`** — Hecho cobro (COL-BIA-51; definición en texto en §7.15)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `paymentId` | ObjectId | No | `cashOperations` (M07) | destino → `cashOperations` |
+| `paymentId` | uniqueidentifier | No | `cashOperations` (M07) | destino → `cashOperations` |
 | `canal` | string | No | — | Según la definición en texto del §7 |
 | `ente` | string | No | — | Según la definición en texto del §7 |
 | `fechas` | string | No | — | pago, confirmación, acreditación |
 | `importe` | string | No | — | Según la definición en texto del §7 |
 | `comision` | string | No | — | comisión |
 | `estado` | string | No | — | Según la definición en texto del §7 |
-| `receiptId` | ObjectId | Sí | `receipts` (M07) | destino → `receipts` |
+| `receiptId` | uniqueidentifier | Sí | `receipts` (M07) | destino → `receipts` |
 
 **`bi_fact_allocation`** — Hecho imputación (COL-BIA-52; definición en texto en §7.15)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `paymentId` | ObjectId | No | `cashOperations` (M07) | destino → `cashOperations` |
-| `invoiceId` | ObjectId | No | `invoices` (M05) | destino → `invoices` |
+| `paymentId` | uniqueidentifier | No | `cashOperations` (M07) | destino → `cashOperations` |
+| `invoiceId` | uniqueidentifier | No | `invoices` (M05) | destino → `invoices` |
 | `importe` | string | No | — | Según la definición en texto del §7 |
 | `fecha_efectiva` | string | No | — | fecha efectiva |
-| `allocationId` | ObjectId | Sí | `allocations` (M07) | destino → `allocations` |
+| `allocationId` | uniqueidentifier | Sí | `allocations` (M07) | destino → `allocations` |
 
 **`bi_fact_ledgerEntry`** — Hecho movimiento de cuenta corriente (COL-BIA-53; definición en texto en §7.15)
 
 | Campo | Tipo | Obligatorio | Referencia | Descripción |
 |---|---|---|---|---|
-| `accountId` | ObjectId | No | `accounts` (M01) | destino → `accounts` |
-| `contractId` | ObjectId | No | `serviceContracts` (M02) | destino → `serviceContracts` |
+| `accountId` | uniqueidentifier | No | `accounts` (M01) | destino → `accounts` |
+| `contractId` | uniqueidentifier | No | `serviceContracts` (M02) | destino → `serviceContracts` |
 | `servicio` | string | No | — | Según la definición en texto del §7 |
 | `tipo` | string | No | — | Según la definición en texto del §7 |
 | `debito_credito` | string | No | — | débito/crédito |
 | `fecha_efectiva` | string | No | — | fecha efectiva |
 | `recordedAt` | Date | No | — | Según la definición en texto del §7 |
 | `documento` | string | No | — | Según la definición en texto del §7 |
-| `ledgerEntryId` | ObjectId | Sí | `ledgerEntries` (M07) | destino → `ledgerEntries` |
+| `ledgerEntryId` | uniqueidentifier | Sí | `ledgerEntries` (M07) | destino → `ledgerEntries` |
 
 **`bi_fact_consumption`** — Hecho consumo (COL-BIA-54; definición en texto en §7.15)
 
@@ -1274,7 +1276,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `cantidad` | string | No | — | Según la definición en texto del §7 |
 | `estimado` | string | No | — | Según la definición en texto del §7 |
 | `origen` | string | No | — | Según la definición en texto del §7 |
-| `consumptionId` | ObjectId | Sí | `consumptions` (M03) | destino → `consumptions` |
+| `consumptionId` | uniqueidentifier | Sí | `consumptions` (M03) | destino → `consumptions` |
 
 **`bi_fact_reading`** — Hecho lectura (COL-BIA-55; definición en texto en §7.15)
 
@@ -1285,7 +1287,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `resultado` | string | No | — | Según la definición en texto del §7 |
 | `observacion` | string | No | — | observación |
 | `fecha` | string | No | — | Según la definición en texto del §7 |
-| `meterReadingId` | ObjectId | Sí | `meterReadings` (M03) | destino → `meterReadings` |
+| `meterReadingId` | uniqueidentifier | Sí | `meterReadings` (M03) | destino → `meterReadings` |
 
 **`bi_fact_arrears`** — Hecho deuda vencida por corte (COL-BIA-56; definición en texto en §7.15)
 
@@ -1296,7 +1298,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `promesa` | string | No | — | Según la definición en texto del §7 |
 | `corte` | string | No | — | Según la definición en texto del §7 |
 | `reconexion` | string | No | — | reconexión |
-| `accountId` | ObjectId | Sí | `accounts` (M01) | destino → `accounts` |
+| `accountId` | uniqueidentifier | Sí | `accounts` (M01) | destino → `accounts` |
 | `cutoffDate` | Date | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`bi_fact_agreement`** — Hecho convenio (COL-BIA-57; definición en texto en §7.15)
@@ -1308,7 +1310,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `capital` | string | No | — | Según la definición en texto del §7 |
 | `interes` | string | No | — | interés |
 | `estado` | string | No | — | Según la definición en texto del §7 |
-| `agreementId` | ObjectId | Sí | `agreements` (M08) | destino → `agreements` |
+| `agreementId` | uniqueidentifier | Sí | `agreements` (M08) | destino → `agreements` |
 
 **`bi_fact_ticket`** — Hecho caso de atención (COL-BIA-58; definición en texto en §7.15)
 
@@ -1322,7 +1324,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `tiempos` | string | No | — | primera respuesta, resolución |
 | `estado` | string | No | — | Según la definición en texto del §7 |
 | `satisfaccion` | string | No | — | satisfacción |
-| `crmCaseId` | ObjectId | Sí | `crmCases` (M09) | destino → `crmCases` |
+| `crmCaseId` | uniqueidentifier | Sí | `crmCases` (M09) | destino → `crmCases` |
 
 **`bi_fact_workOrder`** — Hecho orden de trabajo (COL-BIA-59; definición en texto en §7.15)
 
@@ -1336,7 +1338,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `reclamo` | string | No | — | Según la definición en texto del §7 |
 | `reincidencia` | string | No | — | Según la definición en texto del §7 |
 | `costos` | string | No | — | Según la definición en texto del §7 |
-| `workOrderId` | ObjectId | Sí | `workOrders` (M10) | destino → `workOrders` |
+| `workOrderId` | uniqueidentifier | Sí | `workOrders` (M10) | destino → `workOrders` |
 
 **`bi_fact_turn`** — Hecho turno de turnero (COL-BIA-60; definición en texto en §7.15)
 
@@ -1347,7 +1349,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `espera` | string | No | — | Según la definición en texto del §7 |
 | `atencion` | string | No | — | atención |
 | `resultado` | string | No | — | Según la definición en texto del §7 |
-| `crmQueueTicketId` | ObjectId | Sí | `crmQueueTickets` (M09) | destino → `crmQueueTickets` |
+| `crmQueueTicketId` | uniqueidentifier | Sí | `crmQueueTickets` (M09) | destino → `crmQueueTickets` |
 
 **`bi_fact_stockMovement`** — Hecho movimiento de stock (COL-BIA-61; definición en texto en §7.15)
 
@@ -1360,7 +1362,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `tipo` | string | No | — | Según la definición en texto del §7 |
 | `cantidad` | string | No | — | Según la definición en texto del §7 |
 | `costo` | string | No | — | Según la definición en texto del §7 |
-| `stockMovementId` | ObjectId | Sí | `stockMovements` (M13) | destino → `stockMovements` |
+| `stockMovementId` | uniqueidentifier | Sí | `stockMovements` (M13) | destino → `stockMovements` |
 
 **`bi_fact_purchase`** — Hecho compra (COL-BIA-62; definición en texto en §7.15)
 
@@ -1372,7 +1374,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `importes` | string | No | — | Según la definición en texto del §7 |
 | `fechas` | string | No | — | Según la definición en texto del §7 |
 | `estado` | string | No | — | Según la definición en texto del §7 |
-| `supplierInvoiceId` | ObjectId | Sí | `supplierInvoices` (M12) | destino → `supplierInvoices` |
+| `supplierInvoiceId` | uniqueidentifier | Sí | `supplierInvoices` (M12) | destino → `supplierInvoices` |
 
 **`bi_fact_treasury`** — Hecho movimiento de tesorería (COL-BIA-63; definición en texto en §7.15)
 
@@ -1384,7 +1386,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `fecha_contable` | string | No | — | fecha contable |
 | `importe` | string | No | — | Según la definición en texto del §7 |
 | `conciliado` | string | No | — | Según la definición en texto del §7 |
-| `treasuryMovementId` | ObjectId | Sí | `treasuryMovements` (M14) | destino → `treasuryMovements` |
+| `treasuryMovementId` | uniqueidentifier | Sí | `treasuryMovements` (M14) | destino → `treasuryMovements` |
 
 **`bi_fact_journalLine`** — Hecho línea de asiento (COL-BIA-64; definición en texto en §7.15)
 
@@ -1398,7 +1400,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `ejercicio` | string | No | — | Según la definición en texto del §7 |
 | `plan` | string | No | — | Según la definición en texto del §7 |
 | `escenario` | string | No | — | Según la definición en texto del §7 |
-| `journalLineId` | ObjectId | Sí | `journalLines` (M15) | destino → `journalLines` |
+| `journalLineId` | uniqueidentifier | Sí | `journalLines` (M15) | destino → `journalLines` |
 
 **`bi_fact_payroll`** — Hecho liquidación por empleado y concepto (COL-BIA-65; definición en texto en §7.15)
 
@@ -1409,7 +1411,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `centro` | string | No | — | Según la definición en texto del §7 |
 | `importe` | string | No | — | Según la definición en texto del §7 |
 | `horas` | string | No | — | Según la definición en texto del §7 |
-| `payslipId` | ObjectId | Sí | `payslips` (M16) | destino → `payslips` |
+| `payslipId` | uniqueidentifier | Sí | `payslips` (M16) | destino → `payslips` |
 | `conceptCode` | string | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`bi_fact_member`** — Hecho asociado (COL-BIA-66; definición en texto en §7.15)
@@ -1419,8 +1421,8 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `alta` | string | No | — | Según la definición en texto del §7 |
 | `baja asociado` | string | No | — | Según la definición en texto del §7 |
 | `capital_suscripto_integrado` | string | No | — | capital suscripto/integrado |
-| `associateMembershipId` | ObjectId | Sí | `associateMemberships` (M17) | destino → `associateMemberships` |
-| `legalEntityId` | ObjectId | Sí | `legalEntities` (T04) | Entidad jurídica de la membresía (`associateMemberships.legalEntityId` de M17, payload de los eventos `ins.*`; DEC-096, RF-BIA-104) |
+| `associateMembershipId` | uniqueidentifier | Sí | `associateMemberships` (M17) | destino → `associateMemberships` |
+| `legalEntityId` | uniqueidentifier | Sí | `legalEntities` (T04) | Entidad jurídica de la membresía (`associateMemberships.legalEntityId` de M17, payload de los eventos `ins.*`; DEC-096, RF-BIA-104) |
 | `date` | Date | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`bi_fact_communication`** — Hecho comunicación (COL-BIA-67; definición en texto en §7.15)
@@ -1431,7 +1433,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `campana` | string | No | — | campaña |
 | `entregado` | string | No | — | Según la definición en texto del §7 |
 | `abierto` | string | No | — | Según la definición en texto del §7 |
-| `communicationId` | ObjectId | Sí | `communications` (T09) | destino → `communications` |
+| `communicationId` | uniqueidentifier | Sí | `communications` (T09) | destino → `communications` |
 
 **`bi_fact_apiUsage`** — Hecho uso de API (COL-BIA-68; definición en texto en §7.15)
 
@@ -1441,7 +1443,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `endpoint` | string | No | — | Según la definición en texto del §7 |
 | `estado` | string | No | — | Según la definición en texto del §7 |
 | `latencia` | string | No | — | Según la definición en texto del §7 |
-| `apiClientId` | ObjectId | Sí | `apiClients` (T02) | destino → `apiClients` |
+| `apiClientId` | uniqueidentifier | Sí | `apiClients` (T02) | destino → `apiClients` |
 | `date` | Date | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 **`bi_snap_balance`** — Foto de saldos por corte (COL-BIA-69; definición en texto en §7.15)
@@ -1452,7 +1454,7 @@ Tabla agregada en el cierre de residuales (05-11-2026) para las colecciones de e
 | `vencido` | string | No | — | Según la definición en texto del §7 |
 | `aging_buckets` | string | No | — | aging buckets |
 | `deuda_en_convenio` | string | No | — | deuda en convenio |
-| `currentAccountId` | ObjectId | Sí | `currentAccounts` (M07) | destino → `currentAccounts` |
+| `currentAccountId` | uniqueidentifier | Sí | `currentAccounts` (M07) | destino → `currentAccounts` |
 | `cutoffDate` | Date | Sí | — | Campo citado por T05 (referencias o clave única) |
 
 

@@ -622,10 +622,12 @@ Convención de la columna Decisión: **Replicar** (igual que ProCoop), **Mejorar
 | RN-PER-134 | Los candidatos de sorteo entre socios cumplidores y el cruce de padrones externos por CUIT, CDI o DNI extraído del CUIT usan el motor de coincidencia de identificaciones de PER. | `Get_CandidatosSorteo` (`:5672`), `ImportarRG60` (`:5823`). | Delegar el proceso (M17/T09/M06); PER provee RN-PER-011. | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
+
 
 ### 7.0 Convenciones del módulo
 
-- Todo documento lleva `tenantId` (ObjectId, obligatorio, primer campo de todos los índices), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, donde se indica, `status`, `validFrom`/`validTo`, `recordedAt` y `deletedAt` (borrado lógico). No se repiten en cada tabla.
+- Todo documento lleva `TenantId` (uniqueidentifier, obligatorio, primer campo de todos los índices), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista) y, donde se indica, `status`, `validFrom`/`validTo`, `recordedAt` y `deletedAt` (borrado lógico). No se repiten en cada tabla.
 - Los identificadores internos (`_id`) son inmutables. Los números visibles (`holderNumber`, `accountNumber`, `fileNumber`) salen de secuencias transaccionales de T04 (`sequences`) y pueden corregirse solo por operación especial (RN-PER-041).
 - Las etiquetas de enums se muestran por clave de diccionario `dict:per.enum.<enum>.<valor>`.
 - Columna **Priv.** (inventario de datos, RF-PER-166): `ID` identificatorio, `CT` contacto, `FI` fiscal, `SE` sensible, `UB` ubicación, `OP` operativo no personal. Finalidad por defecto: gestión de la relación comercial y de servicios con la cooperativa; base: ejecución del contrato y obligación legal; plazo de conservación: el que fije T08 por categoría (PA-PER-14).
@@ -652,9 +654,9 @@ Propósito: identidad de negocio única de cada persona física o jurídica en e
 | `birthDate` | date | Según PRM-PER-017 | Fecha de nacimiento. | ID | `PERSONAS` (fecha de nacimiento) |
 | `deathDate` | date | No | Fecha de fallecimiento. | ID | `PERSONAS.FEC_FAL` (RN-06 §23.2) |
 | `deathRecord` | object `{ recordedAt, recordedBy, evidenceDocumentId, reversedAt, reversedBy, reversalReason }` | No | Evidencia y reversión del fallecimiento. | ID | — |
-| `maritalStatusId` | ObjectId (`maritalStatuses`) | No | Estado civil. Referencia: `enumerationItems` (T04), catálogo `maritalStatuses` (§7.18). | ID | `PERSONAS.CIVIL` → `EST_CIVIL` |
-| `occupationId` | ObjectId (`occupations`) | No | Ocupación/profesión (usada por tarifas de adherente). Referencia: `enumerationItems` (T04), catálogo `occupations` (§7.18). | ID | `PERSONAS` → `OCUPACIO` |
-| `nationalityCountryId` | ObjectId (T04 `countries`) | No | Nacionalidad. | ID | `PAISES` |
+| `maritalStatusId` | uniqueidentifier (`maritalStatuses`) | No | Estado civil. Referencia: `enumerationItems` (T04), catálogo `maritalStatuses` (§7.18). | ID | `PERSONAS.CIVIL` → `EST_CIVIL` |
+| `occupationId` | uniqueidentifier (`occupations`) | No | Ocupación/profesión (usada por tarifas de adherente). Referencia: `enumerationItems` (T04), catálogo `occupations` (§7.18). | ID | `PERSONAS` → `OCUPACIO` |
+| `nationalityCountryId` | uniqueidentifier (T04 `countries`) | No | Nacionalidad. | ID | `PAISES` |
 | `personRegistrationDate` | date | Según PRM-PER-017 | Fecha de alta de la persona en la cooperativa. | OP | `PERSONAS` (fecha de alta) |
 | `identifiers` | array de `identifier` | Sí (≥1 salvo `identificationStatus` = `approvedException` o `documentPending`) | Ver 7.1.1. *Reemplazado (10-11-2026, DEC-099): "Sí (≥1 salvo excepción)".* | ID/FI | `PERSONAS.TIP_DNI/NUM_DNI/CDI`, `SOCIOS.CUIT` |
 | `identifierException` | object `{ reasonCode, detail, approvedBy, approvedAt, evidenceDocumentId }` | No | Excepción aprobada de identificación (RF-PER-026). | ID | — |
@@ -668,21 +670,21 @@ Propósito: identidad de negocio única de cada persona física o jurídica en e
 | `communicationPreferences` | array `{ purpose: invoices/debtNotices/serviceNotices/news/surveys/wall, channel: email/sms/whatsapp/push/paper, optIn, updatedAt, source }` | No | Preferencias (RF-PER-037). | CT | PMovil 32 (adhesión factura electrónica) |
 | `extra` | object (validado por definición de T04) | No | Datos extra tipados de persona. | según campo | `PERSONAS_EXTRAS` y columnas no mapeadas |
 | `status` | enum `active`, `deceased`, `merged`, `archived` | Sí | Estado (sección 8.1). | OP | — |
-| `mergedIntoPersonId` | ObjectId | No | Persona sobreviviente si `merged`. | OP | — |
+| `mergedIntoPersonId` | uniqueidentifier | No | Persona sobreviviente si `merged`. | OP | — |
 | `anonymizedAt` | date | No | Fecha de anonimización. | OP | — |
 
 #### 7.1.1 Subdocumento `identifier`
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `_id` | ObjectId | Sí | Identificador del subdocumento. |
-| `documentTypeId` | ObjectId (`identityDocumentTypes` de T04) | Sí | Referencia a la colección canónica de tipos de documento de identidad (CTR-DAT-14; antes catálogo `documentTypes` de M01, nombre que en T05 designa los tipos de expediente de T11; el nombre del campo sigue COL-PER-02 de T05). Tipo (DNI, CUIT, CUIL, CDI, LE, LC, pasaporte, cédula extranjera, otro) con códigos ARCA/INAES/ENARGAS/SENASA. |
+| `_id` | uniqueidentifier | Sí | Identificador del subdocumento. |
+| `documentTypeId` | uniqueidentifier (`identityDocumentTypes` de T04) | Sí | Referencia a la colección canónica de tipos de documento de identidad (CTR-DAT-14; antes catálogo `documentTypes` de M01, nombre que en T05 designa los tipos de expediente de T11; el nombre del campo sigue COL-PER-02 de T05). Tipo (DNI, CUIT, CUIL, CDI, LE, LC, pasaporte, cédula extranjera, otro) con códigos ARCA/INAES/ENARGAS/SENASA. |
 | `number` | string normalizado (solo dígitos para DNI/CUIT/CUIL) | Sí | Número. |
-| `issuingCountryId` | ObjectId | No | País emisor (pasaporte, cédula extranjera). |
+| `issuingCountryId` | uniqueidentifier | No | País emisor (pasaporte, cédula extranjera). |
 | `isPrimary` | bool | Sí | Una principal por persona. |
 | `derivedFrom` | enum `none`, `calculatedFromDni` | Sí | `calculatedFromDni` para el CUIL propuesto (RN-PER-006). |
 | `verification` | object `{ status: unverified/checkDigitOk/arcaVerified/arcaMismatch/arcaNotFound/manualVerified/rejected, source: checkDigit/arca/document/manual, verifiedAt, verifiedBy, evidenceDocumentId, detail }` | Sí | Estado de verificación (RF-PER-019..021, 028). |
-| `linkedIdentifierId` | ObjectId | No | Relación verificada DNI↔CUIT/CUIL. |
+| `linkedIdentifierId` | uniqueidentifier | No | Relación verificada DNI↔CUIT/CUIL. |
 | `validFrom` / `validTo` | date | No | Vigencia (por ejemplo DNI reemplazado). |
 
 Índice único parcial: `{ tenantId, "identifiers.documentTypeId", "identifiers.number" }` sobre identificadores vigentes de personas no `merged`, salvo excepción aprobada (RN-PER-005). Implementación: colección auxiliar `personIdentifierIndex` `{ tenantId, documentTypeId, number, personId, exceptionId }` con índice único `{ tenantId, documentTypeId, number, exceptionId }`, mantenida en la misma transacción.
@@ -693,10 +695,10 @@ Campos de `personIdentifierIndex` (COL-PER-02; ficha agregada el 05-11-2026 a pa
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `documentTypeId` | ObjectId | Sí | Tipo de documento del identificador. | `identityDocumentTypes` (T04) |
+| `documentTypeId` | uniqueidentifier | Sí | Tipo de documento del identificador. | `identityDocumentTypes` (T04) |
 | `number` | string | Sí | Número normalizado del identificador. | — |
-| `personId` | ObjectId | Sí | Persona dueña del identificador. | `persons` (M01) |
-| `exceptionId` | ObjectId | No | Excepción aprobada que permite repetir el identificador (RN-PER-005); nulo en el caso general. | `approvalRequests` (T11): aprobación de la excepción de unicidad de RN-PER-005, asumida en PA-PER-18 (DEC-072); antes «excepción de unicidad aprobada de RN-PER-005 (M01)» (PA-PER-17) y [VERIFICAR] (posible `duplicateCases`, M01) |
+| `personId` | uniqueidentifier | Sí | Persona dueña del identificador. | `persons` (M01) |
+| `exceptionId` | uniqueidentifier | No | Excepción aprobada que permite repetir el identificador (RN-PER-005); nulo en el caso general. | `approvalRequests` (T11): aprobación de la excepción de unicidad de RN-PER-005, asumida en PA-PER-18 (DEC-072); antes «excepción de unicidad aprobada de RN-PER-005 (M01)» (PA-PER-17) y [VERIFICAR] (posible `duplicateCases`, M01) |
 
 Índice único `{ tenantId, documentTypeId, number, exceptionId }` (párrafo anterior).
 
@@ -704,7 +706,7 @@ Campos de `personIdentifierIndex` (COL-PER-02; ficha agregada el 05-11-2026 a pa
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `_id` | ObjectId | Sí | — |
+| `_id` | uniqueidentifier | Sí | — |
 | `type` | enum `email`, `mobile`, `landline`, `whatsapp`, `fax` | Sí | Tipo. |
 | `value` | string | Sí | Valor tal como se cargó. |
 | `normalized` | string | Sí | Correo en minúsculas; teléfono E.164 (RN-PER-022). |
@@ -722,12 +724,12 @@ Propósito: datos de tratamiento reforzado separados (BASE §97.1). Lectura y es
 
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
-| `personId` | ObjectId | Sí | Persona. | SE | — |
+| `personId` | uniqueidentifier | Sí | Persona. | SE | — |
 | `category` | enum `electrodependency`, `health`, `disability`, `bloodDonor`, `other` | Sí | Categoría. | SE | — |
 | `data` | object (esquema por categoría) | Sí | Contenido (por ejemplo, electrodependencia: certificado, vencimiento, equipo; donante: grupo y aptitud). | SE | V2 2527 (edades de donante) |
-| `evidenceDocumentId` | ObjectId [T11] | No | Respaldo. | SE | — |
+| `evidenceDocumentId` | uniqueidentifier [T11] | No | Respaldo. | SE | — |
 | `validFrom` / `validTo` | date | No | Vigencia. | SE | — |
-| `consentId` | ObjectId (`consentRecords` de T08; CTR-DAT-18, antes `consents`) | Sí | Consentimiento o base específica. | SE | — |
+| `consentId` | uniqueidentifier (`consentRecords` de T08; CTR-DAT-18, antes `consents`) | Sí | Consentimiento o base específica. | SE | — |
 | `accessLog` | — | — | Cada lectura se audita en T02 (no se guarda aquí). | — | — |
 
 Índices: `{ tenantId, personId, category }`.
@@ -738,20 +740,20 @@ Propósito: titular comercial de cuentas y contratos (equivalente a `SOCIOS` sin
 
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
-| `personId` | ObjectId | Sí | Persona titular. | ID | `SOCIOS.COD_PER` |
+| `personId` | uniqueidentifier | Sí | Persona titular. | ID | `SOCIOS.COD_PER` |
 | `holderNumber` | string (secuencia) | Sí | Número de titular visible, único en el tenant. | OP | `SOCIOS.COD_SOC` |
 | `numberSeries` | string | No | Reemplazado por el atributo de tipo de la secuencia única (DEC-017: tipo, no serie). Texto original: serie si se usan series separadas (PA-PER-15). | OP | V2 32 |
 | `legacy` | object (T05 §19.1) | No | Código origen. (subdocumento `legacy` con `table` y `key`; CTR-DAT-32, antes campo `legacyCode`). | OP | `SOCIOS.COD_SOC` |
 | `status` | enum `applicant`, `active`, `closed` | Sí | Estado (sección 8.2). | OP | `SOCIOS.BAJA`, `ACTIVO` |
 | `openedAt` | date | Sí (`active`) | Fecha de alta como titular. | OP | `SOCIOS.ALTA` |
 | `closedAt` | date | No | Fecha efectiva de baja. | OP | `SOCIOS.BAJA` |
-| `closeReasonId` | ObjectId (`holderCloseReasons`) | Sí si `closed` | Causa de baja. Referencia: `enumerationItems` (T04), catálogo `holderCloseReasons` (§7.18). | OP | `SOCIOS.CAU_BAJA` (`abmCausas`) |
+| `closeReasonId` | uniqueidentifier (`holderCloseReasons`) | Sí si `closed` | Causa de baja. Referencia: `enumerationItems` (T04), catálogo `holderCloseReasons` (§7.18). | OP | `SOCIOS.CAU_BAJA` (`abmCausas`) |
 | `closeReasonDetail` | string | No | Detalle de la causa. | OP | `SOCIOS.CAUSA` |
 | `keepNumberOnClose` | bool | Sí | Conserva el número al darse de baja. | OP | `SOCIOS.ACTIVOBAJA` |
 | `periods` | array `{ openedAt, closedAt, closeReasonId, reactivatedBy, reactivationReason }` | Sí | Períodos de titularidad (reactivaciones). | OP | — |
 | `memberships` | array de `{ associateMembershipId [M17] (antes `membershipId`), legalEntityId [T04], memberNumber, status, since }` (proyección de lectura) | No | Vínculos de asociado informados por M17, **uno por entidad jurídica** (DEC-096): una persona puede ser socia de la cooperativa y afiliada de la mutual a la vez, con un elemento por cada `associateMemberships` de la persona (M17 §7.1, clave `{tenantId, legalEntityId, personId}`); `memberNumber` es único dentro de la entidad, no en el tenant. Como máximo un elemento no terminal por `legalEntityId`. `associateMembershipId` → `associateMemberships` (M17, COL-INS-01; PA-INS-12); `legalEntityId` → `legalEntities` (T04). *Reemplazado (10-11-2026, DEC-096): "`membership` \| object `{ associateMembershipId [M17] (antes `membershipId`), memberNumber, status, since }` (proyección de lectura) \| No \| Vínculo de asociado informado por M17".* | ID | `SOCIOS.ACTIVO`, `SOCIOS.NUM_SOC`, `ACCIONES`, `ACTA` |
 | `indicators` | object `{ inLegalProceedings [M08], assemblyRepresentative [M17], hasActiveContracts [M02], hasPendingQuotes [M11] }` (proyecciones) | No | Indicadores leídos de otros módulos. | OP | `SOCIOS.JURIDICO`, `SOCIOS.REP_ASAMBLEA`, `PRESUPU.ALERTAR` |
-| `principalAccountId` | ObjectId | Sí si tiene cuentas | Cuenta principal (RN-PER-029). | OP | `SUMSOC.PRINCIPAL` |
+| `principalAccountId` | uniqueidentifier | Sí si tiene cuentas | Cuenta principal (RN-PER-029). | OP | `SUMSOC.PRINCIPAL` |
 | `extra` | object | No | Datos extra de titular. | según campo | Columnas restantes de `SOCIOS` (+17) |
 
 Índices: `{ tenantId, holderNumber }` único; `{ tenantId, personId }` único parcial sobre `status ≠ closed` (una titularidad abierta por persona; ver CTR-PER-01); `{ tenantId, status }`; `{ tenantId, "legacy.table", "legacy.key" }` (CTR-DAT-32).
@@ -764,7 +766,7 @@ Propósito: cuenta de servicios del titular (equivalente a `SUMSOC`).
 
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
-| `holderId` | ObjectId | Sí | Titular. | OP | `SUMSOC.COD_SOC` |
+| `holderId` | uniqueidentifier | Sí | Titular. | OP | `SUMSOC.COD_SOC` |
 | `accountNumber` | string (secuencia) | Sí | Número visible único en el tenant. | OP | `SUMSOC.COD_SUM`, `NUM_SUM` |
 | `legacy` | object (T05 §19.1) | No | Código origen. (subdocumento `legacy` con `table` y `key`; CTR-DAT-32, antes campo `legacyCode`). | OP | `SUMSOC.COD_SUM` |
 | `description` | string | No | Descripción de la cuenta. | OP | DFA M3 "descripción" |
@@ -772,12 +774,12 @@ Propósito: cuenta de servicios del titular (equivalente a `SUMSOC`).
 | `status` | enum `active`, `closed` | Sí | Estado (sección 8.3). | OP | — |
 | `openedAt` / `closedAt` | date | Sí / No | Alta y cierre. | OP | `SUMSOC.ALTA` |
 | `closeReason` | string | No | Motivo de cierre. | OP | — |
-| `postalAddressId` | ObjectId (`addresses`) | Sí | Domicilio postal/correspondencia. | UB | `SUMSOC.COD_CAL/NUMERO/PISO/DPTO/COD_BAR/COD_LOC/COD_POS` |
+| `postalAddressId` | uniqueidentifier (`addresses`) | Sí | Domicilio postal/correspondencia. | UB | `SUMSOC.COD_CAL/NUMERO/PISO/DPTO/COD_BAR/COD_LOC/COD_POS` |
 | `deliveryTo` | string | No | "Entregar a" (destinatario postal). | ID | `PROPIEDA.ENTREGAR_A` |
-| `postalCompanyId` | ObjectId (T04 `postalCompanies`) | Según PRM-PER-045 | Empresa postal. Referencia: `postalCarriers` (M05; antes catálogo `postalCompanies`, §7.18). | OP | `abm_Postales`; V2 2506 |
+| `postalCompanyId` | uniqueidentifier (T04 `postalCompanies`) | Según PRM-PER-045 | Empresa postal. Referencia: `postalCarriers` (M05; antes catálogo `postalCompanies`, §7.18). | OP | `abm_Postales`; V2 2506 |
 | `deliveryRoute` | object `{ zoneId, sectorId, routeOrder }` | No | Zona, sector y recorrido de reparto de facturas. | OP | `SUMSOC` (zona/sector/recorrido de facturación); V2 2031–2033 |
-| `districtSectionId` | ObjectId (T04 `districtSections`) | Según PRM-PER-043 | Distrito y sección. Referencia: `cadastralDistricts` (T04; antes catálogo `districtSections`, §7.18). | OP | `DISTRITO_SECCION`; V2 2285 |
-| `accountingGroupId` | ObjectId [M07] (antes [M15]) | Según PRM-PER-044 | Grupo contable. Referencia: `collectionAccountingGroups` (M07, PA-COB-20); antes «catálogo de grupos contables de M15» (PA-PER-17) y [VERIFICAR] colección de M15 (grupo contable; T05 no la declara). | OP | `SUMSOC.COD_GRU`; V2 2738 |
+| `districtSectionId` | uniqueidentifier (T04 `districtSections`) | Según PRM-PER-043 | Distrito y sección. Referencia: `cadastralDistricts` (T04; antes catálogo `districtSections`, §7.18). | OP | `DISTRITO_SECCION`; V2 2285 |
+| `accountingGroupId` | uniqueidentifier [M07] (antes [M15]) | Según PRM-PER-044 | Grupo contable. Referencia: `collectionAccountingGroups` (M07, PA-COB-20); antes «catálogo de grupos contables de M15» (PA-PER-17) y [VERIFICAR] colección de M15 (grupo contable; T05 no la declara). | OP | `SUMSOC.COD_GRU`; V2 2738 |
 | `setCode` | string | Según PRM-PER-042 | "Conjunto" **[VERIFICAR]**. | OP | V2 703 |
 | `fiscal` | object `{ ivaConditionId [M06], requiresTaxId (derivado), iibb { conditionId [M06], registrationNumber, noReset, noPerception, determinedRate } }` | Sí (`ivaConditionId`) | Condición IVA e IIBB de la cuenta. | FI | `SUMSOC.COD_SIT` (`SITIVA`), `COD_SIB`, `NO_RESET`; `IIBB_LUA` |
 | `contacts` | array de `contact` (7.1.2) | Según política | Contactos propios de la cuenta. | CT | `SUMSOC.EMAIL`, `MOVIL`, teléfonos, fax; `SUMSOC_EXTRAS.CORREO_WEB`, `TELE_WEB` (fuente `legacyWeb`) |
@@ -798,14 +800,14 @@ Propósito: dirección reutilizable por personas, cuentas, inmuebles y puntos de
 
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
-| `countryId`, `provinceId`, `departmentId`, `localityId` | ObjectId (T04) | Sí (país, provincia, localidad) | Contexto territorial. | UB | `PAISES`, `PROVINC`, `DEPTO`/`DEPARTA`, `LOCALIDA` |
+| `countryId`, `provinceId`, `departmentId`, `localityId` | uniqueidentifier (T04) | Sí (país, provincia, localidad) | Contexto territorial. | UB | `PAISES`, `PROVINC`, `DEPTO`/`DEPARTA`, `LOCALIDA` |
 | `postalCode` | string | Sí (urbano) | Código postal. | UB | `LOCALIDA.COD_POS`, `DOM_COD` |
-| `streetId` | ObjectId (T04 `streets`) | No | Calle del catálogo. | UB | `CALLES.COD_CAL` |
+| `streetId` | uniqueidentifier (T04 `streets`) | No | Calle del catálogo. | UB | `CALLES.COD_CAL` |
 | `streetNameRaw` | string | Sí si no hay `streetId` | Calle como se escribió. | UB | — |
 | `number` | string | No | Altura. | UB | `NUMERO`, `DOM_NUM` |
 | `noNumber` | bool | Sí | "Sin número". | UB | — |
 | `floor`, `unit`, `building`, `tower`, `block` | string | No | Piso, departamento, edificio, torre, manzana. | UB | `PISO`, `DPTO`, `EDIFICIO` |
-| `neighborhoodId` | ObjectId (T04 `neighborhoods`) | No | Barrio. | UB | `BARRIOS.COD_BAR` |
+| `neighborhoodId` | uniqueidentifier (T04 `neighborhoods`) | No | Barrio. | UB | `BARRIOS.COD_BAR` |
 | `betweenStreets` | array[2] `{ streetId, streetNameRaw }` | No | Entrecalles. | UB | — |
 | `accessReferences` | string | No | Referencias de acceso. | UB | `SERSOC` "Referencia" |
 | `rural` | object `{ route, km, place, lot, field }` | No | Datos rurales. | UB | — |
@@ -813,7 +815,7 @@ Propósito: dirección reutilizable por personas, cuentas, inmuebles y puntos de
 | `normalizedText` | string | Sí (calculado) | Texto normalizado con el formato del tenant (PRM-PER-056). | UB | `GetDomicilio`, `GetDescripcion` |
 | `normalization` | object `{ status: normalized/partial/notFound/pending, source: georef/google/catalog/manual, sourceId, catalogVersion, at }` | Sí | Procedencia. | OP | — |
 | `geo` | object `{ lat, lng, source: geocoder/mapPin/device/fieldApp/import/manual, precision: rooftop/interpolated/street/centroid/none, status: pending/candidate/confirmed/approximate/needsReview/unavailable, confirmedBy, confirmedAt, reason }` | Sí (`status`) | Ubicación actual (RN-PER-067). | UB | `SERSOC` Latitud/Longitud (REL §2), GPS |
-| `streetRequestId` | ObjectId (T04) | No | Solicitud de alta de calle pendiente (RF-PER-084). Referencia: → `streetProposals` (T04, COL-CFG-14). | OP | — |
+| `streetRequestId` | uniqueidentifier (T04) | No | Solicitud de alta de calle pendiente (RF-PER-084). Referencia: → `streetProposals` (T04, COL-CFG-14). | OP | — |
 
 Índices: `{ tenantId, localityId, streetId, number }`; `{ tenantId, "geo.status" }`; geoespacial 2dsphere `{ tenantId, geoPoint }` (campo derivado GeoJSON); `{ tenantId, normalizedText }` texto.
 
@@ -821,11 +823,11 @@ Propósito: dirección reutilizable por personas, cuentas, inmuebles y puntos de
 
 | Campo | Tipo | Oblig. | Descripción | Priv. |
 |---|---|---|---|---|
-| `addressId` | ObjectId | Sí | Domicilio. | UB |
+| `addressId` | uniqueidentifier | Sí | Domicilio. | UB |
 | `eventType` | enum `candidateFound`, `confirmed`, `corrected`, `markedApproximate`, `markedForReview`, `providerUnavailable`, `normalized` | Sí | Hecho. | OP |
 | `before` / `after` | object (`geo` o `normalization`) | Sí | Valores anteriores y nuevos. | UB |
 | `source` | enum (igual a `geo.source`) | Sí | Fuente. | OP |
-| `actorId` | ObjectId | No | Usuario o job. | OP |
+| `actorId` | uniqueidentifier | No | Usuario o job. | OP |
 | `reason` | string | Sí en `corrected` | Motivo. | OP |
 | `relatedRef` | object `{ type: contract/ticket/workOrder, id }` | No | Relación con contrato, ticket u orden (BASE §77). | OP |
 | `occurredAt` | date | Sí | Momento. | OP |
@@ -839,22 +841,22 @@ Propósito: lugar físico con catastro (equivalente a `PROPIEDA`).
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop (`PROPIEDA`) |
 |---|---|---|---|---|---|
 | `premisesCode` | string (secuencia) | Sí | Código visible. | OP | `COD_CTA` |
-| `addressId` | ObjectId (`addresses`) | Sí | Domicilio del inmueble. | UB | `DOM_CAL`, `DOM_NUM`, `DOM_PIS`, `DOM_DPT`, `DOM_BAR`, `DOM_LOC`, `DOM_COD`, `COD_PRO`, `COD_DPTO`, `EDIFICIO` |
-| `ownerPostalAddressId` | ObjectId (`addresses`) | No | Domicilio postal del propietario. | UB | `PDOM_CAL`, `PDOM_NUM`, `PDOM_PIS`, `PDOM_DPT`, `PDOM_BAR`, `PDOM_LOC`, `PDOM_COD` |
+| `addressId` | uniqueidentifier (`addresses`) | Sí | Domicilio del inmueble. | UB | `DOM_CAL`, `DOM_NUM`, `DOM_PIS`, `DOM_DPT`, `DOM_BAR`, `DOM_LOC`, `DOM_COD`, `COD_PRO`, `COD_DPTO`, `EDIFICIO` |
+| `ownerPostalAddressId` | uniqueidentifier (`addresses`) | No | Domicilio postal del propietario. | UB | `PDOM_CAL`, `PDOM_NUM`, `PDOM_PIS`, `PDOM_DPT`, `PDOM_BAR`, `PDOM_LOC`, `PDOM_COD` |
 | `deliveryTo` | string | No | Entregar a. | ID | `ENTREGAR_A` |
 | `legacyAccountRef` | string | No | Cuenta asociada en ProCoop (solo migración; la relación real va por `servicePoints`). | OP | `COD_SUM` |
 | `cadastre` | object `{ part1..part6 (etiquetas PRM-PER-057), fullDesignation, normalizedKey }` | Sí si el servicio lo exige | Nomenclatura de seis partes; partes vacías = "0" (RN-PER-072). | OP | `CAT_CIR`, `CAT_LOT`, `CAT_MAN`, `CAT_PAR`, `CAT_PH`, `INT_LOT`, `CATASTRO` |
 | `cadastreExtra` | object `{ internalBlock, farm, farmLetter, parcelLetter, subParcel, quinta, fraction, districtDecree }` | No | Manzana interna, chacra, letra de chacra, letra de parcela, subparcela, quinta, fracción, decreto/distrito. | OP | `INT_MAN`, `CHACRA`, `LETRA_CHACRA`, `LETRA_PARCELA`, `SUB_PARCELA`, `QUINTA`, `FRACCION`, `DECRETO_DS` |
 | `taxParcelNumber` | string | No | Partida inmobiliaria. | OP | `PARTIDA` |
-| `construction` | object `{ year, type, buildingType, valuation (Decimal128) }` | No | Año y tipo de construcción, tipo de edificio, valuación. | OP | `ANIOCON`, `TIPOCON`, `TIPO_EDIF`, `VALUACION` |
-| `surfaces` | object `{ landM2 (Decimal128), builtM2 (Decimal128) }` | No | Superficie del terreno y edificada. | OP | `SUPERFICIE`, `SUPEDIF` |
-| `frontages` | array[≤4] `{ order, lengthM (Decimal128), streetWidthM (Decimal128), zoneId }` | No | Frentes con ancho de calle y zona por frente (cuotas de obra). | OP | `FRENTE1..4`, `FRENTE1..4_ANCHOCALLE`, `COD_ZON1..4` |
-| `cornerData` | object `{ lengthM, percentage }` (Decimal128) | No | Longitud y porcentaje de bocacalle. | OP | `LONG_BOCACALLE`, `PORC_BOCACALLE` |
-| `coefficients` | object `{ zonal, building, tbm }` (Decimal128) | No | Coeficientes zonal, de edificación y TBM. | OP | `COE_ZONAL`, `COE_EDIF`, `TBM` |
-| `networkMeters` | object `{ publicLightingM, sewerM }` (Decimal128) | No | Metros de alumbrado y cloaca. | OP | `METROS_ALUMBRADO`, `METROS_CLOACA` |
+| `construction` | object `{ year, type, buildingType, valuation (DECIMAL(18,4)) }` | No | Año y tipo de construcción, tipo de edificio, valuación. | OP | `ANIOCON`, `TIPOCON`, `TIPO_EDIF`, `VALUACION` |
+| `surfaces` | object `{ landM2 (DECIMAL(18,4)), builtM2 (DECIMAL(18,4)) }` | No | Superficie del terreno y edificada. | OP | `SUPERFICIE`, `SUPEDIF` |
+| `frontages` | array[≤4] `{ order, lengthM (DECIMAL(18,4)), streetWidthM (DECIMAL(18,4)), zoneId }` | No | Frentes con ancho de calle y zona por frente (cuotas de obra). | OP | `FRENTE1..4`, `FRENTE1..4_ANCHOCALLE`, `COD_ZON1..4` |
+| `cornerData` | object `{ lengthM, percentage }` (DECIMAL(18,4)) | No | Longitud y porcentaje de bocacalle. | OP | `LONG_BOCACALLE`, `PORC_BOCACALLE` |
+| `coefficients` | object `{ zonal, building, tbm }` (DECIMAL(18,4)) | No | Coeficientes zonal, de edificación y TBM. | OP | `COE_ZONAL`, `COE_EDIF`, `TBM` |
+| `networkMeters` | object `{ publicLightingM, sewerM }` (DECIMAL(18,4)) | No | Metros de alumbrado y cloaca. | OP | `METROS_ALUMBRADO`, `METROS_CLOACA` |
 | `units` | array `{ _id, unitCode, floor, unit, functionalUnitNumber, phDesignation, status }` | No | Unidades funcionales. | OP | `UNIDAD_FUNCIONAL`, `CANTIDAD_DE_DPTOS`, `CAT_PH` |
-| `usageId` | ObjectId (`premiseUsages`) | No | Uso del inmueble. Referencia: `enumerationItems` (T04), catálogo `premiseUsages` (§7.18). M06 lo usa como condición opcional de alícuota de IVA en `vatRateMatrix`, desactivada por defecto (DEC-102, PA-FIS-26). | OP | `USOINM` |
-| `stateId` | ObjectId (`premiseStates`) | No | Estado del inmueble. Referencia: `enumerationItems` (T04), catálogo `premiseStates` (§7.18). | OP | `ESTINM` |
+| `usageId` | uniqueidentifier (`premiseUsages`) | No | Uso del inmueble. Referencia: `enumerationItems` (T04), catálogo `premiseUsages` (§7.18). M06 lo usa como condición opcional de alícuota de IVA en `vatRateMatrix`, desactivada por defecto (DEC-102, PA-FIS-26). | OP | `USOINM` |
+| `stateId` | uniqueidentifier (`premiseStates`) | No | Estado del inmueble. Referencia: `enumerationItems` (T04), catálogo `premiseStates` (§7.18). | OP | `ESTINM` |
 | `items` | array `{ itemTypeId, value, unit, validFrom }` | No | Ítems de propiedad con valores. | OP | `PROPIEITEMS*` (DFA M3) |
 | `gisRef` | string | No | Identificador GIS (M10). | OP | `COD_CNT` |
 | `observations` | — | — | Se migra a `notes` sobre el inmueble. | — | `OBSERVA` |
@@ -876,9 +878,9 @@ Propósito: dirección donde se presta uno o varios contratos (M02 referencia `s
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
 | `code` | string (secuencia) | Sí | Código visible. Antes `pointCode` (nombre de T05). | OP | — |
-| `addressId` | ObjectId (`addresses`) | Sí | Dirección de prestación. | UB | `SERSOC` (calle, número, piso, departamento, barrio, localidad) |
-| `premiseId` | ObjectId (`premises`) | Según servicio | Inmueble. Antes `premisesId` (nombre de T05). | OP | `SERSOC.CAT_CIR/CAT_LOT/CAT_MAN/CAT_PAR/CAT_PH/CAT_LT`, `PROPIESER` |
-| `unitId` | ObjectId (`premises.units`) | No | Unidad funcional. Referencia: subdocumento `premises.units` (M01). | OP | — |
+| `addressId` | uniqueidentifier (`addresses`) | Sí | Dirección de prestación. | UB | `SERSOC` (calle, número, piso, departamento, barrio, localidad) |
+| `premiseId` | uniqueidentifier (`premises`) | Según servicio | Inmueble. Antes `premisesId` (nombre de T05). | OP | `SERSOC.CAT_CIR/CAT_LOT/CAT_MAN/CAT_PAR/CAT_PH/CAT_LT`, `PROPIESER` |
+| `unitId` | uniqueidentifier (`premises.units`) | No | Unidad funcional. Referencia: subdocumento `premises.units` (M01). | OP | — |
 | `accessNotes` | string | No | Datos de acceso para técnica y lectura. | UB | `SERSOC` "Referencia" |
 | `gisRef` | string | No | Identificador GIS del punto. | OP | `SERSOC_EXTRAS.GIS` |
 | `status` | enum `active`, `inactive` | Sí | Inactivo si no tiene contratos vigentes y se retiró. | OP | — |
@@ -894,14 +896,14 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
-| `relationshipTypeId` | ObjectId (`relationshipTypes`) | Sí | Tipo (sección 7.17). Referencia: `enumerationItems` (T04), catálogo `relationshipTypes` (§7.18). | OP | `VINCULOS.COD_VIN`, `TIPO_VIN` |
+| `relationshipTypeId` | uniqueidentifier (`relationshipTypes`) | Sí | Tipo (sección 7.17). Referencia: `enumerationItems` (T04), catálogo `relationshipTypes` (§7.18). | OP | `VINCULOS.COD_VIN`, `TIPO_VIN` |
 | `category` | enum `family`, `representation`, `authorization`, `guarantee`, `paymentResponsibility`, `premisesRole`, `organization` | Sí | Familia del tipo. | OP | — |
-| `subjectPersonId` | ObjectId | Sí | Persona que tiene el rol (el garante, el apoderado, el hijo, el propietario). | ID | `SOCIOS.COD_GAR`, `PROPIEDA.COD_PER`. *Reemplazado (10-11-2026, DEC-104): "`RESPONSA`, `SOCIOS.COD_GAR`, `PROPIEDA.COD_PER`".* |
+| `subjectPersonId` | uniqueidentifier | Sí | Persona que tiene el rol (el garante, el apoderado, el hijo, el propietario). | ID | `SOCIOS.COD_GAR`, `PROPIEDA.COD_PER`. *Reemplazado (10-11-2026, DEC-104): "`RESPONSA`, `SOCIOS.COD_GAR`, `PROPIEDA.COD_PER`".* |
 | `target` | object `{ type: person/holder/account/serviceContract/premises/servicePoint, id }` | Sí | Sobre qué recae. | OP | `RELACION_ENTIDADES.TIPO_DESTINO/ID_DESTINO` |
 | `scopeActions` | array enum `view`, `pay`, `requestServices`, `requestCancellation`, `signConformity`, `receiveNotices`, `updateData`, `actInAssembly` | Sí en `authorization`/`representation` | Alcance por acción (RF-PER-100). | OP | — |
 | `validFrom` / `validTo` | date | Sí / No | Vigencia. | OP | `RELACION_ENTIDADES.FECHA` |
 | `status` | enum `pending`, `active`, `expired`, `revoked`, `rejected` | Sí | Estado (sección 8.6). | OP | — |
-| `evidenceDocumentIds` | array ObjectId [T11] | Según tipo | Poder, acta, DNI, contrato de alquiler. | ID | — |
+| `evidenceDocumentIds` | array uniqueidentifier [T11] | Según tipo | Poder, acta, DNI, contrato de alquiler. | ID | — |
 | `verification` | object `{ verifiedBy, verifiedAt, method }` | Si el tipo lo exige | Verificación. | OP | — |
 | `revocation` | object `{ revokedBy, revokedAt, reason, channel }` | No | Revocación. | OP | — |
 | `origin` | enum `backoffice`, `portal`, `import`, `migration` | Sí | Origen. | OP | `RELACION_ENTIDADES.USUARIO` |
@@ -920,13 +922,13 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
 | `kind` | enum `adherent`, `beneficiary` | Sí | Adherente o beneficiario. | OP | `ADHSOC` / `BENSOC` |
-| `contractId` | ObjectId [M02] | Sí | Contrato. | OP | `ADHSOC.COD_CSE`/`ID_SERSOC`, `BENSOC.ID_SERSOC` |
-| `serviceId` | ObjectId [M02] | Sí (desnormalizado) | Servicio, para la regla de unicidad (RN-PER-082). | OP | `ADHSOC.COD_SER` |
-| `accountId`, `holderId` | ObjectId | Sí | Desnormalizados para consulta. | OP | `COD_SUM`, `COD_SOC` |
-| `personId` | ObjectId | Sí | Persona adherente. | ID | `COD_PER` |
-| `relationshipTypeId` | ObjectId (`relationshipTypes`) | Sí | Vínculo con el titular. | ID | `COD_VIN` |
+| `contractId` | uniqueidentifier [M02] | Sí | Contrato. | OP | `ADHSOC.COD_CSE`/`ID_SERSOC`, `BENSOC.ID_SERSOC` |
+| `serviceId` | uniqueidentifier [M02] | Sí (desnormalizado) | Servicio, para la regla de unicidad (RN-PER-082). | OP | `ADHSOC.COD_SER` |
+| `accountId`, `holderId` | uniqueidentifier | Sí | Desnormalizados para consulta. | OP | `COD_SUM`, `COD_SOC` |
+| `personId` | uniqueidentifier | Sí | Persona adherente. | ID | `COD_PER` |
+| `relationshipTypeId` | uniqueidentifier (`relationshipTypes`) | Sí | Vínculo con el titular. | ID | `COD_VIN` |
 | `isHolderAdherent` | bool | Sí | El titular figura como adherente. | OP | `ADHSOC.TITULAR` |
-| `adherentTariffId` | ObjectId [M04] | No | Tarifa de adherente. | OP | `ADHSOC.COD_TAD` |
+| `adherentTariffId` | uniqueidentifier [M04] | No | Tarifa de adherente. | OP | `ADHSOC.COD_TAD` |
 | `startDate` / `endDate` | date | Sí / No | Alta y baja. | OP | `FEC_ALT`, `FEC_BAJ` |
 | `endReason` | enum `request`, `condition`, `deceased`, `transfer`, `contractClosed`, `other` | Si `endDate` | Motivo de baja. | OP | `OBSERVA` |
 | `printing` | object `{ printedAt, printMark }` | No | Impresión de credencial/ficha. | OP | `FEC_IMP`, `MAR_IMP` |
@@ -946,7 +948,7 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 | `noteDate` | date | Sí | Fecha de la nota (efectiva). | OP | `NOTA_SUM.FECHA` |
 | `title` | string | Sí | Título. | OP | `NOTA_SUM.TITULO` |
 | `text` | string | Sí | Texto (sin límite de 1000). | OP | `NOTA_SUM.TEXTO`, `SOCIOS.OBSERVA`, `PROPIEDA.OBSERVA` |
-| `noteTypeId` | ObjectId (`noteTypes`) | No | Categoría. Referencia: `enumerationItems` (T04), catálogo `noteTypes` (§7.18). | OP | — |
+| `noteTypeId` | uniqueidentifier (`noteTypes`) | No | Categoría. Referencia: `enumerationItems` (T04), catálogo `noteTypes` (§7.18). | OP | — |
 | `visibility` | enum `internal`, `cashier`, `portal` | Sí | Visibilidad; `cashier` reemplaza `MSG_CAJ`. | OP | `NOTA_SUM.MSG_CAJ` |
 | `isSystem` | bool | Sí | Nota automática (RN-PER-094). | OP | Notas automáticas |
 | `systemEvent` | string | No | Evento que la originó (`per.account.created`, `cat.contract.categoryChanged`, `tec.workOrder.closed`). | OP | — |
@@ -964,13 +966,13 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 | `subjectRef` | object `{ type: person/holder/account/serviceContract, id }` | Sí | Destino. Antes `target` (nombre de T05). | OP | `NOTA_SUM` (cuenta/servicio), `SUMSOC`, `SUMNOFAC` |
 | `effects` | array enum `cashPayment`, `webPayment`, `webDebtPublication`, `billing`, `cancellation`, `transfer`, `newContracts`, `reconnection`, `dataChanges`, `cashierMessageOnly` | Sí (≥1) | Efectos (RN-PER-095). | OP | `BLO_CAJ`, `BLOQUEAR_FAC_WEB`, `NOF_SUM`, PMovil 17 |
 | `effectMode` | enum `deny`, `requireApproval`, `warn` | Sí | Para `cashPayment` el valor por defecto lo fija PA-PER-16. | OP | — |
-| `holdReasonId` | ObjectId (`blockReasons`) | Sí | Causa del catálogo. Antes `reasonId` (nombre de T05). Referencia: `holdReasons` (M08; antes catálogo `blockReasons`, CTR-DAT-36). | OP | `CAUBLOQ` |
+| `holdReasonId` | uniqueidentifier (`blockReasons`) | Sí | Causa del catálogo. Antes `reasonId` (nombre de T05). Referencia: `holdReasons` (M08; antes catálogo `blockReasons`, CTR-DAT-36). | OP | `CAUBLOQ` |
 | `detail` | string | No | Detalle. | OP | `NOTA_SUM.TEXTO` |
 | `cashierMessage` | string | No | Mensaje para caja/atención. | OP | `NOTA_SUM.MSG_CAJ` |
 | `portalMessage` | string | No | Mensaje en el portal. | OP | — |
 | `validFrom` / `validTo` | date | Sí / No | Vigencia. | OP | `SUMNOFAC` (fecha marca/desmarca) |
 | `status` | enum `active`, `lifted`, `expired` | Sí | Estado (sección 8.8). | OP | `SUMNOFAC.ACTIVO` |
-| `appliedBy` / `appliedAt` | ObjectId / date | Sí | Quién y cuándo. | OP | `SUMNOFAC` (usuario y fecha de marca) |
+| `appliedBy` / `appliedAt` | uniqueidentifier / date | Sí | Quién y cuándo. | OP | `SUMNOFAC` (usuario y fecha de marca) |
 | `lift` | object `{ liftedBy, liftedAt, reason }` | No | Levantamiento. | OP | `SUMNOFAC` (usuario y fecha de desmarca) |
 | `sourceRef` | object `{ type: manual/documentAction/import/migration/module, id }` | Sí | Origen (por ejemplo, acción de vencimiento documental). | OP | — |
 
@@ -985,7 +987,7 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 | `code`, `name` | string | Sí | Código y nombre (`dict:`). | `TRAMITES.COD_TMT`, `DES_TMT` |
 | `appliesTo` | array enum `person`, `holder`, `account`, `serviceContract` | Sí | Entidades a las que aplica (proveedores y empleados los usa M12/M16 con el mismo motor de T11). | `TRAMITES.TIPO_TMT`; `Tipo_Acciones` 1 cuenta, 2 servicio, 3 proveedores, 4 empleados |
 | `validityDays` | int | No | Días de vigencia. | `TRAMITES.DIAS_VENCE` |
-| `templateId` | ObjectId [T11] | No | Plantilla asociada. | `TRAMITES.COD_PLA` |
+| `templateId` | uniqueidentifier [T11] | No | Plantilla asociada. | `TRAMITES.COD_PLA` |
 | `isDefault` | bool | Sí | Requisito por defecto. | `TRAMITES.TRAMITE_DEFAULT` |
 | `items` | array `{ code, name, mandatory }` | No | Ítems del requisito. | `REQUISITOS_ITEMS` |
 | `requiredFor` | array `{ serviceId [M02], event: contractActivation/beneficiaryGrant/transfer/succession }` | No | Cuándo es exigible. | `REQUISITOS` |
@@ -999,13 +1001,13 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 
 | Campo | Tipo | Oblig. | Descripción | Priv. | Origen ProCoop |
 |---|---|---|---|---|---|
-| `requirementTypeId` | ObjectId | Sí | Requisito. | OP | `PTRAMITES.COD_TMT` |
+| `requirementTypeId` | uniqueidentifier | Sí | Requisito. | OP | `PTRAMITES.COD_TMT` |
 | `target` | object `{ type, id }` | Sí | Persona, titular, cuenta o contrato. | OP | `COD_SOC`, `COD_SUM`, `ID_SERSOC` |
 | `submissionDate` | date | Sí | Fecha de presentación. | OP | `FECHA` |
 | `expiresAt` | date | No | Vencimiento explícito o calculado. | OP | `FECHA_VTO` |
 | `presented` | bool | Sí | Presentado. | OP | `PRESENTADO` |
 | `status` | enum `pending`, `presented`, `validated`, `rejected`, `expired`, `superseded` | Sí | Estado (sección 8.9). | OP | — |
-| `documentIds` | array ObjectId [T11] | No | Archivos. | ID | `ADJUNTOS` |
+| `documentIds` | array uniqueidentifier [T11] | No | Archivos. | ID | `ADJUNTOS` |
 | `observations` | string | No | Observación. | OP | `OBSERVA` |
 | `actionsExecuted` | array `{ phase: submit/expiry, actionType, executedAt, result, error }` | No | Resultado de acciones. | OP | `ACCIONADO`, `ID_AC_TRA` |
 | `legacy` | object | No | Columnas restantes (+3), proveedor (`COD_PROV`). | OP | `PTRAMITES` (+3) |
@@ -1023,14 +1025,14 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 | `items` | array `{ kind: account/serviceContract/capital, refId, newRefId, keepOriginalStartDate, adherentsMode, result }` | Sí | Elementos transferidos y resultado. | `TRANSFER.SERVICIO`, `ID_TRANS_CUENTA` |
 | `effectiveDate` | date | Sí | Fecha efectiva. | `TRANSFER.FECHA` |
 | `options` | object `{ keepCapital, closeOriginHolder, makePrincipal, chargeTransferConcepts, contractMode: clone }` | Sí | Opciones explícitas (reemplazan diálogos). | Diálogos de `TransferirCuenta`/`TransferirServicio` |
-| `simulation` | object `{ simulatedAt, pendingDebtAtOrigin (Decimal128, informativo de M07), conceptsToCharge[], iibbChange, autoDebitImpact, adherentsImpact, billingGroupImpact, blocksFound[], relationshipsFound[], warnings[] }` | Sí antes de enviar | Efectos simulados (RF-PER-135). | — |
+| `simulation` | object `{ simulatedAt, pendingDebtAtOrigin (DECIMAL(18,4), informativo de M07), conceptsToCharge[], iibbChange, autoDebitImpact, adherentsImpact, billingGroupImpact, blocksFound[], relationshipsFound[], warnings[] }` | Sí antes de enviar | Efectos simulados (RF-PER-135). | — |
 | `status` | enum `draft`, `pendingApproval`, `approved`, `executing`, `executed`, `failed`, `cancelled`, `reverted` | Sí | Estado (sección 8.10). | — |
 | `approval` | object `{ workflowInstanceId [T11], approvedBy, approvedAt, rejectedReason }` | Según política | Aprobación. | — |
 | `execution` | object `{ idempotencyKey, startedAt, finishedAt, steps[{ name, status, at, error }] }` | No | Pasos de ejecución. | — |
 | `reversal` | object `{ revertedBy, revertedAt, reason, reversalTransferId }` | No | Reversión. | — |
 | `observations` | string | No | Observación completa. | `TRANSFER.OBSERVAC` |
-| `evidenceDocumentIds` | array ObjectId [T11] | Según tipo | Respaldos. | — |
-| `certificateDocumentId` | ObjectId [T11] | No | Constancia generada (reimprimible). | `frmReimpresionTrans` |
+| `evidenceDocumentIds` | array uniqueidentifier [T11] | Según tipo | Respaldos. | — |
+| `certificateDocumentId` | uniqueidentifier [T11] | No | Constancia generada (reimprimible). | `frmReimpresionTrans` |
 
 Índices: `{ tenantId, number }` único; `{ tenantId, "origin.holderId" }`; `{ tenantId, "destination.holderId" }`; `{ tenantId, status }`; `{ tenantId, "execution.idempotencyKey" }` único parcial.
 
@@ -1040,7 +1042,7 @@ Propósito: vínculos persona–persona, representaciones, autorizaciones, garan
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `personIds` | array[2] ObjectId | Sí | Par candidato (ordenado). |
+| `personIds` | array[2] uniqueidentifier | Sí | Par candidato (ordenado). |
 | `score` | int 0–100 | Sí | Puntaje. |
 | `matchedOn` | array enum `identifier`, `taxIdDni`, `phoneticName`, `birthDate`, `contact`, `address` | Sí | Criterios coincidentes. |
 | `detectedBy` | enum `onCreate`, `batch`, `import`, `manual` | Sí | Origen. |
@@ -1057,11 +1059,11 @@ Propósito: reemplazar `SUMSOC_HST`, `SERSOC_HST` (en lo que toca a PER) y `HIS_
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `entityType` | enum `person`, `holder`, `account`, `address`, `premises`, `servicePoint`, `relationship`, `adherent`, `block` | Sí | Entidad. |
-| `entityId` | ObjectId | Sí | Identificador. |
+| `entityId` | uniqueidentifier | Sí | Identificador. |
 | `revision` | int | Sí | Número de revisión. |
 | `validFrom` / `validTo` | date | Sí / No | Vigencia efectiva del estado. |
 | `recordedAt` | date | Sí | Cuándo lo conoció el sistema. |
-| `recordedBy` | ObjectId | Sí | Actor (usuario, job, integración). |
+| `recordedBy` | uniqueidentifier | Sí | Actor (usuario, job, integración). |
 | `source` | enum `screen`, `portal`, `api`, `job`, `import`, `migration`, `event` | Sí | Origen. |
 | `reason` | string | No | Motivo. |
 | `changedFields` | array string | Sí | Campos cambiados. |
@@ -1080,20 +1082,20 @@ Propósito: reemplazar `SUMSOC_HST`, `SERSOC_HST` (en lo que toca a PER) y `HIS_
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `personId` | ObjectId | Sí | Persona. |
+| `personId` | uniqueidentifier | Sí | Persona. |
 | `purpose` | enum `serviceManagement`, `marketing`, `wallParticipation`, `surveys`, `sensitiveData`, `thirdPartySharing`, `aiProcessing` | Sí | Finalidad. |
 | `legalBasis` | enum `contract`, `legalObligation`, `consent`, `legitimateInterest` | Sí | Base. |
-| `textVersionId` | ObjectId (T04/T08 textos legales) | Sí | Versión del texto aceptado. |
+| `textVersionId` | uniqueidentifier (T04/T08 textos legales) | Sí | Versión del texto aceptado. |
 | `channel` | enum `backoffice`, `portal`, `app`, `paper` | Sí | Canal. |
 | `grantedAt` / `revokedAt` | date | Sí / No | Otorgamiento y revocación. |
-| `evidenceDocumentId` | ObjectId [T11] | No | Constancia. |
+| `evidenceDocumentId` | uniqueidentifier [T11] | No | Constancia. |
 | `status` | enum `granted`, `revoked` | Sí | Estado. |
 
 `dataSubjectRequests`:
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `personId` | ObjectId | Sí | Titular de los datos. |
+| `personId` | uniqueidentifier | Sí | Titular de los datos. |
 | `requestType` | enum `access`, `rectification`, `update`, `deletion`, `objection` | Sí | Derecho ejercido. |
 | `receivedAt` / `dueAt` | date | Sí | Recepción y plazo (según T08). |
 | `channel` | enum `backoffice`, `portal`, `email`, `paper` | Sí | Canal. |
@@ -1105,12 +1107,12 @@ Propósito: reemplazar `SUMSOC_HST`, `SERSOC_HST` (en lo que toca a PER) y `HIS_
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `userId` | ObjectId [T02] | Sí | Usuario de acceso. |
-| `personId` | ObjectId | Sí | Persona del tenant. |
+| `userId` | uniqueidentifier [T02] | Sí | Usuario de acceso. |
+| `personId` | uniqueidentifier | Sí | Persona del tenant. |
 | `status` | enum `requested`, `pendingVerification`, `verified`, `rejected`, `revoked`, `expired` | Sí | Estado (sección 8.13). |
 | `method` | enum `invoiceCode`, `documentAndAccount`, `inPerson`, `otpToRegisteredContact`, `identityProvider` | Sí | Método (DEC-043: código de factura + documento, código de un solo uso al contacto registrado o validación presencial; `documentAndAccount` sin segundo factor y `identityProvider` solo como complemento). |
 | `attempts` | array `{ at, result, ip }` | Sí | Intentos (con límite y bloqueo temporal). |
-| `verifiedAt` / `verifiedBy` | date / ObjectId | No | Verificación. |
+| `verifiedAt` / `verifiedBy` | date / uniqueidentifier | No | Verificación. |
 | `revokedAt` / `revokedBy` / `revokeReason` | — | No | Revocación. |
 
 Índices: `consents { tenantId, personId, purpose, status }`; `dataSubjectRequests { tenantId, status, dueAt }`; `personUserLinks { tenantId, userId, personId }` único y `{ tenantId, personId, status }`.

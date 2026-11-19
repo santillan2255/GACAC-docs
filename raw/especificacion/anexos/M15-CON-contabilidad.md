@@ -564,12 +564,14 @@ Decisión: **Replicar** (igual que ProCoop), **Mejorar** (mismo propósito con m
 | RN-CON-120 | Libros, asientos y documentación respaldatoria se conservan íntegros como mínimo durante el plazo legal (art. 328 del Código Civil y Comercial: diez años) y no se purgan aunque el tenant se dé de baja; la baja del tenant entrega una exportación completa (T01). | Sin política explícita. | Adoptar (T08, AGR-023). | — | Plazo y alcance con el área contable y legal |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Convenciones comunes a todas las colecciones (Guía §5): `tenantId` (ObjectId, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista); importes `Decimal128` con `decimal.js`; fechas UTC con zona del tenant; los documentos económicos (asientos contabilizados, lotes confirmados, corridas de ajuste, estados emitidos) **nunca se borran**: se anulan o revierten. Todos los índices compuestos empiezan por `tenantId`. Las colecciones de simulación (`simulatedJournalLines`) están físicamente separadas de las oficiales.
+
+Convenciones comunes a todas las colecciones (Guía §5): `TenantId` (uniqueidentifier, obligatorio), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (control optimista); importes `DECIMAL(18,4)` con `decimal.js`; fechas UTC con zona del tenant; los documentos económicos (asientos contabilizados, lotes confirmados, corridas de ajuste, estados emitidos) **nunca se borran**: se anulan o revierten. Todos los índices compuestos empiezan por `TenantId`. Las colecciones de simulación (`simulatedJournalLines`) están físicamente separadas de las oficiales.
 
 > **Corrección 05-11-2026 (tablas de campos):** las colecciones que este §7 describía solo en texto corrido o en tablas resumen tienen ahora su tabla de campos (Campo, Tipo, Oblig., Descripción, Referencia), debajo de su descripción original, que se conserva. Tipos y obligatoriedad se deducen del texto del anexo y de T05 §7.7; donde no se pueden deducir figura `[VERIFICAR]`. La columna Referencia declara la colección destino y su anexo dueño. Cuando T05 usa otro nombre para el campo, la tabla usa el de T05 y anota "Antes `x`". Las tablas de campos que ya existían incorporan también la columna Referencia.
 
-**Entidad jurídica (DEC-064, DEC-087):** la contabilidad se lleva por entidad jurídica del tenant (`legalEntities` de T04, equivalente a `EMPRESAS` de ProCoop). Llevan `legalEntityId` obligatorio: `fiscalYears`, `accountingPeriods`, `journalEntries` (y desnormalizado en `journalLines`), `postingBatches`, `ledgerBalances`, `ledgerProjections`, `inflationAdjustmentRuns`, `reconciliationRuns`, `rubricatedBooks`, `financialStatementRuns`, `budgets`, `commitments` y `externalLedgerTransfers`; `costCenters` lleva `legalEntityId` obligatorio (entidad dueña) y `sharedWithLegalEntityIds`, con el mismo criterio que el plan de cuentas (DEC-096, RN-CON-127). Cada entidad tiene sus ejercicios, su numeración de asientos por ejercicio, sus libros rubricados y sus estados contables; `chartOfAccounts` puede compartirse entre entidades o ser propio. **Corregido (RF-CFG-136 de T04, que incluye `chartOfAccounts`, `journalEntries` y `fiscalYears` en el esquema base con `legalEntityId` obligatorio):** el plan lleva `legalEntityId` obligatorio (entidad dueña del plan) y `sharedWithLegalEntityIds` [ObjectId] para las demás entidades que lo usan (antes `legalEntityIds` vacío = todas); el validador del esquema base rechaza asientos, ejercicios o planes sin entidad o con entidad inactiva a su fecha. Un asiento nunca mezcla entidades: el evento económico trae `legalEntityId` del documento de origen y, si un hecho afecta a dos entidades (por ejemplo, un cobro de caja de la entidad A por deuda de B, RN-COB-153 de M07), se generan dos asientos con la cuenta entre entidades (`rol:interEntityAccount`). Los informes consolidados del tenant suman entidades sin alterar los libros.
+**Entidad jurídica (DEC-064, DEC-087):** la contabilidad se lleva por entidad jurídica del tenant (`legalEntities` de T04, equivalente a `EMPRESAS` de ProCoop). Llevan `legalEntityId` obligatorio: `fiscalYears`, `accountingPeriods`, `journalEntries` (y desnormalizado en `journalLines`), `postingBatches`, `ledgerBalances`, `ledgerProjections`, `inflationAdjustmentRuns`, `reconciliationRuns`, `rubricatedBooks`, `financialStatementRuns`, `budgets`, `commitments` y `externalLedgerTransfers`; `costCenters` lleva `legalEntityId` obligatorio (entidad dueña) y `sharedWithLegalEntityIds`, con el mismo criterio que el plan de cuentas (DEC-096, RN-CON-127). Cada entidad tiene sus ejercicios, su numeración de asientos por ejercicio, sus libros rubricados y sus estados contables; `chartOfAccounts` puede compartirse entre entidades o ser propio. **Corregido (RF-CFG-136 de T04, que incluye `chartOfAccounts`, `journalEntries` y `fiscalYears` en el esquema base con `legalEntityId` obligatorio):** el plan lleva `legalEntityId` obligatorio (entidad dueña del plan) y `sharedWithLegalEntityIds` [uniqueidentifier] para las demás entidades que lo usan (antes `legalEntityIds` vacío = todas); el validador del esquema base rechaza asientos, ejercicios o planes sin entidad o con entidad inactiva a su fecha. Un asiento nunca mezcla entidades: el evento económico trae `legalEntityId` del documento de origen y, si un hecho afecta a dos entidades (por ejemplo, un cobro de caja de la entidad A por deuda de B, RN-COB-153 de M07), se generan dos asientos con la cuenta entre entidades (`rol:interEntityAccount`). Los informes consolidados del tenant suman entidades sin alterar los libros.
 
 **Nombres canónicos (T05 §7.2, CTR-DAT-30 y 31):** `ledgerAccountId` (antes `accountId` en este anexo), `accountId` para la cuenta del asociado de M01 en dimensiones (antes `memberAccountId`), `legalEntityId` (antes `companyId`), `treasuryAccountId` (antes `bankAccountId`), `storedFileId(s)` (antes `fileId(s)`); subdocumento `legacy` de T05 (antes `legacyCode`); períodos como `period` (`YYYY-MM`) + `sequence` (antes `year`, `month`).
 
@@ -583,7 +585,7 @@ Propósito: configuración contable general. Origen: RN-09 CONTABILIDAD; `VARIAB
 | `functionalCurrency` | String | Sí | `ARS`. | — |
 | `entryNumberFormat` | `{ mode: 'sequential'\|'prefix4seq4', startAt }` | Sí | PRM-CON-005. | — |
 | `costCenters` | `{ enabled: Boolean, scope: 'all'\|'payrollOnly', percentDecimals: Int }` | Sí | P2547, P2714, P2978. | — |
-| `rounding` | `{ toleranceAbs: Decimal128, tolerancePct: Decimal128 }` | Sí | PRM-CON-008/009. | — |
+| `rounding` | `{ toleranceAbs: DECIMAL(18,4), tolerancePct: DECIMAL(18,4) }` | Sí | PRM-CON-008/009. | — |
 | `postingModes` | `[{ sourceModule: enum, mode: 'realtime'\|'dailySummary'\|'rangeSummary', granularity: 'perOperation'\|'summary', groupBy: [String], dateBasis: enum }]` | Sí | Por módulo (fac, cob, mor, fis, cmp, tes, stk, sue, ins, soc, tec, ven). | — |
 | `receivableGrouping` | enum `byBillingType`\|`byConcept`\|`byConceptSplitVat`\|`byConceptAlt3`\|`byConceptAlt6` | Sí | P2190. | — |
 | `useCollectionAccountingGroups` | Boolean | Sí | Inverso de P2191. | — |
@@ -591,7 +593,7 @@ Propósito: configuración contable general. Origen: RN-09 CONTABILIDAD; `VARIAB
 | `unpostablePolicy` | enum `pendingNoBlock`\|`blockSource`\|`suspenseAccount` | Sí | PA-CON-02. | — |
 | `cashPostingTrigger` | enum `onPaymentConfirmed`\|`onCashboxClosed` | Sí | P3100, PA-CON-10. | — |
 | `voidPolicy` | enum `draftDeleteVoidOpenReverseClosed`\|`physicalDeleteOpen`\|`reverseOnly` | Sí | PA-CON-04. | — |
-| `manualEntryApproval` | `{ thresholdAmount: Decimal128, types: [String] }` | No | PRM-CON-010. | — |
+| `manualEntryApproval` | `{ thresholdAmount: DECIMAL(18,4), types: [String] }` | No | PRM-CON-010. | — |
 | `periodCloseChecklist` | `{ requireCashboxesClosed, requireReconciliations, requireDepreciation, requireProvisions }` Booleans | Sí | PRM-CON-013. | — |
 | `closing` | `{ memorandumAccounts: 'carryForward'\|'requireZero', reopenApprovers: Int }` | Sí | PA-CON-13. | — |
 | `inflation` | `{ enabled, indexSeriesId, frequency: 'annual'\|'monthly', method: enum }` | No | PA-CON-07. | — |
@@ -600,9 +602,9 @@ Propósito: configuración contable general. Origen: RN-09 CONTABILIDAD; `VARIAB
 | `lateEventPolicy` | enum `firstOpenDay`\|`error` | Sí | PRM-CON-015 (RN-CON-106). | — |
 | `fxRevaluation` | `{ enabled, source: 'tes' }` | Sí | PRM-CON-016 (RN-CON-107). | — |
 | `publicationPolicyOnMissingRule` | enum `warn`\|`block` | Sí | PRM-CON-017 (RF-CON-006). | — |
-| `suspenseTolerance` | Decimal128 | Sí | PRM-CON-018 (RN-CON-114). | — |
+| `suspenseTolerance` | DECIMAL(18,4) | Sí | PRM-CON-018 (RN-CON-114). | — |
 | `healthCheckSchedule` | String cron | Sí | PRM-CON-019. | — |
-| `configVersionId` | ObjectId | Sí | Versión T04 publicada. | `configVersions` (T04) |
+| `configVersionId` | uniqueidentifier | Sí | Versión T04 publicada. | `configVersions` (T04) |
 
 Índice: `{ tenantId: 1 }` único.
 
@@ -614,17 +616,17 @@ Propósito: planes de cuentas. Origen: `CTPLAN` (plan único implícito).
 |---|---|---|---|---|
 | `code` | String | Sí | Ej. `PC-OPER-01`. | — |
 | `name` | String | Sí | — | — |
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad dueña del plan (RF-CFG-136 de T04; DEC-064). | `legalEntities` (T04) |
-| `sharedWithLegalEntityIds` | [ObjectId → T04] | No | Otras entidades del tenant que usan este plan; vacío = solo la dueña. | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad dueña del plan (RF-CFG-136 de T04; DEC-064). | `legalEntities` (T04) |
+| `sharedWithLegalEntityIds` | [uniqueidentifier → T04] | No | Otras entidades del tenant que usan este plan; vacío = solo la dueña. | `legalEntities` (T04) |
 | `purpose` | enum `operative`\|`alternative`\|`simulation`\|`regulatory`\|`external` | Sí | RF-CON-008. | — |
 | `status` | enum `draft`\|`approved`\|`operative`\|`alternative`\|`archived` | Sí | §8.2. | — |
 | `versionNumber` | Int | Sí | — | — |
-| `copiedFromChartId` | ObjectId | No | Origen de la copia. | `chartOfAccounts` (M15) |
+| `copiedFromChartId` | uniqueidentifier | No | Origen de la copia. | `chartOfAccounts` (M15) |
 | `codeMask` | String | Sí | Ej. `9.9.99.99.999` o `99999999999`. | — |
 | `validFrom` / `validTo` | Date | Sí / No | Vigencia. | — |
 | `regulatoryTarget` | enum `INAES`\|`OCEBA`\|`ERSEP`\|`other` | No | Para plan regulatorio. | — |
-| `scenarioId` | ObjectId | No | Si `purpose = simulation`. | `simulationScenarios` (M15) |
-| `approvedBy` / `approvedAt` | ObjectId / Date | No | — | `memberships` (T02) |
+| `scenarioId` | uniqueidentifier | No | Si `purpose = simulation`. | `simulationScenarios` (M15) |
+| `approvedBy` / `approvedAt` | uniqueidentifier / Date | No | — | `memberships` (T02) |
 
 Índices: `{ tenantId, code, versionNumber }` único; `{ tenantId, status }`; `{ tenantId, legalEntityId, purpose, status }`.
 
@@ -634,9 +636,9 @@ Propósito: rubros y subrubros contables. Origen: `CTSRUBROS` (`COD_RUB`, `DES_R
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | — | `chartOfAccounts` (M15) |
+| `chartId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) |
 | `kind` | enum `rubric`\|`subrubric` | Sí | — | — |
-| `parentRubricId` | ObjectId | No | Para subrubros. | `accountRubrics` (M15) |
+| `parentRubricId` | uniqueidentifier | No | Para subrubros. | `accountRubrics` (M15) |
 | `code`, `name` | String | Sí | — | — |
 | `rubricType` | enum `asset`\|`liability`\|`equity`\|`income`\|`expense`\|`memorandum` | Sí | `TIP_RUB`. | — |
 | `statementLine` | String | No | Línea por defecto en estados. | — |
@@ -651,30 +653,30 @@ Propósito: cuentas contables. Origen: `CTPLAN` (`COD_PLAN`, `COD_CTA`, `CON_CTA
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | Identidad incluye el plan (RN-CON-089). | `chartOfAccounts` (M15) |
+| `chartId` | uniqueidentifier | Sí | Identidad incluye el plan (RN-CON-089). | `chartOfAccounts` (M15) |
 | `code` | String | Sí | Código visible según máscara. | — |
 | `codeHistory` | `[{ code, changedAt, changedBy }]` | No | Renumeraciones (RF-CON-020). | — |
 | `name` | String | Sí | `NOM_CTA`. | — |
-| `parentId` | ObjectId | No | Árbol. | `ledgerAccounts` (M15) |
-| `path` | [ObjectId] | Sí | Ancestros (consultas por rama). | `ledgerAccounts` (M15) |
+| `parentId` | uniqueidentifier | No | Árbol. | `ledgerAccounts` (M15) |
+| `path` | [uniqueidentifier] | Sí | Ancestros (consultas por rama). | `ledgerAccounts` (M15) |
 | `level` | Int | Sí | — | — |
 | `postable` | Boolean | Sí | Imputable. | — |
 | `nature` | enum `asset`\|`liability`\|`equity`\|`income`\|`expense`\|`memoDebit`\|`memoCredit` | Sí | RF-CON-012. | — |
 | `normalBalance` | enum `debit`\|`credit` | Sí | — | — |
-| `rubricId` / `subrubricId` | ObjectId | No / No | RF-CON-013. | `accountRubrics` (M15) |
+| `rubricId` / `subrubricId` | uniqueidentifier | No / No | RF-CON-013. | `accountRubrics` (M15) |
 | `inflationAdjustable` | Boolean | Sí | `AJU_CTA`. | — |
 | `monetary` | Boolean | Sí | Partida monetaria (para RECPAM). | — |
 | `currency` | String | Sí | `ARS` por defecto. | — |
 | `costCenterPolicy` | enum `forbidden`\|`optional`\|`required` | Sí | RF-CON-015. | — |
-| `allowedCostCenterIds` | [ObjectId] | No | `CTSECC_X_CTA`; vacío = todos. | `costCenters` (M15) |
+| `allowedCostCenterIds` | [uniqueidentifier] | No | `CTSECC_X_CTA`; vacío = todos. | `costCenters` (M15) |
 | `defaultAllocation` | `{ modelId \| splits: [{ costCenterId, pct }] }` | No | Sección por defecto (elem 11). | — |
 | `requiredDimensions` | [enum `service`\|`supplier`\|`member`\|`bank`\|`employee`\|`asset`\|`work`] | No | Ej. créditos por servicios exige `service`; `service` en la lista equivale a `requiresService` de RN-CON-108. | — |
 | `controlAccountOf` | enum `memberReceivables`\|`suppliers`\|`cash`\|`bank`\|`valuesPortfolio`\|`stock`\|`fixedAssets`\|`capital`\|`payroll`\|`vat`\|`thirdParty`\|`none` | Sí | Para conciliaciones. | — |
 | `subaccountCode` | String | No | `COD_SCC` (P2814). | — |
 | `checkDigit` | String | No | `DIG_VER`. | — |
 | `statementLines` | `[{ templateId, lineCode }]` | No | RF-CON-019. | — |
-| `inaesCategoryId` | ObjectId | No | Catálogo de M17. | `inaesCategories` (M17) |
-| `mergedIntoAccountId` | ObjectId | No | Unificación (RF-CON-021). | `ledgerAccounts` (M15) |
+| `inaesCategoryId` | uniqueidentifier | No | Catálogo de M17. | `inaesCategories` (M17) |
+| `mergedIntoAccountId` | uniqueidentifier | No | Unificación (RF-CON-021). | `ledgerAccounts` (M15) |
 | `status` | enum `active`\|`inactive` | Sí | — | — |
 | `validFrom` / `validTo` | Date | Sí / No | — | — |
 | `legacy` | Object (T05) | No | `{system: 'procoop', table: 'CTPLAN', key, displayKey}`; `displayKey` = código de 11 dígitos ProCoop (antes `legacyCode`). | — |
@@ -687,10 +689,10 @@ Propósito: cuentas por defecto tipadas (reemplazo de parámetros-cuenta). Orige
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | — | `chartOfAccounts` (M15) |
+| `chartId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) |
 | `roleKey` | String (catálogo §14.2) | Sí | Ej. `vatOutputRegistered`. | — |
-| `ledgerAccountId` | ObjectId | No | Vacío = sin asignar (aparece en validador). | `ledgerAccounts` (M15) |
-| `costCenterModelId` | ObjectId | No | Modelo de centro de costo por defecto del rol (PA-CON-18). | `costCenterModels` (M15) (antes `distributionModels` (M15) [VERIFICAR]) |
+| `ledgerAccountId` | uniqueidentifier | No | Vacío = sin asignar (aparece en validador). | `ledgerAccounts` (M15) |
+| `costCenterModelId` | uniqueidentifier | No | Modelo de centro de costo por defecto del rol (PA-CON-18). | `costCenterModels` (M15) (antes `distributionModels` (M15) [VERIFICAR]) |
 | `overrides` | `[{ dimension: enum service, branch, costCenter, cashDesk, tax, card, agency, supplier, project; value; ledgerAccountId }]` | No | Override por dimensión (T04b: "override por servicio / centro de costo"). | — |
 | `legacyVariable` | Int | No | Ej. 2104. | — |
 | `prmId` | String | No | PRM-ID de T04b (ej. `PRM-CON-P4-015`). | — (código del catálogo de parámetros de T04b, no es referencia a una colección) |
@@ -704,14 +706,14 @@ Propósito: reglas de imputación. Origen: `CTCUENTA_ASIGNA` (`COD_CTA`, `TIP_CT
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | — | `chartOfAccounts` (M15) |
+| `chartId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) |
 | `code`, `name` | String | Sí | Ej. `R-104`. | — |
 | `eventType` | String | Sí | Ej. `fac.invoice.issued` o `*`. | — |
 | `amountRole` | String | Sí | Ej. `net`, `vat`, `perception`, `receivable`, `cash`. | — |
 | `side` | enum `debit`\|`credit`\|`bySign` | Sí | — | — |
 | `conditions` | `{ serviceId, conceptId, productId, rubricId, accountingGroupId, billingTypeId, zoneId, paymentMethodId, valueTypeId, treasuryAccountId, cashboxId, collectorEntityId, supplierId, supplierCategoryId, employeeId, payrollConceptId, unionId, legalEntityId, workId, incidentCategoryId, assetId, warehouseId, branchId, taxId, vatRateId, taxCondition, memberType }` (cada uno opcional, valor o lista) | Sí | Más coincidencias gana. | — |
-| `ledgerAccountId` | ObjectId | Sí | Destino. | `ledgerAccounts` (M15) |
-| `costCenterModelId` / `costCenterId` | ObjectId | No | Centro o modelo (PA-CON-18). | `costCenterModels` (M15) (antes `distributionModels` (M15) [VERIFICAR]) / `costCenters` (M15) |
+| `ledgerAccountId` | uniqueidentifier | Sí | Destino. | `ledgerAccounts` (M15) |
+| `costCenterModelId` / `costCenterId` | uniqueidentifier | No | Centro o modelo (PA-CON-18). | `costCenterModels` (M15) (antes `distributionModels` (M15) [VERIFICAR]) / `costCenters` (M15) |
 | `priority` | Int | Sí | Desempate. | — |
 | `validFrom` / `validTo` | Date | Sí / No | — | — |
 | `status` | enum `active`\|`inactive` | Sí | — | — |
@@ -731,14 +733,14 @@ Propósito: eventos económicos recibidos. Origen: nuevo (ProCoop relee movimien
 | `sourceModule` | enum | Sí | — | — |
 | `sourceDocument` | `{ type, id, number, issuedAt }` | Sí | Documento de origen. | — |
 | `accountingDate` | Date | Sí | Según base del módulo. | — |
-| `currency`, `fxRate` | String, Decimal128 | Sí | — | — |
-| `lines` | `[{ amountRole, amount: Decimal128, sign: +1\|-1, dimensions: {...}, costAllocation: [{ costCenterId, pct, amount }], memo }]` | Sí | Renglones económicos (sin cuentas). | — |
+| `currency`, `fxRate` | String, DECIMAL(18,4) | Sí | — | — |
+| `lines` | `[{ amountRole, amount: DECIMAL(18,4), sign: +1\|-1, dimensions: {...}, costAllocation: [{ costCenterId, pct, amount }], memo }]` | Sí | Renglones económicos (sin cuentas). | — |
 | `reversesEventId` | String | No | Para anulaciones. | `accountingEvents` (M15) |
 | `originalAccountingDate` | Date | No | Fecha original de un evento tardío (RN-CON-106). | — |
 | `status` | enum `received`\|`posted`\|`pendingConfiguration`\|`error`\|`ignored`\|`reversed` | Sí | §8.3. | — |
 | `issues` | `[{ code, message, amountRole, missing: { roleKey \| entity }, configPath }]` | No | Faltantes con ruta de configuración. | — |
-| `journalEntryId` / `journalLineIds` | ObjectId / [ObjectId] | No | Vínculo. | `journalEntries` (M15) / `journalLines` (M15) |
-| `postingBatchId` | ObjectId | No | Si fue por lote. | `postingBatches` (M15) |
+| `journalEntryId` / `journalLineIds` | uniqueidentifier / [uniqueidentifier] | No | Vínculo. | `journalEntries` (M15) / `journalLines` (M15) |
+| `postingBatchId` | uniqueidentifier | No | Si fue por lote. | `postingBatches` (M15) |
 | `attempts` | Int | Sí | — | — |
 | `receivedAt`, `postedAt` | Date | Sí / No | — | — |
 
@@ -750,8 +752,8 @@ Propósito: cabecera de asiento. Origen: `CTASIEN` (`COD_ASI`, `COD_AS`, `DES_AS
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica del asiento (DEC-064); igual a la del ejercicio. | `legalEntities` (T04) |
-| `chartId`, `fiscalYearId`, `periodId` | ObjectId | Sí | — | `chartOfAccounts` (M15) / `fiscalYears` (M15) / `accountingPeriods` (M15) |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica del asiento (DEC-064); igual a la del ejercicio. | `legalEntities` (T04) |
+| `chartId`, `fiscalYearId`, `periodId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) / `fiscalYears` (M15) / `accountingPeriods` (M15) |
 | `internalNumber` | Long | Sí | Global inmutable (`COD_ASI`). | — |
 | `entryNumber` | Int | Sí (al contabilizar) | Por entidad jurídica y ejercicio (`COD_AS`). | — |
 | `entryDate` | Date | Sí | `FEC_ASI`. | — |
@@ -760,21 +762,21 @@ Propósito: cabecera de asiento. Origen: `CTASIEN` (`COD_ASI`, `COD_AS`, `DES_AS
 | `type` | enum `manual`\|`automatic`\|`adjustment`\|`opening`\|`resultClosing`\|`balanceClosing`\|`inflation`\|`imported`\|`reversal`\|`surplusDistribution`\|`reclassification`\|`provision` | Sí | — | — |
 | `sourceType` | enum `user`\|`event`\|`batch`\|`import`\|`template`\|`closing` | Sí | RN-CON-010. | — |
 | `status` | enum `draft`\|`pendingApproval`\|`posted`\|`voided`\|`reversed` | Sí | §8.1. | — |
-| `totalDebit` / `totalCredit` | Decimal128 | Sí | Iguales. | — |
+| `totalDebit` / `totalCredit` | DECIMAL(18,4) | Sí | Iguales. | — |
 | `sourceEventIds` | [String] | No | Eventos incluidos (si son muchos, solo en renglones y bandeja). | `outboxEvents` (T01) |
 | `sourceDocuments` | `[{ type, id, number }]` | No | Para asientos por operación. | — |
-| `postingBatchId` | ObjectId | No | — | `postingBatches` (M15) |
-| `templateId` | ObjectId | No | — | `entryTemplates` (M15) |
-| `reversesEntryId` / `reversedByEntryId` | ObjectId | No | — | `journalEntries` (M15) |
+| `postingBatchId` | uniqueidentifier | No | — | `postingBatches` (M15) |
+| `templateId` | uniqueidentifier | No | — | `entryTemplates` (M15) |
+| `reversesEntryId` / `reversedByEntryId` | uniqueidentifier | No | — | `journalEntries` (M15) |
 | `autoReverseOn` | Date | No | Provisiones. | — |
 | `originalAccountingDate` | Date | No | RN-CON-106. | — |
-| `recordedBy` / `reviewedBy` / `approvedBy` | ObjectId | Sí / No / No | `GRABO`, `REVISO`, `AUTORI`. | `memberships` (T02) |
-| `approvalRequestId` | ObjectId | No | T11. | `workflowInstances` (T11) |
-| `attachments` | [ObjectId] | No | Expediente T11. | `documents` (T11) |
-| `rubricatedBookId` | ObjectId | No | Transcripción (antes en una fila conjunta con `folio`, PA-CON-19). | `rubricatedBooks` (M15) |
+| `recordedBy` / `reviewedBy` / `approvedBy` | uniqueidentifier | Sí / No / No | `GRABO`, `REVISO`, `AUTORI`. | `memberships` (T02) |
+| `approvalRequestId` | uniqueidentifier | No | T11. | `workflowInstances` (T11) |
+| `attachments` | [uniqueidentifier] | No | Expediente T11. | `documents` (T11) |
+| `rubricatedBookId` | uniqueidentifier | No | Transcripción (antes en una fila conjunta con `folio`, PA-CON-19). | `rubricatedBooks` (M15) |
 | `folio` | Int | No | Folio del libro rubricado donde se transcribió. | — (número, no es referencia) |
 | `voidReason` | String | No | — | — |
-| `configVersionId` | ObjectId | Sí | Reglas aplicadas. | `configVersions` (T04) |
+| `configVersionId` | uniqueidentifier | Sí | Reglas aplicadas. | `configVersions` (T04) |
 | `exported` | `[{ externalSystem, exportBatchId, at }]` | No | SISCONT. | — |
 | `importSource` | `{ fileName, row, externalId }` | No | — | — |
 
@@ -786,15 +788,15 @@ Propósito: renglones. Origen: `CTITASIE` (`COD_ITA`, `COD_ASI`, `COD_LIN`, `COD
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `entryId` | ObjectId | Sí | — | `journalEntries` (M15) |
+| `entryId` | uniqueidentifier | Sí | — | `journalEntries` (M15) |
 | `lineNo` | Int | Sí | `COD_LIN`. | — |
-| `chartId`, `ledgerAccountId` | ObjectId | Sí | — | `chartOfAccounts` (M15) / `ledgerAccounts` (M15) |
+| `chartId`, `ledgerAccountId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) / `ledgerAccounts` (M15) |
 | `legalEntityId`, `entryDate`, `fiscalYearId`, `periodId`, `entryStatus` | desnormalizados | Sí | Para mayores por entidad jurídica (DEC-064). `entryStatus` copia `journalEntries.status` (§8.1: `draft`, `pendingApproval`, `posted`, `voided`, `reversed`; antes sin valores). | `legalEntities` (T04) / `fiscalYears` (M15) / `accountingPeriods` (M15) |
-| `debit` / `credit` | Decimal128 | Sí | Uno es cero. | — |
+| `debit` / `credit` | DECIMAL(18,4) | Sí | Uno es cero. | — |
 | `currency`, `fxRate`, `amountCurrency` | — | No | Moneda extranjera. | — |
 | `memo` | String | No | `OBS_LIN`. | — |
 | `dimensions` | `{ serviceId, accountId, supplierId, treasuryAccountId, employeeId, assetId, workId, conceptId, ... }` | No | Explicabilidad y conciliación. | — |
-| `costAllocations` | `[{ costCenterId, pct: Decimal128, amount: Decimal128 }]` | Según cuenta | Suma = importe del renglón. | — |
+| `costAllocations` | `[{ costCenterId, pct: DECIMAL(18,4), amount: DECIMAL(18,4) }]` | Según cuenta | Suma = importe del renglón. | — |
 | `resolution` | `{ path: 'entity'\|'rule'\|'role', ruleId, roleKey, matches: Int }` | No | RF-CON-054. | — |
 | `sourceEventIds` | [String] | No | Eventos agregados. | `outboxEvents` (T01) |
 | `sourceDocumentRefs` | `[{ type, id }]` | No | Drill-down (hasta N; si excede, vía bandeja). | — |
@@ -807,7 +809,7 @@ Propósito: asientos personalizados, recurrentes y de sueldos formato 3. Origen:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | Plan de cuentas de las líneas (clave de T05 COL-CON; PA-CON-19). | `chartOfAccounts` (M15) |
+| `chartId` | uniqueidentifier | Sí | Plan de cuentas de las líneas (clave de T05 COL-CON; PA-CON-19). | `chartOfAccounts` (M15) |
 | `code`, `name`, `description` | String | Sí | — | — |
 | `usage` | enum `manual`\|`recurring`\|`payroll`\|`provision`\|`closingAdjustment` | Sí | — | — |
 | `lines` | `[{ ledgerAccountId \| roleKey, side, basis: 'fixed'\|'pctOfBase'\|'formula', value, formula, costCenterModelId, filters: { legalEntityId, unionId, categoryIds, employeeIds, costCenterId, positionId, departmentId } }]` | Sí | — | — |
@@ -823,12 +825,12 @@ Origen: `frmCierreDiario`, `frmCierreDiario_Resultado`, `clsCierreDiario`.
 | `number` | Int | Sí | Antes `batchNumber`. Único por tenant (T05; PA-CON-19). | — |
 | `dateFrom` / `dateTo` | Date | Sí | — | — |
 | `modules` | [enum `sales`\|`otherPeriodPayments`\|`collections`\|`treasury`\|`banks`\|`financing`\|`purchases`\|`stock`\|`capital`\|`payroll`\|`manufacturing`\|`fixedAssets`\|`yearClosing`\|`inflationAdjustment`] | Sí | Orden de ProCoop. | — |
-| `options` | `{ dailyDetail: Boolean, perOperation: Boolean, composition: Boolean, salesUseIssueDate: Boolean, billingTypeFilter: [ObjectId], stockValuationMethod: String, fiscalYearId }` | Sí | Opciones del formulario. | — |
+| `options` | `{ dailyDetail: Boolean, perOperation: Boolean, composition: Boolean, salesUseIssueDate: Boolean, billingTypeFilter: [uniqueidentifier], stockValuationMethod: String, fiscalYearId }` | Sí | Opciones del formulario. | — |
 | `status` | enum `preparing`\|`preview`\|`confirming`\|`confirmed`\|`discarded`\|`failed` | Sí | §8.5. | — |
 | `progress` | `{ total, processed, failed }` | Sí | Job reanudable. | — |
-| `draftEntryIds` / `postedEntryIds` | [ObjectId] | No | — | `journalEntries` (M15) |
+| `draftEntryIds` / `postedEntryIds` | [uniqueidentifier] | No | — | `journalEntries` (M15) |
 | `warnings` | `[{ code, message }]` | No | Cajas abiertas, eventos pendientes. | — |
-| `requestedBy`, `confirmedBy` | ObjectId | Sí / No | — | `memberships` (T02) |
+| `requestedBy`, `confirmedBy` | uniqueidentifier | Sí / No | — | `memberships` (T02) |
 
 ### 7.12 `fiscalYears`
 
@@ -836,13 +838,13 @@ Origen: `CTEJER` (`COD_EJE`, `FEC_INI`, `FEC_FIN`, `ABIERTO`, `FEC_CIE`, `USER_C
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Entidad jurídica del ejercicio (DEC-064); en la migración, la empresa de ProCoop (`EMPRESAS`) que T07 asigne, o la única del tenant [VERIFICAR] cómo separa ProCoop los ejercicios por empresa. | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Entidad jurídica del ejercicio (DEC-064); en la migración, la empresa de ProCoop (`EMPRESAS`) que T07 asigne, o la única del tenant [VERIFICAR] cómo separa ProCoop los ejercicios por empresa. | `legalEntities` (T04) |
 | `number` | Int | Sí | `NUM_EJE`. | — |
 | `startDate` / `endDate` | Date | Sí | — | — |
 | `status` | enum `planned`\|`open`\|`closing`\|`closed`\|`reopened` | Sí | §8.4. | — |
 | `irregular` | Boolean | Sí | — | — |
 | `closingEntries` | `{ resultClosingId, balanceClosingId, openingId }` | No | Cierre1, cierre2, apertura. | — |
-| `closedAt` / `closedBy` | Date / ObjectId | No | `FEC_CIE`, `USER_CIE`. | `memberships` (T02) |
+| `closedAt` / `closedBy` | Date / uniqueidentifier | No | `FEC_CIE`, `USER_CIE`. | `memberships` (T02) |
 | `history` | `[{ action, at, by, reason, approvalRequestId }]` | Sí | Cierres y reaperturas. | — |
 | `nextEntryNumber` | Int | Sí | Contador atómico. | — |
 
@@ -854,8 +856,8 @@ Origen: fechas de cierre P67, P432, P500, P501, P502, P504, P505, P506, P2376, P
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `legalEntityId` | ObjectId → T04 | Sí | Igual a la del ejercicio (DEC-064). | `legalEntities` (T04) |
-| `fiscalYearId` | ObjectId | Sí | — | `fiscalYears` (M15) |
+| `legalEntityId` | uniqueidentifier → T04 | Sí | Igual a la del ejercicio (DEC-064). | `legalEntities` (T04) |
+| `fiscalYearId` | uniqueidentifier | Sí | — | `fiscalYears` (M15) |
 | `period` | String `YYYY-MM` | Sí | Mes calendario del período (CTR-DAT-31; antes `year`, `month`). | — |
 | `sequence` | Int | Sí | Orden del período dentro del ejercicio (1..n; admite ejercicios irregulares). | — |
 | `startDate` / `endDate` | Date | Sí | — | — |
@@ -872,17 +874,17 @@ Origen: `RESULTA` (`COD_RES`, `DES_RES`, `COD_CTA`, `GANANCIAS`, `PERDIDAS`).
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | — | `chartOfAccounts` (M15) |
+| `chartId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) |
 | `name` | String | Sí | — | — |
 | `match` | `{ codePrefix \| ledgerAccountIds \| rubricIds }` | Sí | Prefijo más largo gana. | — |
-| `ledgerAccountId` | ObjectId | Sí | Antes `targetAccountId`. Cuenta de resultado destino (nombre canónico de T05 §7.2; PA-CON-19). | `ledgerAccounts` (M15) |
+| `ledgerAccountId` | uniqueidentifier | Sí | Antes `targetAccountId`. Cuenta de resultado destino (nombre canónico de T05 §7.2; PA-CON-19). | `ledgerAccounts` (M15) |
 | `appliesTo` | enum `gains`\|`losses`\|`both` | Sí | `GANANCIAS`/`PERDIDAS`. | — |
 
 ### 7.15 `capitalRubricAccounts`
 
 **Reemplazado por `entityAccountAssignments` con `entityType: capitalRubric` (CTR-DAT-57).** El rubro de capital (código, nombre, rubros de producto incluidos) es `capitalItems` de M17, sin cuentas; las cuentas viven en §7.39 con `entityId` = rubro de M17 y `usage` `capitalSubscribed` (suscripto), `capitalPaidIn` (integrado), `capitalReceivable` (asociados cuenta suscripción) y `capitalRefundPayable` (devolución a pagar). La descripción siguiente queda como mapeo del origen `RUBCAPI`.
 
-Origen: `RUBCAPI` (`COD_RCC`, `COD_RUB`, `DES_RCC`, `COD_CTA`). Rubros de capital con cuentas: `chartId`, `capitalRubricCode`, `name`, `productRubricIds` [ObjectId] (cada rubro de producto en un solo rubro de capital), `subscribedAccountId`, `integratedAccountId`, `receivableAccountId` (asociados cuenta suscripción), `refundPayableAccountId`. Índice `{ tenantId, chartId, capitalRubricCode }` único.
+Origen: `RUBCAPI` (`COD_RCC`, `COD_RUB`, `DES_RCC`, `COD_CTA`). Rubros de capital con cuentas: `chartId`, `capitalRubricCode`, `name`, `productRubricIds` [uniqueidentifier] (cada rubro de producto en un solo rubro de capital), `subscribedAccountId`, `integratedAccountId`, `receivableAccountId` (asociados cuenta suscripción), `refundPayableAccountId`. Índice `{ tenantId, chartId, capitalRubricCode }` único.
 
 ### 7.16 `costCenters`
 
@@ -891,20 +893,20 @@ Origen: `CTSECCION` (`COD_SEC`, `DES_SEC`, `ID_GRUPO_CTSECCION`, `Porc_IVA_Compr
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `code`, `name` | String | Sí | Ej. `CC-AG`. | — |
-| `parentId` | ObjectId | No | Jerarquía. | `costCenters` (M15) |
+| `parentId` | uniqueidentifier | No | Jerarquía. | `costCenters` (M15) |
 | `kind` | enum `service`\|`support`\|`administration`\|`commercial`\|`project`\|`other` | Sí | Para distribución. | — |
-| `relatedServiceIds` / `branchIds` / `areaIds` / `zoneIds` | [ObjectId] | No | Sin imponer equivalencia. | `tenantServices` (M02) / `branches` (T04) / `crmAreas` (M09) / `zones` (T04) |
-| `vatCreditablePct` | Decimal128 | Sí | Default 100 (`Porc_IVA_Compras`). | — |
-| `groupIds` | [ObjectId] | No | `CTSECCION_GP_ASIGNA`. | `costCenterGroups` (M15) |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica dueña del centro (DEC-096, RN-CON-127). | `legalEntities` (T04) |
-| `sharedWithLegalEntityIds` | [ObjectId] | No | Otras entidades del tenant que pueden imputar al centro; vacío = solo la dueña; no repite la dueña (DEC-096, RN-CON-127). | `legalEntities` (T04) |
+| `relatedServiceIds` / `branchIds` / `areaIds` / `zoneIds` | [uniqueidentifier] | No | Sin imponer equivalencia. | `tenantServices` (M02) / `branches` (T04) / `crmAreas` (M09) / `zones` (T04) |
+| `vatCreditablePct` | DECIMAL(18,4) | Sí | Default 100 (`Porc_IVA_Compras`). | — |
+| `groupIds` | [uniqueidentifier] | No | `CTSECCION_GP_ASIGNA`. | `costCenterGroups` (M15) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica dueña del centro (DEC-096, RN-CON-127). | `legalEntities` (T04) |
+| `sharedWithLegalEntityIds` | [uniqueidentifier] | No | Otras entidades del tenant que pueden imputar al centro; vacío = solo la dueña; no repite la dueña (DEC-096, RN-CON-127). | `legalEntities` (T04) |
 | `status`, `validFrom`, `validTo` | Enum / Date / Date | Sí / Sí / No `[VERIFICAR]` | `status`: `active`, `inactive` (§8.11.8; antes sin valores). | — |
 
 Índices: `{ tenantId, code }` único (el código no se repite entre entidades, para que un centro compartido sea uno solo); `{ tenantId, legalEntityId, status }`; `{ tenantId, sharedWithLegalEntityIds }` (DEC-096). Migración: `CTSECCION` no tiene empresa; cada sección se crea con la entidad por defecto como dueña y compartida con las demás entidades del tenant (conserva el comportamiento de ProCoop); la cooperativa puede luego restringirla o pasarla a otra dueña antes del primer asiento que la use (RN-CON-127).
 
 ### 7.17 `costCenterGroups`
 
-Origen: `CTSECCION_GRUPOS` (`ID_GRUPO_CTSECCION`, `DES_GRUPO_CTSECCION`), `CTSECCION_GP_ASIGNA` (`COD_CGA`, `COD_SEC`, `ID_GRUPO_CTSECCION`). Campos: `code`, `name`, `costCenterIds` [ObjectId], `status`. Índice `{ tenantId, code }` único.
+Origen: `CTSECCION_GRUPOS` (`ID_GRUPO_CTSECCION`, `DES_GRUPO_CTSECCION`), `CTSECCION_GP_ASIGNA` (`COD_CGA`, `COD_SEC`, `ID_GRUPO_CTSECCION`). Campos: `code`, `name`, `costCenterIds` [uniqueidentifier], `status`. Índice `{ tenantId, code }` único.
 
 Campos de `costCenterGroups`:
 
@@ -912,7 +914,7 @@ Campos de `costCenterGroups`:
 |---|---|---|---|---|
 | `code` | String | Sí | — | — |
 | `name` | String | Sí | — | — |
-| `costCenterIds` | [ObjectId] | [VERIFICAR] | Lista: ObjectId. | `costCenters` (M15) |
+| `costCenterIds` | [uniqueidentifier] | [VERIFICAR] | Lista: uniqueidentifier. | `costCenters` (M15) |
 | `status` | Enum | Sí | `active`, `inactive` (§8.11.8; antes sin valores). | — |
 
 ### 7.18 `costAllocationRules`
@@ -923,8 +925,8 @@ Origen: `CTSECCION_ASIGNA`, `FPITEMS_CTSEC` (por ítem de compra, guardado en CM
 |---|---|---|---|---|
 | `operationType` | enum `revenue`\|`purchases`\|`inflationAdjustment`\|`manualEntry`\|`costOfSales`\|`accountDefault`\|`payroll`\|`fixedAsset`\|`incident`\|`work` | Sí | `TIPO_OPERACION`. | — |
 | `elementType` | enum `service`\|`product`\|`concept`\|`tax`\|`account`\|`employee`\|`asset`\|`incidentCategory`\|`workGroup` | Sí | `TIPO_ELEMENTO`. | — |
-| `elementId` | ObjectId | Sí | `COD_SER`/`COD_PRO`/`COD_IMP`/`COD_CON`/`COD_CTA`. | `networkElements` (M10) |
-| `modelId` | ObjectId | No | `MODELO`. | `distributionModels` (M15) |
+| `elementId` | uniqueidentifier | Sí | `COD_SER`/`COD_PRO`/`COD_IMP`/`COD_CON`/`COD_CTA`. | `networkElements` (M10) |
+| `modelId` | uniqueidentifier | No | `MODELO`. | `distributionModels` (M15) |
 | `splits` | `[{ costCenterId, pct }]` | Sí (si no hay modelo) | Suman 100. | — |
 | `legacyVariable` | Int | No | `COD_VAR`. | — |
 | `validFrom` / `validTo` | Date | Sí / No | — | — |
@@ -955,7 +957,7 @@ Propósito: modelo con nombre que define cómo se reparte entre centros de costo
 | `code` | String | Sí | Ej. `MCC-COMUN-01`. | — |
 | `name` | String | Sí | — | — |
 | `splits` | `[{ costCenterId, pct }]` | Cond. | Reparto fijo; los porcentajes suman 100. Obligatorio si no hay `distributionModelId`. | `costCenters` (M15) (solo `costCenterId`) |
-| `distributionModelId` | ObjectId | Cond. | Reparto dinámico delegado; alternativo a `splits`. | `distributionModels` (M15) |
+| `distributionModelId` | uniqueidentifier | Cond. | Reparto dinámico delegado; alternativo a `splits`. | `distributionModels` (M15) |
 | `validFrom` / `validTo` | Date | Sí / No | Vigencia. | — |
 | `status` | Enum | Sí | `active`, `inactive` (§8.11.8). | — |
 | `version` | Int | Sí | — | — |
@@ -969,23 +971,23 @@ Distribución analítica de comunes (BASE §75).
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | Int | Sí | Número de corrida, único por tenant (T05; PA-CON-19). | — |
-| `distributionModelId` | ObjectId | No | Modelo de distribución principal de la corrida (T05; las reglas pueden usar otros en `rules[].modelId`). | `distributionModels` (M15) |
+| `distributionModelId` | uniqueidentifier | No | Modelo de distribución principal de la corrida (T05; las reglas pueden usar otros en `rules[].modelId`). | `distributionModels` (M15) |
 | `periodFrom` / `periodTo` | Date | Sí | — | — |
 | `scope` | enum `real`\|`scenario` | Sí | — | — |
-| `scenarioId` | ObjectId | No | — | `simulationScenarios` (M15) |
+| `scenarioId` | uniqueidentifier | No | — | `simulationScenarios` (M15) |
 | `rules` | `[{ sourceCostCenterIds, ledgerAccountIds, modelId, driverValues: [{ costCenterId, value }] }]` | Sí | Reglas versionadas usadas. | — |
 | `results` | `[{ sourceCostCenterId, ledgerAccountId, amount, targetCostCenterId, allocated, basis }]` | Sí | — | — |
 | `unallocated` | `[{ ledgerAccountId, amount, reason }]` | No | Identificados, no ocultos. | — |
 | `totals` | `{ source, allocated, unallocated }` | Sí | `source = allocated + unallocated`. | — |
 | `status` | enum `draft`\|`final`\|`superseded` | Sí | — | — |
-| `reclassificationEntryId` | ObjectId | No | Si se expone en libros (RF-CON-089). | `journalEntries` (M15) |
+| `reclassificationEntryId` | uniqueidentifier | No | Si se expone en libros (RF-CON-089). | `journalEntries` (M15) |
 
 ### 7.21 `accountMappings` (equivalencias)
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `sourceChartId` / `targetChartId` | ObjectId | Sí | — | `chartOfAccounts` (M15) |
-| `sourceAccountId` | ObjectId | Sí | — | `ledgerAccounts` (M15) |
+| `sourceChartId` / `targetChartId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) |
+| `sourceAccountId` | uniqueidentifier | Sí | — | `ledgerAccounts` (M15) |
 | `targets` | `[{ ledgerAccountId, pct }]` | Sí | 1:1 o 1:N (suma 100). | — |
 | `conditions` | `{ serviceId, costCenterId }` | No | Equivalencia condicionada por dimensión. | — |
 | `validFrom` / `validTo` | Date | Sí / No | — | — |
@@ -998,8 +1000,8 @@ Distribución analítica de comunes (BASE §75).
 |---|---|---|---|---|
 | `code`, `name` | String | Sí | Ej. `SIM-CON-001`. | — |
 | `kind` | enum `chartStructure`\|`costDistribution`\|`tariffHypothesis`\|`costHypothesis`\|`budget`\|`combined` | Sí | BASE §57 (contables, económicas, presupuestarias). | — |
-| `chartId` | ObjectId | Sí | Plan usado. | `chartOfAccounts` (M15) |
-| `baseScenarioId` | ObjectId | No | Copia. | `simulationScenarios` (M15) |
+| `chartId` | uniqueidentifier | Sí | Plan usado. | `chartOfAccounts` (M15) |
+| `baseScenarioId` | uniqueidentifier | No | Copia. | `simulationScenarios` (M15) |
 | `universe` | `{ dateFrom, dateTo, cutoffAt, modules, serviceIds, filters }` | Sí | Mismo universo que el real. | — |
 | `assumptions` | `[{ type, target, value, description }]` | Sí | Ej. tarifa +10 %. | — |
 | `status` | enum `draft`\|`running`\|`completed`\|`failed`\|`archived` | Sí | §8.8. | — |
@@ -1016,9 +1018,9 @@ Campos de `simulatedJournalLines`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `scenarioId` | ObjectId | Sí | Obligatorio. Además de los campos de `journalLines` (misma estructura). | `simulationScenarios` (M15) |
+| `scenarioId` | uniqueidentifier | Sí | Obligatorio. Además de los campos de `journalLines` (misma estructura). | `simulationScenarios` (M15) |
 | `simulatedEntryKey` | String | [VERIFICAR] | — | — |
-| `originRealLineId` | ObjectId | [VERIFICAR] | — | `journalLines` (M15) |
+| `originRealLineId` | uniqueidentifier | [VERIFICAR] | — | `journalLines` (M15) |
 
 ### 7.24 `ledgerProjections`
 
@@ -1028,14 +1030,14 @@ Campos de `ledgerProjections`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | [VERIFICAR] | Antes `targetChartId`. Plan alternativo o regulatorio (nombre canónico de T05; PA-CON-19). | `chartOfAccounts` (M15) |
-| `sourceLineId` | ObjectId | [VERIFICAR] | — | `journalLines` (M15) |
-| `ledgerAccountId` | ObjectId | [VERIFICAR] | — | `ledgerAccounts` (M15) |
+| `chartId` | uniqueidentifier | [VERIFICAR] | Antes `targetChartId`. Plan alternativo o regulatorio (nombre canónico de T05; PA-CON-19). | `chartOfAccounts` (M15) |
+| `sourceLineId` | uniqueidentifier | [VERIFICAR] | — | `journalLines` (M15) |
+| `ledgerAccountId` | uniqueidentifier | [VERIFICAR] | — | `ledgerAccounts` (M15) |
 | `debit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `credit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `entryDate` | Date | [VERIFICAR] | — | — |
-| `costAllocations` | Decimal128 | [VERIFICAR] | — | — |
-| `mappingId` | ObjectId | [VERIFICAR] | — | `accountMappings` (M15) |
+| `costAllocations` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `mappingId` | uniqueidentifier | [VERIFICAR] | — | `accountMappings` (M15) |
 
 ### 7.25 `ledgerBalances`
 
@@ -1045,17 +1047,17 @@ Campos de `ledgerBalances`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | — | `chartOfAccounts` (M15) |
-| `ledgerAccountId` | ObjectId | Sí | — | `ledgerAccounts` (M15) |
-| `fiscalYearId` | ObjectId | [VERIFICAR] | — | `fiscalYears` (M15) |
-| `periodId` | ObjectId | Sí | — | `accountingPeriods` (M15) |
-| `costCenterId` | ObjectId | Sí | Opcional. | `costCenters` (M15) |
-| `serviceId` | ObjectId | Sí | Opcional. | `tenantServices` (M02) |
+| `chartId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) |
+| `ledgerAccountId` | uniqueidentifier | Sí | — | `ledgerAccounts` (M15) |
+| `fiscalYearId` | uniqueidentifier | [VERIFICAR] | — | `fiscalYears` (M15) |
+| `periodId` | uniqueidentifier | Sí | — | `accountingPeriods` (M15) |
+| `costCenterId` | uniqueidentifier | Sí | Opcional. | `costCenters` (M15) |
+| `serviceId` | uniqueidentifier | Sí | Opcional. | `tenantServices` (M02) |
 | `openingDebit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `openingCredit` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `periodDebit` | String | [VERIFICAR] | — | — |
 | `periodCredit` | String | [VERIFICAR] | — | — |
-| `closingBalance` | Decimal128 | [VERIFICAR] | — | — |
+| `closingBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `rebuiltAt` | Date (fecha y hora) | Cond. | — | — |
 
 ### 7.26 `budgets` y 7.27 `budgetLines`
@@ -1066,15 +1068,15 @@ Campos de `budgets`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `fiscalYearId` | ObjectId | Sí | — | `fiscalYears` (M15) |
+| `fiscalYearId` | uniqueidentifier | Sí | — | `fiscalYears` (M15) |
 | `code` | String | Sí | — | — |
 | `name` | String | Sí | — | — |
 | `versionNumber` | String | Sí | — | — |
 | `versionKind` | Enum | [VERIFICAR] | `original`\|`reformulation`\|`draft`. | — |
-| `baseBudgetId` | ObjectId | [VERIFICAR] | — | `budgets` (M15) |
-| `adjustmentPct` | Decimal128 | [VERIFICAR] | — | — |
+| `baseBudgetId` | uniqueidentifier | [VERIFICAR] | — | `budgets` (M15) |
+| `adjustmentPct` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `draft`\|`submitted`\|`approved`\|`active`\|`closed`\|`superseded`. | — |
-| `approvedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `approvedAt` | Date (fecha y hora) | Cond. | — | — |
 | `currency` | String | [VERIFICAR] | — | — |
 
@@ -1084,12 +1086,12 @@ Campos de `budgets`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `budgetId` | ObjectId | Sí | — | `budgets` (M15) |
-| `ledgerAccountId` | ObjectId | Sí | — | `ledgerAccounts` (M15) |
-| `costCenterId` | ObjectId | Sí | — | `costCenters` (M15) |
-| `serviceId` | ObjectId | Sí | — | `tenantServices` (M02) |
+| `budgetId` | uniqueidentifier | Sí | — | `budgets` (M15) |
+| `ledgerAccountId` | uniqueidentifier | Sí | — | `ledgerAccounts` (M15) |
+| `costCenterId` | uniqueidentifier | Sí | — | `costCenters` (M15) |
+| `serviceId` | uniqueidentifier | Sí | — | `tenantServices` (M02) |
 | `month` | Int | Sí | 1–12, mes del ejercicio; el mes calendario se expone como `period` `YYYY-MM`, CTR-DAT-31. | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `seasonalityKey` | String | [VERIFICAR] | — | — |
 | `notes` | String | [VERIFICAR] | — | — |
 | `source` | Enum | [VERIFICAR] | `manual`\|`import`\|`copy`\|`payrollProjection`. | — |
@@ -1099,7 +1101,7 @@ Campos de `budgets`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `sourceDocument` | `{ type: 'purchaseOrder'\|'contract'\|'supplyRequest', id, number }` | Sí | — | — |
-| `budgetId` | ObjectId | Sí | — | `budgets` (M15) |
+| `budgetId` | uniqueidentifier | Sí | — | `budgets` (M15) |
 | `lines` | `[{ ledgerAccountId, costCenterId, serviceId, month, committed, accrued, released }]` | Sí | — | — |
 | `status` | enum `open`\|`partiallyAccrued`\|`accrued`\|`released`\|`cancelled` | Sí | §8.9. | — |
 | `exceedAuthorization` | `{ requestId, approvedBy, amount }` | No | — | — |
@@ -1110,7 +1112,7 @@ Campos de `budgets`:
 
 **Reemplazado por `economicIndexSeries` / `economicIndexValues` de T04 (CTR-DAT-29).** M15 no es dueño de las series de índices: el ajuste por inflación lee la serie configurada (PRM-CON-036, `economicIndexSeriesId`) de T04, la misma que usa M08 para ajuste de cuotas. Los valores se identifican por `period` `YYYY-MM` (CTR-DAT-31). La descripción siguiente queda como mapeo del origen.
 
-`inflationIndexSeries` (origen `TABINFL`: `COD_TAB`, `DES_TAB`): `code`, `name`, `source` (ej. FACPCE/INDEC), `base`. `inflationIndexValues` (origen `INFLACIO`: `COD_INF`, `COD_TAB`, `MES_TAB`, `ANO_TAB`, `IND_TAB`): `seriesId`, `year`, `month`, `value` (Decimal128, 6+ decimales), `loadedBy`. Índice `{ tenantId, seriesId, year, month }` único.
+`inflationIndexSeries` (origen `TABINFL`: `COD_TAB`, `DES_TAB`): `code`, `name`, `source` (ej. FACPCE/INDEC), `base`. `inflationIndexValues` (origen `INFLACIO`: `COD_INF`, `COD_TAB`, `MES_TAB`, `ANO_TAB`, `IND_TAB`): `seriesId`, `year`, `month`, `value` (DECIMAL(18,4), 6+ decimales), `loadedBy`. Índice `{ tenantId, seriesId, year, month }` único.
 
 ### 7.31 `inflationAdjustmentRuns`
 
@@ -1120,21 +1122,21 @@ Campos de `inflationAdjustmentRuns`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `fiscalYearId` | ObjectId | Sí | — | `fiscalYears` (M15) |
+| `fiscalYearId` | uniqueidentifier | Sí | — | `fiscalYears` (M15) |
 | `periodTo` | Date | [VERIFICAR] | — | — |
-| `seriesId` | ObjectId | [VERIFICAR] | Serie configurada en PRM-CON-036. | `economicIndexSeries` (T04) (antes `inflationIndexSeries` (M15), reemplazada en §7.29; PA-CON-19) |
+| `seriesId` | uniqueidentifier | [VERIFICAR] | Serie configurada en PRM-CON-036. | `economicIndexSeries` (T04) (antes `inflationIndexSeries` (M15), reemplazada en §7.29; PA-CON-19) |
 | `version` | Int | Sí | Versión de la corrida del ejercicio; `{fiscalYearId, version}` único (T05; PA-CON-19). | — |
 | `method` | Enum | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `preview`\|`posted`\|`reversed`. | — |
 | `lines` | [Object] | [VERIFICAR] | Lista; subcampos: ledgerAccountId, originMonth, historicalAmount, coefficient, adjustedAmount, adjustment, costCenterId. | — |
-| `recpamTotal` | Decimal128 | [VERIFICAR] | — | — |
-| `entryId` | ObjectId | [VERIFICAR] | — | `journalEntries` (M15) |
+| `recpamTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `entryId` | uniqueidentifier | [VERIFICAR] | — | `journalEntries` (M15) |
 
 ### 7.32 `reconciliationRuns`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `fiscalYearId` | ObjectId | Sí | Ejercicio conciliado (clave de T05; PA-CON-19). | `fiscalYears` (M15) |
+| `fiscalYearId` | uniqueidentifier | Sí | Ejercicio conciliado (clave de T05; PA-CON-19). | `fiscalYears` (M15) |
 | `kind` | enum `memberReceivables`\|`cashBanks`\|`suppliers`\|`vat`\|`withholdings`\|`stock`\|`fixedAssets`\|`capital`\|`payroll`\|`thirdParty`\|`advances` | Sí | — | — |
 | `cutoffAt` | Date | Sí | — | — |
 | `dimensionBreakdown` | enum `total`\|`byService`\|`byBank`\|`bySupplier` | Sí | — | — |
@@ -1151,9 +1153,9 @@ Campos de `inflationAdjustmentRuns`:
 | `rubricNumber`, `rubricDate` | String, Date | Sí | — | — |
 | `sheetFrom` / `sheetTo` / `lastUsedSheet` | Int | Sí | — | — |
 | `linesPerSheet` | Int | Sí | `GuardarLineas`. | — |
-| `fiscalYearId` | ObjectId | Sí | Ejercicio del libro; `{bookType, fiscalYearId, volume}` único (T05; PA-CON-19). | `fiscalYears` (M15) |
+| `fiscalYearId` | uniqueidentifier | Sí | Ejercicio del libro; `{bookType, fiscalYearId, volume}` único (T05; PA-CON-19). | `fiscalYears` (M15) |
 | `volume` | Int | Sí | Número de tomo. | — |
-| `storedFileId` | ObjectId | No | Archivo del libro digital o del escaneo de la rúbrica. | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | No | Archivo del libro digital o del escaneo de la rúbrica. | `storedFiles` (T01) |
 | `format` | enum `paper`\|`digital` | Sí | PA-CON-08. | — |
 | `transcriptions` | `[{ fiscalYearId, entryFrom, entryTo, sheetFrom, sheetTo, printedAt, printedBy, fileHash }]` | No | — | — |
 | `status` | enum `active`\|`exhausted`\|`closed` | Sí | — | — |
@@ -1178,13 +1180,13 @@ Campos de `statementTemplates`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `fiscalYearId` | ObjectId | Sí | — | `fiscalYears` (M15) |
-| `templateIds` | [ObjectId] | [VERIFICAR] | — | `statementTemplates` (M15) |
-| `comparativeFiscalYearId` | ObjectId | [VERIFICAR] | — | `fiscalYears` (M15) |
+| `fiscalYearId` | uniqueidentifier | Sí | — | `fiscalYears` (M15) |
+| `templateIds` | [uniqueidentifier] | [VERIFICAR] | — | `statementTemplates` (M15) |
+| `comparativeFiscalYearId` | uniqueidentifier | [VERIFICAR] | — | `fiscalYears` (M15) |
 | `status` | Enum | Sí | `draft`\|`approved`\|`issued`. | — |
 | `snapshot` | Object | [VERIFICAR] | Valores congelados. | — |
-| `storedFileIds` | [ObjectId] | [VERIFICAR] | — | `storedFiles` (T01) |
-| `approvedBy` | ObjectId | Cond. | Consejo. | `memberships` (T02) |
+| `storedFileIds` | [uniqueidentifier] | [VERIFICAR] | — | `storedFiles` (T01) |
+| `approvedBy` | uniqueidentifier | Cond. | Consejo. | `memberships` (T02) |
 | `issuedAt` | Date (fecha y hora) | Cond. | — | — |
 | `hash` | String | [VERIFICAR] | — | — |
 
@@ -1199,7 +1201,7 @@ Campos de `externalLedgerMappings`:
 | `externalSystem` | [VERIFICAR] | Sí | — | — |
 | `operationCode` | String | Sí | — | — |
 | `operationName` | String | [VERIFICAR] | — | — |
-| `ledgerAccountId` | ObjectId | Sí | — | `ledgerAccounts` (M15) |
+| `ledgerAccountId` | uniqueidentifier | Sí | — | `ledgerAccounts` (M15) |
 | `externalAccountCode` | Int | [VERIFICAR] | — | — |
 | `externalRubric` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `notes` | String | [VERIFICAR] | — | — |
@@ -1211,9 +1213,9 @@ Campos de `externalLedgerMappings`:
 | `direction` | Enum | [VERIFICAR] | `export`\|`import`. | — |
 | `dateFrom` | Date | [VERIFICAR] | — | — |
 | `dateTo` | Date | [VERIFICAR] | — | — |
-| `fileLayoutId` | ObjectId | [VERIFICAR] | Antes `layoutId`. Layout del archivo (nombre canónico de T05 §7.2; PA-CON-19). | `fileLayouts` (T06) |
-| `storedFileId` | ObjectId | Sí | — | `storedFiles` (T01) |
-| `entryIds` | [ObjectId] | [VERIFICAR] | — | `journalEntries` (M15) |
+| `fileLayoutId` | uniqueidentifier | [VERIFICAR] | Antes `layoutId`. Layout del archivo (nombre canónico de T05 §7.2; PA-CON-19). | `fileLayouts` (T06) |
+| `storedFileId` | uniqueidentifier | Sí | — | `storedFiles` (T01) |
+| `entryIds` | [uniqueidentifier] | [VERIFICAR] | — | `journalEntries` (M15) |
 | `status` | Enum | Sí | `running`\|`completed`\|`failed`\|`partially`. | — |
 | `errors` | [Object] | [VERIFICAR] | [VERIFICAR] estructura (el anexo no la detalla). | — |
 | `idempotencyKey` | String | Sí | — | — |
@@ -1226,11 +1228,11 @@ CON lee (no posee) y guarda solo la asignación contable cuando corresponde: `co
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `chartId` | ObjectId | Sí | — | `chartOfAccounts` (M15) |
+| `chartId` | uniqueidentifier | Sí | — | `chartOfAccounts` (M15) |
 | `entityType` | enum `supplier`, `treasuryAccount`, `vatRate`, `perceptionRate`, `billingType`, `collectionAccountingGroup`, `productCategory`, `capitalRubric`, `suppliedWithholdingType`, `practicedWithholdingType`, `payrollConcept`, `employer`, `union`, `payrollTemplate`, `projectGroup`, `incidentCategory`, `instrumentType`, `treasuryCategory`, `taxDefinition` (antes `tax`), `ownTaxObligation`, `thirdPartyAgreement`, `service`, `product` | Sí | Dimensión de la cascada (RN-CON-022, paso 1). `vatRate` → `vatRates` (M06; `usage` `sales`, `purchases`, `salesPerception`) y `taxDefinition` → `taxDefinitions` (M06): M06 no guarda cuentas en esas colecciones (T05 COL-FIS-16 y COL-FIS-18, PA-DAT-04). `ownTaxObligation` → `ownTaxObligations` (M06 §7.39; `usage` `expense`, `payable`; DEC-095, RN-CON-128). | — |
-| `entityId` | ObjectId (de la colección del módulo dueño) | Sí | — | Polimórfica según `entityType` (p. ej. `vatRates` y `taxDefinitions` de M06, `suppliers` de M12, `treasuryAccounts` de M14); antes `identities` (T02) |
+| `entityId` | uniqueidentifier (de la colección del módulo dueño) | Sí | — | Polimórfica según `entityType` (p. ej. `vatRates` y `taxDefinitions` de M06, `suppliers` de M12, `treasuryAccounts` de M14); antes `identities` (T02) |
 | `usage` | enum (`main`, `pendingDebit`, `purchases`, `sales`, `salesPerception`, `other`, `costOfSales`, `disposalCost`, `annualDepreciation`, `accumulatedDepreciation`, `originValue`, `decrease`, `revaluation`, `collectionBilling`, `collectionRefinancing`, `cash`, `capitalSubscribed`, `capitalPaidIn`, `capitalReceivable`, `capitalRefundPayable` (los dos últimos para `capitalRubric`, CTR-DAT-57), `discountsSurcharges`, `cards`, `checks`, `interest`, `vat`, `debit`, `credit`, `contributions`, `generalPayroll`, `socialCharges`, `expense`, `payable` (los dos últimos para `ownTaxObligation`, DEC-095)) | Sí | Uso de la cuenta dentro de la entidad. | — |
-| `ledgerAccountId` | ObjectId | Sí | Imputable del plan. | `ledgerAccounts` (M15) |
+| `ledgerAccountId` | uniqueidentifier | Sí | Imputable del plan. | `ledgerAccounts` (M15) |
 | `validFrom`, `validTo` | date | Sí/No | — | — |
 
 Índices: `{tenantId, chartId, entityType, entityId, usage, validFrom}` único. Origen (columna de cuenta de cada tabla ProCoop): `PROVEED.CTA_CONTA`; `BANKOS.COD_CTA`, `CTA_PENDEB`; `ALI_IVA.CTA_COMPRAS`, `CTA_VENTAS`, `CTA_VENTAS_PER`; `TIPO_FAC.COD_CTA`, `CTA_REF`; `GRU_CON.CTA_COBF`, `CTA_COBR`, `CTA_CAJ`, `CTA_CAPS`, `CTA_CAPI`, `CTA_DESR`, `CTA_TAR`, `CTA_VAL`, `CTA_INT`, `CTA_IVA`; `RUB_PYS.COD_CTAV`, `COD_CTAC`, `COD_CTAO` y cuentas de amortización, origen, disminución, revalúo; `RUBCAPI.COD_CTA`; `RETS_TIPO.CTA_CONT`; `RETE_TIPO.CTA_PROV`; `SU_CONCEPTOS.COD_CTA`; `SU_EMPRESAS` (`CTA_CONTRI`, `COD_CTA`); `SU_SINDICATO.CTA_GRAL`, `CTA_CARGAS`; `SU_ASIENTOS.CTA_DEBE`, `CTA_HABER`; `GRPOBRA.COD_CTA`, `COD_CTH`; `CAT_INCI.COD_CTA`, `COD_CTH`; `TIP_VAL.CTA_CONTA`; `CAT_BANC.CTA_CONTA`.

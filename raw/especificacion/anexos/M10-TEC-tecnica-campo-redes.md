@@ -630,8 +630,10 @@ Permisos negativos relevantes: el técnico no ve OT fuera de su alcance ni los s
 | RN-TEC-116 | Emergencia de seguridad: la OT de emergencia se asigna a la guardia vigente sin despacho ni supervisión previa; el corte preventivo del suministro o de la zona se ejecuta sin aprobación y genera interrupción no programada con aviso por T09; la normalización exige acta y prueba en sitio antes de restablecer. | — (BASE §47 casos urgentes; RF-CRM-122) | **Nuevo** (HUE-GAS-05) | PRM-TEC-152, PRM-TEC-153, PRM-TEC-154 | Tiempos objetivo a validar con la distribuidora de referencia y el regulador |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-**Campos comunes** (no se repiten en cada colección): `tenantId` (ObjectId, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (entero, control optimista), `deletedAt` (borrado lógico solo en catálogos; OT, evidencias, conformidades, comandos y CDR nunca se borran). Fechas en UTC; `effectiveAt` (fecha efectiva del hecho) y `recordedAt` (fecha de recepción en el servidor) donde se indica (AGR-010). Importes `Decimal128`. Coordenadas como GeoJSON (`{ type: 'Point', coordinates: [lng, lat] }`) con índice `2dsphere` (CTR-TEC-09). Textos de UI por `dict:`.
+
+**Campos comunes** (no se repiten en cada colección): `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version` (entero, control optimista), `deletedAt` (borrado lógico solo en catálogos; OT, evidencias, conformidades, comandos y CDR nunca se borran). Fechas en UTC; `effectiveAt` (fecha efectiva del hecho) y `recordedAt` (fecha de recepción en el servidor) donde se indica (AGR-010). Importes `DECIMAL(18,4)`. Coordenadas como GeoJSON (`{ type: 'Point', coordinates: [lng, lat] }`) con índice `2dsphere` (CTR-TEC-09). Textos de UI por `dict:`.
 
 ### 7.1 `feasibilityRequests` — factibilidades
 
@@ -641,12 +643,12 @@ Propósito: solicitud y dictamen de factibilidad técnica. Origen: `FACTIBIL`, `
 |---|---|---|---|
 | `number` | string | sí | Número visible (secuencia T04 o talonario del punto de venta). |
 | `documentRef` | `{ typeCode, branch, number }` | no | Comprobante ProCoop/talonario (`COD_COM/SUC_COM/NUM_COM`). |
-| `serviceId` | ObjectId → servicio M02 | sí | Servicio solicitado. |
-| `operationTypeId` | ObjectId → `workOrderOperationTypes` | sí | Alta, traslado, reconexión, aumento de potencia/plan. |
+| `serviceId` | uniqueidentifier → servicio M02 | sí | Servicio solicitado. |
+| `operationTypeId` | uniqueidentifier → `workOrderOperationTypes` | sí | Alta, traslado, reconexión, aumento de potencia/plan. |
 | `requestedAt` | Date | sí | Fecha de la solicitud (`FECHA`). |
-| `personId` / `prospect` | ObjectId → M01 / objeto | sí (uno) | Persona existente (→ M01 `persons`) o datos de prospecto (`COD_PER`); `prospect` es un objeto embebido, no es referencia (PA-TEC-23). |
-| `accountId` | ObjectId → M01 | no | Cuenta si existe. |
-| `crmCaseId` | ObjectId → M09 | no | Caso CRM origen. |
+| `personId` / `prospect` | uniqueidentifier → M01 / objeto | sí (uno) | Persona existente (→ M01 `persons`) o datos de prospecto (`COD_PER`); `prospect` es un objeto embebido, no es referencia (PA-TEC-23). |
+| `accountId` | uniqueidentifier → M01 | no | Cuenta si existe. |
+| `crmCaseId` | uniqueidentifier → M09 | no | Caso CRM origen. |
 | `address` | objeto (M01 `addressSnapshot`): calle (id catálogo + texto original), altura, piso, dpto, torre, barrio, localidad, provincia, CP, entrecalles, referencias | sí | Domicilio de conexión (`COD_CAL, NUM_CAL, PISO, DPTO, COD_BAR`…). |
 | `servicePoint` | `{ geo: Point, status: confirmed\|approximate\|pending, source: google\|georef\|device\|manual, confirmedBy, confirmedAt, reason }` | sí | Punto de prestación (BASE §77). |
 | `cadastre` | `{ circunscription, section, block, parcel, ph, lot }` | no | Catastro. |
@@ -659,14 +661,14 @@ Propósito: solicitud y dictamen de factibilidad técnica. Origen: `FACTIBIL`, `
 | `techStatus` | enum `provisional\|definitive` | no | `ESTADO_TEC` (solo si cerrada). |
 | `verdict` | enum `feasible\|notFeasible` | no | `FACTIBLE`. |
 | `verdictReasonCode` / `technicalObservation` | string | si verdict | Motivo y `OBS_TEC`. |
-| `technicalResponsibleId` | ObjectId → `fieldResources` | si verdict | Responsable técnico. |
+| `technicalResponsibleId` | uniqueidentifier → `fieldResources` | si verdict | Responsable técnico. |
 | `substatus` | string (catálogo tenant) | no | `SUBESTADO`. |
-| `inspectionWorkOrderIds` | ObjectId[] | no | OT de inspección. |
+| `inspectionWorkOrderIds` | uniqueidentifier[] | no | OT de inspección. |
 | `resourceProposal` | `{ networkElementId, port, capacityOk, distanceM }` | no | Recurso de conexión propuesto. |
-| `estimateId` / `quoteRef` | ObjectId / `{ module:'ven', id, status }` | no | Estimación (→ M10 `connectionEstimates`) y presupuesto M11 (`quoteRef.id` → M11 `salesQuotes`; PA-TEC-23). |
+| `estimateId` / `quoteRef` | uniqueidentifier / `{ module:'ven', id, status }` | no | Estimación (→ M10 `connectionEstimates`) y presupuesto M11 (`quoteRef.id` → M11 `salesQuotes`; PA-TEC-23). |
 | `validUntil` | Date | si feasible | Vigencia para alta (PRM-TEC-130). |
-| `usedByContractId` | ObjectId | no | Contrato que la consumió (uso único). |
-| `closedAt`, `closedBy`, `cancelledAt`, `cancelledBy`, `cancelReason` | Date/ObjectId/string | según estado | `closedBy` y `cancelledBy` → T02 `memberships`; `cancelReason` es texto libre, no es referencia (PA-TEC-23). |
+| `usedByContractId` | uniqueidentifier | no | Contrato que la consumió (uso único). |
+| `closedAt`, `closedBy`, `cancelledAt`, `cancelledBy`, `cancelReason` | Date/uniqueidentifier/string | según estado | `closedBy` y `cancelledBy` → T02 `memberships`; `cancelReason` es texto libre, no es referencia (PA-TEC-23). |
 | `attachments` | `documentRef[]` (T11) | no | Adjuntos. |
 
 Índices: `{tenantId, number}` único; `{tenantId, status, serviceId, requestedAt}`; `{tenantId, personId}`; `{tenantId, 'servicePoint.geo'}` 2dsphere; `{tenantId, usedByContractId}`.
@@ -675,9 +677,9 @@ Propósito: solicitud y dictamen de factibilidad técnica. Origen: `FACTIBIL`, `
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `feasibilityRequestId` | ObjectId | sí | Factibilidad. |
-| `templateId` | ObjectId | no | Plantilla aplicada. |
-| `lines` | `[{ kind: material\|labor\|networkWork\|other, productId?, description, quantity: Decimal128, unit, laborRole?, hours? }]` | sí | Cómputo. |
+| `feasibilityRequestId` | uniqueidentifier | sí | Factibilidad. |
+| `templateId` | uniqueidentifier | no | Plantilla aplicada. |
+| `lines` | `[{ kind: material\|labor\|networkWork\|other, productId?, description, quantity: DECIMAL(18,4), unit, laborRole?, hours? }]` | sí | Cómputo. |
 | `status` | enum: `draft`, `submitted`, `accepted`, `rejected`, `expired` (§8.16; PA-TEC-23) | sí | Refleja el presupuesto M11. |
 | `quoteRef` | `{ id, number, status, acceptedAt }` | no | Presupuesto comercial. |
 | `notes` | string | no | — |
@@ -696,12 +698,12 @@ Origen: `FACTIBIL_NOTA`, `TECNICA_NOTA`. Campos: `entityType` (`feasibility|work
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `code`, `name` (`dict:`) | string | sí | `COD_TRAN`, `DES_TRAN`. |
-| `serviceId` | ObjectId | sí | `COD_SER`. |
+| `serviceId` | uniqueidentifier | sí | `COD_SER`. |
 | `effect` | enum `connect, move, disconnect, meterChange, reconnect, incident, statusChange, meterRemoval, categoryChange, planChange, prepaidTopUp, equipmentSwap, equipmentRetrieval, inspection, none` | sí | Efecto declarativo. |
 | `kind` | enum `service\|maintenance\|claim\|inspection\|network` | sí | Clase de OT por defecto. |
 | `isClaim` | bool | sí | `TRANSAC_RECLAMO`. |
 | `modifiesRegistration` | bool | sí | `MODIFICA_MATRICULA`. |
-| `resultingServiceStatusId` | ObjectId → M02 `serviceStatuses` (antes "ObjectId → estado de servicio"; PA-TEC-23) | no | `COD_EST`/`ESTASER`. |
+| `resultingServiceStatusId` | uniqueidentifier → M02 `serviceStatuses` (antes "uniqueidentifier → estado de servicio"; PA-TEC-23) | no | `COD_EST`/`ESTASER`. |
 | `addCashierNote` | bool | sí | `AGREGAR_OBSERVACION`. |
 | `recordsReading` | bool | sí | `REG_EST`. |
 | `memberNotification` | `{ when: never\|onCreate\|onClose\|always, channels[], templateCreate, templateClose }` | sí | `ENVIO_SMS`, `METODO_ENVIO`, `COD_PLA_ALTA`, `COD_PLA_CONFIRM`. |
@@ -709,14 +711,14 @@ Origen: `FACTIBIL_NOTA`, `TECNICA_NOTA`. Campos: `entityType` (`feasibility|work
 | `availableInFieldApp` | bool | sí | `ALTA_PMOVIL`. |
 | `requiresFeasibility`, `requiresNetworkPoint`, `requiresDevice`, `requiresSerializedEquipment`, `triggersProvisioning` (`provisioningAction`) | bool / enum | sí | Nuevas exigencias. |
 | `twoStepClose` | bool | sí | Ejecutada + Confirmada (PA-TEC-01). |
-| `defaultWorkTypeId`, `defaultResolutionIds[]`, `requiredTaskIds[]`, `checklistFormIds[]`, `visitTypeId` | ObjectId | no | En ese orden: → M10 `workTypes`, `resolutionCodes`, `taskCatalog`, `fieldForms`, `visitTypes` (PA-TEC-23). |
+| `defaultWorkTypeId`, `defaultResolutionIds[]`, `requiredTaskIds[]`, `checklistFormIds[]`, `visitTypeId` | uniqueidentifier | no | En ese orden: → M10 `workTypes`, `resolutionCodes`, `taskCatalog`, `fieldForms`, `visitTypes` (PA-TEC-23). |
 | `closeRequirements` | `{ responsible, categories, resolution, peopleCount, adminObservation, certificate: none\|warn\|require, deviceNumber, vehicle: none\|ask\|require, participantHours, materials: none\|warn }` | sí | Parámetros 342/474/497/2084/174/2421/2470/2505/2354/3201 por operación (override del global). |
 | `active` | bool | sí | — |
 
 Índices: `{tenantId, serviceId, code}` único; `{tenantId, effect}`.
 
 **`workTypes`** (`TPTRAB`): `code`, `name`, `kind` (`service|maintenance`; reemplaza `TIP_ORD` 1/2), `printTemplateId`, `active`.
-**`incidentCategories`** (`CAT_INCI`, `CAT_INCI_CTSEC`, `CLAS_INC`): `code`, `name`, `rubric`, `serviceId`, `defaultOperationTypeId`, `debitAccountId`, `creditAccountId` (M15), `sectionAllocations [{ costCenterId, percent: Decimal128 }]` (suma 100), `classCode` (clase con numerador propio, de `CLAS_INC`), `regulatorCode` (para informes de calidad), `active`.
+**`incidentCategories`** (`CAT_INCI`, `CAT_INCI_CTSEC`, `CLAS_INC`): `code`, `name`, `rubric`, `serviceId`, `defaultOperationTypeId`, `debitAccountId`, `creditAccountId` (M15), `sectionAllocations [{ costCenterId, percent: DECIMAL(18,4) }]` (suma 100), `classCode` (clase con numerador propio, de `CLAS_INC`), `regulatorCode` (para informes de calidad), `active`.
 **`resolutionCodes`** (`RESOL_OT`, `abm_Resestad`): `code`, `name`, `serviceId?` (nulo = genérica), `operationTypeId?`, `outcome` (`resolved|notResolved|improcedent|referred`), `active`.
 **`taskCatalog`** (`TAREAS`, `TAREASOM`): `code`, `name`, `groupId`, `serviceId?`, `standardMinutes`, `active`. **`taskGroups`** (`GRPTAREA`): `code`, `name`.
 **`workOrderPrintTemplates`** (`OT_REPORTE`, V2 #180/#465): `serviceId`, `operationTypeId`, `templateKey` (plantilla PDF), `includeMap`, `includeWithdrawalSlips`, `includeIncidentReport`, `maxMaterialLines`; índice único `{tenantId, serviceId, operationTypeId}`.
@@ -733,15 +735,15 @@ Origen: `TECNICA` (+117 columnas), `TECNICA_MOVIL`, `PARTIORD`, `PARTIINC`, `TAR
 | `number` | string | sí | Número interno legible (secuencia tenant). |
 | `visibleNumber` | `{ year, scope, seq, display }` | no | `COD_SLS` (PRM-TEC-022/082). |
 | `documentRef` | `{ typeCode, branch, number }` | no | Talonario OT/OM. |
-| `operationTypeId` | ObjectId | sí | `COD_TRAN`. |
-| `serviceId` | ObjectId | sí | `COD_SER`. |
-| `contractId` / `accountId` / `personId` | ObjectId | si `service`/`claim` | `ID_SERSOC`/`COD_SUM`/`COD_PER`. |
+| `operationTypeId` | uniqueidentifier | sí | `COD_TRAN`. |
+| `serviceId` | uniqueidentifier | sí | `COD_SER`. |
+| `contractId` / `accountId` / `personId` | uniqueidentifier | si `service`/`claim` | `ID_SERSOC`/`COD_SUM`/`COD_PER`. |
 | `assetRef` | `{ networkElementId?, workId? }` | si `maintenance`/`network` | Obra (`OBRAS`) o activo. |
-| `crmCaseId` | ObjectId → M09 | si `claim` | Caso del reclamo. |
-| `feasibilityRequestId` | ObjectId | no | `COD_FACTIBIL`. |
-| `inspectionCaseId` | ObjectId | si `inspection` | — |
+| `crmCaseId` | uniqueidentifier → M09 | si `claim` | Caso del reclamo. |
+| `feasibilityRequestId` | uniqueidentifier | no | `COD_FACTIBIL`. |
+| `inspectionCaseId` | uniqueidentifier | si `inspection` | — |
 | `origin` | enum `admin, memberRecord, crm, dunning, integration, fieldApp, meterReading, chainedRule, maintenancePlan, outagePlan, bulk` | sí | `OrigenOrden`. |
-| `intakeChannelId` | ObjectId → `crmChannels` (M09, CTR-DAT-77) | según PRM-TEC-060 | `COD_VIA`. |
+| `intakeChannelId` | uniqueidentifier → `crmChannels` (M09, CTR-DAT-77) | según PRM-TEC-060 | `COD_VIA`. |
 | `dunningOrigin` | `{ orderedBy:'mor', orderId, isDelinquent: bool }` | no | `GEST_MORA`, `MOROSO`. |
 | `snapshot` | `{ address, servicePoint, meter:{number,digits,lastReading,lastReadingAt}, cadastre, installerCertificate:{number, expiresAt, installerId}, holderPhone, activePhoneLine, serviceObservation }` | sí | Copia al crear (RN-TEC-021). |
 | `newData` | `{ address?, meter?{typeId, number}, categoryId?, phoneNumberId?, statusId?, planId? }` | según efecto | `NEW_*`, `N_COD_MED`, `N_TIP_MED`, `N_COD_CAT`, `N_COD_NUM`, `COD_ESTASER`. |
@@ -755,14 +757,14 @@ Origen: `TECNICA` (+117 columnas), `TECNICA_MOVIL`, `PARTIORD`, `PARTIINC`, `TAR
 | `conflictOpen` | bool | sí | Hay `syncConflicts` abierto. |
 | `dispatch` | `{ state: none\|pendingSend\|sent\|received\|onDevice, lockedBy: none\|fieldApp\|external, externalSystem?, sentAt, receivedAt }` | sí | `BLOQUEAR`, `EstadoOrdenCaptor`. |
 | `assignment` | `{ responsibleId, crewId, participantIds[], peopleCount, vehicleIds[] }` | no | `COD_RES`, `COD_CUA`, `PARTIORD`, `PERSONAS`, `TECNICA_MOVIL`. |
-| `visitIds` | ObjectId[] | no | Visitas. |
-| `participants` | `[{ fieldResourceId, employeeId?, normalHours: Decimal128, overtimeHours: Decimal128, contracted: bool, hourRate: Decimal128, recordedAt }]` | según PRM-TEC-039 | `PARTIORD` (`HORAS_N`, `HORAS_E`, `CONTRATADA`, `VALOR_HORA`). |
+| `visitIds` | uniqueidentifier[] | no | Visitas. |
+| `participants` | `[{ fieldResourceId, employeeId?, normalHours: DECIMAL(18,4), overtimeHours: DECIMAL(18,4), contracted: bool, hourRate: DECIMAL(18,4), recordedAt }]` | según PRM-TEC-039 | `PARTIORD` (`HORAS_N`, `HORAS_E`, `CONTRATADA`, `VALOR_HORA`). |
 | `tasks` | `[{ taskId, done: bool, notes }]` | no | `TAROTM`. |
 | `closing` | `{ executedAt (effective), executedBy, confirmedAt, confirmedBy, incidentCategoryId, resolutionId, workTypeId, hours, peopleCount, technicalObservation, fieldGeo, fieldClosedAt, receiverConformityId, dissatisfactionReason, pendingSteps:[{step, status, error}] }` | al ejecutar/cerrar | `FEC_CONFIR`, `USER_CON`, `COD_CIN`, `ID_RLT`, `COD_TIP`, `HORAS`, `RESP_ENC`, `MOTIVO_DISCONFORME`. |
 | `effectsApplied` | `[{ effect, targetModule, commandId, appliedAt, reversedAt? }]` | sí | Para reversión por compensación. |
 | `chained` | `{ parentWorkOrderId?, ruleId?, childWorkOrderIds[] }` | no | `OT_RELACION`. |
 | `charges` | `[{ ruleRef, moment: before\|after, status: proposed\|accepted\|declined\|billed, billingRef }]` | no | Propuestas de M04 (`CONEXION` 5/6). |
-| `provisioningCommandIds` | ObjectId[] | no | Comandos emitidos. |
+| `provisioningCommandIds` | uniqueidentifier[] | no | Comandos emitidos. |
 | `installation` | subdocumento §7.6 | si efecto `connect` en servicio con instalación integral | — |
 | `extraFields` | objeto tipado por operación | no | `DatosExtraTecnica`, `TECNICA_EXTRAS`. |
 | `networkPoint` | `{ networkElementId, position?, phoneBoxPositionId? }` | según PRM-TEC-025 | `INT_RED`, `TEL_POS_REG_CAJA`. |
@@ -784,7 +786,7 @@ Origen: `TECNICA` (+117 columnas), `TECNICA_MOVIL`, `PARTIORD`, `PARTIINC`, `TAR
 | `effectiveEquipment` | `[{ inventoryItemId, serialUnitId, serial, model, applicationMovementId, modality: loan\|sale\|rent }]` | Aplicado. La modalidad por defecto es comodato (`loan`) en Internet y TV, configurable por plan (DEC-013); el vínculo con el contrato lo registra M02 en `contractEquipmentAssignments` (CTR-DAT-28). |
 | `substitution` | `{ fromSerial, toSerial, reason, validatedBy, validatedAt }` | Sustitución. |
 | `tests` | `[{ testCode, value, unit, passed, at }]` | Pruebas (potencia óptica dBm, velocidad Mbps, señal). |
-| `conformityId` | ObjectId → `serviceConformities` | Firma/conformidad. |
+| `conformityId` | uniqueidentifier → `serviceConformities` | Firma/conformidad. |
 | `activation` | `{ milestoneRule, effectiveAt, timezone, confirmedBy, provisioningConfirmedAt, reviewConfirmedAt, eventId }` | Hito. |
 | `surveyInvitationRef` | `{ module:'com', id, status }` | Encuesta T09. |
 
@@ -794,16 +796,16 @@ Origen: `MOV_PRO` (op. 3, 5, 6, 8) por inferencia, `TECNICA_NECESIDAD`, `RETI_MA
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `workOrderId` / `workId` | ObjectId | uno | OT u obra. |
-| `inventoryItemId` | ObjectId → M13 `inventoryItems` | sí | `COD_PRO` (antes `productId`; T05 §7.2). |
-| `serial` / `serialUnitId` | string / ObjectId → M13 `serialUnits` | si serializado | `PROD_TRH`. |
+| `workOrderId` / `workId` | uniqueidentifier | uno | OT u obra. |
+| `inventoryItemId` | uniqueidentifier → M13 `inventoryItems` | sí | `COD_PRO` (antes `productId`; T05 §7.2). |
+| `serial` / `serialUnitId` | string / uniqueidentifier → M13 `serialUnits` | si serializado | `PROD_TRH`. |
 | `source` | `{ kind: warehouse\|custody, warehouseId?, custodianId? }` | sí | `COD_DEP`, `RESPONSA.COD_DPS`. |
 | `status` | enum `requested, authorized, reserved, withdrawn, used, returned, cancelled` | sí | §8.6. |
-| `quantities` | `{ requested, authorized, withdrawn, used, returned }` Decimal128 | sí | Cuatro cantidades + devolución. |
+| `quantities` | `{ requested, authorized, withdrawn, used, returned }` DECIMAL(18,4) | sí | Cuatro cantidades + devolución. |
 | `steps` | `[{ step, quantity, userId, at }]` | sí | Usuario y fecha por paso (`USUARIO_SOLICITO`, `USUARIO_AUTORIZO`, `FECHA_AUTORIZO`, `USUARIO_RETIRO`, `USUARIO_UTILIZO`). |
 | `withdrawalSlipRef` | `{ id, number }` | no | Vale (`RETI_MAT`). |
-| `stockMovementIds` | ObjectId[] → M13 | no | Movimientos generados. |
-| `referencePrice` | Decimal128 | no | `PROD_SER.PRE_VSI`. |
+| `stockMovementIds` | uniqueidentifier[] → M13 | no | Movimientos generados. |
+| `referencePrice` | DECIMAL(18,4) | no | `PROD_SER.PRE_VSI`. |
 | `billable` | bool | sí | PA-TEC-03. |
 | `clientMutationId` | string | si campo | Idempotencia. |
 | `reviewFlag` | enum `none\|notInCustody\|periodClosed\|other` | sí | Revisión. |
@@ -814,17 +816,17 @@ Origen: `MOV_PRO` (op. 3, 5, 6, 8) por inferencia, `TECNICA_NECESIDAD`, `RETI_MA
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `entityType` / `entityId` | string / ObjectId | sí | OT, visita, inspección, elemento de red, factibilidad. `entityType` no es referencia: discriminador de `entityId`, polimórfica (→ M10 `workOrders` · `visits` · `inspectionCases` · `networkElements` · `feasibilityRequests`); T05 lo nombra `entityRef` (PA-TEC-23). |
+| `entityType` / `entityId` | string / uniqueidentifier | sí | OT, visita, inspección, elemento de red, factibilidad. `entityType` no es referencia: discriminador de `entityId`, polimórfica (→ M10 `workOrders` · `visits` · `inspectionCases` · `networkElements` · `feasibilityRequests`); T05 lo nombra `entityRef` (PA-TEC-23). |
 | `kind` | enum `photo\|signature\|document\|audio\|checklist\|geoCheckIn` | sí | — |
 | `stepCode` | string | no | Paso del checklist. |
-| `storedFileId` | ObjectId → `storedFiles` (T01) | sí | Objeto privado (URL firmada, DEC-001). Antes `storageKey` (T05 §7.2, COL-TEC-14). |
+| `storedFileId` | uniqueidentifier → `storedFiles` (T01) | sí | Objeto privado (URL firmada, DEC-001). Antes `storageKey` (T05 §7.2, COL-TEC-14). |
 | `sha256` | string | sí | Integridad. |
 | `capturedAt` / `recordedAt` | Date | sí | Dispositivo / servidor. |
 | `geo` | Point + `accuracyM` | no | GPS. |
-| `capturedBy` / `deviceId` | ObjectId | sí | — |
+| `capturedBy` / `deviceId` | uniqueidentifier | sí | — |
 | `clientMutationId` | string | si campo | — |
-| `documentId` | ObjectId → T11 | sí | Expediente documental (AGR-023). |
-| `supersededBy` | ObjectId | no | Sustitución trazada (nunca silenciosa). |
+| `documentId` | uniqueidentifier → T11 | sí | Expediente documental (AGR-023). |
+| `supersededBy` | uniqueidentifier | no | Sustitución trazada (nunca silenciosa). |
 
 Índices: `{tenantId, entityType, entityId}`; `{tenantId, clientMutationId}` único parcial.
 
@@ -832,23 +834,23 @@ Origen: `MOV_PRO` (op. 3, 5, 6, 8) por inferencia, `TECNICA_NECESIDAD`, `RETI_MA
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `workOrderId`, `visitId` | ObjectId | sí | — |
+| `workOrderId`, `visitId` | uniqueidentifier | sí | — |
 | `detailVersion` / `detailHash` | int / string | sí | Versión del detalle presentado. |
 | `detailSnapshot` | objeto (equipos, trabajos, materiales, pruebas) | sí | Lo aceptado. |
 | `receiver` | `{ fullName, documentType, documentNumber, relation: holder\|authorized\|family\|tenant\|other, authorizationRef? }` | sí | Receptor. |
 | `result` | enum `accepted\|acceptedWithObservations\|refused\|absent\|notSigned` | sí | Conformidad. |
 | `mechanism` | enum `handwrittenOnScreen\|otp\|digitalSignature\|paper` | sí | PA-TEC-07. |
-| `signatureEvidenceId` | ObjectId → `fieldEvidence` | si handwritten | — |
-| `signatureRequestId` | ObjectId → T11 `signatureRequests` | si digitalSignature | Pedido de firma digital del receptor. Declarado en T05 (COL-TEC-15); no figuraba en el anexo (PA-TEC-23). |
+| `signatureEvidenceId` | uniqueidentifier → `fieldEvidence` | si handwritten | — |
+| `signatureRequestId` | uniqueidentifier → T11 `signatureRequests` | si digitalSignature | Pedido de firma digital del receptor. Declarado en T05 (COL-TEC-15); no figuraba en el anexo (PA-TEC-23). |
 | `otpRef` | `{ channel, sentTo, verifiedAt }` | si otp | — |
 | `observations` | string | no | — |
 | `signedAt` / `recordedAt` | Date | sí | — |
-| `installerId` | ObjectId | sí | — |
-| `supersedesId` | ObjectId | no | Nueva versión. |
+| `installerId` | uniqueidentifier | sí | — |
+| `supersedesId` | uniqueidentifier | no | Nueva versión. |
 
 ### 7.10 `damageAssessments` — reclamos por daños (`TECNICA_EXTRAS`)
 
-Campos: `workOrderId`, `crmCaseId` (M09), `paymentDate`, `transferCenter`, `bookNumber`, `folioNumber`, `claimedAmount` (Decimal128), `approvedAmount` (Decimal128), `previousDamages` (bool/texto), `accepted` (bool), `regulatorClaim` (`{ regulator: 'OCEBA'|..., number, filedAt }`), `cause`, `damagedAppliances [{ type, brand, model, serial, description }]`, más los 11 campos restantes de `TECNICA_EXTRAS` en `extra` tipado [VERIFICAR nombres en base real], `status` (`open|inReview|approved|rejected|paid`), `settlementRef` (M05/M14).
+Campos: `workOrderId`, `crmCaseId` (M09), `paymentDate`, `transferCenter`, `bookNumber`, `folioNumber`, `claimedAmount` (DECIMAL(18,4)), `approvedAmount` (DECIMAL(18,4)), `previousDamages` (bool/texto), `accepted` (bool), `regulatorClaim` (`{ regulator: 'OCEBA'|..., number, filedAt }`), `cause`, `damagedAppliances [{ type, brand, model, serial, description }]`, más los 11 campos restantes de `TECNICA_EXTRAS` en `extra` tipado [VERIFICAR nombres en base real], `status` (`open|inReview|approved|rejected|paid`), `settlementRef` (M05/M14).
 
 ### 7.11 `technicalProcedures` — expedientes técnicos (`EXPEDIENTES`, `EXPEDIENTES_TRAM`)
 
@@ -864,7 +866,7 @@ Campos: `number`, `installerId` (`COD_PROF`), `address` (calle, número, barrio,
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `slotKey` | string | sí | `zoneId\|visitTypeId\|date\|from` (unidad de capacidad). |
-| `resourceId` | ObjectId | no | Si se reserva recurso concreto. |
+| `resourceId` | uniqueidentifier | no | Si se reserva recurso concreto. |
 | `capacityUnits` | int | sí | Consumo de capacidad. |
 | `status` | enum `held\|confirmed\|released\|expired\|cancelled` | sí | §8.2. |
 | `holdExpiresAt` | Date | si held | PRM-TEC-133. |
@@ -879,15 +881,15 @@ Campos: `number`, `installerId` (`COD_PROF`), `address` (calle, número, barrio,
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | string | sí | VIS-… |
-| `workOrderId` | ObjectId | sí | — |
-| `bookingId` | ObjectId | sí | — |
-| `visitTypeId`, `zoneId` | ObjectId | sí | — |
+| `workOrderId` | uniqueidentifier | sí | — |
+| `bookingId` | uniqueidentifier | sí | — |
+| `visitTypeId`, `zoneId` | uniqueidentifier | sí | — |
 | `window` | `{ date, from, to, timezone }` | sí | Franja. |
-| `assignedCrewId` / `assignedResourceIds[]` | ObjectId | no | → M10 `crews` / → M10 `fieldResources`; T05 nombra `crewId` a `assignedCrewId` (PA-TEC-23). |
+| `assignedCrewId` / `assignedResourceIds[]` | uniqueidentifier | no | → M10 `crews` / → M10 `fieldResources`; T05 nombra `crewId` a `assignedCrewId` (PA-TEC-23). |
 | `status` | enum §8.3 | sí | `confirmed, assigned, enRoute, onSite, completed, failed, rescheduled, cancelled`. |
 | `timeline` | `[{ status, at (effective), recordedAt, by, deviceId? }]` | sí | Historial. |
 | `failure` | `{ reasonCode: noAccess\|customerAbsent\|missingMaterial\|technicalCondition\|weather\|customerRefused\|other, notes, evidenceIds[] }` | si failed | — |
-| `rescheduledToVisitId` / `rescheduledFromVisitId` | ObjectId | no | Cadena. |
+| `rescheduledToVisitId` / `rescheduledFromVisitId` | uniqueidentifier | no | Cadena. |
 | `memberVisible` | bool | sí | — |
 | `reminders` | `[{ channel, scheduledAt, sentRef }]` | no | — |
 
@@ -896,7 +898,7 @@ Campos: `number`, `installerId` (`COD_PROF`), `address` (calle, número, barrio,
 ### 7.13 Recursos
 
 **`crews`** (`CUADRI`, `PARTICUA`): `code`, `name`, `leaderId`, `members [{ fieldResourceId, role, validFrom, validTo }]`, `zoneIds[]`, `serviceIds[]`, `skills[]`, `defaultVehicleId` (M18), `custodyWarehouseId` (M13), `dailyCapacityUnits`, `active`.
-**`fieldResources`** (`RESPONSA`): `code`, `name`, `activity` (`technician|installer|meterReader|collector|inspector|supervisor|other`), `userId` (T02; sin contraseña propia), `email`, `phone`, `custodyWarehouseId` (`COD_DPS`), `assignToFieldApp` (`ASIGNAOT_PMOVIL`), `serviceIds[]`, `operationTypeIds[]` (responsables por servicio/operación, `RELACION_ENTIDADES`), `skills[]`, `employeeId?` (M16), `defaultHourRate` (Decimal128), `inactive`.
+**`fieldResources`** (`RESPONSA`): `code`, `name`, `activity` (`technician|installer|meterReader|collector|inspector|supervisor|other`), `userId` (T02; sin contraseña propia), `email`, `phone`, `custodyWarehouseId` (`COD_DPS`), `assignToFieldApp` (`ASIGNAOT_PMOVIL`), `serviceIds[]`, `operationTypeIds[]` (responsables por servicio/operación, `RELACION_ENTIDADES`), `skills[]`, `employeeId?` (M16), `defaultHourRate` (DECIMAL(18,4)), `inactive`.
 **`responsibleNotificationRules`** (`RESPONSA_NOTIFICA`): `serviceId`, `orderKind`, `operationTypeIds[]` (reemplaza `COD_OPER` con `|`), `fieldResourceId`, `daysOfWeek[]` (1–7 ISO), `from`, `to`, `includeHolidays` (bool), `notifyAt` (`onCreate|onDispatch`), `channel` (`whatsapp|email|sms|push`), `templateKey`, `active`.
 **`certifiedInstallers`** (`PROFESIO`): `personId` obligatorio (persona única, DEC-097; nombre, documento, contactos y domicilio se leen de M01 y ya no se guardan en la ficha), `registrationNumber` (matrícula), `serviceIds[]`, `installerCategory`, `phone`, `email`, `whatsapp`, `address`, `active`; certificados `[{ number, issuedAt, expiresAt, scope }]`; `jurisdiction` (provincia del registro de instaladores, por ejemplo Córdoba, Ley 10281) para la validación de PRM-TEC-043.
 **`onCallShifts`** (HUE-GAS-05, RF-TEC-231): `serviceIds[]`, `zoneIds[]`, `date`, `from`, `to`, `holidayRule` (`include|exclude|only`), `primaryResourceId`, `backupResourceId`, `chiefResourceId`, `publicPhone` (teléfono de guardia publicado), `status` (`planned|active|closed`), `changes [{ at, by, field, from, to, reason }]`. Índice `{tenantId, serviceIds, zoneIds, date}`.
@@ -914,7 +916,7 @@ Campos: `number`, `installerId` (`COD_PROF`), `address` (calle, número, barrio,
 | `deviceId`, `userId`, `profile` | — | sí | — |
 | `domain` | enum `workOrder\|visit\|material\|evidence\|conformity\|inspection\|reading\|collection\|networkPoint\|servicePoint` | sí | Lecturas y cobros se derivan a M03/M07. |
 | `action` | string | sí | `enRoute`, `arrive`, `saveChecklist`, `useMaterial`, `captureSignature`, `execute`, `fail`, etc. |
-| `entityId` | ObjectId | no | — |
+| `entityId` | uniqueidentifier | no | — |
 | `baseVersion` | int | sí | Versión descargada. |
 | `payload` | objeto | sí | — |
 | `occurredAt` / `recordedAt` | Date | sí | AGR-010. |
@@ -961,15 +963,15 @@ Origen v2: `REDES`, `REDES_SERVICIOS`, `REDES_CAPAS`, `REDES_COMPONENTES`, `REDE
 
 | Colección | Campos |
 |---|---|
-| `works` | `code`, `name` (`DES_OBR`), `serviceId` (`COD_SER`), `type` (`COD_TIP`), `groupId` (`COD_GRP`), `startAt` (`FEC_INI`), `endAt` (`FEC_FIN`), `hidden` (`OCULTAR`), `budget` (`{ total: Decimal128, lines[] }`), `progress` (`{ percent, milestones[{ name, plannedAt, doneAt }] }`), `costCenterId`, `approvalBasis` (`{ kind: ordinance\|agreement\|assembly, reference, documentId, approvedAt }`), `levy` (`{ enabled, criterion: frontMeters\|surface\|equalShares\|units\|custom, amountToDistribute: Decimal128, rounding, installments, financingPlanRef, status }`; `financingPlanRef` referencia el plan de cuotas tipo 17 de M04 por defecto, PRM-TEC-155 y RN-TEC-115), `status` (§8.11). |
+| `works` | `code`, `name` (`DES_OBR`), `serviceId` (`COD_SER`), `type` (`COD_TIP`), `groupId` (`COD_GRP`), `startAt` (`FEC_INI`), `endAt` (`FEC_FIN`), `hidden` (`OCULTAR`), `budget` (`{ total: DECIMAL(18,4), lines[] }`), `progress` (`{ percent, milestones[{ name, plannedAt, doneAt }] }`), `costCenterId`, `approvalBasis` (`{ kind: ordinance\|agreement\|assembly, reference, documentId, approvedAt }`), `levy` (`{ enabled, criterion: frontMeters\|surface\|equalShares\|units\|custom, amountToDistribute: DECIMAL(18,4), rounding, installments, financingPlanRef, status }`; `financingPlanRef` referencia el plan de cuotas tipo 17 de M04 por defecto, PRM-TEC-155 y RN-TEC-115), `status` (§8.11). |
 | `workGroups` | `code`, `name` (`DES_GRP`), `debitAccountId`, `creditAccountId` (`COD_CTA`, `COD_CTH`), `sectionAllocations [{ costCenterId, percent }]`. |
-| `workBeneficiaries` | `workId`, `premiseId` (M01), `accountId`, `holderId`, `frontMeters` (Decimal128), `surfaceM2`, `units`, `share` (Decimal128 calculado), `amount` (Decimal128), `exempt` (bool + motivo), `billingRef` (contrato tipo 17 que crea M02 al consumir EVT-TEC-25, clave obra + inmueble; TEC lo consulta para el seguimiento de cobro, HUECO-OBR-01). Índice `{tenantId, workId, premiseId}` único. |
+| `workBeneficiaries` | `workId`, `premiseId` (M01), `accountId`, `holderId`, `frontMeters` (DECIMAL(18,4)), `surfaceM2`, `units`, `share` (DECIMAL(18,4) calculado), `amount` (DECIMAL(18,4)), `exempt` (bool + motivo), `billingRef` (contrato tipo 17 que crea M02 al consumir EVT-TEC-25, clave obra + inmueble; TEC lo consulta para el seguimiento de cobro, HUECO-OBR-01). Índice `{tenantId, workId, premiseId}` único. |
 
 ### 7.19 Inspecciones
 
 | Colección | Campos |
 |---|---|
-| `inspectionCases` | `number`, `contractId`, `serviceId`, `origin` (`consumptionAlert\|complaint\|meterReader\|controlPlan\|other`), `alertRef` (M03), `status` (§8.12), `workOrderIds[]`, `act` (`{ formResponseId, findings[], irregularityType, witnesses[{name, document}], signedByUser: bool, refusalNote, evidenceIds[], actHash, actAt }`), `sealIds[]`, `notification` (`{ sentAt, channel, deliveryRef, defenseDeadline }`), `defense` (`{ receivedAt, text, documentIds[] }`), `recoveryProposal` (`{ methodVersionRef (M04), periodFrom, periodTo, estimatedConsumption, amount: Decimal128, computedAt }`), `approval` (`{ approvedBy, approvedAt, resolutionDocId }`), `billingRef` (M05), `closedAt`, `outcome`. |
+| `inspectionCases` | `number`, `contractId`, `serviceId`, `origin` (`consumptionAlert\|complaint\|meterReader\|controlPlan\|other`), `alertRef` (M03), `status` (§8.12), `workOrderIds[]`, `act` (`{ formResponseId, findings[], irregularityType, witnesses[{name, document}], signedByUser: bool, refusalNote, evidenceIds[], actHash, actAt }`), `sealIds[]`, `notification` (`{ sentAt, channel, deliveryRef, defenseDeadline }`), `defense` (`{ receivedAt, text, documentIds[] }`), `recoveryProposal` (`{ methodVersionRef (M04), periodFrom, periodTo, estimatedConsumption, amount: DECIMAL(18,4), computedAt }`), `approval` (`{ approvedBy, approvedAt, resolutionDocId }`), `billingRef` (M05), `closedAt`, `outcome`. |
 | `seals` | `number` (único), `batch`, `status` (`available\|assigned\|placed\|removed\|broken\|voided`), `assignedTo` (inspector), `placement` (`{ meterId, contractId, at, workOrderId, evidenceId }`), `removal` (`{ at, reason, workOrderId }`). |
 
 ### 7.20 Telefonía (red, numeración, líneas, CDR)
@@ -991,11 +993,11 @@ Origen v2: `REDES`, `REDES_SERVICIOS`, `REDES_CAPAS`, `REDES_COMPONENTES`, `REDE
 | `telecomOperators` | `name` (`DES_OPE`), `accountId?` (`COD_SUM`, para liquidar CPP), `generic` (`GENERICO`). |
 | `telecomServiceTypes` / `telecomModalities` | `name` (`DES_SERV`) / `name` (`DES_MOD`), `isMobile` (`MOVIL`). |
 | `cdrImports` | `exchangeId?`, `operatorId?`, `kind` (`outgoing\|incoming\|international\|cpp\|rejected\|mobileInvoice`), `fileName`, `fileHash`, `lot` (`LOTE`), `status` (§8.14), `rows` (`{ total, imported, duplicates, errors, unattributed }`), `errors [{ row, message }]`, `ratingRequestedAt`, `rolledBackAt`. Índice único `{tenantId, fileHash}`. |
-| `callRecords` | `cdrImportId`, `direction` (`outgoing\|incoming`), `kind` (`regular\|international\|cpp\|rejected`), `origin` (`NRO_ORI`/`ORIGEN`), `destination` (`NRO_DES`/`DESTINO`), `destinationDescription` (`DES_DES`), `startedAt` (`FECHA`/`FEC_LLA`), `seconds` (`SEGUNDOS`/`SEC_LLA`), `roundedSeconds` (`SEC_CPP`), `trunk` (`TRONCAL`), `ncnt`/`ndisk` (`NCNT`, `NDISK`), `sourceKey` (`IMP_CLAVE`), `sourceAmount` (Decimal128; `IMP_CPP` o importe del CDR), `operatorId` (`COD_OPE`), `operatorLot` (`LOT_OPE`), `attributedLineId` (`COD_TSE`), `attributedContractId`, `attributionStatus` (`attributed\|originNotFound\|duplicate\|manual\|destinationNotFound`), `dedupeKey` (origen+destino+fecha+segundos), `ratingRef` (tasación de M04 con `phoneRates`/`phoneRatePlans`; M04 no tiene `callRatings`, CTR-DAT-70), `grouped` (bool; `GRUPO≠0`), `rejected` (`{ publicNumber, subscriber, calledNo, calledYa, amount, cppDuration, realDuration, previousCall, previousCallNo, at }` ← `RECHAZOS`). Índices: `{tenantId, dedupeKey}` único; `{tenantId, attributedContractId, startedAt}`; `{tenantId, attributionStatus}`. Retención: los registros de más de 36 meses se archivan con consulta diferida (DEC-087); API-TEC-55 sobre un período archivado responde con consulta diferida en lugar del detalle en línea. |
-| `mobileUsageImports` | `kind` (`mobileResale` por defecto: consumos de telefonía móvil revendida; `ticQuota`: consumo de correo o pack SMS con cupo, DEC-084, RF-TEC-195), `provider` (`claro\|personal` en `mobileResale`; código del proveedor de la conexión de T06 en `ticQuota`), `period`, `fileName`, `lines [{ lineNumber, contractId?, concepts[{ type, quantity, amount }] }]`, `status`. Campos adicionales para `kind = ticQuota`: `connectionId` y `sourceMessageId` (EVT-INT-24 de T06) o `importedBy` (carga manual), y en cada línea `externalRef` (casilla o línea del pack), `serviceId`, `unit` (`sms\|mailbox\|gb`), `quantity` (Decimal128 ≥ 0), `measuredFrom`, `measuredTo`, `attributionStatus` (`attributed\|unattributed\|rejected`), `revision` (Int; una corrección reemplaza la anterior mientras el período no esté facturado, `fac.service.isPeriodBilled`), `reportedAt`. Índices: `{tenantId, kind, provider, period, fileHash}` único (idempotencia del archivo o mensaje); `{tenantId, 'lines.contractId', period, kind}`. Texto anterior: "`provider` (`claro\|personal`), `period`, `fileName`, `lines [{ lineNumber, contractId?, concepts[{ type, quantity, amount }] }]`, `status`." |
+| `callRecords` | `cdrImportId`, `direction` (`outgoing\|incoming`), `kind` (`regular\|international\|cpp\|rejected`), `origin` (`NRO_ORI`/`ORIGEN`), `destination` (`NRO_DES`/`DESTINO`), `destinationDescription` (`DES_DES`), `startedAt` (`FECHA`/`FEC_LLA`), `seconds` (`SEGUNDOS`/`SEC_LLA`), `roundedSeconds` (`SEC_CPP`), `trunk` (`TRONCAL`), `ncnt`/`ndisk` (`NCNT`, `NDISK`), `sourceKey` (`IMP_CLAVE`), `sourceAmount` (DECIMAL(18,4); `IMP_CPP` o importe del CDR), `operatorId` (`COD_OPE`), `operatorLot` (`LOT_OPE`), `attributedLineId` (`COD_TSE`), `attributedContractId`, `attributionStatus` (`attributed\|originNotFound\|duplicate\|manual\|destinationNotFound`), `dedupeKey` (origen+destino+fecha+segundos), `ratingRef` (tasación de M04 con `phoneRates`/`phoneRatePlans`; M04 no tiene `callRatings`, CTR-DAT-70), `grouped` (bool; `GRUPO≠0`), `rejected` (`{ publicNumber, subscriber, calledNo, calledYa, amount, cppDuration, realDuration, previousCall, previousCallNo, at }` ← `RECHAZOS`). Índices: `{tenantId, dedupeKey}` único; `{tenantId, attributedContractId, startedAt}`; `{tenantId, attributionStatus}`. Retención: los registros de más de 36 meses se archivan con consulta diferida (DEC-087); API-TEC-55 sobre un período archivado responde con consulta diferida en lugar del detalle en línea. |
+| `mobileUsageImports` | `kind` (`mobileResale` por defecto: consumos de telefonía móvil revendida; `ticQuota`: consumo de correo o pack SMS con cupo, DEC-084, RF-TEC-195), `provider` (`claro\|personal` en `mobileResale`; código del proveedor de la conexión de T06 en `ticQuota`), `period`, `fileName`, `lines [{ lineNumber, contractId?, concepts[{ type, quantity, amount }] }]`, `status`. Campos adicionales para `kind = ticQuota`: `connectionId` y `sourceMessageId` (EVT-INT-24 de T06) o `importedBy` (carga manual), y en cada línea `externalRef` (casilla o línea del pack), `serviceId`, `unit` (`sms\|mailbox\|gb`), `quantity` (DECIMAL(18,4) ≥ 0), `measuredFrom`, `measuredTo`, `attributionStatus` (`attributed\|unattributed\|rejected`), `revision` (Int; una corrección reemplaza la anterior mientras el período no esté facturado, `fac.service.isPeriodBilled`), `reportedAt`. Índices: `{tenantId, kind, provider, period, fileHash}` único (idempotencia del archivo o mensaje); `{tenantId, 'lines.contractId', period, kind}`. Texto anterior: "`provider` (`claro\|personal`), `period`, `fileName`, `lines [{ lineNumber, contractId?, concepts[{ type, quantity, amount }] }]`, `status`." |
 | `numberPortings` | Solo si PRM-TEC-156 = true (RF-TEC-234, PA-TEC-19): `portId`, `direction` (`incoming\|outgoing`), `phoneNumberId?`, `fullNumber`, `contractId`, `counterpartOperatorId` (donante o receptor), `requestedAt`, `scheduledWindow` (`{ from, to }`), `executedAt?`, `status` (entrante `requested\|submitted\|accepted\|rejected\|scheduled\|executed\|cancelled`; saliente `received\|validated\|accepted\|rejected\|executed`), `rejectionReason?`, `documentIds[]` (constancias, T11), `workOrderId?`. Índice único `{tenantId, portId}`. |
 
-Calidad del agua (RF-TEC-235, RF-TEC-236; solo si PRM-TEC-157 = true): **`waterSamplingPoints`**: `code`, `name`, `networkElementId?`, `geometry` (punto GeoJSON), `pointKind` (`well|tank|plant|network|serviceConnection`), `parameters [{ parameterCode, unit, lowerLimit?, upperLimit?, normRef, frequency, everyNDays? }]`, `concessionRef`, `active`. **`waterSamples`**: `samplingPointId`, `workOrderId`, `takenAt`, `takenBy`, `custodyChain [{ at, by, step }]`, `laboratory` (`{ name, registration, external: bool }`), `labReportDocumentId` (T11, con hash), `results [{ parameterCode, value: Decimal128, unit, withinLimit: bool }]`, `outOfLimit` (bool), `correctiveActions [{ kind: purge|chlorination|preventiveNotice|other, workOrderId?, communicationRef?, doneAt? }]`, `status` (`taken|inLab|resulted|actionPending|closed`), `supersedesSampleResultId?`. Índices `{tenantId, samplingPointId, takenAt}`; `{tenantId, outOfLimit, status}`.
+Calidad del agua (RF-TEC-235, RF-TEC-236; solo si PRM-TEC-157 = true): **`waterSamplingPoints`**: `code`, `name`, `networkElementId?`, `geometry` (punto GeoJSON), `pointKind` (`well|tank|plant|network|serviceConnection`), `parameters [{ parameterCode, unit, lowerLimit?, upperLimit?, normRef, frequency, everyNDays? }]`, `concessionRef`, `active`. **`waterSamples`**: `samplingPointId`, `workOrderId`, `takenAt`, `takenBy`, `custodyChain [{ at, by, step }]`, `laboratory` (`{ name, registration, external: bool }`), `labReportDocumentId` (T11, con hash), `results [{ parameterCode, value: DECIMAL(18,4), unit, withinLimit: bool }]`, `outOfLimit` (bool), `correctiveActions [{ kind: purge|chlorination|preventiveNotice|other, workOrderId?, communicationRef?, doneAt? }]`, `status` (`taken|inLab|resulted|actionPending|closed`), `supersedesSampleResultId?`. Índices `{tenantId, samplingPointId, takenAt}`; `{tenantId, outOfLimit, status}`.
 
 ### 7.21 Colecciones referenciadas (no propias)
 
@@ -1010,7 +1012,7 @@ Corrección de consistencia (categorías 2, 3 y 4 de `_trabajo/correccion-incons
 | Campo | Tipo | Referencia |
 |---|---|---|
 | `prospect` | object | No es referencia: datos embebidos del prospecto (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `estimateId` | ObjectId | `connectionEstimates` (M10); antes implícita por el nombre |
+| `estimateId` | uniqueidentifier | `connectionEstimates` (M10); antes implícita por el nombre |
 | `quoteRef` | object | → M11 `salesQuotes` (`quoteRef.id`) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `cancelReason` | string | No es referencia: motivo en texto libre (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
@@ -1028,12 +1030,12 @@ Lista original: §7.3.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `entityType` | enum | [VERIFICAR] | `feasibility\|workOrder\|work\|inspectionCase\|networkElement` | — |
-| `entityId` | ObjectId | [VERIFICAR] | — | Polimórfica según `entityType`: → M10 `feasibilityRequests` · `workOrders` · `works` · `inspectionCases` · `networkElements` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `entityId` | uniqueidentifier | [VERIFICAR] | — | Polimórfica según `entityType`: → M10 `feasibilityRequests` · `workOrders` · `works` · `inspectionCases` · `networkElements` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `title` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `text` | string | [VERIFICAR] | — | — |
 | `occurredAt` | Date | [VERIFICAR] | — | — |
-| `authorUserId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
-| `responsibleId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `authorUserId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
+| `responsibleId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `visibility` | enum | [VERIFICAR] | `internal\|public` | — |
 | `source` | enum | [VERIFICAR] | `admin\|field\|integration\|system` | — |
 | `subjectRef` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
@@ -1042,12 +1044,12 @@ Lista original: §7.3.
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `resultingServiceStatusId` | ObjectId | → M02 `serviceStatuses` (`ESTASER`) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `defaultWorkTypeId` | ObjectId | `workTypes` (M10); antes implícita por el nombre |
-| `defaultResolutionIds` | ObjectId[] | → M10 `resolutionCodes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `requiredTaskIds` | ObjectId[] | → M10 `taskCatalog` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `checklistFormIds` | ObjectId[] | `fieldForms` (M10); antes implícita por el nombre |
-| `visitTypeId` | ObjectId | `visitTypes` (M10); antes implícita por el nombre |
+| `resultingServiceStatusId` | uniqueidentifier | → M02 `serviceStatuses` (`ESTASER`) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `defaultWorkTypeId` | uniqueidentifier | `workTypes` (M10); antes implícita por el nombre |
+| `defaultResolutionIds` | uniqueidentifier[] | → M10 `resolutionCodes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `requiredTaskIds` | uniqueidentifier[] | → M10 `taskCatalog` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `checklistFormIds` | uniqueidentifier[] | `fieldForms` (M10); antes implícita por el nombre |
+| `visitTypeId` | uniqueidentifier | `visitTypes` (M10); antes implícita por el nombre |
 
 #### 7.22.5 `workTypes` (COL-TEC-05)
 
@@ -1058,7 +1060,7 @@ Lista original: §7.4.
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
 | `kind` | enum | [VERIFICAR] | `service\|maintenance`; reemplaza `TIP_ORD` 1/2 | — |
-| `printTemplateId` | ObjectId | [VERIFICAR] | — | `workOrderPrintTemplates` (M10); antes implícita por el nombre |
+| `printTemplateId` | uniqueidentifier | [VERIFICAR] | — | `workOrderPrintTemplates` (M10); antes implícita por el nombre |
 | `active` | bool | [VERIFICAR] | — | — |
 
 #### 7.22.6 `incidentCategories` (COL-TEC-06)
@@ -1070,10 +1072,10 @@ Lista original: §7.4.
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
 | `rubric` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
-| `defaultOperationTypeId` | ObjectId | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
-| `debitAccountId` | ObjectId | [VERIFICAR] | — | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `creditAccountId` | ObjectId | [VERIFICAR] | M15 | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
+| `defaultOperationTypeId` | uniqueidentifier | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
+| `debitAccountId` | uniqueidentifier | [VERIFICAR] | — | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `creditAccountId` | uniqueidentifier | [VERIFICAR] | M15 | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `classCode` | string | [VERIFICAR] | clase con numerador propio, de `CLAS_INC` | — |
 | `regulatorCode` | string | [VERIFICAR] | para informes de calidad | — |
 | `active` | bool | [VERIFICAR] | — | — |
@@ -1086,8 +1088,8 @@ Lista original: §7.4.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `serviceId` | ObjectId | No | nulo = genérica | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `operationTypeId` | ObjectId | No | — | `operationTypes` (T11); antes implícita por el nombre |
+| `serviceId` | uniqueidentifier | No | nulo = genérica | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `operationTypeId` | uniqueidentifier | No | — | `operationTypes` (T11); antes implícita por el nombre |
 | `outcome` | enum | [VERIFICAR] | `resolved\|notResolved\|improcedent\|referred` | — |
 | `active` | bool | [VERIFICAR] | — | — |
 
@@ -1099,8 +1101,8 @@ Lista original: §7.4.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `taskGroupId` | ObjectId | [VERIFICAR] | Nombre de T05; antes `groupId` en este anexo. | `taskGroups` (M10); antes implícita por el nombre |
-| `serviceId` | ObjectId | No | — | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `taskGroupId` | uniqueidentifier | [VERIFICAR] | Nombre de T05; antes `groupId` en este anexo. | `taskGroups` (M10); antes implícita por el nombre |
+| `serviceId` | uniqueidentifier | No | — | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `standardMinutes` | int | [VERIFICAR] | — | — |
 | `active` | bool | [VERIFICAR] | — | — |
 
@@ -1119,14 +1121,14 @@ Lista original: §7.4.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
-| `operationTypeId` | ObjectId | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
+| `operationTypeId` | uniqueidentifier | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
 | `templateKey` | string | [VERIFICAR] | plantilla PDF | — |
 | `includeMap` | bool | [VERIFICAR] | — | — |
 | `includeWithdrawalSlips` | bool | [VERIFICAR] | — | — |
 | `includeIncidentReport` | bool | [VERIFICAR] | — | — |
 | `maxMaterialLines` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `templateVersionId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `templateVersions` (T11); antes implícita por el nombre |
+| `templateVersionId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `templateVersions` (T11); antes implícita por el nombre |
 
 #### 7.22.11 `chainedOrderRules` (COL-TEC-11)
 
@@ -1135,14 +1137,14 @@ Lista original: §7.4.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | — | — |
-| `sourceServiceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
-| `sourceOperationTypeId` | ObjectId | No | — | → M10 `workOrderOperationTypes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `targetServiceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
-| `targetOperationTypeId` | ObjectId | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
-| `targetIntakeChannelId` | ObjectId | [VERIFICAR] | — | → M09 `crmChannels` (vía de ingreso `VIAINGTE`, CTR-DAT-77) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `sourceServiceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
+| `sourceOperationTypeId` | uniqueidentifier | No | — | → M10 `workOrderOperationTypes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `targetServiceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
+| `targetOperationTypeId` | uniqueidentifier | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
+| `targetIntakeChannelId` | uniqueidentifier | [VERIFICAR] | — | → M09 `crmChannels` (vía de ingreso `VIAINGTE`, CTR-DAT-77) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `confirmOrder` | enum | [VERIFICAR] | `sourceFirst\|targetFirst`; `CONFIRMAR_ULTIMA` | — |
 | `active` | bool | [VERIFICAR] | — | — |
-| `operationTypeId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `workOrderOperationTypes` (M10); antes implícita por el nombre |
+| `operationTypeId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `workOrderOperationTypes` (M10); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.12 `workOrders` (COL-TEC-12) — referencias declaradas
@@ -1167,8 +1169,8 @@ Lista original: §7.4.
 | Campo | Tipo | Referencia |
 |---|---|---|
 | `entityType` | enum | No es referencia: discriminador de `entityId` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `entityId` | ObjectId | Polimórfica según `entityType`: → M10 `workOrders` · `visits` · `inspectionCases` · `networkElements` · `feasibilityRequests` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `deviceId` | ObjectId | `fieldDevices` (M10); antes implícita por el nombre |
+| `entityId` | uniqueidentifier | Polimórfica según `entityType`: → M10 `workOrders` · `visits` · `inspectionCases` · `networkElements` · `feasibilityRequests` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `deviceId` | uniqueidentifier | `fieldDevices` (M10); antes implícita por el nombre |
 | `clientMutationId` | UUID | `syncMutations` (M10); antes implícita por el nombre |
 
 #### 7.22.15 `serviceConformities` (COL-TEC-15) — referencias declaradas
@@ -1184,14 +1186,14 @@ Lista original: §7.10.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `workOrderId` | ObjectId | [VERIFICAR] | — | `workOrders` (M10) |
-| `crmCaseId` | ObjectId | [VERIFICAR] | M09 | `crmCases` (M09) |
+| `workOrderId` | uniqueidentifier | [VERIFICAR] | — | `workOrders` (M10) |
+| `crmCaseId` | uniqueidentifier | [VERIFICAR] | M09 | `crmCases` (M09) |
 | `paymentDate` | Date | [VERIFICAR] | — | — |
 | `transferCenter` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `bookNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `folioNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `claimedAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `approvedAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `claimedAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `approvedAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `previousDamages` | bool | [VERIFICAR] | bool/texto | — |
 | `accepted` | bool | [VERIFICAR] | — | — |
 | `regulatorClaim` | object | [VERIFICAR] | `{ regulator: 'OCEBA'\|..., number, filedAt }` | — |
@@ -1206,14 +1208,14 @@ Lista original: §7.11.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `installerId` | ObjectId | [VERIFICAR] | `COD_PROF` | `certifiedInstallers` (M10); antes implícita por el nombre |
+| `installerId` | uniqueidentifier | [VERIFICAR] | `COD_PROF` | `certifiedInstallers` (M10); antes implícita por el nombre |
 | `address` | [VERIFICAR] | [VERIFICAR] | calle, número, barrio, localidad, provincia, CP, piso, torre, dpto | — |
 | `contact` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `openedAt` | Date | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `open`, `inReview`, `observed`, `approved`, `rejected`, `cancelled` (§8.15; PA-TEC-22; antes sin valores ni máquina). | — |
 | `externalUserRef` | string | [VERIFICAR] | `COD_USER_MYSQL` → portal, se migra como referencia de usuario del portal M19 | — (identificador del sistema externo; no es referencia interna) |
-| `dossierId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `dossiers` (T11); antes implícita por el nombre |
+| `dossierId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `dossiers` (T11); antes implícita por el nombre |
 
 #### 7.22.18 `visitTypes` (COL-TEC-18)
 
@@ -1247,7 +1249,7 @@ Lista original: §7.12.
 | `geometry` | [VERIFICAR] | [VERIFICAR] | (Polygon/MultiPolygon) o `localityIds[]`/`neighborhoodIds[]` | — |
 | `crewIds` | array | [VERIFICAR] | — | `crews` (M10); antes implícita por el nombre |
 | `active` | bool | [VERIFICAR] | . Índice 2dsphere | — |
-| `zoneIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `zones` (T04); antes implícita por el nombre |
+| `zoneIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `zones` (T04); antes implícita por el nombre |
 
 #### 7.22.20 `resourceCalendars` (COL-TEC-20) — referencias declaradas
 
@@ -1275,13 +1277,13 @@ Lista original: §7.12.
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `bookingId` | ObjectId | `visitBookings` (M10); antes implícita por el nombre |
-| `visitTypeId` | ObjectId | `visitTypes` (M10); antes implícita por el nombre |
-| `zoneId` | ObjectId | `schedulingZones` (M10); antes implícita por el nombre |
-| `assignedCrewId` | ObjectId | `crews` (M10); antes implícita por el nombre |
-| `assignedResourceIds` | ObjectId[] | → M10 `fieldResources` (PA-TEC-23; antes "`fieldResources` (M10); antes implícita por el nombre") |
-| `rescheduledToVisitId` | ObjectId | `visits` (M10); antes implícita por el nombre |
-| `rescheduledFromVisitId` | ObjectId | `visits` (M10); antes implícita por el nombre |
+| `bookingId` | uniqueidentifier | `visitBookings` (M10); antes implícita por el nombre |
+| `visitTypeId` | uniqueidentifier | `visitTypes` (M10); antes implícita por el nombre |
+| `zoneId` | uniqueidentifier | `schedulingZones` (M10); antes implícita por el nombre |
+| `assignedCrewId` | uniqueidentifier | `crews` (M10); antes implícita por el nombre |
+| `assignedResourceIds` | uniqueidentifier[] | → M10 `fieldResources` (PA-TEC-23; antes "`fieldResources` (M10); antes implícita por el nombre") |
+| `rescheduledToVisitId` | uniqueidentifier | `visits` (M10); antes implícita por el nombre |
+| `rescheduledFromVisitId` | uniqueidentifier | `visits` (M10); antes implícita por el nombre |
 
 #### 7.22.24 `crews` (COL-TEC-23)
 
@@ -1291,16 +1293,16 @@ Lista original: §7.13.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `leaderId` | ObjectId | [VERIFICAR] | — | → M10 `fieldResources` (jefe de cuadrilla) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `leaderId` | uniqueidentifier | [VERIFICAR] | — | → M10 `fieldResources` (jefe de cuadrilla) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `zoneIds` | array | [VERIFICAR] | — | `schedulingZones` (M10); antes implícita por el nombre |
 | `serviceIds` | array | [VERIFICAR] | — | `tenantServices` (M02) |
 | `skills` | array | [VERIFICAR] | — | — |
-| `defaultVehicleId` | ObjectId | [VERIFICAR] | M18 | `fleetVehicles` (M18) |
-| `custodyWarehouseId` | ObjectId | [VERIFICAR] | M13 | `warehouses` (M13) |
+| `defaultVehicleId` | uniqueidentifier | [VERIFICAR] | M18 | `fleetVehicles` (M18) |
+| `custodyWarehouseId` | uniqueidentifier | [VERIFICAR] | M13 | `warehouses` (M13) |
 | `dailyCapacityUnits` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `active` | bool | [VERIFICAR] | — | — |
-| `employeeIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `employees` (M16) |
-| `warehouseId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
+| `employeeIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `employees` (M16) |
+| `warehouseId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `warehouses` (M13) |
 
 #### 7.22.25 `fieldResources` (COL-TEC-24)
 
@@ -1311,18 +1313,18 @@ Lista original: §7.13.
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
 | `activity` | enum | [VERIFICAR] | `technician\|installer\|meterReader\|collector\|inspector\|supervisor\|other` | — |
-| `userId` | ObjectId | [VERIFICAR] | T02; sin contraseña propia | `memberships` (T02) |
+| `userId` | uniqueidentifier | [VERIFICAR] | T02; sin contraseña propia | `memberships` (T02) |
 | `email` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `phone` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `custodyWarehouseId` | ObjectId | [VERIFICAR] | `COD_DPS` | `warehouses` (M13) |
+| `custodyWarehouseId` | uniqueidentifier | [VERIFICAR] | `COD_DPS` | `warehouses` (M13) |
 | `assignToFieldApp` | [VERIFICAR] | [VERIFICAR] | `ASIGNAOT_PMOVIL` | — |
 | `serviceIds` | array | [VERIFICAR] | — | `tenantServices` (M02) |
 | `operationTypeIds` | array | [VERIFICAR] | responsables por servicio/operación, `RELACION_ENTIDADES` | `workOrderOperationTypes` (M10); antes implícita por el nombre |
 | `skills` | array | [VERIFICAR] | — | — |
-| `employeeId` | ObjectId | No | M16 | `employees` (M16) |
-| `defaultHourRate` | Decimal128 | [VERIFICAR] | — | — |
+| `employeeId` | uniqueidentifier | No | M16 | `employees` (M16) |
+| `defaultHourRate` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `inactive` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `vehicleId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `fleetVehicles` (M18) |
+| `vehicleId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `fleetVehicles` (M18) |
 
 #### 7.22.26 `responsibleNotificationRules` (COL-TEC-25)
 
@@ -1330,10 +1332,10 @@ Lista original: §7.13.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `orderKind` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `operationTypeIds` | array | [VERIFICAR] | reemplaza `COD_OPER` con `\|` | `workOrderOperationTypes` (M10); antes implícita por el nombre |
-| `fieldResourceId` | ObjectId | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
+| `fieldResourceId` | uniqueidentifier | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
 | `daysOfWeek` | array | [VERIFICAR] | 1–7 ISO | — |
 | `from` | Date | [VERIFICAR] | — | — |
 | `to` | Date | [VERIFICAR] | — | — |
@@ -1361,7 +1363,7 @@ Lista original: §7.13.
 | `address` | [VERIFICAR] | No (Reemplazado) | *Reemplazado (10-11-2026, DEC-097).* Domicilios de la persona (M01) | — |
 | `active` | bool | [VERIFICAR] | — | — |
 | `jurisdiction` | [VERIFICAR] | [VERIFICAR] | (provincia del registro de instaladores, por ejemplo Córdoba, Ley 10281) para la validación de PRM-TEC-043 | — |
-| `personId` | ObjectId | Sí | Persona única del instalador (DEC-097, M01 RN-PER-135): alta asistida de M01 RF-PER-174 con control de duplicados; único por `{tenantId, personId}`. *Reemplazado (10-11-2026): "Oblig. [VERIFICAR]; declarado en T05; no figuraba en la lista del anexo."* | `persons` (M01) |
+| `personId` | uniqueidentifier | Sí | Persona única del instalador (DEC-097, M01 RN-PER-135): alta asistida de M01 RF-PER-174 con control de duplicados; único por `{tenantId, personId}`. *Reemplazado (10-11-2026): "Oblig. [VERIFICAR]; declarado en T05; no figuraba en la lista del anexo."* | `persons` (M01) |
 | `licenseNumber` | int / string [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.28 `onCallShifts` (COL-TEC-71)
@@ -1376,9 +1378,9 @@ Lista original: §7.13.
 | `from` | Date | [VERIFICAR] | — | — |
 | `to` | Date | [VERIFICAR] | — | — |
 | `holidayRule` | enum | [VERIFICAR] | `include\|exclude\|only` | — |
-| `primaryResourceId` | ObjectId | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
-| `backupResourceId` | ObjectId | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
-| `chiefResourceId` | ObjectId | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
+| `primaryResourceId` | uniqueidentifier | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
+| `backupResourceId` | uniqueidentifier | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
+| `chiefResourceId` | uniqueidentifier | [VERIFICAR] | — | `fieldResources` (M10); antes implícita por el nombre |
 | `publicPhone` | [VERIFICAR] | [VERIFICAR] | teléfono de guardia publicado | — |
 | `status` | enum | Sí | Valores: `planned`, `active`, `closed` (§8.16; PA-TEC-23); antes "`planned\|active\|closed`" | — |
 | `serviceCodes` | array[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
@@ -1412,14 +1414,14 @@ Lista original: §7.14.
 | `operationTypeIds` | array | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
 | `geofenceMeters` | [VERIFICAR] | No | — | — |
 | `status` | enum | Sí | Valores: `draft`, `published`, `retired` (§8.16; PA-TEC-23); antes "`draft\|published\|retired`" | — |
-| `formVersionId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `formVersions` (T11); antes implícita por el nombre |
+| `formVersionId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `formVersions` (T11); antes implícita por el nombre |
 
 #### 7.22.31 `fieldDevices` (COL-TEC-28) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
 | `deviceId` | UUID | No es referencia: UUID del dispositivo móvil (no es un equipo de red) (PA-TEC-23; antes "`networkDevices` (M10); antes implícita por el nombre") |
-| `userId` | ObjectId | → T02 `memberships`. T05 lo nombra `membershipId` (COL-TEC-28); se conserva `userId` (PA-TEC-23). |
+| `userId` | uniqueidentifier | → T02 `memberships`. T05 lo nombra `membershipId` (COL-TEC-28); se conserva `userId` (PA-TEC-23). |
 
 #### 7.22.32 `syncMutations` (COL-TEC-29) — referencias declaradas
 
@@ -1435,21 +1437,21 @@ Lista original: §7.14.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `workOrderId` | ObjectId | [VERIFICAR] | /`entityRef` | `workOrders` (M10) |
+| `workOrderId` | uniqueidentifier | [VERIFICAR] | /`entityRef` | `workOrders` (M10) |
 | `mutationIds` | array | [VERIFICAR] | — | `syncMutations` (M10); antes implícita por el nombre |
 | `type` | enum | [VERIFICAR] | `orderCancelled\|orderReassigned\|orderModified\|equipmentChanged\|holderChanged\|serviceChanged\|duplicateExecution\|stockMismatch` | — |
 | `serverStateSnapshot` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `fieldStateSnapshot` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `evidenceIds` | array | [VERIFICAR] | — | `fieldEvidence` (M10); antes implícita por el nombre |
 | `status` | enum | Sí | Valores: `open`, `inReview`, `resolved`, `dismissed` (§8.16; PA-TEC-23); antes "`open\|inReview\|resolved\|dismissed`" | — |
-| `assigneeId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `assigneeId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `dueAt` | Date | [VERIFICAR] | PRM-TEC-139 | — |
 | `resolution` | enum | [VERIFICAR] | `acceptField\|acceptServer\|merge\|compensate\|newWorkOrder` | — |
 | `resolutionNotes` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `resolvedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `resolvedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `resolvedAt` | Date | [VERIFICAR] | — | — |
-| `followUpWorkOrderId` | ObjectId | No | — | `workOrders` (M10); antes implícita por el nombre |
-| `syncMutationId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `syncMutations` (M10); antes implícita por el nombre |
+| `followUpWorkOrderId` | uniqueidentifier | No | — | `workOrders` (M10); antes implícita por el nombre |
+| `syncMutationId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `syncMutations` (M10); antes implícita por el nombre |
 
 #### 7.22.34 `maintenancePlans` (COL-TEC-31)
 
@@ -1459,18 +1461,18 @@ Lista original: §7.15.
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | — | — |
 | `target` | object | [VERIFICAR] | `{ networkElementId? , componentTypeId?, workId? }` | — |
-| `operationTypeId` | ObjectId | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
+| `operationTypeId` | uniqueidentifier | [VERIFICAR] | — | `workOrderOperationTypes` (M10); antes implícita por el nombre |
 | `frequency` | enum | [VERIFICAR] | `weekly\|monthly\|bimonthly\|quarterly\|fourMonthly\|semiannual\|annual\|everyNDays` | — |
 | `everyNDays` | int | No | — | — |
 | `marginBeforeDays` | int | [VERIFICAR] | — | — |
 | `marginAfterDays` | int | [VERIFICAR] | — | — |
 | `nextDueAt` | Date | [VERIFICAR] | — | — |
-| `lastGeneratedWorkOrderId` | ObjectId | [VERIFICAR] | — | `workOrders` (M10) |
+| `lastGeneratedWorkOrderId` | uniqueidentifier | [VERIFICAR] | — | `workOrders` (M10) |
 | `checklistFormIds` | array | [VERIFICAR] | — | `fieldForms` (M10); antes implícita por el nombre |
-| `responsibleId` | ObjectId | [VERIFICAR] | /`crewId` | `memberships` (T02) |
+| `responsibleId` | uniqueidentifier | [VERIFICAR] | /`crewId` | `memberships` (T02) |
 | `validUntil` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `active` | bool | [VERIFICAR] | — | — |
-| `networkElementIds` | ObjectId[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `networkElements` (M10); antes implícita por el nombre |
+| `networkElementIds` | uniqueidentifier[] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `networkElements` (M10); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.35 `outagePlans` (COL-TEC-32)
@@ -1490,10 +1492,10 @@ Lista original: §7.15.
 | `status` | enum | Sí | Valores: `draft`, `approved`, `notified`, `inProgress`, `completed`, `cancelled` (§8.16; PA-TEC-23); antes "§8.10" | — |
 | `impactSnapshot` | object | [VERIFICAR] | `{ computedAt, serviceCount, contractIds[] (o ref a export), criticalCount }` | — |
 | `notificationCampaignRef` | string | [VERIFICAR] | T09 | — |
-| `approvedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `workOrderIds` | array | [VERIFICAR] | — | `workOrders` (M10) |
 | `regulatorReportRefs` | array | [VERIFICAR] | — | — |
-| `outageNoticeId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `outageNotices` (T09); antes implícita por el nombre |
+| `outageNoticeId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `outageNotices` (T09); antes implícita por el nombre |
 
 #### 7.22.36 `networks` (COL-TEC-33)
 
@@ -1507,7 +1509,7 @@ Lista original: §7.16.
 | `networkKind` | enum | [VERIFICAR] | `electric\|water\|gas\|sewer\|telecom\|generic` | — |
 | `serviceIds` | array | [VERIFICAR] | `REDES_SERVICIOS` | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `active` | bool | [VERIFICAR] | — | — |
-| `serviceId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `tenantServices` (M02) |
 
 #### 7.22.37 `networkLayers` (COL-TEC-34)
 
@@ -1515,7 +1517,7 @@ Lista original: §7.16.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `networkId` | ObjectId | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
+| `networkId` | uniqueidentifier | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
 | `name` | string | [VERIFICAR] | `DES_CAPA` | — |
 | `order` | int | [VERIFICAR] | — | — |
 | `style` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1527,8 +1529,8 @@ Lista original: §7.16.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `networkId` | ObjectId | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
-| `layerId` | ObjectId | No | nulo = común | `networkLayers` (M10); antes implícita por el nombre |
+| `networkId` | uniqueidentifier | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
+| `layerId` | uniqueidentifier | No | nulo = común | `networkLayers` (M10); antes implícita por el nombre |
 | `name` | string | [VERIFICAR] | `DES_COMPONENTE` | — |
 | `icon` | [VERIFICAR] | [VERIFICAR] | `ICON` | — |
 | `allowsServiceConnection` | bool | [VERIFICAR] | `PERMITE_CONECTAR` | — |
@@ -1546,10 +1548,10 @@ Lista original: §7.16.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `networkId` | ObjectId | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
-| `layerId` | ObjectId | No | — | `networkLayers` (M10); antes implícita por el nombre |
-| `parentTypeId` | ObjectId | [VERIFICAR] | — | → M10 `networkComponentTypes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `childTypeId` | ObjectId | [VERIFICAR] | `ID_PADRE`, `ID_HIJO` | → M10 `networkComponentTypes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `networkId` | uniqueidentifier | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
+| `layerId` | uniqueidentifier | No | — | `networkLayers` (M10); antes implícita por el nombre |
+| `parentTypeId` | uniqueidentifier | [VERIFICAR] | — | → M10 `networkComponentTypes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `childTypeId` | uniqueidentifier | [VERIFICAR] | `ID_PADRE`, `ID_HIJO` | → M10 `networkComponentTypes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.22.40 `networkAttributeDefs` (COL-TEC-37)
 
@@ -1557,7 +1559,7 @@ Lista original: §7.16.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `componentTypeId` | ObjectId | [VERIFICAR] | — | `networkComponentTypes` (M10); antes implícita por el nombre |
+| `componentTypeId` | uniqueidentifier | [VERIFICAR] | — | `networkComponentTypes` (M10); antes implícita por el nombre |
 | `label` | string | [VERIFICAR] | `DESCRIPCION` | — |
 | `type` | enum | [VERIFICAR] | `text\|integer\|decimal\|date\|boolean\|list\|catalogRef` | — |
 | `maxLength` | [VERIFICAR] | [VERIFICAR] | `LARGO` | — |
@@ -1574,10 +1576,10 @@ Lista original: §7.16.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `networkId` | ObjectId | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
-| `layerId` | ObjectId | [VERIFICAR] | — | `networkLayers` (M10); antes implícita por el nombre |
-| `componentTypeId` | ObjectId | [VERIFICAR] | — | `networkComponentTypes` (M10); antes implícita por el nombre |
-| `parentId` | ObjectId | [VERIFICAR] | `ID_PADRE_RED_INSTALADA` | `networkElements` (M10) |
+| `networkId` | uniqueidentifier | [VERIFICAR] | — | `networks` (M10); antes implícita por el nombre |
+| `layerId` | uniqueidentifier | [VERIFICAR] | — | `networkLayers` (M10); antes implícita por el nombre |
+| `componentTypeId` | uniqueidentifier | [VERIFICAR] | — | `networkComponentTypes` (M10); antes implícita por el nombre |
+| `parentId` | uniqueidentifier | [VERIFICAR] | `ID_PADRE_RED_INSTALADA` | `networkElements` (M10) |
 | `ancestorIds` | array | [VERIFICAR] | materializado para impacto | → M10 `networkElements` (ancestros materializados) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `code` | string | [VERIFICAR] | — | — |
 | `description` | string | [VERIFICAR] | — | — |
@@ -1590,7 +1592,7 @@ Lista original: §7.16.
 | `attributes` | object | [VERIFICAR] | `{ [attributeDefId]: { value, displayText } }` ← `REDES_ATRIBUTOS`: `VALOR_CARACTER/FECHA/NUMERICO/ID_TABLA` | — |
 | `equipment` | object | [VERIFICAR] | `{ brand, model, serial, technicalCharacteristics, installedAt, replacedAt }` ← `NIV_REDES.MARCA/MODELO/SERIE/CAR_TEC/FEC_INST/FEC_SUST` | — |
 | `reference` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `networkDeviceId` | ObjectId | No | — | `networkDevices` (M10); antes implícita por el nombre |
+| `networkDeviceId` | uniqueidentifier | No | — | `networkDevices` (M10); antes implícita por el nombre |
 | `documents` | array | [VERIFICAR] | — | — |
 | `warrantyUntil` | [VERIFICAR] | No | — | — |
 | `legacy` | [VERIFICAR] | [VERIFICAR] | subdocumento de T05 §19.1; la red de origen v1 o v2 queda en `legacy.table`: `NIV_REDES` o `REDES_RED_INSTALADA`; antes `legacyRef`, CTR-DAT-32 | — (identificador del sistema externo; no es referencia interna) |
@@ -1601,14 +1603,14 @@ Lista original: §7.16.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | [VERIFICAR] | `ID_SERSOC` | `serviceContracts` (M02) |
-| `networkElementId` | ObjectId | [VERIFICAR] | `ID_RED_INSTALADA` | `networkElements` (M10); antes implícita por el nombre |
+| `contractId` | uniqueidentifier | [VERIFICAR] | `ID_SERSOC` | `serviceContracts` (M02) |
+| `networkElementId` | uniqueidentifier | [VERIFICAR] | `ID_RED_INSTALADA` | `networkElements` (M10); antes implícita por el nombre |
 | `position` | [VERIFICAR] | No | borne/par/puerto dentro del rango | — |
 | `connectedAt` | Date | [VERIFICAR] | `FECHA_CONEXION` | — |
 | `disconnectedAt` | Date | [VERIFICAR] | `FECHA_DESCONEXION` | — |
 | `status` | enum | Sí | Valores: `connected`, `disconnected` (§8.16; PA-TEC-23); antes "`connected\|disconnected`; 1/2" | — |
 | `observations` | string | [VERIFICAR] | — | — |
-| `workOrderId` | ObjectId | [VERIFICAR] | — | `workOrders` (M10); antes implícita por el nombre |
+| `workOrderId` | uniqueidentifier | [VERIFICAR] | — | `workOrders` (M10); antes implícita por el nombre |
 | `connected` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.43 `gisExportTemplates` (COL-TEC-40)
@@ -1620,7 +1622,7 @@ Lista original: §7.16.
 | `name` | string | [VERIFICAR] | — | — |
 | `target` | enum | [VERIFICAR] | `externalGis\|regulator` | — |
 | `mappings` | object | [VERIFICAR] | `{ energyBands: { peak:[conceptIds], offPeak:[...], rest:[...], valley:[...] }, power:{...}, accountFormat, routeFormat, phaseSource }` | — |
-| `serviceId` | ObjectId | [VERIFICAR] | — | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `dateMode` | enum | [VERIFICAR] | `readingDate\|invoiceDate` | — |
 | `distributorCode` | string | [VERIFICAR] | V2 #2823 | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
@@ -1639,13 +1641,13 @@ Lista original: §7.17.
 | `firmware` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `managementIp` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `port` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `networkElementId` | ObjectId | [VERIFICAR] | — | `networkElements` (M10); antes implícita por el nombre |
-| `provisioningSystemId` | ObjectId | No | — | `provisioningSystems` (M10); antes implícita por el nombre |
+| `networkElementId` | uniqueidentifier | [VERIFICAR] | — | `networkElements` (M10); antes implícita por el nombre |
+| `provisioningSystemId` | uniqueidentifier | No | — | `provisioningSystems` (M10); antes implícita por el nombre |
 | `credentialRef` | string | [VERIFICAR] | bóveda T06; reemplaza `MIKROTIK.USUARIO/CONTRASEÑA/IP/PUERTO/BMU` | — |
 | `bmu` | bool | [VERIFICAR] | bool, de `MIKROTIK.BMU` | — |
 | `monitoring` | object | [VERIFICAR] | `{ enabled, lastStatus: up\|down\|unknown, lastCheckAt }` | — |
 | `active` | bool | [VERIFICAR] | — | — |
-| `serialUnitId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `serialUnits` (M13) |
+| `serialUnitId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `serialUnits` (M13) |
 
 #### 7.22.45 `provisioningSystems` (COL-TEC-42)
 
@@ -1659,10 +1661,10 @@ Lista original: §7.17.
 | `endpoint` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `credentialRef` | string | [VERIFICAR] | — | `integrationSecrets` (T06) |
 | `options` | object | [VERIFICAR] | `{ queryOnly, deleteUserOnDeactivate, disconnectedProfile, timeoutMs, rateLimit }` | — |
-| `connectorId` | ObjectId | [VERIFICAR] | T06 | → T06 `integrationConnections` (conexión del conector, COL-INT-02) (PA-TEC-23; antes "[VERIFICAR] conector de T06 (colección no identificada en T05)") |
+| `connectorId` | uniqueidentifier | [VERIFICAR] | T06 | → T06 `integrationConnections` (conexión del conector, COL-INT-02) (PA-TEC-23; antes "[VERIFICAR] conector de T06 (colección no identificada en T05)") |
 | `status` | enum | Sí | Valores: `active`, `disabled` (§8.16; PA-TEC-23); antes "`active\|disabled`" | — |
 | `lastHealthAt` | Date | [VERIFICAR] | — | — |
-| `connectionId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | Mismo dato que `connectorId` (nombre de T05); → T06 `integrationConnections`. Se usa `connectorId` (PA-TEC-23; antes "`serviceNetworkConnections` (M10); antes implícita por el nombre") |
+| `connectionId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | Mismo dato que `connectorId` (nombre de T05); → T06 `integrationConnections`. Se usa `connectorId` (PA-TEC-23; antes "`serviceNetworkConnections` (M10); antes implícita por el nombre") |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.46 `provisioningProfiles` (COL-TEC-43)
@@ -1671,8 +1673,8 @@ Lista original: §7.17.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `provisioningSystemId` | ObjectId | [VERIFICAR] | — | `provisioningSystems` (M10); antes implícita por el nombre |
-| `planId` | ObjectId | [VERIFICAR] | M02 | `servicePlans` (M02) |
+| `provisioningSystemId` | uniqueidentifier | [VERIFICAR] | — | `provisioningSystems` (M10); antes implícita por el nombre |
+| `planId` | uniqueidentifier | [VERIFICAR] | M02 | `servicePlans` (M02) |
 | `externalProfile` | [VERIFICAR] | [VERIFICAR] | nombre de perfil/queue/plan externo | — (identificador del sistema externo; no es referencia interna) |
 | `downMbps` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `upMbps` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1693,8 +1695,8 @@ Lista original: §7.17.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `technology` | enum | [VERIFICAR] | `ftth\|wireless\|dsl\|cable\|tv\|phone` | — |
 | `accessUser` | [VERIFICAR] | [VERIFICAR] | `USER_ID` | — |
 | `credentialRef` | string | [VERIFICAR] | bóveda; `USER_PASS` | `integrationSecrets` (T06) |
@@ -1714,9 +1716,9 @@ Lista original: §7.17.
 | `partnerData` | [VERIFICAR] | [VERIFICAR] | V2 #2422 | — |
 | `others` | [VERIFICAR] | [VERIFICAR] | `OTROS` | — |
 | `provisioningStatus` | enum | Sí | Valores: `notProvisioned`, `active`, `suspended`, `deactivated`, `error` (§8.16; PA-TEC-23); antes "`notProvisioned\|active\|suspended\|deactivated\|error`" | — |
-| `lastCommandId` | ObjectId | [VERIFICAR] | — | `provisioningCommands` (M10); antes implícita por el nombre |
+| `lastCommandId` | uniqueidentifier | [VERIFICAR] | — | `provisioningCommands` (M10); antes implícita por el nombre |
 | `registeredAt` | Date | [VERIFICAR] | — | — |
-| `registeredBy` | ObjectId | [VERIFICAR] | — | — |
+| `registeredBy` | uniqueidentifier | [VERIFICAR] | — | — |
 
 #### 7.22.48 `provisioningCommands` (COL-TEC-45)
 
@@ -1725,12 +1727,12 @@ Lista original: §7.17.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `commandId` | UUID | [VERIFICAR] | UUID; idempotencia | `provisioningCommands` (M10); antes implícita por el nombre |
-| `provisioningSystemId` | ObjectId | [VERIFICAR] | — | `provisioningSystems` (M10); antes implícita por el nombre |
-| `contractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `provisioningSystemId` | uniqueidentifier | [VERIFICAR] | — | `provisioningSystems` (M10); antes implícita por el nombre |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
 | `action` | enum | [VERIFICAR] | `activate\|changePlan\|suspend\|reactivate\|deactivate\|delete\|query\|resetCredentials\|telemetryCommand` | — |
 | `payload` | [VERIFICAR] | [VERIFICAR] | sin secretos en claro | — |
 | `origin` | object | [VERIFICAR] | `{ module: tec\|mor\|crm\|contract, refId, reason }` | — |
-| `workOrderId` | ObjectId | No | — | `workOrders` (M10) |
+| `workOrderId` | uniqueidentifier | No | — | `workOrders` (M10) |
 | `status` | enum | Sí | Valores: `queued`, `sending`, `retrying`, `confirmed`, `failed`, `manualPending`, `manualDone`, `cancelled`, `compensated`, `unknown` (§8.16; PA-TEC-23); antes "§8.9" | — |
 | `attempts` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `nextAttemptAt` | Date | [VERIFICAR] | — | — |
@@ -1739,7 +1741,7 @@ Lista original: §7.17.
 | `confirmedAt` | Date | [VERIFICAR] | — | — |
 | `effectiveAt` | Date | [VERIFICAR] | — | — |
 | `manualTaskRef` | string | No | — | — |
-| `compensatesCommandId` | ObjectId | No | — | → M10 `provisioningCommands` (comando que compensa) (PA-TEC-23; antes "`provisioningCommands` (M10); antes implícita por el nombre") |
+| `compensatesCommandId` | uniqueidentifier | No | — | → M10 `provisioningCommands` (comando que compensa) (PA-TEC-23; antes "`provisioningCommands` (M10); antes implícita por el nombre") |
 
 #### 7.22.49 `providedMailboxes` (COL-TEC-69)
 
@@ -1747,14 +1749,14 @@ Lista original: §7.17.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
-| `userId` | ObjectId | [VERIFICAR] | `USER_ID` | `memberships` (T02) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `userId` | uniqueidentifier | [VERIFICAR] | `USER_ID` | `memberships` (T02) |
 | `domain` | [VERIFICAR] | [VERIFICAR] | `DOMINIO` | — |
 | `credentialRef` | string | [VERIFICAR] | no se migra `USER_PASS` | `integrationSecrets` (T06) |
 | `others` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `active`, `suspended`, `deleted` (§8.16; PA-TEC-23); antes "—" | — |
 | `registeredAt` | Date | [VERIFICAR] | `FEC_REG` | — |
-| `registeredBy` | ObjectId | [VERIFICAR] | `USU_REG` | — |
+| `registeredBy` | uniqueidentifier | [VERIFICAR] | `USU_REG` | — |
 | `address` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.50 `works` (COL-TEC-46)
@@ -1765,17 +1767,17 @@ Lista original: §7.18.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | `DES_OBR` | — |
-| `serviceId` | ObjectId | [VERIFICAR] | `COD_SER` | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | `COD_SER` | `tenantServices` (M02) |
 | `type` | [VERIFICAR] | [VERIFICAR] | `COD_TIP` | — |
-| `groupId` | ObjectId | [VERIFICAR] | `COD_GRP` | `workGroups` (M10); antes implícita por el nombre |
+| `groupId` | uniqueidentifier | [VERIFICAR] | `COD_GRP` | `workGroups` (M10); antes implícita por el nombre |
 | `startAt` | Date | [VERIFICAR] | `FEC_INI` | — |
 | `endAt` | Date | [VERIFICAR] | `FEC_FIN` | — |
 | `hidden` | bool | [VERIFICAR] | `OCULTAR` | — |
-| `budget` | object | [VERIFICAR] | `{ total: Decimal128, lines[] }` | — |
+| `budget` | object | [VERIFICAR] | `{ total: DECIMAL(18,4), lines[] }` | — |
 | `progress` | object | [VERIFICAR] | `{ percent, milestones[{ name, plannedAt, doneAt }] }` | — |
-| `costCenterId` | ObjectId | [VERIFICAR] | — | `costCenters` (M15) |
+| `costCenterId` | uniqueidentifier | [VERIFICAR] | — | `costCenters` (M15) |
 | `approvalBasis` | object | [VERIFICAR] | `{ kind: ordinance\|agreement\|assembly, reference, documentId, approvedAt }` | — |
-| `levy` | object | [VERIFICAR] | `{ enabled, criterion: frontMeters\|surface\|equalShares\|units\|custom, amountToDistribute: Decimal128, rounding, installments, financingPlanRef, status }`;… | — |
+| `levy` | object | [VERIFICAR] | `{ enabled, criterion: frontMeters\|surface\|equalShares\|units\|custom, amountToDistribute: DECIMAL(18,4), rounding, installments, financingPlanRef, status }`;… | — |
 | `status` | enum | Sí | Valores: `draft`, `budgeted`, `approved`, `inProgress`, `finished`, `levyProposed`, `levyApproved`, `billing`, `closed`, `cancelled` (§8.16; PA-TEC-23); antes "§8.11" | — |
 
 #### 7.22.51 `workGroups` (COL-TEC-47)
@@ -1786,9 +1788,9 @@ Lista original: §7.18.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | `DES_GRP` | — |
-| `debitAccountId` | ObjectId | [VERIFICAR] | — | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `creditAccountId` | ObjectId | [VERIFICAR] | `COD_CTA`, `COD_CTH` | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `workId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `works` (M10); antes implícita por el nombre |
+| `debitAccountId` | uniqueidentifier | [VERIFICAR] | — | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `creditAccountId` | uniqueidentifier | [VERIFICAR] | `COD_CTA`, `COD_CTH` | → M15 `ledgerAccounts` (T05 §7.2) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `workId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `works` (M10); antes implícita por el nombre |
 
 #### 7.22.52 `workBeneficiaries` (COL-TEC-48)
 
@@ -1796,15 +1798,15 @@ Lista original: §7.18.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `workId` | ObjectId | [VERIFICAR] | — | `works` (M10); antes implícita por el nombre |
-| `premiseId` | ObjectId | [VERIFICAR] | M01 | `premises` (M01) |
-| `accountId` | ObjectId | [VERIFICAR] | — | `accounts` (M01) |
-| `holderId` | ObjectId | [VERIFICAR] | — | `holders` (M01) |
-| `frontMeters` | Decimal128 | [VERIFICAR] | — | — |
+| `workId` | uniqueidentifier | [VERIFICAR] | — | `works` (M10); antes implícita por el nombre |
+| `premiseId` | uniqueidentifier | [VERIFICAR] | M01 | `premises` (M01) |
+| `accountId` | uniqueidentifier | [VERIFICAR] | — | `accounts` (M01) |
+| `holderId` | uniqueidentifier | [VERIFICAR] | — | `holders` (M01) |
+| `frontMeters` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `surfaceM2` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `units` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `share` | Decimal128 | [VERIFICAR] | Decimal128 calculado | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `share` | DECIMAL(18,4) | [VERIFICAR] | DECIMAL(18,4) calculado | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `exempt` | bool | [VERIFICAR] | bool + motivo | — |
 | `billingRef` | string | [VERIFICAR] | contrato tipo 17 que crea M02 al consumir EVT-TEC-25, clave obra + inmueble; TEC lo consulta para el seguimiento de cobro, HUECO-OBR-01 | — |
 
@@ -1815,8 +1817,8 @@ Lista original: §7.19.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `contractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
-| `serviceId` | ObjectId | [VERIFICAR] | — | `tenantServices` (M02) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | `tenantServices` (M02) |
 | `origin` | enum | [VERIFICAR] | `consumptionAlert\|complaint\|meterReader\|controlPlan\|other` | — |
 | `alertRef` | string | [VERIFICAR] | M03 | — |
 | `status` | enum | Sí | Valores: `suspected`, `inspectionOrdered`, `inspected`, `noIrregularity`, `irregularityConfirmed`, `userNotified`, `defenseReceived`, `defenseExpired`, `recoveryProposed`, `recoveryApproved`, `recoveryRejected`, `billed`, `regularized`, `closed`, `annulled` (§8.16; PA-TEC-23); antes "§8.12" | — |
@@ -1825,12 +1827,12 @@ Lista original: §7.19.
 | `sealIds` | array | [VERIFICAR] | — | `seals` (M10); antes implícita por el nombre |
 | `notification` | object | [VERIFICAR] | `{ sentAt, channel, deliveryRef, defenseDeadline }` | — |
 | `defense` | object | [VERIFICAR] | `{ receivedAt, text, documentIds[] }` | — |
-| `recoveryProposal` | object | [VERIFICAR] | `{ methodVersionRef (M04), periodFrom, periodTo, estimatedConsumption, amount: Decimal128, computedAt }` | — |
+| `recoveryProposal` | object | [VERIFICAR] | `{ methodVersionRef (M04), periodFrom, periodTo, estimatedConsumption, amount: DECIMAL(18,4), computedAt }` | — |
 | `approval` | object | [VERIFICAR] | `{ approvedBy, approvedAt, resolutionDocId }` | — |
 | `billingRef` | string | [VERIFICAR] | M05 | — |
 | `closedAt` | Date | [VERIFICAR] | — | — |
 | `outcome` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `meteringPointId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `meteringPoints` (M03) |
+| `meteringPointId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `meteringPoints` (M03) |
 
 #### 7.22.54 `seals` (COL-TEC-50)
 
@@ -1858,10 +1860,10 @@ Lista original: §7.20.
 | `importKey` | string | [VERIFICAR] | `IMP_CLAVE` | — |
 | `lastDisk` | [VERIFICAR] | [VERIFICAR] | `ULTIMO_DISCO`/`ULT_DSK` | — |
 | `geo` | [VERIFICAR] | [VERIFICAR] | `GPS_LATITUD/LONGITUD` | — |
-| `prefixId` | ObjectId | [VERIFICAR] | `COD_PRE` | `phonePrefixes` (M10); antes implícita por el nombre |
+| `prefixId` | uniqueidentifier | [VERIFICAR] | `COD_PRE` | `phonePrefixes` (M10); antes implícita por el nombre |
 | `currency` | [VERIFICAR] | [VERIFICAR] | `COD_MON` | — |
-| `externalId` | ObjectId | [VERIFICAR] | `ID_TEL` | — (identificador del sistema externo; no es referencia interna) |
-| `networkDeviceId` | ObjectId | [VERIFICAR] | — | `networkDevices` (M10); antes implícita por el nombre |
+| `externalId` | uniqueidentifier | [VERIFICAR] | `ID_TEL` | — (identificador del sistema externo; no es referencia interna) |
+| `networkDeviceId` | uniqueidentifier | [VERIFICAR] | — | `networkDevices` (M10); antes implícita por el nombre |
 | `onlineSource` | [VERIFICAR] | No | Gretix, Tecnored Sunsip, AION, Central Online | — |
 | `readerOptions` | object | [VERIFICAR] | (`{ excludedNumbers[] (V2 #2444), zeroAmountForKey99 (V2 #2346) }`). Unifica `TEL_CENTRAL` y `CENTRALT` | — |
 
@@ -1872,13 +1874,13 @@ Lista original: §7.20.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `ownerType` | enum | [VERIFICAR] | `exchange\|dslam` | — |
-| `ownerId` | ObjectId | [VERIFICAR] | — | Polimórfica según `ownerType`: → M10 `phoneExchanges` · `dslams` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `ownerId` | uniqueidentifier | [VERIFICAR] | — | Polimórfica según `ownerType`: → M10 `phoneExchanges` · `dslams` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | /`name` (`NUMERO`, `DES_PTO_DSLAM`) | — |
-| `linkedDslamPortId` | ObjectId | [VERIFICAR] | `COD_PTO_DSLAM` | → M10 `phonePorts` (puerto del DSLAM vinculado) (PA-TEC-23; antes "`phonePorts` (M10); antes implícita por el nombre") |
+| `linkedDslamPortId` | uniqueidentifier | [VERIFICAR] | `COD_PTO_DSLAM` | → M10 `phonePorts` (puerto del DSLAM vinculado) (PA-TEC-23; antes "`phonePorts` (M10); antes implícita por el nombre") |
 | `outgoingConnected` | [VERIFICAR] | [VERIFICAR] | `CON_SAL` | — |
 | `incomingConnected` | [VERIFICAR] | [VERIFICAR] | `CON_ENT` | — |
 | `status` | enum | Sí | Valores: `available`, `unavailable`, `inactive` (§8.16; PA-TEC-23); antes "`available\|unavailable\|inactive`; `INACTIVO`" | — |
-| `dslamId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `dslams` (M10); antes implícita por el nombre |
+| `dslamId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `dslams` (M10); antes implícita por el nombre |
 | `port` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.57 `phoneFrames` (COL-TEC-52)
@@ -1888,7 +1890,7 @@ Lista original: §7.20.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | `DES_REP` | — |
-| `exchangeId` | ObjectId | [VERIFICAR] | `COD_CEN` | `phoneExchanges` (M10); antes implícita por el nombre |
+| `exchangeId` | uniqueidentifier | [VERIFICAR] | `COD_CEN` | `phoneExchanges` (M10); antes implícita por el nombre |
 | `geo` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
@@ -1898,7 +1900,7 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `frameId` | ObjectId | [VERIFICAR] | — | `phoneFrames` (M10); antes implícita por el nombre |
+| `frameId` | uniqueidentifier | [VERIFICAR] | — | `phoneFrames` (M10); antes implícita por el nombre |
 | `name` | string | [VERIFICAR] | `DES_GRU` | — |
 | `direction` | [VERIFICAR] | [VERIFICAR] | `TIPO`: entrada/salida | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
@@ -1910,9 +1912,9 @@ Lista original: §7.20.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `ownerType` | enum | [VERIFICAR] | `frameGroup\|box` | — |
-| `ownerId` | ObjectId | [VERIFICAR] | — | Polimórfica según `ownerType`: → M10 `phoneFrameGroups` · `phoneBoxes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `ownerId` | uniqueidentifier | [VERIFICAR] | — | Polimórfica según `ownerType`: → M10 `phoneFrameGroups` · `phoneBoxes` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `name` | string | [VERIFICAR] | `DES_REG` | — |
-| `frameGroupId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `phoneFrameGroups` (M10); antes implícita por el nombre |
+| `frameGroupId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `phoneFrameGroups` (M10); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.60 `phoneStripPositions` (COL-TEC-55)
@@ -1921,21 +1923,21 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `stripId` | ObjectId | [VERIFICAR] | — | `phoneStrips` (M10); antes implícita por el nombre |
+| `stripId` | uniqueidentifier | [VERIFICAR] | — | `phoneStrips` (M10); antes implícita por el nombre |
 | `ownerType` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | `DES_POS` | — |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `terminal` | [VERIFICAR] | [VERIFICAR] | `TER` | — |
 | `trm` | [VERIFICAR] | [VERIFICAR] | `TRM` | — |
 | `color` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `previousPositionId` | ObjectId | [VERIFICAR] | `COD_POS_ANT` | → M10 `phoneStripPositions` (posición anterior) (PA-TEC-23; antes "`phoneStripPositions` (M10); antes implícita por el nombre") |
-| `dslamPortId` | ObjectId | [VERIFICAR] | — | `phonePorts` (M10); antes implícita por el nombre |
-| `exchangePortId` | ObjectId | [VERIFICAR] | — | `phonePorts` (M10); antes implícita por el nombre |
-| `groupPositionId` | ObjectId | [VERIFICAR] | `COD_POS_REG_GRU` | → M10 `phoneStripPositions` (posición del grupo) (PA-TEC-23; antes "`phoneStripPositions` (M10); antes implícita por el nombre") |
+| `previousPositionId` | uniqueidentifier | [VERIFICAR] | `COD_POS_ANT` | → M10 `phoneStripPositions` (posición anterior) (PA-TEC-23; antes "`phoneStripPositions` (M10); antes implícita por el nombre") |
+| `dslamPortId` | uniqueidentifier | [VERIFICAR] | — | `phonePorts` (M10); antes implícita por el nombre |
+| `exchangePortId` | uniqueidentifier | [VERIFICAR] | — | `phonePorts` (M10); antes implícita por el nombre |
+| `groupPositionId` | uniqueidentifier | [VERIFICAR] | `COD_POS_REG_GRU` | → M10 `phoneStripPositions` (posición del grupo) (PA-TEC-23; antes "`phoneStripPositions` (M10); antes implícita por el nombre") |
 | `outgoingConnected` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `incomingConnected` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `available`, `reserved`, `connected`, `damaged` (§8.16; PA-TEC-23); antes "—" | — |
-| `contractId` | ObjectId | No | servicio conectado | → M02 `serviceContracts` (servicio conectado) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `contractId` | uniqueidentifier | No | servicio conectado | → M02 `serviceContracts` (servicio conectado) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `position` | [VERIFICAR] | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.61 `phoneBoxes` (COL-TEC-56)
@@ -1945,10 +1947,10 @@ Lista original: §7.20.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | `DES_CAJA` | — |
-| `frameId` | ObjectId | [VERIFICAR] | `COD_REP` | `phoneFrames` (M10); antes implícita por el nombre |
+| `frameId` | uniqueidentifier | [VERIFICAR] | `COD_REP` | `phoneFrames` (M10); antes implícita por el nombre |
 | `address` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `geo` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `networkElementId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `networkElements` (M10); antes implícita por el nombre |
+| `networkElementId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `networkElements` (M10); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.62 `dslams` (COL-TEC-57)
@@ -1962,8 +1964,8 @@ Lista original: §7.20.
 | `model` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `serial` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `observations` | string | [VERIFICAR] | — | — |
-| `networkDeviceId` | ObjectId | [VERIFICAR] | — | `networkDevices` (M10); antes implícita por el nombre |
-| `exchangeId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `phoneExchanges` (M10); antes implícita por el nombre |
+| `networkDeviceId` | uniqueidentifier | [VERIFICAR] | — | `networkDevices` (M10); antes implícita por el nombre |
+| `exchangeId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `phoneExchanges` (M10); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.63 `phonePrefixes` (COL-TEC-59)
@@ -1981,11 +1983,11 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `prefixId` | ObjectId | [VERIFICAR] | — | `phonePrefixes` (M10); antes implícita por el nombre |
+| `prefixId` | uniqueidentifier | [VERIFICAR] | — | `phonePrefixes` (M10); antes implícita por el nombre |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `available`, `reserved`, `assigned`, `quarantine`, `retired` (§8.16; PA-TEC-23); antes "`available\|reserved\|assigned\|quarantine\|retired`; `ESTADO`" | — |
 | `createdOn` | [VERIFICAR] | [VERIFICAR] | `FEC_ALTA` | — |
-| `reservedByWorkOrderId` | ObjectId | No | — | `workOrders` (M10); antes implícita por el nombre |
+| `reservedByWorkOrderId` | uniqueidentifier | No | — | `workOrders` (M10); antes implícita por el nombre |
 
 #### 7.22.65 `phoneLines` (COL-TEC-61)
 
@@ -1993,13 +1995,13 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `contractId` | ObjectId | [VERIFICAR] | `ID_SERSOC` | `serviceContracts` (M02) |
-| `phoneNumberId` | ObjectId | No | `COD_NUM` | `phoneNumbers` (M10); antes implícita por el nombre |
-| `tariffPlanId` | ObjectId | [VERIFICAR] | M04, `COD_TAR` | `servicePlans` (M02) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | `ID_SERSOC` | `serviceContracts` (M02) |
+| `phoneNumberId` | uniqueidentifier | No | `COD_NUM` | `phoneNumbers` (M10); antes implícita por el nombre |
+| `tariffPlanId` | uniqueidentifier | [VERIFICAR] | M04, `COD_TAR` | `servicePlans` (M02) |
 | `validFrom` | Date | [VERIFICAR] | `FEC_ALTA` | — |
 | `validTo` | Date | [VERIFICAR] | `FEC_BAJA` | — |
 | `observation` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `workOrderId` | ObjectId | No | — | `workOrders` (M10); antes implícita por el nombre |
+| `workOrderId` | uniqueidentifier | No | — | `workOrders` (M10); antes implícita por el nombre |
 | `active` | bool | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.66 `numberingPlan` (COL-TEC-62)
@@ -2010,13 +2012,13 @@ Lista original: §7.20.
 |---|---|---|---|---|
 | `fullNumber` | int / string [VERIFICAR] | [VERIFICAR] | `NUMERO` | — |
 | `description` | string | [VERIFICAR] | `DES_CAR` | — |
-| `provinceId` | ObjectId | [VERIFICAR] | `COD_PRV` | `provinces` (T04); antes implícita por el nombre |
+| `provinceId` | uniqueidentifier | [VERIFICAR] | `COD_PRV` | `provinces` (T04); antes implícita por el nombre |
 | `locality` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `indicative` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `block` | [VERIFICAR] | [VERIFICAR] | — | — |
-| `operatorId` | ObjectId | [VERIFICAR] | `COD_OPE` | `memberships` (T02) |
-| `serviceTypeId` | ObjectId | [VERIFICAR] | `COD_SERV` | `telecomServiceTypes` (M10); antes implícita por el nombre |
-| `modalityId` | ObjectId | [VERIFICAR] | `COD_MOD` | `telecomModalities` (M10); antes implícita por el nombre |
+| `operatorId` | uniqueidentifier | [VERIFICAR] | `COD_OPE` | `memberships` (T02) |
+| `serviceTypeId` | uniqueidentifier | [VERIFICAR] | `COD_SERV` | `telecomServiceTypes` (M10); antes implícita por el nombre |
+| `modalityId` | uniqueidentifier | [VERIFICAR] | `COD_MOD` | `telecomModalities` (M10); antes implícita por el nombre |
 | `tariffKey` | string | [VERIFICAR] | `CLAVE`, M04 | — |
 | `isLocal` | bool | [VERIFICAR] | `LOCAL` | — |
 | `source` | object | [VERIFICAR] | `{ file, importedAt }` | — |
@@ -2029,7 +2031,7 @@ Lista original: §7.20.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | `DES_OPE` | — |
-| `accountId` | ObjectId | No | `COD_SUM`, para liquidar CPP | `accounts` (M01) |
+| `accountId` | uniqueidentifier | No | `COD_SUM`, para liquidar CPP | `accounts` (M01) |
 | `generic` | bool | [VERIFICAR] | `GENERICO` | — |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
@@ -2059,8 +2061,8 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `exchangeId` | ObjectId | No | — | `phoneExchanges` (M10); antes implícita por el nombre |
-| `operatorId` | ObjectId | No | — | `memberships` (T02) |
+| `exchangeId` | uniqueidentifier | No | — | `phoneExchanges` (M10); antes implícita por el nombre |
+| `operatorId` | uniqueidentifier | No | — | `memberships` (T02) |
 | `kind` | enum | [VERIFICAR] | `outgoing\|incoming\|international\|cpp\|rejected\|mobileInvoice` | — |
 | `fileName` | string | [VERIFICAR] | — | — |
 | `fileHash` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -2076,7 +2078,7 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cdrImportId` | ObjectId | [VERIFICAR] | — | `cdrImports` (M10); antes implícita por el nombre |
+| `cdrImportId` | uniqueidentifier | [VERIFICAR] | — | `cdrImports` (M10); antes implícita por el nombre |
 | `direction` | enum | [VERIFICAR] | `outgoing\|incoming` | — |
 | `kind` | enum | [VERIFICAR] | `regular\|international\|cpp\|rejected` | — |
 | `origin` | [VERIFICAR] | [VERIFICAR] | `NRO_ORI`/`ORIGEN` | — |
@@ -2088,11 +2090,11 @@ Lista original: §7.20.
 | `trunk` | [VERIFICAR] | [VERIFICAR] | `TRONCAL` | — |
 | `ncnt` | [VERIFICAR] | [VERIFICAR] | /`ndisk` (`NCNT`, `NDISK`) | — |
 | `sourceKey` | string | [VERIFICAR] | `IMP_CLAVE` | — |
-| `sourceAmount` | Decimal128 | [VERIFICAR] | Decimal128; `IMP_CPP` o importe del CDR | — |
-| `operatorId` | ObjectId | [VERIFICAR] | `COD_OPE` | `telecomOperators` (M10); antes implícita por el nombre |
+| `sourceAmount` | DECIMAL(18,4) | [VERIFICAR] | DECIMAL(18,4); `IMP_CPP` o importe del CDR | — |
+| `operatorId` | uniqueidentifier | [VERIFICAR] | `COD_OPE` | `telecomOperators` (M10); antes implícita por el nombre |
 | `operatorLot` | [VERIFICAR] | [VERIFICAR] | `LOT_OPE` | — |
-| `attributedLineId` | ObjectId | [VERIFICAR] | `COD_TSE` | `phoneLines` (M10); antes implícita por el nombre |
-| `attributedContractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `attributedLineId` | uniqueidentifier | [VERIFICAR] | `COD_TSE` | `phoneLines` (M10); antes implícita por el nombre |
+| `attributedContractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
 | `attributionStatus` | enum | Sí | Valores: `attributed`, `originNotFound`, `destinationNotFound`, `duplicate`, `manual` (§8.16; PA-TEC-23); antes "`attributed\|originNotFound\|duplicate\|manual\|destinationNotFound`" | — |
 | `dedupeKey` | Date | [VERIFICAR] | origen+destino+fecha+segundos | — |
 | `ratingRef` | string | [VERIFICAR] | tasación de M04 con `phoneRates`/`phoneRatePlans`; M04 no tiene `callRatings`, CTR-DAT-70 | — |
@@ -2110,16 +2112,16 @@ Lista original: §7.20.
 | `period` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `fileName` | string | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `received`, `parsed`, `withErrors`, `attributed`, `applied`, `rolledBack` (§8.16; PA-TEC-23). Antes la celda tenía, fuera de lugar, el texto de los campos de `kind = ticQuota` (`connectionId`, `sourceMessageId`, `importedBy`), que siguen descritos en §7.20. | — |
-| `serviceId` | ObjectId | [VERIFICAR] | — | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | — | → M02 `tenantServices` (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `unit` | enum | [VERIFICAR] | `sms\|mailbox\|gb` | — |
-| `quantity` | Decimal128 | [VERIFICAR] | Decimal128 ≥ 0 | — |
+| `quantity` | DECIMAL(18,4) | [VERIFICAR] | DECIMAL(18,4) ≥ 0 | — |
 | `measuredFrom` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `measuredTo` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `attributionStatus` | enum | [VERIFICAR] | `attributed\|unattributed\|rejected` | — |
 | `revision` | int | [VERIFICAR] | Int; una corrección reemplaza la anterior mientras el período no esté facturado, `fac.service.isPeriodBilled` | — |
 | `reportedAt` | Date | [VERIFICAR] | — | — |
-| `contractId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `serviceContracts` (M02) |
-| `operatorId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `memberships` (T02) |
+| `contractId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `serviceContracts` (M02) |
+| `operatorId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `memberships` (T02) |
 | `fileHash` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.22.73 `numberPortings` (COL-TEC-73)
@@ -2129,18 +2131,18 @@ Lista original: §7.20.
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `direction` | enum | [VERIFICAR] | `incoming\|outgoing` | — |
-| `phoneNumberId` | ObjectId | No | — | `phoneNumbers` (M10); antes implícita por el nombre |
+| `phoneNumberId` | uniqueidentifier | No | — | `phoneNumbers` (M10); antes implícita por el nombre |
 | `fullNumber` | int / string [VERIFICAR] | [VERIFICAR] | — | — |
-| `contractId` | ObjectId | [VERIFICAR] | — | `serviceContracts` (M02) |
-| `counterpartOperatorId` | ObjectId | [VERIFICAR] | donante o receptor | `telecomOperators` (M10); antes implícita por el nombre |
+| `contractId` | uniqueidentifier | [VERIFICAR] | — | `serviceContracts` (M02) |
+| `counterpartOperatorId` | uniqueidentifier | [VERIFICAR] | donante o receptor | `telecomOperators` (M10); antes implícita por el nombre |
 | `requestedAt` | Date | [VERIFICAR] | — | — |
 | `scheduledWindow` | object | [VERIFICAR] | `{ from, to }` | — |
 | `executedAt` | Date | No | — | — |
 | `status` | enum | Sí | Valores: `requested`, `submitted`, `accepted`, `rejected`, `scheduled`, `executed`, `cancelled`, `received`, `validated` (§8.16; PA-TEC-23); antes "entrante `requested\|submitted\|accepted\|rejected\|scheduled\|executed\|cancelled`; saliente `received\|validated\|accepted\|rejected\|executed`" | — |
 | `rejectionReason` | string | No | — | — |
 | `documentIds` | array | [VERIFICAR] | constancias, T11 | `documents` (T11) |
-| `workOrderId` | ObjectId | No | . Índice único `{tenantId, portId}` | `workOrders` (M10) |
-| `portId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `phonePorts` (M10); antes implícita por el nombre |
+| `workOrderId` | uniqueidentifier | No | . Índice único `{tenantId, portId}` | `workOrders` (M10) |
+| `portId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `phonePorts` (M10); antes implícita por el nombre |
 
 #### 7.22.74 `waterSamplingPoints` (COL-TEC-74)
 
@@ -2150,7 +2152,7 @@ Lista original: §7.20.
 |---|---|---|---|---|
 | `code` | string | [VERIFICAR] | — | — |
 | `name` | string | [VERIFICAR] | — | — |
-| `networkElementId` | ObjectId | No | — | `networkElements` (M10); antes implícita por el nombre |
+| `networkElementId` | uniqueidentifier | No | — | `networkElements` (M10); antes implícita por el nombre |
 | `geometry` | GeoJSON | [VERIFICAR] | punto GeoJSON | — |
 | `pointKind` | enum | [VERIFICAR] | `well\|tank\|plant\|network\|serviceConnection` | — |
 | `concessionRef` | string | [VERIFICAR] | — | — |
@@ -2162,15 +2164,15 @@ Lista original: §7.20.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `samplingPointId` | ObjectId | [VERIFICAR] | — | `waterSamplingPoints` (M10); antes implícita por el nombre |
-| `workOrderId` | ObjectId | [VERIFICAR] | — | `workOrders` (M10) |
+| `samplingPointId` | uniqueidentifier | [VERIFICAR] | — | `waterSamplingPoints` (M10); antes implícita por el nombre |
+| `workOrderId` | uniqueidentifier | [VERIFICAR] | — | `workOrders` (M10) |
 | `takenAt` | Date | [VERIFICAR] | — | — |
-| `takenBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `takenBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `laboratory` | object | [VERIFICAR] | `{ name, registration, external: bool }` | — |
-| `labReportDocumentId` | ObjectId | [VERIFICAR] | T11, con hash | `documents` (T11) |
+| `labReportDocumentId` | uniqueidentifier | [VERIFICAR] | T11, con hash | `documents` (T11) |
 | `outOfLimit` | bool | [VERIFICAR] | — | — |
 | `status` | enum | Sí | Valores: `taken`, `inLab`, `resulted`, `actionPending`, `closed` (§8.16; PA-TEC-23); antes "`taken\|inLab\|resulted\|actionPending\|closed`" | — |
-| `supersedesSampleResultId` | ObjectId | No | — | → M10 `waterSamples` (muestra reemplazada) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `supersedesSampleResultId` | uniqueidentifier | No | — | → M10 `waterSamples` (muestra reemplazada) (PA-TEC-23; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 ### 7.23 Residuales del 5-11-2026: referencias, nombres de T05 y valores de estado (PA-TEC-23)
 
@@ -2180,23 +2182,23 @@ Ronda de residuales detectados al regenerar los entregables (categorías 1 y 2 d
 |---|---|---|---|---|
 | `feasibilityRequests` | `prospect` / `cancelReason` | object / string | No es referencia | sin destino |
 | `feasibilityRequests` | `quoteRef` | object | → M11 `salesQuotes` (`quoteRef.id`) | sin destino |
-| `workOrderOperationTypes` | `resultingServiceStatusId` | ObjectId | → M02 `serviceStatuses` | "estado de servicio" |
-| `workOrderOperationTypes` | `defaultResolutionIds` / `requiredTaskIds` | ObjectId[] | → M10 `resolutionCodes` / `taskCatalog` | sin destino |
-| `chainedOrderRules` | `sourceOperationTypeId` | ObjectId | → M10 `workOrderOperationTypes` | sin destino |
-| `chainedOrderRules` | `targetIntakeChannelId` | ObjectId | → M09 `crmChannels` | sin destino |
-| `fieldEvidence` | `entityType` / `entityId` | enum / ObjectId | Discriminador / polimórfica | sin destino |
-| `serviceConformities` | `signatureRequestId` | ObjectId | → T11 `signatureRequests` | solo en T05 |
-| `visits` | `assignedResourceIds` | ObjectId[] | → M10 `fieldResources` | sin destino |
-| `crews` | `leaderId` | ObjectId | → M10 `fieldResources` | sin destino |
+| `workOrderOperationTypes` | `resultingServiceStatusId` | uniqueidentifier | → M02 `serviceStatuses` | "estado de servicio" |
+| `workOrderOperationTypes` | `defaultResolutionIds` / `requiredTaskIds` | uniqueidentifier[] | → M10 `resolutionCodes` / `taskCatalog` | sin destino |
+| `chainedOrderRules` | `sourceOperationTypeId` | uniqueidentifier | → M10 `workOrderOperationTypes` | sin destino |
+| `chainedOrderRules` | `targetIntakeChannelId` | uniqueidentifier | → M09 `crmChannels` | sin destino |
+| `fieldEvidence` | `entityType` / `entityId` | enum / uniqueidentifier | Discriminador / polimórfica | sin destino |
+| `serviceConformities` | `signatureRequestId` | uniqueidentifier | → T11 `signatureRequests` | solo en T05 |
+| `visits` | `assignedResourceIds` | uniqueidentifier[] | → M10 `fieldResources` | sin destino |
+| `crews` | `leaderId` | uniqueidentifier | → M10 `fieldResources` | sin destino |
 | `fieldDevices` | `deviceId` | UUID | No es referencia | `networkDevices` (erróneo) |
-| `networkComponentRelations` | `parentTypeId` / `childTypeId` | ObjectId | → M10 `networkComponentTypes` | sin destino |
-| `provisioningSystems` | `serviceIds` | ObjectId[] | → M02 `tenantServices` | sin destino |
-| `provisioningSystems` | `connectorId` (T05: `connectionId`) | ObjectId | → T06 `integrationConnections` | sin destino / `serviceNetworkConnections` |
+| `networkComponentRelations` | `parentTypeId` / `childTypeId` | uniqueidentifier | → M10 `networkComponentTypes` | sin destino |
+| `provisioningSystems` | `serviceIds` | uniqueidentifier[] | → M02 `tenantServices` | sin destino |
+| `provisioningSystems` | `connectorId` (T05: `connectionId`) | uniqueidentifier | → T06 `integrationConnections` | sin destino / `serviceNetworkConnections` |
 | `provisioningProfiles` | `casPackageIds` | string[] | No es referencia (códigos del CAS externo) | sin destino |
-| `provisioningCommands` | `compensatesCommandId` | ObjectId | → M10 `provisioningCommands` | implícita |
-| `phonePorts` | `ownerId` / `linkedDslamPortId` | ObjectId | Polimórfica (`phoneExchanges` · `dslams`) / → M10 `phonePorts` | sin destino / implícita |
-| `phoneStrips` | `ownerId` | ObjectId | Polimórfica (`phoneFrameGroups` · `phoneBoxes`) | sin destino |
-| `phoneStripPositions` | `previousPositionId` / `groupPositionId` / `contractId` | ObjectId | → M10 `phoneStripPositions` / → M02 `serviceContracts` | implícita / sin destino |
+| `provisioningCommands` | `compensatesCommandId` | uniqueidentifier | → M10 `provisioningCommands` | implícita |
+| `phonePorts` | `ownerId` / `linkedDslamPortId` | uniqueidentifier | Polimórfica (`phoneExchanges` · `dslams`) / → M10 `phonePorts` | sin destino / implícita |
+| `phoneStrips` | `ownerId` | uniqueidentifier | Polimórfica (`phoneFrameGroups` · `phoneBoxes`) | sin destino |
+| `phoneStripPositions` | `previousPositionId` / `groupPositionId` / `contractId` | uniqueidentifier | → M10 `phoneStripPositions` / → M02 `serviceContracts` | implícita / sin destino |
 
 Campos que T05 cita con otro nombre (prevalece el anexo; T05 debe reflejarlo): `workOrders.crewId` = `assignment.crewId`; `visits.crewId` = `assignedCrewId`; `resourceCalendars.crewId` = `resourceId` con `resourceType` = `crew`, y `calendarId` no existe (las excepciones se cargan en `exceptions[]`), por lo que T05 debe quitarlo; `visitBookings.workOrderId` = `targetRef.workOrderId`; `fieldEvidence.entityRef` = `entityType` + `entityId`; `fieldDevices.membershipId` = `userId`; `provisioningSystems.connectionId` = `connectorId`.
 

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | 1.9 |
+| Versión | 2.15 |
 | Fecha | 19-11-2026 |
 | Estado | Catálogo + **capa C DDL 1.058 tablas**; capa B detallada incremental (DEC-117) |
 | Catálogo (capa A) | [`07-catalogo-tablas-sql.md`](07-catalogo-tablas-sql.md) |
@@ -18,7 +18,7 @@
 | Capa | Archivo | Contenido | Estado |
 |---|---|---|---|
 | **A — Inventario** | [`07-catalogo-tablas-sql.md`](07-catalogo-tablas-sql.md) | **1.058** tablas: esquema, nombre, PK sugerida, `TenantId`, dueño, ola. **Sin tipos ni CREATE** (enlaces a B/C). | **Hecho** |
-| **B — Diseño legible** | Este archivo §2.x | Tipos SQL, FK, índices, checks (tablas markdown, volcado desde §7 del anexo) | **~521 tablas** |
+| **B — Diseño legible** | Este archivo §2.x | Tipos SQL, FK, índices, checks (tablas markdown, volcado desde §7 del anexo) | **~1.058 tablas** |
 | **C — DDL ejecutable** | [`07-ddl/README.md`](07-ddl/README.md), `deploy-coopapps-full.sql` | `CREATE TABLE` 1.058 tablas (`generate_pla_sql.py` + `generate_exhaustive_ddl.py`) | **Hecho** |
 
 El catálogo **no debe** repetir columnas ni scripts: es el índice maestro. Las **1.058 tablas** en un solo MD con `CREATE` completo sería inmantenible y duplicaría EF. Se completa **módulo a módulo** (plan `06` §8 fase 4): primero B en este doc, luego C en `.sql` cuando el módulo exporte a GoodApps.
@@ -44,7 +44,7 @@ Leyenda DDL en §2.x: **Hecho** = columnas en este archivo · **Catálogo** = so
 |---|---|---:|---|---|
 | T01 PLA | `pla` | 32 | Hecho §2.0 | 31 tablas (excl. `SupportAccessGrants` → `iam`) |
 | T02 IAM | `iam` | 31 | **Hecho §2.2** | OpenIddict: stores EF aparte del catálogo T05 |
-| M01 PER | `per` | 21 | Hecho §2.1 | Falta contactos/sensitive; ver anexo M01 §7 |
+| M01 PER | `per` | 21 | **Hecho §2.1** | Índice unicidad, sensibles, contactos JSON; absorbidas enlazadas. |
 | T03 UXD | `uxd` | 10 activas (+1 absorbida) | **Hecho §2.5** | `siteMap` en código; flags → `pla` |
 | T04 CFG | `cfg` | 45 activas (+10 absorbidas) | **Hecho §2.3** | Fiscales → `fis.*`; vistas → `uxd.*` |
 | M02 CAT | `cat` | 25 activas (+4 absorbidas) | **Hecho §2.4** | Cargos por evento → `tar.*`; GD → `med.*` |
@@ -56,9 +56,24 @@ Leyenda DDL en §2.x: **Hecho** = columnas en este archivo · **Catálogo** = so
 | M08 MOR | `mor` | 39 | **Hecho §2.11** | `cashDiscountRules`→`EarlyPaymentDiscountRules`; bloqueos doc. |
 | M09 CRM | `crm` | 42 | **Hecho §2.12** | Comandos a dueños; canales T06/T09; IA DEC-072. |
 | M10 TEC | `tec` | 75 activas (+1 absorbida) | **Hecho §2.13** | Vías ingreso→`crm`; precintos←`med`. |
-| … | ver catálogo | **1.058** crear | **~521** detalladas | 29 esquemas; ver índice en `07-catalogo` |
+| M14 TES | `tes` | 42 activas (+1 absorbida) | **Hecho §2.14** | `cardPlans`→`cob`; entidades M08→`FinancialInstitutions`. |
+| M11 VEN | `ven` | 14 activas (+1 absorbida) | **Hecho §2.15** | Rendiciones→`soc.TripSettlements`. |
+| M12 CMP | `cmp` | 23 | **Hecho §2.16** | `LegalEntityId` en OP/FAC; conceptos tasa. |
+| M13 STK | `stk` | 39 activas (+1 absorbida) | **Hecho §2.17** | Equipos contrato→`cat`; unidad gasto←`cmp`. |
+| M15 CON | `con` | 36 activas (+3 absorbidas) | **Hecho §2.18** | Índices inflación→`cfg`; capital→`EntityAccountAssignments`. |
+| M16 SUE | `sue` | 59 activas (+2 absorbidas) | **Hecho §2.19** | Empleador→`cfg.LegalEntities`; paralelo→T07 `mig`. |
+| M17 INS | `ins` | 35 activas (+1 absorbida) | **Hecho §2.20** | Numeración→T11 `wfl.NumberingSequences`. |
+| M18 SOC | `soc` | 53 | **Hecho §2.21** | Rendiciones←M11 `ven`; flota/GPS. |
+| M19 POR | `por` | 14 | **Hecho §2.22** | Formularios T11; kiosco T06. |
+| T09 COM | `com` | 55 activas (+1 absorbida) | **Hecho §2.23** | Consentimientos→`nfr`. |
+| T06 INT | `int` | 18 | **Hecho §2.24** | Layouts canónicos; telemedición→`IntegrationMessages`. |
+| T11 WFL | `wfl` | 51 activas (+2 absorbidas) | **Hecho §2.25** | Retención→`nfr`; numeración canónica. |
+| T08 NFR | `nfr` | 17 activas (+6 absorbidas) | **Hecho §2.26** | Consentimientos canónicos; alertas→`pla`. |
+| T07 MIG | `mig` | 20 | **Hecho §2.27** | Paralelo sueldos→`ParallelComparisons`. |
+| T10 BIA | `bia` | 67 activas (+2 absorbidas) | **Hecho §2.28** | API clients→`iam`; star schema O11. |
+| … | ver catálogo | **1.058** crear | **~1.058** detalladas | 29 esquemas; capa B cerrada (DEC-117). |
 
-## 2.0 Esquema `pla` — plataforma T01 (fase 4)
+## 2.0 Esquema `pla` — plataforma T01 (completo)
 
 Fuente lógica: T01 §7.11.1–§7.11.28 (colecciones dueño PLA). **Raíz multitenant:** `pla.Tenants` es FK de `TenantId` en el resto del sistema. Tablas **globales** (sin `TenantId`): `Tenants`, `ModuleCatalog`, `PlatformPlans`, `Releases`, `FeatureFlags` (reglas globales), `BackupPolicies`, `SchemaMigrations`. Resto lleva `TenantId` (incl. `PLATFORM` como tenant técnico). Objetos anidados del anexo (contactos, historial de estado, dominios) se modelan como **JSON** (`nvarchar(max)` validado en app) o tablas hijas cuando el volumen de consulta lo exija en EF.
 
@@ -257,7 +272,7 @@ _No se crea `pla.SupportAccessGrants` (absorbida en `iam.SupportAccessGrants`, C
 
 **Capa C:** scripts en `07-ddl/sql/pla/` (regenerar con `docs/especificacion/_trabajo/generate_pla_sql.py`). Orden de despliegue: `deploy-all.sql` (sqlcmd `:r`). FK circulares en `099-pla.deferred-foreign-keys.sql`.
 
-## 2.1 Esquema `per` — núcleo M01 (fase 3)
+## 2.1 Esquema `per` — M01 personas, titulares y cuentas (completo)
 
 Fuente lógica: M01 §7.1–7.16 (colecciones dueño PER). Identificadores: PK `uniqueidentifier`; `TenantId` en todas las tablas de cooperativa. Destinos polimórficos: `SubjectType` + `SubjectId` (equivalente a `subjectRef` / `target` del anexo).
 
@@ -290,7 +305,33 @@ Fuente lógica: M01 §7.1–7.16 (colecciones dueño PER). Identificadores: PK `
 | `IsPrimary` | `bit` | |
 | `VerificationStatus` | `varchar(32)` | |
 
-Índice único: `(TenantId, DocumentTypeId, Number)` con reglas de excepción (RN-PER-005) vía tabla auxiliar `per.PersonIdentifierIndex` (ver M01 §7.1.1).
+Contactos de la persona: subdocumento M01 §7.1.2 modelado en **`ContactsJson`** (`nvarchar(max)` en `per.Persons`): tipos email/mobile/whatsapp, `normalized`, verificación OTP, vigencia; índices de búsqueda en app/EF.
+
+### `per.PersonIdentifierIndex`
+
+| Columna | Tipo SQL | FK / notas |
+|---|---|---|
+| `PersonIdentifierIndexId` | `uniqueidentifier` | PK |
+| `TenantId`, `PersonId` | | FK → `per.Persons` |
+| `DocumentTypeId` | `uniqueidentifier` | FK T04 `IdentityDocumentTypes` |
+| `Number` | `varchar(32)` | normalizado |
+| `ExceptionId` | `uniqueidentifier` | nullable → `wfl.ApprovalRequests` (RN-PER-005) |
+
+Índice único: `(TenantId, DocumentTypeId, Number, ExceptionId)`. Mantenimiento transaccional junto con alta/edición de identificadores en `Persons` (M01 §7.1.1).
+
+### `per.PersonSensitiveData`
+
+| Columna | Tipo SQL | FK / notas |
+|---|---|---|
+| `PersonSensitiveDataId` | `uniqueidentifier` | PK |
+| `TenantId`, `PersonId` | | FK → `per.Persons` (1:N por categoría) |
+| `Category` | `varchar(32)` | `electrodependency`, `health`, `disability`, `bloodDonor`, `other` |
+| `DataJson` | `nvarchar(max)` | esquema por categoría; cifrado app (RN-PER-017) |
+| `EvidenceDocumentId` | `uniqueidentifier` | nullable → `wfl.Documents` |
+| `ValidFrom`, `ValidTo` | `date` | nullable |
+| `ConsentId` | `uniqueidentifier` | FK → `nfr.ConsentRecords` |
+
+Sin exposición en BI (`bia`) ni API B2B; lectura auditada en `iam`. Índice: `(TenantId, PersonId, Category)`.
 
 ### `per.Holders`
 
@@ -535,7 +576,9 @@ Documentos en `per.DocumentSubmissionDocuments` (`DocumentSubmissionId`, `Docume
 
 Índice único: `(TenantId, EntityType, EntityId, Revision)`.
 
-_Pendiente v0.6 (detalle JSON):_ `per.Transfers` ítems/simulación/aprobación; acciones en `DocumentRequirementTypes`; `personSensitiveData` y contactos si export los exige antes de M02.
+**Absorbidas (sin tabla `per`):** `consents` / `dataSubjectRequests` → **`nfr`** (§2.26); `adherents` → **`soc.ServiceDependents`** / **`ServiceBeneficiaries`** (§2.21, DEC-071); `personUserLinks` → **`iam.Memberships.personId`** (§2.2).
+
+_Opcional futuro:_ detalle JSON de ítems en `per.Transfers` y acciones en `DocumentRequirementTypes` si el export EF exige columnas explícitas.
 
 ## 2.2 Esquema `iam` — T02 completo (31 tablas)
 
@@ -1181,6 +1224,660 @@ Fuente lógica: M10 §7 (COL-TEC-01…75). DDL: `07-ddl/sql/tec/`. Olas **O3–O
 
 FKs: `TenantId` → `pla.Tenants`; contratos/servicios → `cat.*`; personas/cuentas → `per.*`; reclamos → `crm.CrmCases`; mora → `mor.InterruptionCases`; medidores → `med.*`; cargos conexión → `tar.*`; stock/M11 en materiales; ejecución remota → T06 `int.*`.
 
+## 2.14 Esquema `tes` — M14 tesorería y bancos (42 tablas activas)
+
+Fuente lógica: M14 §7 (COL-TES-01…43, sin COL-TES-26). DDL: `07-ddl/sql/tes/`. Olas **O5/O8**. Libro único de movimientos, conciliación, cheques, tarjetas, retenciones sufridas, pagos a proveedores/nómina e interbanking (T06).
+
+**Absorbidas:** `cardPlans` → **`cob.CardPlans`** (COL-COB-15); catálogo de entidades financieras consolidado (antes referencias dispersas en M08).
+
+### Instituciones, cuentas y clasificación
+
+**`tes.FinancialInstitutions`** (01), **`BankBranches`** (02): bancos y sucursales.
+
+**`TreasuryAccounts`** (03), **`TreasuryAccountSigners`** (04): cuentas bancarias/caja y reglas de firma.
+
+**`TreasuryCategories`** (05), **`TreasuryConcepts`** (06), **`InstrumentTypes`** (07): categorías, conceptos e instrumentos (referenciados desde `cob.PaymentMethods`).
+
+**`CheckDrawerAccounts`** (08): cuentas emisoras de cheques propios.
+
+### Operaciones, movimientos y depósitos
+
+**`TreasuryOperations`** (09), **`TreasuryMovements`** (10): operación tipada y libro único (reemplaza RESBAN/TESORE).
+
+**`BankDeposits`** (11): depósitos bancarios y tránsito.
+
+### Extractos y conciliación
+
+**`StatementImportProfiles`** (12), **`BankStatementImports`** (13), **`BankStatementLines`** (14).
+
+**`Reconciliations`** (15), **`ReconciliationMatches`** (16), **`ReconciliationRules`** (17).
+
+### Interbanking y lotes de pago
+
+**`InterbankingConnections`** (18), **`InterbankingSyncRuns`** (19), **`InterbankingBalanceSnapshots`** (20).
+
+**`PaymentFiles`** (21): archivos de transferencias y débitos.
+
+### Cheques propios y de terceros
+
+**`ThirdPartyChecks`** (22), **`CheckEvents`** (23), **`Checkbooks`** (24), **`OwnChecks`** (25): cartera, eventos y emisión.
+
+### Tarjetas, retenciones y caja de pagos
+
+**`CardVouchers`** (27), **`CardPresentations`** (28), **`CardSettlements`** (29): cupones y liquidaciones (planes en `cob.*`).
+
+**`ReceivedWithholdings`** (30), **`WithholdingPresentations`** (31): retenciones sufridas y presentaciones.
+
+**`PaymentCashSessions`** (32), **`CashRemittances`** (33), **`TreasuryCashClosings`** (34): sesiones y arqueos de caja de pagos.
+
+### Ejecución, moneda y flujo de fondos
+
+**`PaymentExecutions`** (35): órdenes ejecutadas (proveedores, convenios, nómina).
+
+**`TenantCurrencySettings`** (36), **`ExchangeRates`** (37): multimoneda sobre catálogo T04.
+
+**`PlannedCashItems`** (38), **`FundCommitments`** (39), **`CashFlowScenarios`** (40), **`CashFlowSnapshots`** (41): proyección y escenarios de caja.
+
+### Nómina y parámetros
+
+**`PayrollPaymentBatches`** (42): lotes de pago de haberes (M16 sue).
+
+**`TreasurySettings`** (43): documento único de parámetros por tenant.
+
+FKs: `TenantId` → `pla.Tenants`; imputación → M15 `con.*`; cobranza/pagos M07 → movimientos; compras M12; personas/proveedores → `per.*`; integración bancaria → T06 `int.*`; fiscal retenciones → `fis.*`.
+
+## 2.15 Esquema `ven` — M11 ventas y presupuestos (14 tablas activas)
+
+Fuente lógica: M11 §7 (COL-VEN-01…14). DDL: `07-ddl/sql/ven/`. Olas **O4/O8**. Cargos con titulares, presupuestos versionados, ventas no fiscales de productos/servicios adicionales, financiación comercial y POS.
+
+**Absorbida:** `freightSettlements` → **`soc.TripSettlements`** (M18, COL-SOC-50).
+
+### Cargos por operación y condiciones
+
+**`ven.OperationCharges`** (01): cargos al titular derivados de OT/ventas (facturación M05).
+
+**`ven.SalesConditions`** (02): condiciones comerciales y políticas de venta.
+
+### Presupuestos
+
+**`ven.SalesQuotes`** (03), **`SalesQuoteAcceptances`** (04): presupuesto con ítems/versiones y evidencia de aceptación (portal/T11).
+
+### Pedidos, entrega y devolución
+
+**`ven.SalesOrders`** (05), **`SalesDeliveries`** (06), **`SalesReturns`** (07): ciclo de venta física/digital; stock M13.
+
+### Financiación de ventas
+
+**`ven.SalesFinancingPlans`** (08), **`SalesInstallments`** (09): planes y cuotas comerciales (distinto de M08 convenios de deuda).
+
+### Vendedores, precios y descuentos
+
+**`ven.SalesReps`** (10), **`SalesPriceLists`** (11), **`SalesDiscountRules`** (12): listas, reglas y comisiones.
+
+### Punto de venta (POS)
+
+**`ven.PosTerminals`** (13), **`PosSessions`** (14): terminales y sesiones de caja de venta.
+
+FKs: `TenantId` → `pla.Tenants`; cuentas/titulares → `per.*`; productos → `stk.*` / `cat.*`; presupuesto/CRM → `crm.CrmCases`; OT → `tec.WorkOrders`; comprobantes → `fac.*` cuando la venta factura; cobranza → `cob.*`.
+
+## 2.16 Esquema `cmp` — M12 compras y proveedores (23 tablas)
+
+Fuente lógica: M12 §7 (COL-CMP-01…23). DDL: `07-ddl/sql/cmp/`. Olas **O3/O8**. Ciclo SA → cotización/licitación → OC → recepción → factura proveedor → orden de pago; multientidad (`LegalEntityId` → `cfg.LegalEntities`).
+
+### Proveedores y maestros
+
+**`cmp.Suppliers`** (01): proveedor (persona M01 + datos comerciales; CBU cifrado).
+
+**`SupplierCategories`** (02), **`SupplierEvaluations`** (03), **`SupplierCorrespondence`** (04): rubros, evaluación y circulares (envío T09).
+
+**`PurchaseConcepts`** (05), **`PurchaseLookups`** (06): conceptos de compra y `CON_TASAS` (`kind = rateConcept`, libro IVA compras).
+
+### Demanda, cotización y previsión
+
+**`SupplyRequests`** (07), **`QuoteRequests`** (08), **`SourcingEvents`** (09): pedidos internos, RFQ y eventos de sourcing.
+
+**`PurchaseForecasts`** (17): previsión de compras.
+
+### Órdenes, recepción y comprobantes
+
+**`PurchaseOrders`** (10), **`SupplierReceipts`** (11), **`SupplierInvoices`** (12): OC, remitos y facturas de compra.
+
+**`PurchaseDocumentLinks`** (13), **`MatchExceptions`** (14): trazas entre documentos y excepciones de matching 2/3 vías.
+
+### Pagos y anticipos
+
+**`PaymentOrders`** (15), **`SupplierAdvances`** (16): órdenes de pago y anticipos (ejecución `tes.*`).
+
+### Portal, IA y cuenta corriente compras
+
+**`SupplierPortalSubmissions`** (18), **`AiInvoiceExtractions`** (19): portal proveedor y extracción asistida (T06).
+
+**`SupplierLedgerEntries`** (20), **`SupplyBalances`** (21): mayor proveedor y saldos por rubro.
+
+### Derechos de señal (wholesale)
+
+**`SignalRightsContracts`** (22), **`SignalRightsSettlements`** (23): contratos y liquidaciones con operadores/paquetes CAT.
+
+FKs: `TenantId` → `pla.Tenants`; `PersonId` → `per.Persons`; stock → `stk.*`; asientos → M15 `con.*`; IVA compras → `fis.*`; pagos → `tes.PaymentExecutions`; aprobaciones → `wfl.*`.
+
+## 2.17 Esquema `stk` — M13 stock, activos y fabricación (39 tablas activas)
+
+Fuente lógica: M13 §7 (COL-STK-01…40, sin COL-STK-18). DDL: `07-ddl/sql/stk/`. Olas **O3/O8/O10**. Maestro de artículos, depósitos, movimientos y serial/lotes; costeo perpetuo; bienes de uso; RMA y recepción técnica; BOM y órdenes de fabricación.
+
+**Absorbida:** `equipmentAssignments` → **`cat.ContractEquipmentAssignments`** (COL-CAT-20). **`ExpenseUnits`** (25) canónica para `spendingUnit` (antes en M12 `purchaseLookups`).
+
+### Catálogo de artículos
+
+**`stk.ItemTypes`** (01), **`ItemClassifications`** (02), **`ItemGroups`** (03), **`ItemDepartments`** (04): jerarquía y rubros (dueño único de clasificación; M05/M06 referencian).
+
+**`InventoryItems`** (05), **`ItemKits`** (06): artículos, combos y `DATOSEXT`.
+
+### Depósitos y ubicaciones
+
+**`Warehouses`** (07), **`WarehouseLocations`** (08), **`ItemLocationDefaults`** (09).
+
+### Movimientos y saldos
+
+**`StockDocuments`** (10), **`StockMovements`** (11), **`StockBalances`** (12): remitos, vales, transferencias y libro (`MOV_PRO`).
+
+**`SerialUnits`** (13), **`SerialUnitEvents`** (14), **`LotTypes`** (15), **`Lots`** (16), **`StockReservations`** (17).
+
+### Campo, costeo y compras
+
+**`CrewSettlements`** (19), **`PhysicalCounts`** (20): rendiciones de cuadrilla e inventario físico.
+
+**`ItemCostStates`** (21), **`CostLayers`** (22), **`Revaluations`** (23), **`ReorderSuggestions`** (24): costeo perpetuo y sugerencias a M12.
+
+**`ExpenseUnits`** (25): unidades de gasto (centro de costo M15).
+
+### Activos fijos
+
+**`FixedAssets`** (26), **`FixedAssetHistory`** (27), **`FixedAssetValueChanges`** (28).
+
+**`DepreciationRuns`** (29), **`FixedAssetDepreciations`** (30): amortizaciones → M15.
+
+### RMA y servicio técnico a clientes
+
+**`RmaCases`** (31), **`ReceptionStatuses`** (32), **`ServiceReceptions`** (33).
+
+### Fabricación
+
+**`BomStructures`** (34), **`BomStructureVersions`** (35), **`ProductDivisions`** (36), **`ManufacturingStages`** (37).
+
+**`ManufacturingOrders`** (38), **`ProductionReports`** (39), **`MrpRuns`** (40): OF, partes de producción y MRP.
+
+FKs: `TenantId` → `pla.Tenants`; compras → `cmp.*` / `ven.*`; OT materiales → `tec.WorkOrderMaterials`; contratos → `cat.ServiceContracts`; contabilidad → M15; medidores/serie en M10/M03 vía `SerialUnits`.
+
+## 2.18 Esquema `con` — M15 contabilidad (36 tablas activas)
+
+Fuente lógica: M15 §7 (COL-CON-01…39, sin 15/29/30). DDL: `07-ddl/sql/con_/`. Olas **O5/O8**. Plan de cuentas, motor de asientos, centros de costo, presupuesto, estados financieros e integración con mayor externo.
+
+**Absorbidas:** `capitalRubricAccounts` → **`EntityAccountAssignments`** (`entityType: capitalRubric`); `inflationIndexSeries` / `inflationIndexValues` → **`cfg.EconomicIndexSeries`** / **`EconomicIndexValues`** (§2.3).
+
+### Parámetros y plan de cuentas
+
+**`con.AccountingSettings`** (01), **`ChartOfAccounts`** (02), **`AccountRubrics`** (03), **`LedgerAccounts`** (04), **`AccountRoles`** (05).
+
+### Imputación y asientos
+
+**`PostingRules`** (06), **`AccountingEvents`** (07), **`JournalEntries`** (08), **`JournalLines`** (09).
+
+**`EntryTemplates`** (10), **`PostingBatches`** (11): plantillas y cierre automático.
+
+### Ejercicio, períodos y resultados
+
+**`FiscalYears`** (12), **`AccountingPeriods`** (13), **`ResultTargets`** (14).
+
+### Centros de costo y reparto
+
+**`CostCenters`** (16), **`CostCenterGroups`** (17), **`CostAllocationRules`** (18), **`DistributionModels`** (19), **`CostDistributionRuns`** (20), **`CostCenterModels`** (39).
+
+### Equivalencias, simulación y saldos
+
+**`AccountMappings`** (21), **`SimulationScenarios`** (22), **`SimulatedJournalLines`** (23).
+
+**`LedgerProjections`** (24), **`LedgerBalances`** (25).
+
+### Presupuesto y compromisos
+
+**`Budgets`** (26), **`BudgetLines`** (27), **`Commitments`** (28).
+
+### Inflación contable y conciliación
+
+**`InflationAdjustmentRuns`** (31) (series en `cfg.*`).
+
+**`ReconciliationRuns`** (32).
+
+### Libros y estados financieros
+
+**`RubricatedBooks`** (33), **`StatementTemplates`** (34), **`FinancialStatementRuns`** (35).
+
+### Mayor externo y cuentas por entidad
+
+**`ExternalLedgerMappings`** (36), **`ExternalLedgerTransfers`** (37).
+
+**`EntityAccountAssignments`** (38): cuentas contables de entidades de otros módulos (incl. rubros de capital).
+
+FKs: `TenantId` → `pla.Tenants`; `LegalEntityId` → `cfg.LegalEntities`; eventos desde `fac`, `cob`, `cmp`, `tes`, `stk`, `sue`, `fis`; índices económicos → `cfg.*`; tesorería/pagos → `tes.*`.
+
+## 2.19 Esquema `sue` — M16 personal y sueldos (59 tablas activas)
+
+Fuente lógica: M16 §7 (COL-SUE-02…60, sin COL-SUE-01/61). DDL: `07-ddl/sql/sue/`. Olas **O8/O9**. Legajos, novedades, liquidación, Ganancias, presentaciones y RRHH.
+
+**Absorbidas:** `employers` → subdocumento **`employer`** en **`cfg.LegalEntities`** (DEC-064); `parallelRunComparisons` → **`mig.ParallelComparisons`** (T07); feriados → **`cfg.Holidays`**.
+
+### Legajos y datos laborales
+
+**`sue.Employees`** (02), **`EmployeeAssignments`** (03), **`EmployeeCostAllocations`** (04), **`EmployeeFamilyMembers`** (05).
+
+**`EmployeePayAccounts`** (06), **`EmployeeDocuments`** (07), **`EmployeeNotes`** (08), **`SupervisionLinks`** (09).
+
+### Turnos y situación de revista
+
+**`Shifts`** (10), **`EmployeeShiftAssignments`** (11), **`EmploymentStatusPeriods`** (12).
+
+### Extras, adicionales y descuentos planificados
+
+**`ExtraGroups`** (13), **`ExtraItems`** (14), **`EmployeeExtras`** (15), **`DeductionPlans`** (16).
+
+### Marco sindical y estructura salarial
+
+**`Unions`** (17), **`LaborAgreements`** (18), **`SalaryCategories`** (19), **`SalaryScales`** (20), **`SeniorityScales`** (21).
+
+**`Positions`** (22), **`WorkAreas`** (23), **`HealthInsurerAdoptions`** (24), **`TerminationReasons`** (25).
+
+### Motor de liquidación
+
+**`PayrollVariables`** (26), **`PayrollConcepts`** (27), **`PayrollTypes`** (28), **`PayrollConfigVersions`** (29).
+
+**`NoveltyTypes`** (30), **`Novelties`** (31), **`NoveltyImportBatches`** (32), **`TimePunches`** (33), **`ExtraTasks`** (34).
+
+### Licencias y vacaciones
+
+**`LeaveCauses`** (35), **`LeaveRequests`** (36), **`VacationBalances`** (37).
+
+### Períodos, liquidaciones y recibos
+
+**`PayPeriods`** (38), **`PayrollRuns`** (39), **`Payslips`** (40).
+
+**`IncomeTaxCalculations`** (41), **`IncomeTaxDeclarations`** (42), **`StatutoryFilings`** (43).
+
+### Pago, contabilidad y egreso
+
+**`PayrollPaymentRequests`** (44) → `tes.PayrollPaymentBatches`; **`PayrollAccountingRules`** (45) → `con.*`.
+
+**`Terminations`** (46), **`EmploymentCertificates`** (47), **`PayslipNotifications`** (48) → T09/T11.
+
+### Gestión de personas (RRHH)
+
+**`PerformanceTemplates`** (49), **`PerformanceCycles`** (50), **`PerformanceReviews`** (51), **`Objectives`** (52).
+
+**`DisciplinaryActions`** (53), **`AdministrativeInquiries`** (54), **`WorkAccidents`** (55), **`LaborLawsuits`** (56).
+
+**`ReportGroups`** (57), **`SalaryIncreaseBatches`** (58).
+
+### Liquidador externo
+
+**`ExternalPayrollImports`** (59), **`ExternalPayrollLayouts`** (60) (layouts T06 `int`).
+
+FKs: `TenantId` → `pla.Tenants`; legajo/persona → `per.Persons`; centros → `con.CostCenters`; tablas oficiales → `cfg.PayrollOfficialCodes` y afines; asientos → eventos M15.
+
+## 2.20 Esquema `ins` — M17 institucional y capital (35 tablas activas)
+
+Fuente lógica: M17 §7 (COL-INS-01…36, sin COL-INS-03). DDL: `07-ddl/sql/ins/`. Olas **O3/O8**. Calidad de socio, capital social, órganos de gobierno, asambleas, elecciones, excedentes, cuotas institucionales e informes INAES.
+
+**Absorbida:** `insNumberingSeries` → **`wfl.NumberingSequences`** (T11, COL-WFL-45).
+
+### Asociación y eventos
+
+**`ins.AssociateMemberships`** (01), **`MembershipEvents`** (02), **`ElectoralDistricts`** (04).
+
+### Capital social y certificados
+
+**`CapitalItems`** (05), **`CapitalSubscriptionRules`** (06), **`CapitalShareValues`** (07), **`CapitalMovements`** (08).
+
+**`CapitalReserves`** (09), **`CapitalTransfers`** (10), **`CapitalRefunds`** (11), **`CapitalClosings`** (12).
+
+**`ShareCertificates`** (13), **`CapitalBalances`** (36): libro y saldo proyectado.
+
+### Excedentes
+
+**`SurplusDistributions`** (14), **`SurplusAllocations`** (15).
+
+### Gobierno y mandatos
+
+**`GovernanceBodies`** (16), **`BodyMandates`** (17).
+
+### Asambleas y actas
+
+**`Meetings`** (18), **`MeetingAgendaItems`** (19), **`MeetingParticipants`** (20), **`MeetingPermissions`** (21).
+
+**`Minutes`** (22), **`Resolutions`** (23).
+
+### Padrones, poderes y elecciones
+
+**`Rosters`** (24), **`RosterEntries`** (25), **`Proxies`** (26), **`ElectoralLists`** (27).
+
+**`VotingSessions`** (28), **`VoteTallies`** (29).
+
+### Cuotas institucionales e INAES
+
+**`InstitutionalFees`** (30), **`InstitutionalFeeSettlements`** (31): liquidación → `fac` / `cob`.
+
+**`InaesCategories`** (32), **`InaesReports`** (33), **`AssociateRegisterEditions`** (34), **`MemberCredentials`** (35).
+
+FKs: `TenantId` → `pla.Tenants`; persona/titular → `per.Persons` / `per.Holders`; contabilidad capital → `con.EntityAccountAssignments`; firmas/actas → T11; comunicaciones → T09.
+
+## 2.21 Esquema `soc` — M18 servicios sociales y flota (53 tablas)
+
+Fuente lógica: M18 §7 (COL-SOC-01…53). DDL: `07-ddl/sql/soc/`. Olas **O3/O10**. Coberturas y prestaciones (salud, sepelio, sangre), cementerio parque, ortopedia, planes de vivienda, transporte y flota con GPS.
+
+**Canónica cruzada:** `TripSettlements` (50) absorbe rendiciones de ventas M11 (`freightSettlements`).
+
+### Dependientes, planes y red prestadora
+
+**`soc.ServiceDependents`** (01), **`ServiceBeneficiaries`** (02), **`DependentEvents`** (03).
+
+**`CoveragePlans`** (04), **`CareProviders`** (05), **`ProviderAgreements`** (06), **`MedicalSpecialties`** (07), **`MedicalProfessionals`** (08).
+
+### Solicitudes y prestaciones
+
+**`BenefitRequests`** (09), **`BurialServiceCases`** (10), **`DeathSubsidyCases`** (11), **`BloodCoverageRequests`** (12).
+
+**`DonationCampaigns`** (13), **`DonationAppointments`** (14), **`HealthAuthorizations`** (15).
+
+### Transporte de beneficiarios
+
+**`TransportTrips`** (16), **`TripLegs`** (17), **`TripCharacteristics`** (18).
+
+### Cementerio parque
+
+**`Cemeteries`** (19), **`CemeteryRegulations`** (20), **`BurialUnits`** (21), **`BurialRights`** (22), **`BurialRightEvents`** (23).
+
+**`BurialOccupancies`** (24), **`CemeteryActs`** (25).
+
+### Ortopedia y depósitos
+
+**`OrthopedicItems`** (26), **`OrthopedicLoans`** (27), **`DispenserWithdrawals`** (28).
+
+### Planes de vivienda (obra social)
+
+**`HousingPlans`** (29) … **`HousingTerminations`** (42): precios, unidades, aportes, etapas, avance de obra, materiales y certificados.
+
+### Flota, combustible y GPS
+
+**`FleetVehicles`** (43), **`Drivers`** (44), **`VehicleDocuments`** (45), **`VehicleMaintenances`** (46), **`VehicleUsages`** (47).
+
+**`FuelTypes`** (48), **`FuelLoads`** (49), **`TripSettlements`** (50): rendiciones de viaje (incl. origen ventas).
+
+**`GpsDevices`** (51), **`GpsPositions`** (52), **`ContractRegistrations`** (53).
+
+FKs: `TenantId` → `pla.Tenants`; titular/contrato → `cat.ServiceContracts` / `per.*`; stock vivienda → `stk.*`; facturación cuotas → `fac`/`tar`; personal → `sue.Employees` en choferes.
+
+## 2.22 Esquema `por` — M19 portal del socio y landing (14 tablas)
+
+Fuente lógica: M19 §7 (COL-POR-01…14). DDL: `07-ddl/sql/por/`. Olas **O1/O11**. Sitio público por cooperativa, acceso al portal, formularios y trámites en línea, preferencias y kioscos de autoservicio.
+
+### Landing y marca
+
+**`por.LandingPages`** (01), **`LandingPageVersions`** (02): páginas institucionales; marca → `uxd.TenantBrandings`.
+
+### Acceso, vínculos y delegación
+
+**`PortalAccountAccess`** (03), **`PortalLinkAttempts`** (04), **`PortalDelegationInvites`** (05): altas de usuario portal, intentos de enlace y delegación de cuentas (M01/T02).
+
+### Formularios y borradores
+
+**`PortalForms`** (06), **`PortalFormSubmissions`** (07), **`PortalDrafts`** (08), **`PublicSubmissions`** (09): definición publicada → T11 `formVersions`; envíos y borradores.
+
+### Experiencia y campañas en portal
+
+**`PortalUserPreferences`** (10), **`PortalBanners`** (11).
+
+### Migración portal legado y kioscos
+
+**`LegacyPortalImports`** (12), **`LegacyPortalUserMap`** (13): mapeo ProCoop/T07 `mig`.
+
+**`KioskDevices`** (14): terminales de autoservicio → T06 periféricos.
+
+FKs: `TenantId` → `pla.Tenants`; personas/cuentas → `per.*`; identidad → `iam.*`; casos/trámites → `crm.*`; pagos/consultas delegan a módulos dueños vía API.
+
+## 2.23 Esquema `com` — T09 comunidad y comunicaciones (55 tablas activas)
+
+Fuente lógica: T09 §7 (COL-COM-01…55, sin COL-COM-50). DDL: `07-ddl/sql/com/`. Olas **O1/O6**. Muro editorial, moderación, boletines, encuestas, eventos, audiencias y motor transaccional de envíos (email/SMS/WhatsApp/push).
+
+**Absorbida:** `consentRecords` (COM) → **`nfr.ConsentRecords`** (T08, COL-NFR-04; también M01 `consents`).
+
+### Muro y engagement
+
+**`com.Posts`** (01), **`PostCategories`** (02), **`PostTemplates`** (03), **`PostReactions`** (04), **`PostViews`** (05), **`PostDailyStats`** (06), **`PostUserStates`** (07), **`GreetingRules`** (08).
+
+**`Comments`** (09).
+
+### Moderación y convivencia
+
+**`ModerationPolicies`** (10), **`ModerationRules`** (11), **`ModerationCases`** (12), **`ContentReports`** (13).
+
+**`CommunitySanctions`** (14), **`CommunityGuidelines`** (15), **`GuidelineAcceptances`** (16).
+
+### Boletines y encuestas
+
+**`NewsletterRules`** (17), **`Newsletters`** (18), **`NewsletterRecipients`** (19).
+
+**`Surveys`** (20), **`SurveyResponses`** (21), **`SurveyInvitations`** (22), **`SurveyTemplates`** (23), **`SurveyCategories`** (24).
+
+### Eventos y beneficios
+
+**`Events`** (25), **`EventRegistrations`** (26), **`BenefitPartners`** (27), **`Benefits`** (28), **`BenefitRedemptions`** (29).
+
+### Audiencias y campañas
+
+**`AudienceSegments`** (30), **`AudienceImportLists`** (31), **`AudienceImportRows`** (32), **`AudienceSnapshots`** (33), **`AudienceSnapshotMembers`** (34).
+
+**`CommunicationTypes`** (35), **`MessageTemplates`** (36), **`MessageTemplateVersions`** (37), **`TemplateVariables`** (38).
+
+**`Communications`** (39), **`CommunicationAttempts`** (40), **`CommunicationEvents`** (41), **`TrackedLinks`** (42).
+
+**`SenderIdentities`** (43), **`ChannelSettings`** (44), **`MessagingUsage`** (45), **`InternalNotificationRules`** (46), **`Campaigns`** (47).
+
+### Preferencias, facturación y avisos
+
+**`InvoiceMessages`** (48), **`CommunicationPreferences`** (49), **`SuppressionEntries`** (51).
+
+**`AppNotifications`** (52), **`PushSubscriptions`** (53).
+
+**`PlatformNotices`** (54), **`PlatformNoticeReads`** (55), **`OutageNotices`** (56).
+
+FKs: `TenantId` → `pla.Tenants`; destinatarios → `per.*` / audiencias; plantillas mora/factura → M08/M05; integración canales → T06 `int.*`; CRM → `crm.*`; workflow → T11.
+
+## 2.24 Esquema `int` — T06 integraciones externas (18 tablas)
+
+Fuente lógica: T06 §7 (COL-INT-01…18). DDL: `07-ddl/sql/int/`. Olas **O0–O11**. Marco común de conectores: catálogo, conexiones por tenant, bóveda (DEC-074), ejecución outbox/idempotencia, webhooks, layouts e intercambio de archivos, conciliación, contingencia, agente local y consumo de IA.
+
+**Absorbidas (canónicas aquí):** `fileLayouts` ← M07 `fileLayouts` (COL-COB-22) y T04 `statutoryFileLayouts` (COL-CFG-54); bitácora telemedición M03 `meteringConnectorLogs` → **`IntegrationMessages`** (COL-INT-07).
+
+### Catálogo y conexiones
+
+**`int.IntegrationProviders`** (01, plataforma/`PLATFORM`), **`IntegrationConnections`** (02), **`ExternalReferences`** (15).
+
+### Bóveda, certificados y tokens en caché
+
+**`IntegrationSecrets`** (03), **`IntegrationCertificates`** (04), **`IntegrationTokens`** (05; valor material en Redis/KV).
+
+### Operaciones y bitácora
+
+**`IntegrationOperations`** (06, idempotencia y correlación), **`IntegrationMessages`** (07, saneamiento y TTL de cuerpos; `storedFileId` → `pla.StoredFiles`).
+
+### Webhooks entrantes
+
+**`WebhookEndpoints`** (08), **`WebhookInbox`** (09, deduplicación y TTL).
+
+### Intercambio de archivos
+
+**`FileLayouts`** (10, motor declarativo de registros/campos), **`IntegrationFileExchanges`** (11, hash/totales y estados del ciclo archivo).
+
+### Monitoreo, conciliación y contingencia
+
+**`IntegrationReconciliations`** (12), **`IntegrationAlerts`** (13), **`IntegrationContingencies`** (14).
+
+### Agente local e IA
+
+**`LocalAgents`** (16, hardware en sucursal), **`LocalAgentCommands`** (17, TTL; `deviceId` enlazado desde M16 fichadas), **`AiUsageLogs`** (18).
+
+FKs: `TenantId` → `pla.Tenants`; secretos/certificados → conexión; archivos → `pla.StoredFiles`; cambios sensibles (modo producción, rotación) → T11; los módulos de dominio consumen **eventos** `int.*` y no reciben escrituras directas del conector (DEC-003).
+
+## 2.25 Esquema `wfl` — T11 workflow, documentos y operaciones (51 tablas activas)
+
+Fuente lógica: T11 §7 (COL-WFL-01…53, sin COL-WFL-38/39). DDL: `07-ddl/sql/wfl/`. Olas **O0–O3**. Eventos sobre outbox T01, jobs masivos, operaciones con pasos, workflows configurables, aprobaciones, expediente documental, plantillas/render, numeración no fiscal, firma digital y dossier.
+
+**Absorbidas:** `retentionPolicies` / `legalHolds` (WFL) → **`nfr.RetentionPolicies`** / **`nfr.LegalHolds`** (T08, COL-NFR-06/07). **Canónicas aquí:** numeración ← T04 `sequences` (COL-CFG-40) y M17 `insNumberingSeries` (COL-INS-03) → **`NumberingSequences`** (COL-WFL-45).
+
+### Eventos de dominio
+
+**`wfl.EventTypes`** (01), **`EventSubscriptions`** (02): contrato de consumo sobre `pla.OutboxMessages`.
+
+### Bandeja, jobs y corridas masivas
+
+**`OperationalInboxItems`** (03), **`JobDefinitions`** (04), **`JobSchedules`** (05), **`BulkRuns`** (06), **`BulkRunItems`** (07).
+
+### Operaciones de negocio
+
+**`OperationTypes`** (08), **`Operations`** (09), **`OperationSteps`** (10), **`StateMachineRegistry`** (11).
+
+### Workflows y SLA
+
+**`WorkflowDefinitions`** (12), **`WorkflowVersions`** (13), **`WorkflowInstances`** (14), **`WorkflowInstanceEvents`** (15).
+
+**`SlaPolicies`** (16), **`SlaTimers`** (17; también casos M09 CRM).
+
+### Formularios dinámicos
+
+**`FormDefinitions`** (18), **`FormVersions`** (19), **`FormSubmissions`** (20), **`ActionCatalog`** (21), **`DataSourceCatalog`** (22): M10/M19 portal referencian versiones publicadas.
+
+### Aprobaciones y delegación
+
+**`ApprovalPolicies`** (23), **`ApprovalRequests`** (24), **`ApprovalSteps`** (25), **`ApprovalDecisions`** (26), **`Delegations`** (27): excepciones M01, cargos M11, integraciones T06 sensibles.
+
+### Tareas, bandeja y agenda
+
+**`Tasks`** (28), **`TaskComments`** (29), **`WorkItems`** (30), **`AgendaEntries`** (31), **`AgendaFeeds`** (32).
+
+### Expediente documental
+
+**`DocumentTypes`** (33, `retentionPolicyCode` → T08 `nfr`), **`Documents`** (34), **`DocumentVersions`** (35, `storedFileId` → `pla.StoredFiles`), **`DocumentLinks`** (36), **`ShareLinks`** (37), **`DocumentAccessLogs`** (40, TTL).
+
+### Plantillas y render
+
+**`DocumentTemplates`** (41), **`TemplateVersions`** (42), **`TemplateDataContracts`** (43), **`RenderRequests`** (44): facturas M05, credenciales M17, comunicaciones M09.
+
+### Numeración no fiscal
+
+**`NumberingSequences`** (45), **`NumberingAssignments`** (46).
+
+### Firma digital
+
+**`SignatureProfiles`** (47), **`SignatureRequests`** (48), **`SignatureParticipants`** (49), **`SignatureEvidences`** (50): convenios M08, recibos M16, tesorería M14.
+
+### Expedientes (dossier)
+
+**`Dossiers`** (51), **`DossierEntries`** (52), **`DossierTimeline`** (53).
+
+FKs: `TenantId` → `pla.Tenants`; usuarios → `iam.*`; sujetos vía `subjectRef`/`sourceRef` polimórfico (sin FK cross-módulo obligatoria); archivos → `pla.StoredFiles`; retención legal → `nfr.*`; consumidores de eventos en módulos dueños vía outbox (DEC-003).
+
+## 2.26 Esquema `nfr` — T08 privacidad, retención y calidad (17 tablas activas)
+
+Fuente lógica: T08 §7 (COL-NFR-01…23, sin COL-NFR-11/13/14/17/18/22). DDL: `07-ddl/sql/nfr/`. Olas **O0–O1**. Catálogo PII, tratamientos, consentimientos, derechos del titular, retención/supresión, cifrado, SLO, seguridad y subencargados (DEC-076).
+
+**Absorbidas (canónicas aquí):** consentimientos ← M01 `consents` (COL-PER-19) y T09 `consentRecords` (COL-COM-50); solicitudes ARCO ← M01 `dataSubjectRequests` (COL-PER-20); políticas de retención / legal hold ← T11 (COL-WFL-38/39).
+
+**Reexportadas a T01 `pla`:** `restoreDrills`→`RestoreTests`, `idempotencyKeys`, `processedEvents`→`InboxReceipts`, `alertRules`/`alertEvents`, `tenantUsageSnapshots`→`UsageSnapshots`.
+
+### Catálogo y privacidad
+
+**`nfr.DataCatalogEntries`** (01, campos `x-pii`), **`ProcessingActivities`** (02), **`PrivacyNotices`** (03).
+
+### Consentimiento y derechos del titular
+
+**`ConsentRecords`** (04), **`DataSubjectRequests`** (05): persona → `per.Persons`.
+
+### Retención y supresión
+
+**`RetentionPolicies`** (06), **`LegalHolds`** (07), **`RetentionRuns`** (08), **`ErasureLedger`** (09, global).
+
+### Seguridad y operación
+
+**`SecurityIncidents`** (10), **`EncryptionKeys`** (12, DEK por categoría), **`Locks`** (15, respaldo Redis), **`SloDefinitions`** (16), **`CspReports`** (19, TTL).
+
+### Calidad, estado y cumplimiento
+
+**`QualityEvidence`** (20), **`StatusNotices`** (21, enlaza `pla.PlatformIncidents`), **`Subprocessors`** (23, registro público DEC-076).
+
+FKs: `TenantId` → `pla.Tenants` donde aplica; `wfl.DocumentTypes.retentionPolicyCode` → `RetentionPolicies`; comunicaciones T09 leen `ConsentRecords`; jobs de retención coordinan con T11 expediente y Blob purge.
+
+## 2.27 Esquema `mig` — T07 migración ProCoop → CoopApps (20 tablas)
+
+Fuente lógica: T07 §7 (COL-MIG-01…20). DDL: `07-ddl/sql/mig/`. Olas **O0–O1/O11**. Proyecto por cooperativa, snapshots del origen, mapeos versionados, corridas y staging, identidad legacy, conciliación, paralelo con ProCoop, convivencia/corte y histórico consultable (DEC-070, DEC-103).
+
+**Absorbida (canónica aquí):** comparación paralela de liquidaciones M16 `parallelRunComparisons` → **`ParallelComparisons`** (COL-MIG-14).
+
+### Proyecto y capturas del origen
+
+**`mig.MigrationProjects`** (01, acta → `wfl.Documents`), **`LegacySnapshots`** (02, `storedFileId` → `pla.StoredFiles`), **`AnonymizationProfiles`** (20, plataforma).
+
+### Mapeos declarativos
+
+**`MigrationMappingSets`** (03), **`MigrationMappingRules`** (04), **`MigrationValueMaps`** (05).
+
+### Corridas, lotes y staging
+
+**`MigrationRuns`** (06), **`MigrationBatches`** (07), **`MigStagingRecords`** (08, TTL), **`MigrationIssues`** (11, escaneo secretos DEC-103), **`MigrationReconciliations`** (12).
+
+### Identidad y legado consultable
+
+**`LegacyIdMap`** (09), **`LegacyKeyAliases`** (10, DEC-050), **`LegacyRecords`** (19).
+
+### Paralelo, convivencia y corte (O11)
+
+**`ParallelRuns`** (13, enlace lote M05 `billingRuns`), **`ParallelComparisons`** (14), **`BypassPlans`** (15), **`CoexistenceSyncs`** (16), **`CutoverPlans`** (17), **`RollbackJournal`** (18).
+
+FKs: `TenantId` → `pla.Tenants`; archivos → `pla.*`; importadores archivo → T06 `int.FileLayouts`; IDs externos → `int.ExternalReferences`; regularización documentos M01 → `crm.CrmCases` + lotes `MigrationBatches`.
+
+## 2.28 Esquema `bia` — T10 BI, reportes y API analítica (67 tablas activas)
+
+Fuente lógica: T10 §7 (COL-BIA-01…69, sin COL-BIA-20/21). DDL: `07-ddl/sql/bia/`. Olas **O1–O2/O11**. Catálogo DevExpress, ejecuciones y export, tableros e indicadores, datasets certificados, API B2B/webhooks, benchmarking anónimo y **data mart** analítico (`bi_dim_*` / `bi_fact_*` / `bi_snap_*`).
+
+**Absorbidas:** clientes y credenciales API → **`iam.ApiClients`** / **`iam.ApiCredentials`** (COL-IAM-22/23); uso detallado también en T06 `int.AiUsageLogs` para IA transversal.
+
+### Reportes y exportación (O1–O2)
+
+**`bia.ReportDefinitions`** (01), **`ReportPresets`** (02), **`SavedViews`** (03), **`ReportRuns`** (04), **`ReportExports`** (05), **`ReportSchedules`** (06), **`ReportDeliveries`** (07), **`ReportTemplates`** (08), **`ExportLayouts`** (09), **`ReportAccessLogs`** (10), **`ReportRunResults`** (30, TTL).
+
+### Indicadores, tableros y alertas
+
+**`IndicatorDefinitions`** (11), **`IndicatorSnapshots`** (12, escenarios M15), **`Dashboards`** (13), **`DashboardUserPrefs`** (14), **`KpiAlertRules`** (15), **`KpiAlerts`** (16).
+
+### Datasets, generador e IA (O11)
+
+**`AnalyticsDatasets`** (17), **`CustomReports`** (18, MER-013), **`AiQuestions`** (19 → `int.AiUsageLogs`).
+
+### API externa, webhooks y datos abiertos
+
+**`ApiUsageLogs`** (22, TTL), **`ApiUsageDaily`** (23), **`ExtWebhookSubscriptions`** (24), **`ExtWebhookDeliveries`** (25, TTL), **`ExtBulkExports`** (26), **`OpenDataPublications`** (27): `apiClientId` → `iam.ApiClients`.
+
+### Benchmarking entre cooperativas
+
+**`BenchmarkParticipations`** (28), **`BenchmarkAggregates`** (29, plataforma anonimizada).
+
+### Dimensiones analíticas (`analytics` / esquema `bia`, O11)
+
+**`Bi_dim_date`** (31), **`Bi_dim_person`** (32), **`Bi_dim_account`** (33), **`Bi_dim_contract`** (34), **`Bi_dim_service`** (35), **`Bi_dim_category`** (36), **`Bi_dim_plan`** (37), **`Bi_dim_product`** (38), **`Bi_dim_concept`** (39), **`Bi_dim_channel`** (40), **`Bi_dim_cashbox`** (41), **`Bi_dim_crew`** (42), **`Bi_dim_supplier`** (43), **`Bi_dim_glAccount`** (44), **`Bi_dim_costCenter`** (45), **`Bi_dim_employee`** (46), **`Bi_dim_branch`** (47), **`Bi_dim_zone`** (48).
+
+### Hechos y snapshots
+
+**`Bi_fact_invoice`** (49), **`Bi_fact_invoiceLine`** (50), **`Bi_fact_payment`** (51), **`Bi_fact_allocation`** (52), **`Bi_fact_ledgerEntry`** (53), **`Bi_fact_consumption`** (54), **`Bi_fact_reading`** (55), **`Bi_fact_arrears`** (56), **`Bi_fact_agreement`** (57), **`Bi_fact_ticket`** (58), **`Bi_fact_workOrder`** (59), **`Bi_fact_turn`** (60), **`Bi_fact_stockMovement`** (61), **`Bi_fact_purchase`** (62), **`Bi_fact_treasury`** (63), **`Bi_fact_journalLine`** (64), **`Bi_fact_payroll`** (65), **`Bi_fact_member`** (66), **`Bi_fact_communication`** (67), **`Bi_fact_apiUsage`** (68), **`Bi_snap_balance`** (69).
+
+FKs: `TenantId` → `pla.Tenants`; archivos export → `pla.StoredFiles`; ETL desde módulos dueños (solo lectura); credenciales y scopes → T02 `iam`; rate limit / auditoría → T08; webhooks salientes → T06 patrones de entrega.
+
 ## 3. Trazabilidad
 
 Cada tabla incluirá (en la versión completa) referencia a: anexo dueño, colección/modelo lógico T05, RF/RN relevantes, y ola de contenido funcional asociada.
@@ -1208,3 +1905,19 @@ Cada tabla incluirá (en la versión completa) referencia a: anexo dueño, colec
 | 1.7 | 19-11-2026 | **§2.11 `mor` completo** (39 tablas M08). |
 | 1.8 | 19-11-2026 | **§2.12 `crm` completo** (42 tablas M09). |
 | 1.9 | 19-11-2026 | **§2.13 `tec` completo** (75 tablas activas M10). |
+| 2.0 | 19-11-2026 | **§2.14 `tes` completo** (42 tablas activas M14). |
+| 2.1 | 19-11-2026 | **§2.15 `ven` completo** (14 tablas activas M11). |
+| 2.2 | 19-11-2026 | **§2.16 `cmp` completo** (23 tablas M12). |
+| 2.3 | 19-11-2026 | **§2.17 `stk` completo** (39 tablas activas M13). |
+| 2.4 | 19-11-2026 | **§2.18 `con` completo** (36 tablas activas M15). |
+| 2.5 | 19-11-2026 | **§2.19 `sue` completo** (59 tablas activas M16). |
+| 2.6 | 19-11-2026 | **§2.20 `ins` completo** (35 tablas activas M17). |
+| 2.7 | 19-11-2026 | **§2.21 `soc` completo** (53 tablas M18). |
+| 2.8 | 19-11-2026 | **§2.22 `por` completo** (14 tablas M19). |
+| 2.9 | 19-11-2026 | **§2.23 `com` completo** (55 tablas activas T09). |
+| 2.10 | 19-11-2026 | **§2.24 `int` completo** (18 tablas T06). |
+| 2.11 | 19-11-2026 | **§2.25 `wfl` completo** (51 tablas activas T11). |
+| 2.12 | 19-11-2026 | **§2.26 `nfr` completo** (17 tablas activas T08). |
+| 2.13 | 19-11-2026 | **§2.27 `mig` completo** (20 tablas T07). |
+| 2.14 | 19-11-2026 | **§2.28 `bia` completo** (67 tablas activas T10). |
+| 2.15 | 19-11-2026 | **§2.1 `per` completado** (`PersonIdentifierIndex`, `PersonSensitiveData`, contactos). |

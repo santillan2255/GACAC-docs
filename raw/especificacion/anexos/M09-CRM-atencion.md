@@ -501,8 +501,10 @@ Reglas de permisos: (a) el alcance efectivo es la unión de alcances del rol y d
 | RN-CRM-097 | Notas de OT con "visible en caja" y notas de cuenta con bloqueo de caja pertenecen a M10/M01; el CRM las muestra en la vista 360 sin duplicarlas. | `NOTA_SUM.BLO_CAJ`, `MSG_CAJ`; nota "Orden de cambio de estado" visible en caja (RN-06, RN-07) | Consumir | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-**Campos comunes** (no se repiten en cada tabla): `_id` (ObjectId), `tenantId` (ObjectId, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy` (userId o principal de servicio), `version` (int, control optimista), `deletedAt` (borrado lógico solo en catálogos; los casos, eventos, mensajes, interacciones, turnos y ocurrencias **nunca** se borran). Los catálogos configurables llevan además `code` (string único por tenant), `nameKey` (clave `dict:`), `active` (bool), `order` (int) y `validFrom`/`validTo` cuando corresponda. Los importes se guardan en `Decimal128` con `currency` (`ARS` por defecto). Las fechas en UTC; los cálculos de calendario usan la zona horaria del tenant.
+
+**Campos comunes** (no se repiten en cada tabla): `_id` (uniqueidentifier), `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy` (userId o principal de servicio), `version` (int, control optimista), `deletedAt` (borrado lógico solo en catálogos; los casos, eventos, mensajes, interacciones, turnos y ocurrencias **nunca** se borran). Los catálogos configurables llevan además `code` (string único por tenant), `nameKey` (clave `dict:`), `active` (bool), `order` (int) y `validFrom`/`validTo` cuando corresponda. Los importes se guardan en `DECIMAL(18,4)` con `currency` (`ARS` por defecto). Las fechas en UTC; los cálculos de calendario usan la zona horaria del tenant.
 
 ### 7.1 `crmCases` — caso/expediente de atención
 
@@ -513,9 +515,9 @@ Propósito: expediente único de cualquier gestión (solicitud, reclamo, consult
 | `number` | string | Sí | Número de seguimiento visible (ej. `TCK-2026-000123`), único por tenant. |
 | `numberingKey` | string | Sí | Clave del contador usado (política de numeración). |
 | `kind` | enum | Sí | `request` (solicitud comercial), `complaint` (reclamo), `inquiry` (consulta), `order` (pedido), `deskEntry` (mesa de entradas), `suggestion` (sugerencia/felicitación), `other`. |
-| `caseTypeId` | ObjectId → `crmCaseTypes` | Sí | Tipo de gestión. |
-| `caseSubtypeId` | ObjectId → `crmCaseSubtypes` | No | Subtipo/motivo. |
-| `statusSetId` | ObjectId → `crmStatusSets` | Sí | Conjunto de estados vigente al crear. |
+| `caseTypeId` | uniqueidentifier → `crmCaseTypes` | Sí | Tipo de gestión. |
+| `caseSubtypeId` | uniqueidentifier → `crmCaseSubtypes` | No | Subtipo/motivo. |
+| `statusSetId` | uniqueidentifier → `crmStatusSets` | Sí | Conjunto de estados vigente al crear. |
 | `status` | string | Sí | Código del estado visible actual. |
 | `baseStatus` | enum | Sí | `draft`, `received`, `pendingInfo`, `derived`, `assigned`, `inProgress`, `waitingCustomer`, `inEvaluation`, `approved`, `rejected`, `inExecution`, `resolved`, `reopened`, `closed`, `cancelled`, `merged`, `conflict`. |
 | `priority` | int | Sí | 0 sin asignar, 1 crítica, 25 alta, 50 normal, 75 baja, 100 muy baja. |
@@ -526,10 +528,10 @@ Propósito: expediente único de cualquier gestión (solicitud, reclamo, consult
 | `origin` | objeto | Sí | `{ channelId, channelKind, intakeRouteCode, module (crm/m03/m05/m08/m10/m19/public/bot), sourceRef, conversationId, createdByActor (customer/employee/bot/system/public) }`. |
 | `requester` | objeto | Sí | `{ personId?, userId?, displayName, documentType?, documentNumber?, phone?, email?, identityStatus (verified/unverified/pendingIdentification), publicVerificationCodeHash? }`. |
 | `context` | objeto | No | `{ accountId?, contractId?, serviceId?, requestedServiceId?, requestedPlanId?, premiseId?, servicePointId?, invoiceId?, addressSnapshot?, zoneId?, localityId?, networkNodeId?, geo? }`. |
-| `contactIds` | ObjectId[] → `crmContacts` | No | Contactos adicionales. |
-| `areaId` | ObjectId → `crmAreas` | No | Área actual. |
-| `assigneeUserId` | ObjectId | No | Responsable actual. |
-| `supervisorUserId` | ObjectId | No | Supervisor que derivó. |
+| `contactIds` | uniqueidentifier[] → `crmContacts` | No | Contactos adicionales. |
+| `areaId` | uniqueidentifier → `crmAreas` | No | Área actual. |
+| `assigneeUserId` | uniqueidentifier | No | Responsable actual. |
+| `supervisorUserId` | uniqueidentifier | No | Supervisor que derivó. |
 | `takenBy` | objeto | No | `{ userId, takenAt, pausedAt? }` (un solo tomado por usuario). |
 | `queueOrder` | int | No | Orden en la cola personal del asignado. |
 | `dueAt` | date | No | Fecha compromiso. |
@@ -541,16 +543,16 @@ Propósito: expediente único de cualquier gestión (solicitud, reclamo, consult
 | `customFields` | objeto | No | Campos adicionales del tipo, validados por su esquema. |
 | `tags` | string[] | No | Etiquetas. |
 | `links` | objeto[] | No | `{ entityType (workOrder/contract/invoice/payment/quote/incident/case/project/procedureRecord/deskEntry/queueTicket), entityId, relation (origin/derived/duplicateOf/relatedTo/parentIncident), createdAt, createdBy }`. |
-| `incidentId` | ObjectId → `crmIncidents` | No | Incidente común vinculado. |
-| `projectId` | ObjectId → `crmProjects` | No | Proyecto. |
+| `incidentId` | uniqueidentifier → `crmIncidents` | No | Incidente común vinculado. |
+| `projectId` | uniqueidentifier → `crmProjects` | No | Proyecto. |
 | `componentCode` | string | No | Módulo/componente afectado. |
-| `quoteId` | ObjectId (M11) | No | Presupuesto vinculado. |
+| `quoteId` | uniqueidentifier (M11) | No | Presupuesto vinculado. |
 | `aiClassification` | objeto | No | `{ suggestionId, status (pending/accepted/corrected/discarded) }`. |
 | `resolution` | objeto | No | `{ resolutionCode, resolutionText, closeType (conforming/conformingWithObservations/unresolved/notApplicable), causeCode?, favorable (bool)?, reviewedBy?, reviewedAt?, internalValidation (bool)?, customerValidation (accepted/rejected/none), customerComment?, resolvedAt, resolvedBy }`. |
-| `closedAt`, `closedBy` | date, ObjectId | No | Cierre. |
+| `closedAt`, `closedBy` | date, uniqueidentifier | No | Cierre. |
 | `cancellation` | objeto | No | `{ reason, cancelledAt, cancelledBy, byCustomer (bool) }`. |
 | `reopenCount` | int | Sí (0) | Ciclos de reapertura. |
-| `mergedIntoCaseId` | ObjectId | No | Caso principal si fue fusionado. |
+| `mergedIntoCaseId` | uniqueidentifier | No | Caso principal si fue fusionado. |
 | `survey` | objeto | No | `{ surveyId, sentAt, respondedAt, score?, npsCategory? }` (T09). |
 | `deskEntry` | objeto | No | Solo `kind = deskEntry`: `{ registerNumber, documentKind (note/courtOrder/summons/registeredLetter/agencyNote/written), senderKind (agency/court/person/supplier/other), senderName, senderReference, receivedAt, receivedVia, folios, responseDueAt?, dueCalendar (business/calendar), transfers[] { fromAreaId, toAreaId, sentAt, sentBy, acknowledgedAt?, acknowledgedBy?, note }, outgoing[] { outgoingNumber, sentAt, channel, documentId, recipient } }`. |
 | `cancellationRequest` | objeto | No | Solicitudes de baja: `{ isPublic (bool), regulatoryRegime (res316/law24240/other), receiptCode, receiptIssuedAt?, receiptChannel, receiptDeadlineAt }`. |
@@ -567,7 +569,7 @@ Mapeo ProCoop: `TICKETS` (COD_TICKET → `number` migrado, COD_TIPO → `caseTyp
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `crmCaseId` | ObjectId | Sí | Caso. |
+| `crmCaseId` | uniqueidentifier | Sí | Caso. |
 | `seq` | int | Sí | Secuencia dentro del caso. |
 | `type` | enum | Sí | `created`, `statusChanged`, `classified`, `reclassified`, `derived`, `returnedToSupervision`, `assigned`, `taken`, `paused`, `released`, `resumed`, `priorityChanged`, `dueChanged`, `subtypeChanged`, `requirementUpdated`, `documentAdded`, `messageAdded`, `noteAdded`, `commandRequested`, `commandResolved`, `linked`, `unlinked`, `merged`, `incidentLinked`, `slaWarned`, `slaBreached`, `slaPaused`, `slaResumed`, `escalated`, `customerNotified`, `notificationFailed`, `aiSuggested`, `aiDecided`, `resolved`, `closed`, `reopened`, `recovered`, `cancelled`, `surveySent`, `surveyAnswered`, `conflictOpened`, `conflictResolved`, `migrated`. |
 | `at` | date | Sí | Momento del servidor. |
@@ -583,15 +585,15 @@ Mapeo ProCoop: `TICKETS` (COD_TICKET → `number` migrado, COD_TIPO → `caseTyp
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `channelId` | ObjectId → `crmChannels` | Sí | Canal. |
+| `channelId` | uniqueidentifier → `crmChannels` | Sí | Canal. |
 | `channelKind` | enum | Sí | `whatsapp`, `webchat`, `email`, `sms`, `phone`, `ivr`, `facebook`, `instagram`, `portal`, `presential`. |
 | `externalThreadId` | string | No | Id del proveedor (número, hilo de email, id de chat). No es referencia: identificador externo del hilo (PA-CRM-20). |
 | `participant` | objeto | Sí | `{ address (teléfono/email/psid), personId?, identityStatus, verifiedAt?, verificationMethod? }`. |
 | `status` | enum | Sí | `botActive`, `queued`, `assigned`, `active`, `waitingCustomer`, `closed`, `expired`. |
-| `assignedUserId` | ObjectId | No | Agente. |
-| `caseIds` | ObjectId[] | No | Casos vinculados. |
+| `assignedUserId` | uniqueidentifier | No | Agente. |
+| `caseIds` | uniqueidentifier[] | No | Casos vinculados. |
 | `windowExpiresAt` | date | No | Fin de ventana de 24 h (WhatsApp). |
-| `botSessionId` | ObjectId | No | Sesión del bot. |
+| `botSessionId` | uniqueidentifier | No | Sesión del bot. |
 | `optOut` | bool | No | El participante pidió no recibir mensajes no transaccionales. |
 | `lastMessageAt` | date | Sí | Último mensaje. |
 
@@ -601,12 +603,12 @@ Mapeo ProCoop: `TICKETS` (COD_TICKET → `number` migrado, COD_TIPO → `caseTyp
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `conversationId` | ObjectId | No | Conversación (null para notas del caso). |
-| `crmCaseId` | ObjectId | No | Caso. |
+| `conversationId` | uniqueidentifier | No | Conversación (null para notas del caso). |
+| `crmCaseId` | uniqueidentifier | No | Caso. |
 | `direction` | enum | Sí | `inbound`, `outbound`, `internal`. |
 | `visibility` | enum | Sí | `public` (visible al socio), `internal`, `restricted` (requiere `crm.notasRestringidas.ver`). |
 | `authorKind` | enum | Sí | `customer`, `employee`, `bot`, `system`, `ai` (solo si un humano confirmó). |
-| `authorUserId` | ObjectId | No | Empleado. |
+| `authorUserId` | uniqueidentifier | No | Empleado. |
 | `body` | string(20000) | No | Texto (sanitizado). |
 | `format` | enum | Sí | `text`, `html`, `template`, `media`, `location`, `interactive`. |
 | `templateRef` | objeto | No | `{ templateKey, templateVersion, variables{} }`. |
@@ -614,9 +616,9 @@ Mapeo ProCoop: `TICKETS` (COD_TICKET → `number` migrado, COD_TIPO → `caseTyp
 | `providerMessageId` | string | No | Id externo (idempotencia). |
 | `delivery` | objeto | No | `{ communicationId (T09), status (created/queued/accepted/delivered/read/failed), statusAt, error? }`. |
 | `isAutomatic` | bool | No | Nota automática (cambio de vencimiento, pausa por llamada). |
-| `workLogId` | ObjectId | No | Registro de tiempo asociado. |
+| `workLogId` | uniqueidentifier | No | Registro de tiempo asociado. |
 | `flags` | objeto | No | `{ complaintMark (bool) }` (nota marcada como reclamo del cliente, `TICKETS_NOTAS.RECLAMO`). |
-| `aiSuggestionId` | ObjectId | No | Si nació de una sugerencia aceptada. |
+| `aiSuggestionId` | uniqueidentifier | No | Si nació de una sugerencia aceptada. |
 
 Índices: `{tenantId, crmCaseId, createdAt}`; `{tenantId, conversationId, createdAt}`; `{tenantId, providerMessageId}` único parcial. Mapeo: `TICKETS_NOTAS` (DESCRIPCION, INTERNA, ELIMINADA → evento, FECHAADD/FECHAMOD, RECLAMO → `flags.complaintMark`, PAUSADO/ESTESTING/FECHAINICIO/FECHAFIN → `crmWorkLogs`), `RECLAMOS_NOTAS` (DESCRIPCION, FECHA, COD_USER, ACCION).
 
@@ -624,16 +626,16 @@ Mapeo ProCoop: `TICKETS` (COD_TICKET → `number` migrado, COD_TIPO → `caseTyp
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `personId` | ObjectId | No | Persona (null si no identificada). |
-| `accountId`, `contractId` | ObjectId | No | Cuenta y servicio. |
+| `personId` | uniqueidentifier | No | Persona (null si no identificada). |
+| `accountId`, `contractId` | uniqueidentifier | No | Cuenta y servicio. |
 | `channelKind` | enum | Sí | Igual que conversaciones + `deskEntry`, `queue`. |
 | `direction` | enum | Sí | `inbound`, `outbound`. |
 | `kind` | enum | Sí | `call`, `message`, `email`, `visit`, `queueAttention`, `botSession`, `portalAction`, `deskEntry`, `notification`, `survey`. |
 | `startedAt`, `endedAt` | date | Sí/No | Duración. |
 | `reasonCode` | string | No | Motivo (catálogo de subtipos o motivos de atención presencial). |
 | `outcome` | enum | No | `resolvedAtContact`, `caseCreated`, `caseUpdated`, `informed`, `noAnswer`, `abandoned`, `transferred`. |
-| `crmCaseId`, `conversationId`, `queueTicketId`, `communicationId` | ObjectId | No | Referencias. |
-| `userId` | ObjectId | No | Empleado que atendió. |
+| `crmCaseId`, `conversationId`, `queueTicketId`, `communicationId` | uniqueidentifier | No | Referencias. |
+| `userId` | uniqueidentifier | No | Empleado que atendió. |
 | `summary` | string(2000) | No | Resumen. |
 | `call` | objeto | No | `{ fromNumber, toNumber, ctiCallId?, recordingRef? }`. |
 
@@ -645,28 +647,28 @@ Mapeo ProCoop: `TICKETS` (COD_TICKET → `number` migrado, COD_TIPO → `caseTyp
 |---|---|---|---|
 | `kind` | enum | Sí | Igual a `crmCases.kind`. |
 | `requestAction` | enum | No | Solo `request`: `serviceActivation`, `serviceCancellation`, `temporarySuspension`, `reactivation`, `ownerChange`, `planChange`, `relocation`, `equipmentChange`, `meterChange`, `reconnection`, `feasibility`, `digitalInvoiceEnrollment`, `directDebitEnrollment`, `contactDataUpdate`, `additionalEquipment`, `memberExit`, `identityDocumentRegularization` (tarea interna de regularización del documento de una persona migrada con `identificationStatus = documentPending`; la abre M01, no se ofrece al socio; RF-CRM-261, DEC-099), `custom`. |
-| `serviceIds` | ObjectId[] | No | Servicios a los que aplica (vacío = todos). |
-| `statusSetId` | ObjectId | Sí | Conjunto de estados. |
-| `workflowDefinitionId` | ObjectId (T11) | No | Flujo de aprobación. |
+| `serviceIds` | uniqueidentifier[] | No | Servicios a los que aplica (vacío = todos). |
+| `statusSetId` | uniqueidentifier | Sí | Conjunto de estados. |
+| `workflowDefinitionId` | uniqueidentifier (T11) | No | Flujo de aprobación. |
 | `requirementsTemplate` | objeto[] | No | Requisitos por defecto (mismo esquema que `crmCases.requirements`). |
 | `customFieldsSchema` | objeto | No | Esquema JSON de campos adicionales. |
 | `commandsOnApproval` | objeto[] | No | `{ module, command, payloadMapping, order, dependsOn? }`. |
-| `defaultAreaId` | ObjectId | No | Área sugerida. |
+| `defaultAreaId` | uniqueidentifier | No | Área sugerida. |
 | `defaultPriority` | int | No | Prioridad por defecto. |
-| `slaPolicyId` | ObjectId | No | Política SLA. |
+| `slaPolicyId` | uniqueidentifier | No | Política SLA. |
 | `numberingPolicy` | objeto | No | `{ scope (tenant/service/type/complaintFlag), resetYearly (bool), prefix }`. |
 | `publicIntake` | bool | No | Admite recepción pública (bajas). |
 | `customerVisible` | bool | Sí | Se ofrece en portal/app/bot. |
 | `requiresAccount` | bool | Sí | Exige cuenta (false en altas). |
 | `allowsAnonymous` | bool | No | Admite casos sin persona identificada. |
-| `surveyTemplateId` | ObjectId (T09) | No | Encuesta post-cierre. |
+| `surveyTemplateId` | uniqueidentifier (T09) | No | Encuesta post-cierre. |
 | `autoCloseDays` | int | No | Días para cierre automático tras resuelto. |
 | `reopenWindowDays` | int | No | Ventana de reapertura. |
 | `regulatorCode` | string | No | Regulador si es tipo regulatorio. |
 | `sensitive` | bool | No | Tipo sensible. |
 | `templateKeys` | objeto | No | Claves de plantillas T09 por evento (`created`, `statusChanged`, `pendingInfo`, `resolved`, `closed`, `receipt`). |
 | `billingMode` | enum | No | `none`, `hours` (facturación de horas, PA-CRM-12). |
-| `projectId` | ObjectId | No | Proyecto por defecto. |
+| `projectId` | uniqueidentifier | No | Proyecto por defecto. |
 
 Mapeo: `TICKETS_TIPOS` (DES_TIPO, COD_PROYECTO, COD_TIPOESTADO → `statusSetId`, PLANTILLA → `templateKeys`, TIPO_BONIFICACION → hour bank kind), `TRAMITES` cuando son trámites de atención, `TRANSAC` con `TRANSAC_RECLAMO` (operación 6 "Incidente/Reclamo") → tipo `complaint` técnico.
 
@@ -674,19 +676,19 @@ Mapeo: `TICKETS_TIPOS` (DES_TIPO, COD_PROYECTO, COD_TIPOESTADO → `statusSetId`
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `caseTypeId` | ObjectId | Sí | Tipo padre. |
+| `caseTypeId` | uniqueidentifier | Sí | Tipo padre. |
 | `defaultStatus` | string | No | Estado inicial (`TICKETS_SUBTIPOS.COD_ESTADO`). Valor: un `code` de `crmStatusSets.states[]` (§7.8) del conjunto asignado al tipo, con `isInitial = true`; si falta, se usa el estado inicial del conjunto. |
 | `defaultPriority` | int | No | Prioridad. |
 | `urgentSafety` | bool | No | Activa protocolo de urgencia. |
-| `slaPolicyId` | ObjectId | No | SLA específico. |
+| `slaPolicyId` | uniqueidentifier | No | SLA específico. |
 | `registersCause` | bool | Sí | Causa obligatoria al cerrar. |
 | `causeCodes` | string[] | No | Causas permitidas. |
 | `blockClosure` | bool | Sí | Bloqueo de cierre. |
 | `isDefault` | bool | No | Subtipo por defecto del tipo. |
-| `productId` | ObjectId (M02) | No | Producto de facturación asociado (horas). |
-| `incidentCategoryId` | ObjectId (M10) | No | Categoría técnica de incidente equivalente. |
+| `productId` | uniqueidentifier (M02) | No | Producto de facturación asociado (horas). |
+| `incidentCategoryId` | uniqueidentifier (M10) | No | Categoría técnica de incidente equivalente. |
 | `workOrderOperationCode` | string (M10) | No | Operación de OT a solicitar. |
-| `quickReplyIds` | ObjectId[] | No | Respuestas rápidas sugeridas. |
+| `quickReplyIds` | uniqueidentifier[] | No | Respuestas rápidas sugeridas. |
 | `duplicateWindowDays` | int | No | Ventana para duplicados (default PRM-CRM-041). |
 | `incidentDetection` | objeto | No | `{ enabled, threshold, windowMinutes, groupBy (zone/node/locality) }`. |
 | `claimTypeKey` | string | No | Clave completa del diccionario de T03 §10.9.12 (RF-UXD-179), patrón `crm.claimType.<dominio>.<tipo>`: `crm.claimType.clo.desborde`, `crm.claimType.clo.obstruccion`, `crm.claimType.alu.luminariaApagada` (RF-CRM-259). M09 no crea claves propias equivalentes. |
@@ -701,7 +703,7 @@ Mapeo: `TICKETS_SUBTIPOS` (DES_SUBTIPO, COD_TIPO, COD_ESTADO, COD_PROD, PLANTILL
 |---|---|---|---|
 | `states` | objeto[] | Sí | `{ code, nameKey, order, baseStatus, allowReassign, allowBack, waitingCustomer, requiresApproval, verification, notifyCustomer, notifyTeam, pausesSla, isFinal, isInitial, color }`. |
 | `transitions` | objeto[] | No | `{ from, to, capability, requiresReason }` (si vacío: secuencial por `order` más cancelar). |
-| `workflowRef` | ObjectId → T11 `workflowDefinitions` | No | Definición de máquina de estados en T11 (PA-CRM-20; antes "ObjectId (T11)"). |
+| `workflowRef` | uniqueidentifier → T11 `workflowDefinitions` | No | Definición de máquina de estados en T11 (PA-CRM-20; antes "uniqueidentifier (T11)"). |
 
 Regla: cada conjunto debe tener al menos un estado inicial y estados con base `resolved`, `closed` y `cancelled`. Mapeo: `TICKETS_TIPOSESTADOS` (DES_TIPOESTADO), `TICKETS_ESTADOS` (DES_ESTADO, ORDEN, COD_ESTADO_BASE, REASIGNAR, VUELVE, COD_TIPOESTADO, REQAPROV, TESTING, ENVIARMAIL, ESPERA_CLIENTE).
 
@@ -710,13 +712,13 @@ Regla: cada conjunto debe tener al menos un estado inicial y estados con base `r
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `roles` | enum[] | Sí | `caseHandling`, `queue`, `activities`, `deskEntry`. |
-| `branchIds` | ObjectId[] | No | Sucursales. |
-| `serviceIds` | ObjectId[] | No | Servicios que atiende. |
-| `managerUserId` | ObjectId | No | Responsable. |
+| `branchIds` | uniqueidentifier[] | No | Sucursales. |
+| `serviceIds` | uniqueidentifier[] | No | Servicios que atiende. |
+| `managerUserId` | uniqueidentifier | No | Responsable. |
 | `members` | objeto[] | No | `{ userId, role (member/supervisor/onCall) }`. |
 | `extraRecipients` | objeto[] | No | `{ userId? \| groupId? \| email? }`. |
 | `reminderWeekday` | int | No | 0 = todos los días; 1–7 día ISO. |
-| `businessCalendarId` | ObjectId (T04) | No | Calendario hábil. |
+| `businessCalendarId` | uniqueidentifier (T04) | No | Calendario hábil. |
 | `queue` | objeto | No | Solo rol `queue`: `{ letter, estimatedServiceSeconds, disabled, imageDocumentId, displayIds[] }`. |
 | `onCallSchedule` | objeto[] | No | Guardias: `{ weekday, from, to, userId }`. |
 
@@ -731,7 +733,7 @@ Mapeo: `TUR_AREAS` (DES_AREA, DES_RES, TIEMPO_EST, INHABILITADA, IMAGEN), `TUR_A
 | `pauseOnBaseStatuses` | enum[] | Sí | Por defecto `pendingInfo`, `waitingCustomer`. |
 | `warnAtPercent` | int | Sí | Umbral de alerta (75). |
 | `escalation` | objeto[] | No | `{ level, atPercent, notifyRoles[], notifyUserIds[] }`. |
-| `businessCalendarId` | ObjectId (T04) | No | Calendario; si no, el del área o del tenant. |
+| `businessCalendarId` | uniqueidentifier (T04) | No | Calendario; si no, el del área o del tenant. |
 | `regulatory` | bool | No | Objetivo regulatorio (se informa a T10/M06). |
 | `policyVersion` | int | Sí | Versión (los casos guardan la versión aplicada). |
 | `templateCode` | string | No | Plantilla de plataforma de la que proviene (`enacom.733-2017.*`, `safety.emergency`); al editarla el tenant conserva el origen (RF-CRM-258, RF-CRM-260). |
@@ -754,7 +756,7 @@ Mapeo: `RESPONSA_NOTIFICA` (COD_SER, COD_OPER separados por "|", COD_RES, TIP_OR
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `crmCaseId` | ObjectId | Sí | Caso de origen. |
+| `crmCaseId` | uniqueidentifier | Sí | Caso de origen. |
 | `targetModule` | enum | Sí | `per`, `cat`, `fac`, `cob`, `mor`, `tec`, `ven`, `ins`, `soc`. |
 | `command` | string | Sí | Ej. `cat.contract.requestActivation`, `cat.contract.requestCancellation`, `cat.contract.requestSuspension`, `cat.contract.requestReactivation`, `cat.contract.requestPlanChange`, `per.account.requestOwnerTransfer`, `per.address.requestUpdate`, `tec.workOrder.request`, `tec.workOrder.requestCancel`, `tec.feasibility.request`, `fac.adjustment.request`, `fac.hours.requestBilling`, `cob.paymentLink.create`, `mor.paymentPlan.request`, `ven.quote.request`, `ins.membership.requestExit`. |
 | `payload` | objeto | Sí | Datos tipados (validados por el esquema Zod del módulo destino). |
@@ -762,7 +764,7 @@ Mapeo: `RESPONSA_NOTIFICA` (COD_SER, COD_OPER separados por "|", COD_RES, TIP_OR
 | `status` | enum | Sí | `requested`, `accepted`, `rejected`, `executed`, `failed`, `cancelRequested`, `cancelled`. |
 | `result` | objeto | No | `{ entityType, entityId, effectiveDate?, message, errorCode? }`. |
 | `attempts` | int | Sí | Reintentos. |
-| `dependsOnCommandId` | ObjectId → M09 `crmCommandRequests` | No | Orden de ejecución: comando del mismo caso que debe terminar antes (PA-CRM-20). |
+| `dependsOnCommandId` | uniqueidentifier → M09 `crmCommandRequests` | No | Orden de ejecución: comando del mismo caso que debe terminar antes (PA-CRM-20). |
 | `requestedAt`, `resolvedAt` | date | Sí/No | Fechas. |
 
 Índices: `{tenantId, idempotencyKey}` único; `{tenantId, crmCaseId}`; `{tenantId, status, requestedAt}`. Reemplaza `TRAMITES_ACCIONES.SCRIPT_ACCION` y las acciones masivas de `clsTramites`.
@@ -772,13 +774,13 @@ Mapeo: `RESPONSA_NOTIFICA` (COD_SER, COD_OPER separados por "|", COD_RES, TIP_OR
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `displayName` | string | Sí | Nombre. |
-| `personId` | ObjectId | No | Si es persona del padrón. |
-| `relatedAccountIds` | ObjectId[] | No | Cuentas relacionadas. |
+| `personId` | uniqueidentifier | No | Si es persona del padrón. |
+| `relatedAccountIds` | uniqueidentifier[] | No | Cuentas relacionadas. |
 | `relation` | enum | No | `tenantOccupant`, `buildingAdmin`, `attorney`, `employee`, `familyMember`, `companyContact`, `other`. |
 | `phone`, `mobile`, `email` | string | No | Contacto. |
 | `notes` | string | No | Observación. |
 | `doNotNotify` | bool | No | No recibir avisos (por ejemplo reprogramaciones). |
-| `mergedInto` | ObjectId → M09 `crmContacts` | No | Unificación: contacto que sobrevive (PA-CRM-20). |
+| `mergedInto` | uniqueidentifier → M09 `crmContacts` | No | Unificación: contacto que sobrevive (PA-CRM-20). |
 
 Mapeo: `TICKETS_CONTACTOS` (DES_CONTACTO, COD_SOC, TELEFONO, CELULAR, MAIL, OBSERVACION). **Descartados**: FORMA_CONEXION, ID_REMOTO, CLAVE (credenciales en claro).
 
@@ -787,10 +789,10 @@ Mapeo: `TICKETS_CONTACTOS` (DES_CONTACTO, COD_SOC, TELEFONO, CELULAR, MAIL, OBSE
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `number` | string | Sí | Número por clase (ej. `INC-2026-0001`). |
-| `incidentClassId` | ObjectId → `crmIncidentClasses` | Sí | Clase con numerador. |
-| `incidentCategoryId` | ObjectId (M10) | No | Categoría técnica. |
-| `failureTypeId` | ObjectId → M10 `incidentCategories` | No | Tipo de falla. M10 no define `failureTypes`: la tipificación técnica de la causa es `incidentCategories` (PA-CRM-20; antes "ObjectId (M10)"). |
-| `serviceId` | ObjectId | Sí | Servicio afectado. |
+| `incidentClassId` | uniqueidentifier → `crmIncidentClasses` | Sí | Clase con numerador. |
+| `incidentCategoryId` | uniqueidentifier (M10) | No | Categoría técnica. |
+| `failureTypeId` | uniqueidentifier → M10 `incidentCategories` | No | Tipo de falla. M10 no define `failureTypes`: la tipificación técnica de la causa es `incidentCategories` (PA-CRM-20; antes "uniqueidentifier (M10)"). |
+| `serviceId` | uniqueidentifier | Sí | Servicio afectado. |
 | `title`, `description` | string | Sí | Descripción. |
 | `status` | enum | Sí | `suspected`, `confirmed`, `inProgress`, `restored`, `closed`, `discarded`. |
 | `scheduled` | bool | No | Interrupción programada. |
@@ -798,7 +800,7 @@ Mapeo: `TICKETS_CONTACTOS` (DES_CONTACTO, COD_SOC, TELEFONO, CELULAR, MAIL, OBSE
 | `affected` | objeto | No | Referencia a lista versionada de cuentas/servicios afectados (colección de proyección en T10 o subcolección paginada). |
 | `startedAt`, `detectedAt`, `restoredAt`, `closedAt` | date | — | Hitos. |
 | `estimatedRestoreAt` | date | No | Estimado comunicado. |
-| `workOrderIds` | ObjectId[] (M10) | No | Gestión técnica. |
+| `workOrderIds` | uniqueidentifier[] (M10) | No | Gestión técnica. |
 | `participants` | objeto[] | No | `{ userId? , crewId?, role }` (`PARTIINC`). |
 | `caseCount` | int | Sí | Casos vinculados. |
 | `communications` | objeto[] | No | `{ communicationRunId (T09), kind (initial/update/restored), sentAt }`. |
@@ -813,7 +815,7 @@ Mapeo: `TICKETS_CONTACTOS` (DES_CONTACTO, COD_SOC, TELEFONO, CELULAR, MAIL, OBSE
 |---|---|---|---|
 | `prefix` | string | Sí | Prefijo de numeración. |
 | `counterKey` | string | Sí | Contador atómico (reemplaza `ULT_NUM`). |
-| `serviceIds` | ObjectId[] | No | Servicios. |
+| `serviceIds` | uniqueidentifier[] | No | Servicios. |
 
 Mapeo: `CLAS_INC` (DES_CLI, ULT_NUM → valor inicial del contador).
 
@@ -827,24 +829,24 @@ Mapeo: `CLAS_INC` (DES_CLI, ULT_NUM → valor inicial del contador).
 | `isDefault` | bool | No | `TRAMITE_DEFAULT`. |
 | `templateKey` | string | No | Plantilla T09 (`COD_PLA`). |
 | `actions` | objeto[] | No | `{ trigger (onCreate/onExpiry/manual), module, command, payloadMapping, description }` (reemplaza `TRAMITES_ACCIONES`: TIPO, DES_ACCION, SCRIPT_ACCION, ACCIONES_CTRL, ACCION_ALTA, ACCION_VTO). |
-| `requiredForServiceIds` | ObjectId[] | No | Servicios que lo exigen (para "no presentados"). |
+| `requiredForServiceIds` | uniqueidentifier[] | No | Servicios que lo exigen (para "no presentados"). |
 | `intakeRouteCodes` | string[] | No | Vías habilitadas. |
 
 ### 7.17 `crmProcedureRecords` — trámites presentados
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `procedureTypeId` | ObjectId | Sí | Tipo. |
-| `associateMembershipId` (antes `memberId`), `accountId`, `contractId`, `personId` | ObjectId | Según nivel | Entidad. |
+| `procedureTypeId` | uniqueidentifier | Sí | Tipo. |
+| `associateMembershipId` (antes `memberId`), `accountId`, `contractId`, `personId` | uniqueidentifier | Según nivel | Entidad. |
 | `date` | date | Sí | Fecha del trámite (`FECHA`). |
 | `expiresAt` | date | No | `FECHA_VTO` (si no, fecha + días del tipo). |
 | `presented` | bool | Sí | `PRESENTADO`. |
 | `status` | enum | Sí | `presented`, `notPresented`, `expired`, `superseded`, `voided`. |
 | `notes` | string | No | `OBSERVA`. |
-| `documentIds` | ObjectId[] (T11) | No | Adjuntos (tipo 26 de `ADJUNTOS`). |
+| `documentIds` | uniqueidentifier[] (T11) | No | Adjuntos (tipo 26 de `ADJUNTOS`). |
 | `actionsExecuted` | objeto[] | No | `{ actionIndex, trigger, commandRequestId, executedAt, status }` (reemplaza `ACCIONADO`). |
-| `crmCaseId` | ObjectId | No | Caso que lo originó. |
-| `recordedAt`, `recordedBy` | date, ObjectId | Sí | `FEC_REG`, `USU_REG`. |
+| `crmCaseId` | uniqueidentifier | No | Caso que lo originó. |
+| `recordedAt`, `recordedBy` | date, uniqueidentifier | Sí | `FEC_REG`, `USU_REG`. |
 
 Índices: `{tenantId, procedureTypeId, accountId, expiresAt}`; `{tenantId, status, expiresAt}`. Mapeo: `PTRAMITES` (TMT_SOC, COD_TMT, COD_SOC, COD_SUM, ID_SERSOC, FECHA, OBSERVA, FEC_REG, USU_REG, FECHA_VTO, PRESENTADO, COD_PROV → M12, ID_AC_TRA).
 
@@ -852,10 +854,10 @@ Mapeo: `CLAS_INC` (DES_CLI, ULT_NUM → valor inicial del contador).
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `accountId` | ObjectId | No | Cliente del proyecto (si aplica). |
+| `accountId` | uniqueidentifier | No | Cliente del proyecto (si aplica). |
 | `components` | objeto[] | No | `{ code, nameKey }` (`TICKETS_MODULOS`). |
 | `status` | enum | Sí | `active`, `onHold`, `closed`. |
-| `ownerUserId` | ObjectId | No | Responsable. |
+| `ownerUserId` | uniqueidentifier | No | Responsable. |
 
 Mapeo: `TICKETS_PROYECTO` (DES_PROYECTO), `TICKETS_MODULOS` (DES_MODULO, COD_PROYECTO).
 
@@ -863,16 +865,16 @@ Mapeo: `TICKETS_PROYECTO` (DES_PROYECTO), `TICKETS_MODULOS` (DES_MODULO, COD_PRO
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `crmCaseId` | ObjectId | Sí | Caso. |
-| `userId` | ObjectId | Sí | Usuario. |
+| `crmCaseId` | uniqueidentifier | Sí | Caso. |
+| `userId` | uniqueidentifier | Sí | Usuario. |
 | `startedAt`, `endedAt` | date | Sí/No | Intervalo. |
 | `minutes` | int | Sí | Minutos reales (derivado). |
 | `billableMinutes` | int | No | Minutos a facturar (editable con permiso). |
 | `kind` | enum | Sí | `work`, `verification`, `call`, `travel`. |
 | `autoPaused` | bool | No | Pausa automática por llamada. |
 | `billingStatus` | enum | Sí | `notBillable`, `pending`, `coveredByBank`, `requested`, `billed`. |
-| `hourBankId` | ObjectId | No | Bolsa usada. |
-| `invoiceRef` | ObjectId (M05) | No | Comprobante. |
+| `hourBankId` | uniqueidentifier | No | Bolsa usada. |
+| `invoiceRef` | uniqueidentifier (M05) | No | Comprobante. |
 
 Mapeo: `TICKETS_NOTAS` (FECHAINICIO, FECHAFIN, PAUSADO, ESTESTING, COD_USER).
 
@@ -880,13 +882,13 @@ Mapeo: `TICKETS_NOTAS` (FECHAINICIO, FECHAFIN, PAUSADO, ESTESTING, COD_USER).
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `accountId` | ObjectId | Sí | Cuenta. |
+| `accountId` | uniqueidentifier | Sí | Cuenta. |
 | `kind` | enum | Sí | `monthlySupport`, `perSale`. |
 | `minutesGranted` | int | Sí | Minutos otorgados (horas × 60). |
 | `period` | string | No | `AAAA-MM` para mensual. |
-| `saleRef` | ObjectId → M05 `invoices` | No | Comprobante de venta que la otorgó (`ID_COMPV`) (PA-CRM-20; antes "ObjectId (M11/M05)"). |
+| `saleRef` | uniqueidentifier → M05 `invoices` | No | Comprobante de venta que la otorgó (`ID_COMPV`) (PA-CRM-20; antes "uniqueidentifier (M11/M05)"). |
 | `minutesUsed` | int | Sí | Consumidos. |
-| `hourlyRate` | Decimal128 | No | Valor hora para bonificación (default PRM-CRM-091). |
+| `hourlyRate` | DECIMAL(18,4) | No | Valor hora para bonificación (default PRM-CRM-091). |
 
 Mapeo: `TICKETS_HSBONIF` (ID_COMPV, HS_IMPLEMENTACION, HS_SOPORTE), `SOCIOS.BONIF_SOPORTE`, `TICKETS_RESPONSABLES.BONIF_VENTA`.
 
@@ -894,9 +896,9 @@ Mapeo: `TICKETS_HSBONIF` (ID_COMPV, HS_IMPLEMENTACION, HS_SOPORTE), `SOCIOS.BONI
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `accountId` | ObjectId | Sí | Cuenta. |
-| `userId` | ObjectId | Sí | Responsable (ejecutivo/gestor). |
-| `projectId` | ObjectId | No | Proyecto. |
+| `accountId` | uniqueidentifier | Sí | Cuenta. |
+| `userId` | uniqueidentifier | Sí | Responsable (ejecutivo/gestor). |
+| `projectId` | uniqueidentifier | No | Proyecto. |
 | `role` | enum | Sí | `accountManager`, `supportLead`. |
 
 Mapeo: `TICKETS_RESPONSABLES` (COD_RES, COD_SOC, COD_USER, COD_PROYECTO, BONIF_VENTA → `crmHourBanks`).
@@ -912,11 +914,11 @@ Campos: `title`, `body` (con variables `{{case.number}}`, `{{person.firstName}}`
 | `kind` | enum | Sí | `presential`, `phone`, `email`, `whatsapp`, `sms`, `webchat`, `portal`, `facebook`, `instagram`, `deskEntry`, `ivr`, `bot`, `public`. |
 | `intakeRouteCode` | string | Sí | Vía de ingreso equivalente. |
 | `validatePhone`, `validateEmail` | bool | Sí | Exigir validación (`VIAINGTE`). |
-| `providerConnectionId` | ObjectId (T06) | No | Conexión con credenciales en bóveda. |
+| `providerConnectionId` | uniqueidentifier (T06) | No | Conexión con credenciales en bóveda. |
 | `address` | string | No | Número, casilla, id de página. |
 | `businessHours` | objeto | No | Horario de atención humana. |
-| `botFlowId` | ObjectId | No | Bot asignado. |
-| `defaultAreaId` | ObjectId | No | Área por defecto. |
+| `botFlowId` | uniqueidentifier | No | Bot asignado. |
+| `defaultAreaId` | uniqueidentifier | No | Área por defecto. |
 | `status` | enum | Sí | `draft`, `testing`, `active`, `suspended`. |
 | `templatesSyncedAt` | date | No | Sincronización de plantillas (WhatsApp). |
 
@@ -942,7 +944,7 @@ Campos: `conversationId`, `flowId`, `flowVersion`, `currentIntent`, `step`, `slo
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
 | `function` | enum | Sí | `classify`, `summarize`, `replyDraft`, `attachmentExtract`, `customerDraft`, `duplicateDetect`, `incidentDetect`, `botIntent`, `nextAction`. |
-| `targetType`, `targetId` | string, ObjectId | Sí | Caso, conversación, mensaje, adjunto. |
+| `targetType`, `targetId` | string, uniqueidentifier | Sí | Caso, conversación, mensaje, adjunto. |
 | `inputRefs` | objeto[] | Sí | Referencias a los datos usados (no copia de datos sensibles). |
 | `provider`, `model`, `promptVersion` | string | Sí | Versiones. |
 | `output` | objeto | Sí | Salida estructurada. |
@@ -958,22 +960,22 @@ Campos: `conversationId`, `flowId`, `flowVersion`, `currentIntent`, `step`, `slo
 
 | Campo | Tipo | Oblig. | Descripción |
 |---|---|---|---|
-| `branchId` | ObjectId | Sí | Sucursal. |
+| `branchId` | uniqueidentifier | Sí | Sucursal. |
 | `serviceDate` | string `AAAA-MM-DD` | Sí | Día (zona del tenant). |
-| `originAreaId`, `areaId` | ObjectId | Sí | Área de origen y actual (`COD_AREA_ORIG`, `COD_AREA`). |
+| `originAreaId`, `areaId` | uniqueidentifier | Sí | Área de origen y actual (`COD_AREA_ORIG`, `COD_AREA`). |
 | `seq` | int | Sí | Correlativo del día y área de origen (`NUMERO`). |
 | `displayCode` | string | Sí | Código visible (`TURNO`). |
-| `personId` | ObjectId | No | `COD_PER`. |
+| `personId` | uniqueidentifier | No | `COD_PER`. |
 | `displayName` | string | No | `NOMBRE` (solo si se habilita mostrarlo). |
 | `priority` | bool | Sí | `PRIORIDAD`. |
 | `priorityReason` | string | No | Motivo. |
 | `origin` | enum | Sí | `reception`, `kiosk`, `web`, `app`, `whatsapp`, `appointment`. |
 | `status` | enum | Sí | `waiting`, `calling`, `inService`, `finished`, `cancelled` (`COD_EST`, `FEC_EST`). |
 | `outcome` | enum | No | `solved`, `unsolved`, `noShow`. |
-| `deskId`, `userId` | ObjectId | No | Box y usuario actuales. |
+| `deskId`, `userId` | uniqueidentifier | No | Box y usuario actuales. |
 | `issuedAt` | date | Sí | `FEC_INGRESO`. |
 | `reasonCode` | string | No | Motivo de visita. |
-| `crmCaseId`, `interactionId`, `appointmentId` | ObjectId | No | Vínculos. |
+| `crmCaseId`, `interactionId`, `appointmentId` | uniqueidentifier | No | Vínculos. |
 | `estimatedWaitMinutes` | int | No | Al emitir. |
 
 Índices: `{tenantId, branchId, serviceDate, originAreaId, seq}` único; `{tenantId, branchId, areaId, status, priority, issuedAt}` (llamado).
@@ -1032,7 +1034,7 @@ Campos: `userId` (`COD_USER`), `allDay` (`TODOELDIA`), `start`, `end` (`CAL_STAR
 
 ### 7.41 `crmCirculars` — modelos de circular
 
-Campos: `name` (`DES_CIR`), `bodyTemplateKey` (T09; texto `TEXTO` migrado como plantilla), `debtFilter` `{ debtKind (`TDEUDA`), minAmount Decimal128 (`DEUDA`) }`, `enrollmentFilter` (`ADHER`: adheridos a factura digital/débito), `signatures` `{ manager (`FIR_GTE`), auditor (`FIR_AUD`) }`, `includeServiceDetail` (`DET_SER`), `serviceId` (`COD_SER`), `channels[]` (`print`, `email`, `sms` (`SMS`), `whatsapp`), `templateKey` (`PLANTILLA`), `audienceDefinition` (motor T09), `requiresApproval`. Mapeo `CIRCULAR`; `CIRCUPRO` (circulares a proveedores) → M12.
+Campos: `name` (`DES_CIR`), `bodyTemplateKey` (T09; texto `TEXTO` migrado como plantilla), `debtFilter` `{ debtKind (`TDEUDA`), minAmount DECIMAL(18,4) (`DEUDA`) }`, `enrollmentFilter` (`ADHER`: adheridos a factura digital/débito), `signatures` `{ manager (`FIR_GTE`), auditor (`FIR_AUD`) }`, `includeServiceDetail` (`DET_SER`), `serviceId` (`COD_SER`), `channels[]` (`print`, `email`, `sms` (`SMS`), `whatsapp`), `templateKey` (`PLANTILLA`), `audienceDefinition` (motor T09), `requiresApproval`. Mapeo `CIRCULAR`; `CIRCUPRO` (circulares a proveedores) → M12.
 
 ### 7.42 `crmCircularRuns` — corridas
 
@@ -1113,7 +1115,7 @@ Corrección de consistencia (categorías 2, 3 y 4 de `_trabajo/correccion-incons
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `workflowRef` | ObjectId | → T11 `workflowDefinitions` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `workflowRef` | uniqueidentifier | → T11 `workflowDefinitions` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.44.8 `crmSlaPolicies` (COL-CRM-10) — referencias declaradas
 
@@ -1125,14 +1127,14 @@ Corrección de consistencia (categorías 2, 3 y 4 de `_trabajo/correccion-incons
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `dependsOnCommandId` | ObjectId | → M09 `crmCommandRequests` (comando previo del mismo caso) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `dependsOnCommandId` | uniqueidentifier | → M09 `crmCommandRequests` (comando previo del mismo caso) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.44.10 `crmIncidents` (COL-CRM-14) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `incidentCategoryId` | ObjectId | `incidentCategories` (M10); antes implícita por el nombre |
-| `failureTypeId` | ObjectId | → M10 `incidentCategories` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `incidentCategoryId` | uniqueidentifier | `incidentCategories` (M10); antes implícita por el nombre |
+| `failureTypeId` | uniqueidentifier | → M10 `incidentCategories` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.44.11 `crmProcedureRecords` (COL-CRM-17) — referencias declaradas
 
@@ -1145,7 +1147,7 @@ Corrección de consistencia (categorías 2, 3 y 4 de `_trabajo/correccion-incons
 
 | Campo | Tipo | Referencia |
 |---|---|---|
-| `saleRef` | ObjectId | → M05 `invoices` (comprobante de venta `ID_COMPV`) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `saleRef` | uniqueidentifier | → M05 `invoices` (comprobante de venta `ID_COMPV`) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 
 #### 7.44.13 `crmAccountAssignments` (COL-CRM-21) — referencias declaradas
 
@@ -1165,8 +1167,8 @@ Lista original: §7.22.
 | `caseTypeIds` | array | [VERIFICAR] | — | `crmCaseTypes` (M09); antes implícita por el nombre |
 | `caseSubtypeIds` | array | [VERIFICAR] | — | `crmCaseSubtypes` (M09); antes implícita por el nombre |
 | `visibility` | enum | [VERIFICAR] | `all`/`area`/`personal` | — |
-| `ownerUserId` | ObjectId | No | — | → T02 `memberships` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `areaId` | ObjectId | No | — | `crmAreas` (M09); antes implícita por el nombre |
+| `ownerUserId` | uniqueidentifier | No | — | → T02 `memberships` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `areaId` | uniqueidentifier | No | — | `crmAreas` (M09); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.44.15 `crmChannels` (COL-CRM-23) — referencias declaradas
@@ -1183,8 +1185,8 @@ Lista original: §7.25.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `conversationId` | ObjectId | [VERIFICAR] | — | `crmConversations` (M09); antes implícita por el nombre |
-| `flowId` | ObjectId | [VERIFICAR] | — | `crmBotFlows` (M09); antes implícita por el nombre |
+| `conversationId` | uniqueidentifier | [VERIFICAR] | — | `crmConversations` (M09); antes implícita por el nombre |
+| `flowId` | uniqueidentifier | [VERIFICAR] | — | `crmBotFlows` (M09); antes implícita por el nombre |
 | `flowVersion` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `currentIntent` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `step` | [VERIFICAR] | [VERIFICAR] | — | — |
@@ -1192,15 +1194,15 @@ Lista original: §7.25.
 | `startedAt` | Date | [VERIFICAR] | — | — |
 | `endedAt` | Date | [VERIFICAR] | — | — |
 | `outcome` | enum | [VERIFICAR] | `selfServed`/`caseCreated`/`handedOff`/`abandoned` | — |
-| `crmCaseId` | ObjectId | No | — | `crmCases` (M09); antes implícita por el nombre |
+| `crmCaseId` | uniqueidentifier | No | — | `crmCases` (M09); antes implícita por el nombre |
 
 #### 7.44.17 `crmAiSuggestions` (COL-CRM-26) — referencias declaradas
 
 | Campo | Tipo | Referencia |
 |---|---|---|
 | `targetType` | enum | No es referencia: discriminador de `targetId` (`case`, `conversation`, `message`, `attachment`) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `targetId` | ObjectId | Polimórfica según `targetType`: → M09 `crmCases` · `crmConversations` · `crmMessages` · T01 `storedFiles` (PA-CRM-20; antes "[VERIFICAR] polimórfica según el tipo de destino") |
-| `aiUsageLogId` | ObjectId | → T06 `aiUsageLogs` (llamada al proveedor de IA, CTR-DAT-04). Declarado en T05 (COL-CRM-26); no figuraba en el anexo (PA-CRM-20). |
+| `targetId` | uniqueidentifier | Polimórfica según `targetType`: → M09 `crmCases` · `crmConversations` · `crmMessages` · T01 `storedFiles` (PA-CRM-20; antes "[VERIFICAR] polimórfica según el tipo de destino") |
+| `aiUsageLogId` | uniqueidentifier | → T06 `aiUsageLogs` (llamada al proveedor de IA, CTR-DAT-04). Declarado en T05 (COL-CRM-26); no figuraba en el anexo (PA-CRM-20). |
 
 #### 7.44.18 `crmQueueTickets` (COL-CRM-27) — referencias declaradas
 
@@ -1218,12 +1220,12 @@ Lista original: §7.28.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `queueTicketId` | ObjectId | [VERIFICAR] | — | `crmQueueTickets` (M09); antes implícita por el nombre |
+| `queueTicketId` | uniqueidentifier | [VERIFICAR] | — | `crmQueueTickets` (M09); antes implícita por el nombre |
 | `action` | enum | [VERIFICAR] | `received`, `waiting`, `called`, `recalled`, `served`, `derived`, `finishedSolved`, `finishedUnsolved`, `finishedNoShow`, `cancelled` | — |
-| `areaId` | ObjectId | [VERIFICAR] | — | `crmAreas` (M09); antes implícita por el nombre |
-| `deskId` | ObjectId | [VERIFICAR] | — | `crmQueueDesks` (M09); antes implícita por el nombre |
-| `deskSessionId` | ObjectId | [VERIFICAR] | — | `crmQueueDeskSessions` (M09); antes implícita por el nombre |
-| `userId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `areaId` | uniqueidentifier | [VERIFICAR] | — | `crmAreas` (M09); antes implícita por el nombre |
+| `deskId` | uniqueidentifier | [VERIFICAR] | — | `crmQueueDesks` (M09); antes implícita por el nombre |
+| `deskSessionId` | uniqueidentifier | [VERIFICAR] | — | `crmQueueDeskSessions` (M09); antes implícita por el nombre |
+| `userId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `at` | [VERIFICAR] | [VERIFICAR] | hora del servidor | — |
 | `note` | [VERIFICAR] | [VERIFICAR] | — | — |
 
@@ -1243,8 +1245,8 @@ Lista original: §7.30.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
-| `deskTypeId` | ObjectId | [VERIFICAR] | `COD_TBOX` | `crmQueueDeskTypes` (M09); antes implícita por el nombre |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
+| `deskTypeId` | uniqueidentifier | [VERIFICAR] | `COD_TBOX` | `crmQueueDeskTypes` (M09); antes implícita por el nombre |
 | `number` | int / string [VERIFICAR] | [VERIFICAR] | `NUM_BOX` | — |
 | `label` | string | [VERIFICAR] | — | — |
 | `isAutoGeneration` | bool | [VERIFICAR] | bool, parámetro 2014 | — |
@@ -1256,8 +1258,8 @@ Lista original: §7.31.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `deskId` | ObjectId | [VERIFICAR] | — | `crmQueueDesks` (M09); antes implícita por el nombre |
-| `userId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `deskId` | uniqueidentifier | [VERIFICAR] | — | `crmQueueDesks` (M09); antes implícita por el nombre |
+| `userId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `openedAt` | Date | [VERIFICAR] | `FEC_APER` | — |
 | `closedAt` | Date | [VERIFICAR] | `FEC_CIERRE` | — |
 | `areaIds` | array | [VERIFICAR] | atendidas en la sesión. Índice único parcial `{tenantId, deskId}` donde `closedAt = null` (impide doble apertura) | `crmAreas` (M09); antes implícita por el nombre |
@@ -1268,7 +1270,7 @@ Lista original: §7.32.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
 | `name` | string | [VERIFICAR] | — | — |
 | `mode` | enum | [VERIFICAR] | `highlightLast`, `allEqual`, `highlightLastLarge` — parámetro 2240 | — |
 | `groupBy` | enum | [VERIFICAR] | `lastCalls`, `byDesk` — 2209 | `memberships` (T02) |
@@ -1276,7 +1278,7 @@ Lista original: §7.32.
 | `voice` | object | [VERIFICAR] | `{ enabled, voiceName, rate }` (2700) | — |
 | `areaIds` | array | [VERIFICAR] | — | `crmAreas` (M09); antes implícita por el nombre |
 | `accessTokenHash` | [VERIFICAR] | [VERIFICAR] | pantalla sin login | — |
-| `localAgentId` | ObjectId | No | T06 | `localAgents` (T06); antes implícita por el nombre |
+| `localAgentId` | uniqueidentifier | No | T06 | `localAgents` (T06); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.44.24 `crmQueueAppointments` (COL-CRM-33)
@@ -1285,15 +1287,15 @@ Lista original: §7.33.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
-| `areaId` | ObjectId | [VERIFICAR] | — | `crmAreas` (M09); antes implícita por el nombre |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
+| `areaId` | uniqueidentifier | [VERIFICAR] | — | `crmAreas` (M09); antes implícita por el nombre |
 | `slotStart` | Date | [VERIFICAR] | — | — |
 | `slotEnd` | Date | [VERIFICAR] | — | — |
-| `personId` | ObjectId | No | — | `persons` (M01) |
+| `personId` | uniqueidentifier | No | — | `persons` (M01) |
 | `contact` | object | [VERIFICAR] | `{ name, phone, email }` | — |
 | `reasonCode` | string | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | `booked`, `confirmed`, `checkedIn`, `noShow`, `cancelled` | — |
-| `queueTicketId` | ObjectId | No | — | `crmQueueTickets` (M09); antes implícita por el nombre |
+| `queueTicketId` | uniqueidentifier | No | — | `crmQueueTickets` (M09); antes implícita por el nombre |
 | `channel` | [VERIFICAR] | [VERIFICAR] | — | — |
 | `reminderSentAt` | Date | No | — | — |
 
@@ -1321,17 +1323,17 @@ Lista original: §7.36.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `areaId` | ObjectId | [VERIFICAR] | `COD_AREA` | `crmAreas` (M09); antes implícita por el nombre |
+| `areaId` | uniqueidentifier | [VERIFICAR] | `COD_AREA` | `crmAreas` (M09); antes implícita por el nombre |
 | `name` | string | [VERIFICAR] | `DES_TIPO` | — |
 | `marginBeforeDays` | int | [VERIFICAR] | `MARGEN_ANT` | — |
 | `marginAfterDays` | int | [VERIFICAR] | `MARGEN_POS` | — |
-| `frequencyId` | ObjectId | [VERIFICAR] | `COD_FREC` | `crmActivityFrequencies` (M09); antes implícita por el nombre |
+| `frequencyId` | uniqueidentifier | [VERIFICAR] | `COD_FREC` | `crmActivityFrequencies` (M09); antes implícita por el nombre |
 | `templateKey` | string | [VERIFICAR] | `PLANTILLA`, en T09 | — |
 | `reminderWeekday` | [VERIFICAR] | [VERIFICAR] | `DIAS_ENVIO` | — |
 | `requiresApproval` | bool | [VERIFICAR] | — | — |
 | `requiresEvidence` | bool | [VERIFICAR] | — | — |
 | `escalateAfterDays` | int | [VERIFICAR] | int | — |
-| `rubroId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmActivityRubros` (M09); antes implícita por el nombre |
+| `rubroId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmActivityRubros` (M09); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.44.28 `crmActivities` (COL-CRM-37)
@@ -1340,9 +1342,9 @@ Lista original: §7.37.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `activityTypeId` | ObjectId | [VERIFICAR] | `COD_TIPO` | `crmActivityTypes` (M09); antes implícita por el nombre |
-| `rubroId` | ObjectId | [VERIFICAR] | — | `crmActivityRubros` (M09); antes implícita por el nombre |
-| `responsibleUserId` | ObjectId | [VERIFICAR] | `COD_RES` | `memberships` (T02) |
+| `activityTypeId` | uniqueidentifier | [VERIFICAR] | `COD_TIPO` | `crmActivityTypes` (M09); antes implícita por el nombre |
+| `rubroId` | uniqueidentifier | [VERIFICAR] | — | `crmActivityRubros` (M09); antes implícita por el nombre |
+| `responsibleUserId` | uniqueidentifier | [VERIFICAR] | `COD_RES` | `memberships` (T02) |
 | `description` | string | [VERIFICAR] | `DES_ACT` | — |
 | `extraRecipients` | array | [VERIFICAR] | `MAILSEXTRA` | — |
 | `generation` | [VERIFICAR] | [VERIFICAR] | `automatic` = `TIP_GEN 1` / `manual` | — |
@@ -1352,8 +1354,8 @@ Lista original: §7.37.
 | `prerequisites` | array | [VERIFICAR] | `{ activityId, mandatory }` (`ACTIPREV`: DES_ACP, COD_ACI, ACT_ACP) | — |
 | `linkedEntity` | object | [VERIFICAR] | `{ type (asset/network/regulation/contract), id }` | — |
 | `active` | bool | [VERIFICAR] | — | — |
-| `typeId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmActivityTypes` (M09); antes implícita por el nombre |
-| `frequencyId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmActivityFrequencies` (M09); antes implícita por el nombre |
+| `typeId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmActivityTypes` (M09); antes implícita por el nombre |
+| `frequencyId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmActivityFrequencies` (M09); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.44.29 `crmActivityOccurrences` (COL-CRM-38)
@@ -1362,22 +1364,22 @@ Lista original: §7.38.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `activityId` | ObjectId | [VERIFICAR] | `COD_ACT` | `crmActivities` (M09); antes implícita por el nombre |
+| `activityId` | uniqueidentifier | [VERIFICAR] | `COD_ACT` | `crmActivities` (M09); antes implícita por el nombre |
 | `seq` | int | [VERIFICAR] | numeración atómica | — |
 | `dueDate` | Date | [VERIFICAR] | `FEC_ACT` | — |
 | `generatedAt` | Date | [VERIFICAR] | `FEC_ALTA` | — |
 | `manual` | [VERIFICAR] | [VERIFICAR] | `MANUAL_ACT` | — |
-| `responsibleUserId` | ObjectId | [VERIFICAR] | `COD_RES` | `memberships` (T02) |
+| `responsibleUserId` | uniqueidentifier | [VERIFICAR] | `COD_RES` | `memberships` (T02) |
 | `status` | enum | [VERIFICAR] | `pending`, `dueSoon`, `overdue`, `closedOnTime`, `closedLate`, `closedWithReview`, `voided` — derivado y persistido por job | — |
 | `closedAt` | Date | [VERIFICAR] | `FEC_CIERRE` | — |
 | `realClosedAt` | Date | [VERIFICAR] | `FEC_REALCI` | — |
-| `closedByResponsibleId` | ObjectId | [VERIFICAR] | `CODRES_CIE` | → T02 `memberships` (responsable que cerró, como `responsibleUserId`) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `closedByUserId` | ObjectId | [VERIFICAR] | `COD_US_CIE` | `memberships` (T02) |
+| `closedByResponsibleId` | uniqueidentifier | [VERIFICAR] | `CODRES_CIE` | → T02 `memberships` (responsable que cerró, como `responsibleUserId`) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `closedByUserId` | uniqueidentifier | [VERIFICAR] | `COD_US_CIE` | `memberships` (T02) |
 | `review` | bool | [VERIFICAR] | `REV_ACT`, bool + texto | — |
 | `observation` | [VERIFICAR] | [VERIFICAR] | `OBS_ACT` | — |
 | `evidenceDocumentIds` | array | [VERIFICAR] | — | `documents` (T11) |
 | `approval` | object | [VERIFICAR] | `{ approvedBy, approvedAt }` | — |
-| `calendarEventId` | ObjectId | [VERIFICAR] | — | `crmCalendarEvents` (M09); antes implícita por el nombre |
+| `calendarEventId` | uniqueidentifier | [VERIFICAR] | — | `crmCalendarEvents` (M09); antes implícita por el nombre |
 
 #### 7.44.30 `crmCalendarEventTypes` (COL-CRM-39)
 
@@ -1395,7 +1397,7 @@ Lista original: §7.40.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `userId` | ObjectId | [VERIFICAR] | `COD_USER` | `memberships` (T02) |
+| `userId` | uniqueidentifier | [VERIFICAR] | `COD_USER` | `memberships` (T02) |
 | `allDay` | [VERIFICAR] | [VERIFICAR] | `TODOELDIA` | — |
 | `start` | Date | [VERIFICAR] | — | — |
 | `end` | Date | [VERIFICAR] | `CAL_START`, `CAL_END` | — |
@@ -1406,9 +1408,9 @@ Lista original: §7.40.
 | `recurrence` | [VERIFICAR] | [VERIFICAR] | RRULE, desde `INFO_RECUR` | — |
 | `reminders` | array | [VERIFICAR] | desde `INFO_RECOR` | — |
 | `status` | enum | Sí | `ESTADO`. Valores: `scheduled`, `completed`, `cancelled`, `missed` (§8.13; PA-COB-19 de M07); antes sin valores. | — |
-| `eventTypeId` | ObjectId | [VERIFICAR] | `TIPO` | `crmCalendarEventTypes` (M09); antes implícita por el nombre |
+| `eventTypeId` | uniqueidentifier | [VERIFICAR] | `TIPO` | `crmCalendarEventTypes` (M09); antes implícita por el nombre |
 | `source` | object | [VERIFICAR] | `{ type (activityOccurrence/case/manual), id }` | — |
-| `typeId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmCalendarEventTypes` (M09); antes implícita por el nombre |
+| `typeId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `crmCalendarEventTypes` (M09); antes implícita por el nombre |
 
 #### 7.44.32 `crmCirculars` (COL-CRM-41)
 
@@ -1418,16 +1420,16 @@ Lista original: §7.41.
 |---|---|---|---|---|
 | `name` | string | [VERIFICAR] | `DES_CIR` | — |
 | `bodyTemplateKey` | string | [VERIFICAR] | T09; texto `TEXTO` migrado como plantilla | — |
-| `debtFilter` | object | [VERIFICAR] | `{ debtKind (`TDEUDA`), minAmount Decimal128 (`DEUDA`) }` | — |
+| `debtFilter` | object | [VERIFICAR] | `{ debtKind (`TDEUDA`), minAmount DECIMAL(18,4) (`DEUDA`) }` | — |
 | `enrollmentFilter` | [VERIFICAR] | [VERIFICAR] | `ADHER`: adheridos a factura digital/débito | — |
 | `signatures` | object | [VERIFICAR] | `{ manager (`FIR_GTE`), auditor (`FIR_AUD`) }` | — |
 | `includeServiceDetail` | bool | [VERIFICAR] | `DET_SER` | — |
-| `serviceId` | ObjectId | [VERIFICAR] | `COD_SER` | `tenantServices` (M02) |
+| `serviceId` | uniqueidentifier | [VERIFICAR] | `COD_SER` | `tenantServices` (M02) |
 | `channels` | enum | [VERIFICAR] | `print`, `email`, `sms` (`SMS`), `whatsapp` | — |
 | `templateKey` | string | [VERIFICAR] | `PLANTILLA` | — |
 | `audienceDefinition` | [VERIFICAR] | [VERIFICAR] | motor T09 | — |
 | `requiresApproval` | bool | [VERIFICAR] | — | — |
-| `templateVersionId` | ObjectId | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `templateVersions` (T11); antes implícita por el nombre |
+| `templateVersionId` | uniqueidentifier | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | `templateVersions` (T11); antes implícita por el nombre |
 | `code` | string | [VERIFICAR] | Declarado en T05; no figuraba en la lista del anexo. | — |
 
 #### 7.44.33 `crmCircularRuns` (COL-CRM-42)
@@ -1436,15 +1438,15 @@ Lista original: §7.42.
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `circularId` | ObjectId | [VERIFICAR] | — | `crmCirculars` (M09); antes implícita por el nombre |
+| `circularId` | uniqueidentifier | [VERIFICAR] | — | `crmCirculars` (M09); antes implícita por el nombre |
 | `audienceSnapshotId` | string | [VERIFICAR] | Nombre de T05; antes `audienceSnapshotRef` en este anexo. | `audienceSnapshots` (T09); antes implícita por el nombre |
 | `recipientCount` | int | [VERIFICAR] | — | — |
 | `status` | enum | [VERIFICAR] | `draft`, `pendingApproval`, `approved`, `generating`, `sent`, `partiallyFailed`, `cancelled` | — |
 | `communicationRunIds` | array | [VERIFICAR] | T09 | → T09 `campaigns` (envío masivo de la corrida, COL-COM-47) (PA-CRM-20; antes "[VERIFICAR] corridas de comunicación de T09 (colección no identificada en T05)") |
-| `printDocumentId` | ObjectId | No | — | → T11 `documents` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `labelsDocumentId` | ObjectId | No | — | → T11 `documents` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `printDocumentId` | uniqueidentifier | No | — | → T11 `documents` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
+| `labelsDocumentId` | uniqueidentifier | No | — | → T11 `documents` (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
 | `workOrderCommandIds` | array | [VERIFICAR] | — | → M09 `crmCommandRequests` (comandos de OT que emite la corrida) (PA-CRM-20; antes "[VERIFICAR] destino no deducible (identificador externo o interno)") |
-| `approvedBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `approvedAt` | Date | [VERIFICAR] | — | — |
 | `results` | object | [VERIFICAR] | `{ delivered, failed, printed }` | — |
 
@@ -1455,16 +1457,16 @@ Ronda de residuales detectados al regenerar los entregables (categorías 2 y 4 d
 | Colección | Campo | Tipo | Referencia | Antes |
 |---|---|---|---|---|
 | `crmConversations` | `externalThreadId` | string | No es referencia (identificador externo) | sin destino |
-| `crmStatusSets` | `workflowRef` | ObjectId | → T11 `workflowDefinitions` | "ObjectId (T11)" |
-| `crmCommandRequests` | `dependsOnCommandId` | ObjectId | → M09 `crmCommandRequests` | sin destino |
-| `crmContacts` | `mergedInto` | ObjectId | → M09 `crmContacts` | sin destino |
-| `crmIncidents` | `failureTypeId` | ObjectId | → M10 `incidentCategories` | "ObjectId (M10)" |
-| `crmHourBanks` | `saleRef` | ObjectId | → M05 `invoices` | "ObjectId (M11/M05)" |
-| `crmAiSuggestions` | `targetType` / `targetId` | enum / ObjectId | Discriminador / polimórfica (`crmCases`, `crmConversations`, `crmMessages`, `storedFiles`) | sin destino |
-| `crmAiSuggestions` | `aiUsageLogId` | ObjectId | → T06 `aiUsageLogs` | solo en T05 |
-| `crmActivityOccurrences` | `closedByResponsibleId` | ObjectId | → T02 `memberships` | sin destino |
-| `crmCircularRuns` | `communicationRunIds` | ObjectId[] | → T09 `campaigns` | sin destino |
-| `crmCircularRuns` | `workOrderCommandIds` | ObjectId[] | → M09 `crmCommandRequests` | sin destino |
+| `crmStatusSets` | `workflowRef` | uniqueidentifier | → T11 `workflowDefinitions` | "uniqueidentifier (T11)" |
+| `crmCommandRequests` | `dependsOnCommandId` | uniqueidentifier | → M09 `crmCommandRequests` | sin destino |
+| `crmContacts` | `mergedInto` | uniqueidentifier | → M09 `crmContacts` | sin destino |
+| `crmIncidents` | `failureTypeId` | uniqueidentifier | → M10 `incidentCategories` | "uniqueidentifier (M10)" |
+| `crmHourBanks` | `saleRef` | uniqueidentifier | → M05 `invoices` | "uniqueidentifier (M11/M05)" |
+| `crmAiSuggestions` | `targetType` / `targetId` | enum / uniqueidentifier | Discriminador / polimórfica (`crmCases`, `crmConversations`, `crmMessages`, `storedFiles`) | sin destino |
+| `crmAiSuggestions` | `aiUsageLogId` | uniqueidentifier | → T06 `aiUsageLogs` | solo en T05 |
+| `crmActivityOccurrences` | `closedByResponsibleId` | uniqueidentifier | → T02 `memberships` | sin destino |
+| `crmCircularRuns` | `communicationRunIds` | uniqueidentifier[] | → T09 `campaigns` | sin destino |
+| `crmCircularRuns` | `workOrderCommandIds` | uniqueidentifier[] | → M09 `crmCommandRequests` | sin destino |
 
 Campos que T05 cita con otro nombre (prevalece el anexo; T05 debe reflejarlo): `caseId` de COL-CRM-02, 04, 12, 17, 19 y 26 es `crmCaseId` (nombre canónico de la propia T05 §7.2, CTR-DAT-30; en `crmAiSuggestions` el caso es `targetType` = `case` + `targetId`); `crmAreas.branchId` es `branchIds[]`; `crmSlaPolicies.caseSubtypeId` es `scope.caseSubtypeIds[]`; `crmRoutingRules.areaId` es `target.areaId`; `crmChannels.connectionId` es `providerConnectionId`; `crmWorkLogs.projectId` no existe (el proyecto se toma del caso, `crmCases.projectId`); `crmCommandRequests.operationId` y `crmProcedureTypes.documentRequirementTypeIds[]` no existen en el anexo y T05 debe quitarlos (los requisitos documentales de M09 se declaran en `crmCaseTypes.requirementsTemplate`). Los `code` que T05 declara único ya figuran en §7.44 como "Declarado en T05".
 

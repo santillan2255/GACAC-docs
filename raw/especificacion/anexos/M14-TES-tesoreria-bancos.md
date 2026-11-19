@@ -527,8 +527,10 @@ Principios rectores, todos obligatorios:
 | RN-TES-086 | Una rendición de caja con cobros de varias entidades jurídicas se acepta con una operación de tesorería por entidad, cada una sobre una cuenta de esa entidad; nunca se mezclan fondos de entidades distintas en una misma operación ni en una misma cuenta. La diferencia de arqueo se imputa a la entidad que indique el receptor (por defecto, la de mayor importe rendido). | Rendición única por caja sin entidad (`CAJAS`). | **Adoptar** (DEC-064, DEC-087) | — | — |
 
 ## 7. Modelo de datos
+> **Barrido C-05 (DEC-111).** En las tablas de este capítulo los tipos objetivo son **Azure SQL** (columnas `uniqueidentifier`, `DECIMAL`, `DATETIME2`, etc.; ver `07-ddl`). Menciones puntuales de Mongo/Mongoose/BullMQ sin tipo de columna = **comparativa histórica** Connectia, sin efecto en build.
 
-Convenciones comunes (guía §5), no repetidas en cada colección: todo documento lleva `tenantId` (ObjectId, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`; los económicos además `recordedAt` y nunca se borran (`status: voided` + vínculo de reversión). Importes en `Decimal128` (aritmética `decimal.js`), a 2 decimales salvo cotizaciones (6 decimales). Fechas en UTC; las fechas "de negocio" (`issueDate`, `valueDate`, `paymentDate`) se guardan como fecha civil en la zona del tenant (`YYYY-MM-DD`). Las etiquetas visibles se resuelven por `dict:`.
+
+Convenciones comunes (guía §5), no repetidas en cada colección: todo documento lleva `TenantId` (uniqueidentifier, obligatorio, primer campo de todo índice compuesto), `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `version`; los económicos además `recordedAt` y nunca se borran (`status: voided` + vínculo de reversión). Importes en `DECIMAL(18,4)` (aritmética `decimal.js`), a 2 decimales salvo cotizaciones (6 decimales). Fechas en UTC; las fechas "de negocio" (`issueDate`, `valueDate`, `paymentDate`) se guardan como fecha civil en la zona del tenant (`YYYY-MM-DD`). Las etiquetas visibles se resuelven por `dict:`.
 
 > **Corrección 05-11-2026 (tablas de campos):** las colecciones que este §7 describía solo en texto corrido o en tablas resumen tienen ahora su tabla de campos (Campo, Tipo, Oblig., Descripción, Referencia), debajo de su descripción original, que se conserva. Tipos y obligatoriedad se deducen del texto del anexo y de T05 §7.7; donde no se pueden deducir figura `[VERIFICAR]`. La columna Referencia declara la colección destino y su anexo dueño. Cuando T05 usa otro nombre para el campo, la tabla usa el de T05 y anota "Antes `x`". Las tablas de campos que ya existían incorporan también la columna Referencia. En los índices y en el texto corrido de este §7, `accountId` referido a una cuenta de tesorería se lee `treasuryAccountId` (nombre de T05 §7.2; `accountId` es en T05 la cuenta de servicios de M01).
 
@@ -550,7 +552,7 @@ Convenciones comunes (guía §5), no repetidas en cada colección: todo document
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `institutionId` | ObjectId → `financialInstitutions` | Sí | — | `financialInstitutions` (M14) |
+| `institutionId` | uniqueidentifier → `financialInstitutions` | Sí | — | `financialInstitutions` (M14) |
 | `branchCode` | string | Sí | Código de sucursal. | — |
 | `name` | string | Sí | — | — |
 | `locality`, `province`, `address` | string | No | Referencia geográfica (catálogo T04 cuando exista). | — |
@@ -566,24 +568,24 @@ Convenciones comunes (guía §5), no repetidas en cada colección: todo document
 | `name` | string | Sí | — | — |
 | `kind` | enum `bankChecking`, `bankSavings`, `virtualWallet`, `treasuryCash`, `paymentCash`, `movementAccount`, `transitAccount`, `cardClearing`, `gatewayClearing`, `investment` | Sí | Tipo de cuenta financiera. | — |
 | `currency` | string ISO 4217 | Sí | Default `ARS`. | — |
-| `institutionId`, `bankBranchId` | ObjectId | Cond. | Obligatorios en cuentas bancarias; `bankBranchId` → `bankBranches` (§7.2), antes `branchId`, renombrado para no confundir con `branches` de T04. | `financialInstitutions` (M14) / `bankBranches` (M14) |
+| `institutionId`, `bankBranchId` | uniqueidentifier | Cond. | Obligatorios en cuentas bancarias; `bankBranchId` → `bankBranches` (§7.2), antes `branchId`, renombrado para no confundir con `branches` de T04. | `financialInstitutions` (M14) / `bankBranches` (M14) |
 | `accountNumber` | string | Cond. | — | — |
 | `cbu` | string(22) | Cond. | Validado (dígitos verificadores). Único por tenant entre activas. | — |
 | `alias` | string | No | — | — |
 | `holderCuit` | string(11) | Cond. | — | — |
-| `openingDate`, `openingBalance` | date, Decimal128 | Sí | Generan el movimiento de apertura. | — |
+| `openingDate`, `openingBalance` | date, DECIMAL(18,4) | Sí | Generan el movimiento de apertura. | — |
 | `accountingRef` | `{ accountKey, pendingDebitAccountKey }` | No | Claves de regla contable para M15 (`COD_CTA`, `CTA_PENDEB`). | — (claves de rol contable embebidas; la cuenta la resuelve M15 en `entityAccountAssignments`; no es referencia) |
-| `branchId` | ObjectId → `branches` (T04, sucursal del tenant) | No | Antes `branchOfficeId` (nombre canónico de T05 §7.2). | `branches` (T04) |
-| `legalEntityId` | ObjectId → `legalEntities` (T04) | Sí | Entidad jurídica titular de la cuenta (DEC-064). Una cuenta pertenece a una sola entidad; los movimientos heredan su entidad. | `legalEntities` (T04) |
+| `branchId` | uniqueidentifier → `branches` (T04, sucursal del tenant) | No | Antes `branchOfficeId` (nombre canónico de T05 §7.2). | `branches` (T04) |
+| `legalEntityId` | uniqueidentifier → `legalEntities` (T04) | Sí | Entidad jurídica titular de la cuenta (DEC-064). Una cuenta pertenece a una sola entidad; los movimientos heredan su entidad. | `legalEntities` (T04) |
 | `defaultDimensions` | `{ serviceId, costCenterId }` | No | — | — |
 | `enabledInstruments` | array enum (`physicalCheck`, `echeq`, `transfer`, `vep`, `directDebit`, `cashDeposit`, `valuesDeposit`, `paymentFile`) | Sí | RF-TES-009. | — |
 | `checkPrintTemplateKey` | string | No | `INF_CHEQUE`. | — |
 | `includeInAvailability` | bool | Sí | `INF_DISPO`. | — |
-| `bankAsSupplierId` | ObjectId → `suppliers` (M12) | No | `COD_PROV`. | `suppliers` (M12) |
+| `bankAsSupplierId` | uniqueidentifier → `suppliers` (M12) | No | `COD_PROV`. | `suppliers` (M12) |
 | `interbanking` | `{ connectionId, ibAccountId, linkedAt, linkedBy }` | No | `CTA_INTERBANKING`. | — |
 | `movementAccountRole` | enum `rejectedChecks`, `instrumentExchange` | Cond. | Para `movementAccount` (P2067, P2076). | — |
 | `treasuryCashConfig` | `{ responsibleUserId, acceptedCurrencies[] }` | Cond. | Para `treasuryCash`. | — |
-| `minBalanceAlert` | Decimal128 | No | RF-TES-153. | — |
+| `minBalanceAlert` | DECIMAL(18,4) | No | RF-TES-153. | — |
 | `balance` | `{ operational, book, asOf, verifiedAt }` | Sí | Materializado, derivado; nunca editable (RN-TES-002). | — |
 | `status` | enum `active`, `blocked`, `closed` | Sí | — | — |
 
@@ -593,13 +595,13 @@ Convenciones comunes (guía §5), no repetidas en cada colección: todo document
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
-| `userId` | ObjectId (T02) | Sí | — | `memberships` (T02) |
-| `employeeId` | ObjectId (M16) | No | `COD_EMP`. | `employees` (M16) |
-| `personId` | ObjectId | Sí | Persona firmante; clave de unicidad `{treasuryAccountId, personId, validFrom}` de T05 (PA-TES-19). | `persons` (M01) |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica de la cuenta (copia de `treasuryAccounts.legalEntityId`, DEC-064; PA-TES-19). | `legalEntities` (T04) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `userId` | uniqueidentifier (T02) | Sí | — | `memberships` (T02) |
+| `employeeId` | uniqueidentifier (M16) | No | `COD_EMP`. | `employees` (M16) |
+| `personId` | uniqueidentifier | Sí | Persona firmante; clave de unicidad `{treasuryAccountId, personId, validFrom}` de T05 (PA-TES-19). | `persons` (M01) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica de la cuenta (copia de `treasuryAccounts.legalEntityId`, DEC-064; PA-TES-19). | `legalEntities` (T04) |
 | `validFrom`, `validTo` | date | Sí/No | Vigencia. | — |
-| `maxAmountPerSignature` | Decimal128 | No | Tope. | — |
+| `maxAmountPerSignature` | DECIMAL(18,4) | No | Tope. | — |
 | `signatureGroup` | enum `A`, `B` | No | Para reglas "una A + una B". | — |
 | `status` | enum `active`, `revoked` | Sí | — | — |
 
@@ -664,15 +666,15 @@ Campos de `checkDrawerAccounts`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `institutionId` | ObjectId | Sí | — | `financialInstitutions` (M14) |
-| `bankBranchId` | ObjectId | Sí | — | `bankBranches` (M14) |
+| `institutionId` | uniqueidentifier | Sí | — | `financialInstitutions` (M14) |
+| `bankBranchId` | uniqueidentifier | Sí | — | `bankBranches` (M14) |
 | `accountNumber` | String | Sí | — | — |
 | `holderName` | String | [VERIFICAR] | `NOM_CTA`. | — |
 | `holderCuit` | String | [VERIFICAR] | `CUIT_CTA`. | — |
 | `blocked` | Bool | [VERIFICAR] | `RECIBIR`. | — |
 | `blockedReason` | String | [VERIFICAR] | — | — |
 | `blockedAt` | Date (fecha y hora) | Cond. | — | — |
-| `blockedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `blockedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 
 ### 7.9 `treasuryOperations`
 
@@ -681,12 +683,12 @@ Campos de `checkDrawerAccounts`:
 | `number` | string | Sí | Talonario "Operación de tesorería" (`COD_INT`/`NUM_MOVT`). | — |
 | `operationType` | enum §7.10 | Sí | — | — |
 | `issueDate` | date | Sí | — | — |
-| `branchId` | ObjectId | Sí | — | `branches` (T04) |
-| `legalEntityId` | ObjectId | Sí | Entidad jurídica de la operación, la de sus cuentas (DEC-064; clave de T05; PA-TES-19). | `legalEntities` (T04) |
-| `conceptId` | ObjectId | No | — | `billableConcepts` (M02) |
+| `branchId` | uniqueidentifier | Sí | — | `branches` (T04) |
+| `legalEntityId` | uniqueidentifier | Sí | Entidad jurídica de la operación, la de sus cuentas (DEC-064; clave de T05; PA-TES-19). | `legalEntities` (T04) |
+| `conceptId` | uniqueidentifier | No | — | `billableConcepts` (M02) |
 | `description`, `notes` | string | No | Longitud máx. 120 / 500 (validada). | — |
 | `origin` | `{ module, docType, docId, docNumber }` | Sí | RF-TES-017 (`cob`, `cmp`, `fis`, `sue`, `tes`). | — |
-| `totals` | `{ in, out, difference }` Decimal128 | Sí | `difference` = 0 salvo tipos unilaterales. | — |
+| `totals` | `{ in, out, difference }` DECIMAL(18,4) | Sí | `difference` = 0 salvo tipos unilaterales. | — |
 | `approval` | `{ required, workflowId, status }` | No | T11. | — |
 | `printed` | `{ at, by, count }` | No | `IMPRESO`. | — |
 | `status` | enum `draft`, `pendingApproval`, `posted`, `voided` | Sí | §8. | — |
@@ -740,18 +742,18 @@ Campos de `checkDrawerAccounts`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `operationId` | ObjectId | Sí | — | `operations` (T11) |
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
-| `legalEntityId` | ObjectId → `legalEntities` (T04) | Sí | Copia de la entidad de la cuenta (DEC-064); una operación entre cuentas de distintas entidades genera un movimiento por entidad con contrapartida en cuentas de tránsito. | `legalEntities` (T04) |
+| `operationId` | uniqueidentifier | Sí | — | `operations` (T11) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `legalEntityId` | uniqueidentifier → `legalEntities` (T04) | Sí | Copia de la entidad de la cuenta (DEC-064); una operación entre cuentas de distintas entidades genera un movimiento por entidad con contrapartida en cuentas de tránsito. | `legalEntities` (T04) |
 | `book` | enum `bank`, `treasury` | Sí | Derivado de `accountKind` (vistas "libro de bancos" y "libro de tesorería"). | — |
 | `movementType` | enum §7.10 | Sí | — | — |
-| `categoryId` | ObjectId | Sí | — | `serviceCategories` (M02) |
-| `conceptId` | ObjectId | No | — | `billableConcepts` (M02) |
+| `categoryId` | uniqueidentifier | Sí | — | `serviceCategories` (M02) |
+| `conceptId` | uniqueidentifier | No | — | `billableConcepts` (M02) |
 | `direction` | enum `in`, `out` | Sí | RN-TES-005. | — |
 | `instrument` | enum (RN-TES-015) | Sí | — | — |
-| `amount` | Decimal128 | Sí | Positivo, en moneda de la cuenta. | — |
-| `currency`, `exchangeRate`, `amountArs` | string, Decimal128, Decimal128 | Sí | RN-TES-007. | — |
-| `historicalAmount` | Decimal128 | No | `DEBE_HIS`/`HABER_HIS`. | — |
+| `amount` | DECIMAL(18,4) | Sí | Positivo, en moneda de la cuenta. | — |
+| `currency`, `exchangeRate`, `amountArs` | string, DECIMAL(18,4), DECIMAL(18,4) | Sí | RN-TES-007. | — |
+| `historicalAmount` | DECIMAL(18,4) | No | `DEBE_HIS`/`HABER_HIS`. | — |
 | `issueDate`, `valueDate`, `expectedCreditDate` | date | Sí/Sí/No | RF-TES-018. | — |
 | `documentNumber` | string | No | Número de boleta, transferencia, cheque. | — |
 | `counterparty` | `{ kind (member, supplier, employee, agency, bank, other), id, name, cuit, cbu }` | No | — | — |
@@ -759,7 +761,7 @@ Campos de `checkDrawerAccounts`:
 | `dimensions` | `{ serviceId, costCenterId, branchId }` | No | — | — |
 | `pendingCashOut` | bool | No | `SALIDA_PEN`. | — |
 | `reconciliation` | `{ status (unreconciled, suggested, reconciled), matchId, reconciledAt, reconciledBy, method }` | Sí (bank) | `CONCILIAC`, `FEC_CONC`, `USU_CONC`, `FEC_CONC_INT`. | — |
-| `journalEntryId` | ObjectId (M15) | No | RF-TES-031. | `journalEntries` (M15) |
+| `journalEntryId` | uniqueidentifier (M15) | No | RF-TES-031. | `journalEntries` (M15) |
 | `status` | enum `pendingApproval`, `posted`, `voided` | Sí | — | — |
 | `reversal` | `{ reversesId, reversedById }` | No | — | — |
 | `notes` | string | No | — | — |
@@ -775,17 +777,17 @@ Campos de `bankDeposits`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `number` | String | Sí | Boleta. | — |
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). Destino. | `treasuryAccounts` (M14) |
-| `sourceAccountId` | ObjectId | [VERIFICAR] | Caja de tesorería. | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). Destino. | `treasuryAccounts` (M14) |
+| `sourceAccountId` | uniqueidentifier | [VERIFICAR] | Caja de tesorería. | `treasuryAccounts` (M14) |
 | `depositDate` | Date | [VERIFICAR] | — | — |
 | `expectedCreditDate` | Date | [VERIFICAR] | — | — |
-| `cashAmount` | Decimal128 | [VERIFICAR] | — | — |
+| `cashAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `checks` | [Object] | [VERIFICAR] | `thirdPartyCheckId`, `amount`. | — |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
-| `operationId` | ObjectId | [VERIFICAR] | — | `treasuryOperations` (M14) |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `operationId` | uniqueidentifier | [VERIFICAR] | — | `treasuryOperations` (M14) |
 | `status` | Enum | Sí | `registered`, `partiallyCredited`, `credited`, `rejected`, `voided`. | — |
 | `creditedAt` | Date (fecha y hora) | Cond. | — | — |
-| `statementLineIds` | [ObjectId] | [VERIFICAR] | — | `bankStatementLines` (M14) |
+| `statementLineIds` | [uniqueidentifier] | [VERIFICAR] | — | `bankStatementLines` (M14) |
 
 ### 7.13 `statementImportProfiles`
 
@@ -796,7 +798,7 @@ Campos de `statementImportProfiles`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
-| `institutionId` | ObjectId | Sí | — | `financialInstitutions` (M14) |
+| `institutionId` | uniqueidentifier | Sí | — | `financialInstitutions` (M14) |
 | `format` | Enum | [VERIFICAR] | `csv`, `xlsx`, `fixedWidth`, `interbanking`. | — |
 | `delimiter` | String | [VERIFICAR] | — | — |
 | `encoding` | String | [VERIFICAR] | — | — |
@@ -816,41 +818,41 @@ Campos de `bankStatementImports`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `source` | Enum | [VERIFICAR] | `file`, `interbanking`, `manual`. | — |
-| `profileId` | ObjectId | [VERIFICAR] | — | `statementImportProfiles` (M14) |
-| `storedFileId` | ObjectId | Sí | Antes `fileRef` (nombre de T05). Almacenamiento privado, hash SHA-256. | `storedFiles` (T01) |
+| `profileId` | uniqueidentifier | [VERIFICAR] | — | `statementImportProfiles` (M14) |
+| `storedFileId` | uniqueidentifier | Sí | Antes `fileRef` (nombre de T05). Almacenamiento privado, hash SHA-256. | `storedFiles` (T01) |
 | `periodFrom` | Date | [VERIFICAR] | — | — |
 | `periodTo` | Date | [VERIFICAR] | — | — |
-| `openingBalance` | Decimal128 | [VERIFICAR] | — | — |
-| `closingBalance` | Decimal128 | [VERIFICAR] | — | — |
+| `openingBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `closingBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `lineCount` | Int | [VERIFICAR] | — | — |
-| `totalDebits` | Decimal128 | [VERIFICAR] | — | — |
-| `totalCredits` | Decimal128 | [VERIFICAR] | — | — |
+| `totalDebits` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `totalCredits` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `duplicatesSkipped` | Int | [VERIFICAR] | — | — |
 | `continuity` | Enum | [VERIFICAR] | `ok`, `gap`, `justified` + `justification`. | — |
-| `syncRunId` | ObjectId | [VERIFICAR] | — | `interbankingSyncRuns` (M14) |
+| `syncRunId` | uniqueidentifier | [VERIFICAR] | — | `interbankingSyncRuns` (M14) |
 | `status` | Enum | Sí | `previewed`, `imported`, `rejected`. | — |
 | `importedAt` | Date (fecha y hora) | Cond. | — | — |
-| `importedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `importedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 
 ### 7.15 `bankStatementLines`
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `importId`, `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `bankStatementImports` (M14) / `treasuryAccounts` (M14) |
+| `importId`, `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `bankStatementImports` (M14) / `treasuryAccounts` (M14) |
 | `source` | enum `file`, `interbanking`, `manual` | Sí | — | — |
 | `bookingDate`, `valueDate` | date | Sí | — | — |
 | `description` | string | Sí | — | — |
 | `reference`, `voucherNumber`, `bankSequence` | string | No | `voucher_number`, correlativo. | — |
-| `direction`, `amount`, `currency` | enum, Decimal128, string | Sí | — | — |
-| `runningBalance` | Decimal128 | No | — | — |
+| `direction`, `amount`, `currency` | enum, DECIMAL(18,4), string | Sí | — | — |
+| `runningBalance` | DECIMAL(18,4) | No | — | — |
 | `operationCodeBank`, `operationCodeIb`, `codeDescriptionBank`, `codeDescriptionIb`, `groupingCodeIb` | string | No | `MOV_INTERBANKING`. | — |
 | `depositorCode`, `depositorDescription`, `customerCuit` | string | No | Ordenante. | — |
 | `fingerprint` | string | Sí | RF-TES-034. | — |
-| `suggestedCategoryId` | ObjectId | No | Por regla o código IB. | `treasuryCategories` (M14) |
+| `suggestedCategoryId` | uniqueidentifier | No | Por regla o código IB. | `treasuryCategories` (M14) |
 | `reconciliation` | `{ status, matchId, reconciledAt, reconciledBy, method }` | Sí | — | — |
-| `unidentifiedCaseId` | ObjectId (M07) | No | RF-TES-040. | `unidentifiedReceipts` (M07) (antes "M07, colección [VERIFICAR]"; PA-TES-19) |
+| `unidentifiedCaseId` | uniqueidentifier (M07) | No | RF-TES-040. | `unidentifiedReceipts` (M07) (antes "M07, colección [VERIFICAR]"; PA-TES-19) |
 
 Índices: `{tenantId, accountId, fingerprint}` único; `{tenantId, accountId, reconciliation.status, valueDate}`. Inmutable salvo `reconciliation`, `suggestedCategoryId` y `unidentifiedCaseId` (RN-TES-082). Origen: `MOV_INTERBANKING` (`COD_MOV`, `id`, `account_cbu`, `depositor_code`, `operation_code_ib`, `operation_code_bank`, `code_description_ib`, `customer_cuit`, `depositor_description`, `code_description_bank`, `amount`, `voucher_number`, `grouping_code_ib` y restantes).
 
@@ -862,19 +864,19 @@ Campos de `reconciliations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `cutoffDate` | Date | Sí | — | — |
 | `periodFrom` | Date | [VERIFICAR] | — | — |
-| `statementClosingBalance` | Decimal128 | [VERIFICAR] | — | — |
-| `bookBalance` | Decimal128 | [VERIFICAR] | — | — |
+| `statementClosingBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `bookBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `items` | Object | [VERIFICAR] | Calculados al cerrar: `bankCreditsNotInBook`, `bankDebitsNotInBook`, `bookInNotInBank`, `bookOutNotInBank` con lista de ids y antigüedad. | — |
-| `unexplainedDifference` | Decimal128 | [VERIFICAR] | Debe ser 0 para cerrar. | — |
+| `unexplainedDifference` | DECIMAL(18,4) | [VERIFICAR] | Debe ser 0 para cerrar. | — |
 | `status` | Enum | Sí | `open`, `inReview`, `closed`, `reopened`. | — |
 | `closedAt` | Date (fecha y hora) | Cond. | — | — |
-| `closedBy` | ObjectId | Cond. | — | `memberships` (T02) |
-| `approvedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `closedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `reopenReason` | String | [VERIFICAR] | — | — |
-| `reportRef` | ObjectId | [VERIFICAR] | Reporte de conciliación cerrado (PDF versionado). | `storedFiles` (T01) (antes con `[VERIFICAR]`) |
+| `reportRef` | uniqueidentifier | [VERIFICAR] | Reporte de conciliación cerrado (PDF versionado). | `storedFiles` (T01) (antes con `[VERIFICAR]`) |
 
 ### 7.17 `reconciliationMatches`
 
@@ -884,19 +886,19 @@ Campos de `reconciliationMatches`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
-| `reconciliationId` | ObjectId | Sí | — | `reconciliations` (M14) |
-| `statementLineIds` | [ObjectId] | [VERIFICAR] | — | `bankStatementLines` (M14) |
-| `movementIds` | [ObjectId] | [VERIFICAR] | — | `treasuryMovements` (M14) |
-| `statementTotal` | Decimal128 | [VERIFICAR] | — | — |
-| `bookTotal` | Decimal128 | [VERIFICAR] | — | — |
-| `differenceMovementId` | ObjectId | Cond. | Si se creó en el acto. | `treasuryMovements` (M14) |
+| `treasuryAccountId` | uniqueidentifier | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `reconciliationId` | uniqueidentifier | Sí | — | `reconciliations` (M14) |
+| `statementLineIds` | [uniqueidentifier] | [VERIFICAR] | — | `bankStatementLines` (M14) |
+| `movementIds` | [uniqueidentifier] | [VERIFICAR] | — | `treasuryMovements` (M14) |
+| `statementTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `bookTotal` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `differenceMovementId` | uniqueidentifier | Cond. | Si se creó en el acto. | `treasuryMovements` (M14) |
 | `method` | Enum | [VERIFICAR] | `manual`, `suggestedConfirmed`, `auto`. | — |
-| `ruleId` | ObjectId | [VERIFICAR] | — | `reconciliationRules` (M14) |
-| `score` | Decimal128 | [VERIFICAR] | — | — |
+| `ruleId` | uniqueidentifier | [VERIFICAR] | — | `reconciliationRules` (M14) |
+| `score` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `active`, `undone`. | — |
 | `undoneAt` | Date (fecha y hora) | Cond. | — | — |
-| `undoneBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `undoneBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `undoReason` | String | [VERIFICAR] | — | — |
 
 ### 7.18 `reconciliationRules`
@@ -908,12 +910,12 @@ Campos de `reconciliationRules`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `name` | String | Sí | — | — |
-| `accountIds` | [ObjectId] | [VERIFICAR] | Vacío = todas. | `treasuryAccounts` (M14) |
+| `accountIds` | [uniqueidentifier] | [VERIFICAR] | Vacío = todas. | `treasuryAccounts` (M14) |
 | `priority` | Int | [VERIFICAR] | — | — |
 | `conditions` | Object | [VERIFICAR] | `descriptionPattern`, `operationCodes[]`, `amountFrom`, `amountTo`, `counterpartyCuit`, `direction`, `dateToleranceDays`, `referenceMatch` (`exact`, `contains`, `none`). | — |
 | `action` | Enum | [VERIFICAR] | `match`, `suggestCategory`, `createMovement`. | — |
-| `categoryId` | ObjectId | [VERIFICAR] | — | `serviceCategories` (M02) |
-| `conceptId` | ObjectId | [VERIFICAR] | — | `billableConcepts` (M02) |
+| `categoryId` | uniqueidentifier | [VERIFICAR] | — | `serviceCategories` (M02) |
+| `conceptId` | uniqueidentifier | [VERIFICAR] | — | `billableConcepts` (M02) |
 | `autoConfirm` | Bool | [VERIFICAR] | — | — |
 | `active` | Bool | [VERIFICAR] | — | — |
 | `lastTestedAt` | Date (fecha y hora) | Cond. | — | — |
@@ -936,7 +938,7 @@ Campos de `interbankingConnections`:
 | `lastError` | String | [VERIFICAR] | Sin datos sensibles. | — |
 | `paymentApiEnabled` | Bool | [VERIFICAR] | PA-TES-02. | — |
 | `connectionId` | [VERIFICAR] | [VERIFICAR] | Declarado en T05 (claves de `interbankingConnections`); este anexo no lo describía. [VERIFICAR] si es la conexión de T06. | `integrationConnections` (T06) [VERIFICAR] |
-| `legalEntityId` | ObjectId | [VERIFICAR] | Entidad jurídica titular de la conexión; declarado en T05 y no descrito en este anexo. | `legalEntities` (T04) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | Entidad jurídica titular de la conexión; declarado en T05 y no descrito en este anexo. | `legalEntities` (T04) |
 
 ### 7.20 `interbankingSyncRuns`
 
@@ -946,9 +948,9 @@ Campos de `interbankingSyncRuns`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `connectionId` | ObjectId | Sí | — | `interbankingConnections` (M14) |
+| `connectionId` | uniqueidentifier | Sí | — | `interbankingConnections` (M14) |
 | `kind` | Enum | [VERIFICAR] | `accounts`, `balances`, `movements`. | — |
-| `treasuryAccountId` | ObjectId | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `dateSince` | Date | [VERIFICAR] | — | — |
 | `pages` | [Object] | [VERIFICAR] | `{ page, status, fetched, inserted, duplicates }[]`. | — |
 | `status` | Enum | Sí | `running`, `completed`, `partial`, `failed`. | — |
@@ -964,12 +966,12 @@ Campos de `interbankingBalanceSnapshots`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `at` | Date (fecha y hora) | Sí | Antes `takenAt` (nombre de T05). | — |
-| `bankBalance` | Decimal128 | [VERIFICAR] | — | — |
-| `bookBalance` | Decimal128 | [VERIFICAR] | — | — |
-| `difference` | Decimal128 | [VERIFICAR] | — | — |
-| `availableBalance` | Decimal128 | Cond. | Si informado. | — |
+| `bankBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `bookBalance` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `difference` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `availableBalance` | DECIMAL(18,4) | Cond. | Si informado. | — |
 
 ### 7.22 `paymentFiles`
 
@@ -977,11 +979,11 @@ Campos de `interbankingBalanceSnapshots`:
 |---|---|---|---|---|
 | `purpose` | enum `supplierPayments`, `treasuryTransfers`, `payroll`, `refunds` | Sí | — | — |
 | `format` | string (`interbanking`, `credicoopSheet`, `bnaPayroll`, …) | Sí | Adaptador T06. | — |
-| `originTreasuryAccountId` | ObjectId | Sí | Antes `originAccountId`. RN-TES-059; nombre canónico de T05 COL-TES-21 (PA-TES-19). | `treasuryAccounts` (M14) |
+| `originTreasuryAccountId` | uniqueidentifier | Sí | Antes `originAccountId`. RN-TES-059; nombre canónico de T05 COL-TES-21 (PA-TES-19). | `treasuryAccounts` (M14) |
 | `executionDate` | date | Sí | — | — |
 | `lines` | `{ lineNo, beneficiaryName, beneficiaryCuit, cbu, amount, concept, docType, docBranch, docNumber, withholdingAmount, paymentExecutionId | payrollItemId | refundId, status (pending, sent, accepted, rejected, debited), rejectionCode, rejectionText }[]` | — |
 | `totals` | `{ count, amount }` | Sí | — | — |
-| `storedFileId` | ObjectId | Sí | Antes `fileRef` `{ storageKey, sha256, generatedAt }`. Archivo generado; el hash y la fecha quedan en `storedFiles` (nombre de T05; PA-TES-19). | `storedFiles` (T01) |
+| `storedFileId` | uniqueidentifier | Sí | Antes `fileRef` `{ storageKey, sha256, generatedAt }`. Archivo generado; el hash y la fecha quedan en `storedFiles` (nombre de T05; PA-TES-19). | `storedFiles` (T01) |
 | `transmission` | `{ channel (manualUpload, api), sentAt, sentBy, requestRef, responseRef, acknowledgedAt }` | No | `JSON_ENVIO`, `JSON_RESPUESTA`. | — |
 | `status` | enum `generated`, `sent`, `partiallyAccepted`, `accepted`, `rejected`, `debited`, `voided` | Sí | §8. | — |
 
@@ -992,22 +994,22 @@ Campos de `interbankingBalanceSnapshots`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `format` | enum `physical`, `echeq` | Sí | — | — |
-| `instrumentTypeId` | ObjectId | Sí | — | `instrumentTypes` (M14) |
+| `instrumentTypeId` | uniqueidentifier | Sí | — | `instrumentTypes` (M14) |
 | `institutionId`, `bankBranchId`, `accountNumber`, `checkNumber` | — | Sí | Identidad (RN-TES-028). | `financialInstitutions` (M14) / `bankBranches` (M14) |
 | `echeqId` | string | Cond. | Para eCheq. | — (identificador del eCheq en el banco, externo; no es referencia) |
 | `cmc7` | string | No | Lectora. | — |
 | `drawer` | `{ name, cuit, drawerAccountId }` | Sí | — | — |
 | `issueDate`, `paymentDate` | date | Sí | — | — |
 | `deferred` | bool | Sí | — | — |
-| `amount`, `currency` | Decimal128, string | Sí | — | — |
+| `amount`, `currency` | DECIMAL(18,4), string | Sí | — | — |
 | `endorsements` | `{ name, cuit }[]` | No | — | — |
 | `echeqFlags` | `{ toOrder, crossed, custody, aval }` | No | — | — |
 | `origin` | `{ module, docId, memberAccountId, customerId, supplierId, cashSessionId }` | Sí | — | — |
-| `custodyAccountId` | ObjectId | Sí | Caja de tesorería, cuenta de rechazados, etc. | `treasuryAccounts` (M14) |
+| `custodyAccountId` | uniqueidentifier | Sí | Caja de tesorería, cuenta de rechazados, etc. | `treasuryAccounts` (M14) |
 | `state` | enum `received`, `pendingAcceptance`, `inPortfolio`, `deliveredToSupplier`, `deposited`, `credited`, `rejected`, `recovered`, `returned`, `voided`, `manualOut`, `inCustody`, `negotiated`, `repudiated` | Sí | §8 (estados 1–10 de ProCoop + eCheq). | — |
 | `availableForPayments` | `{ enabled, at, by }` | Sí | `PERPAGPRO`, `FECPERPAG`, `USUPERPAG`. | — |
 | `depositId`, `deliveredPaymentExecutionId`, `rejection` (`{ date, reason, bankCode, depositAccountId, recoveredById }`) | — | No | — | `bankDeposits` (M14) / `paymentExecutions` (M14) |
-| `treasuryMovementIds[]` | ObjectId | Sí | `NUM_TES`, `ID_TESO`. | `treasuryMovements` (M14) |
+| `treasuryMovementIds[]` | uniqueidentifier | Sí | `NUM_TES`, `ID_TESO`. | `treasuryMovements` (M14) |
 
 Índices: `{tenantId, institutionId, bankBranchId, accountNumber, checkNumber}` único parcial (`state != voided`); `{tenantId, state, paymentDate}`; `{tenantId, echeqId}` único parcial. Origen: `VALORES` (`INTERNO`, `ID_PLA`, `COD_CJ`, `SUC_CJ`, `NUM_CJ`, `FECHA`, `COD_SOC`, `COD_PER`, `COD_SUM`, `NUM_CHEQ`, `BAN_CHEQ`, `SUC_CHEQ`, `FEC_CHEQ`, `ID_ESTA`, `PERPAGPRO`, `FECPERPAG`, `USUPERPAG`, `NUM_TES` y restantes hasta 44 columnas), `VALORES1` (sentido de egreso), `VAL_ESTA`.
 
@@ -1020,14 +1022,14 @@ Campos de `checkEvents`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `checkKind` | Enum | [VERIFICAR] | `thirdParty`, `own`. | — |
-| `checkId` | ObjectId | Sí | — | `thirdPartyChecks` u `ownChecks` (M14), según `checkKind` |
+| `checkId` | uniqueidentifier | Sí | — | `thirdPartyChecks` u `ownChecks` (M14), según `checkKind` |
 | `fromState` | Enum | [VERIFICAR] | Estado de §8.4 o §8.5 según el tipo de cheque (campo checkKind); vacío en el evento de alta del cheque. `checkEvents` registra transiciones y no tiene máquina propia (§8.16.12; PA-TES-19). | — |
 | `toState` | Enum | Sí | Estado de §8.4 o §8.5 según el tipo de cheque (campo checkKind). | — |
 | `at` | Date (fecha y hora) | Sí | — | — |
-| `userId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `userId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `notes` | String | [VERIFICAR] | — | — |
-| `treasuryAccountId` | ObjectId | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
-| `movementId` | ObjectId | [VERIFICAR] | — | `treasuryMovements` (M14) |
+| `treasuryAccountId` | uniqueidentifier | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `movementId` | uniqueidentifier | [VERIFICAR] | — | `treasuryMovements` (M14) |
 | `externalRef` | String | [VERIFICAR] | Operación eCheq del banco. | — (identificador externo del banco; no es referencia) |
 
 ### 7.25 `checkbooks`
@@ -1038,14 +1040,14 @@ Campos de `checkbooks`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `format` | Enum | [VERIFICAR] | `physical`, `echeq`. | — |
 | `description` | String | [VERIFICAR] | `DES_CHEQ`. | — |
 | `fromNumber` | Int | [VERIFICAR] | — | — |
 | `quantity` | Int | [VERIFICAR] | — | — |
 | `printTemplateKey` | String | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `active`, `exhausted`, `voided`. | — |
-| `createdBy` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `createdBy` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `code` | String | Sí | Código de la chequera; T05 lo declara único y este anexo no lo describía ([VERIFICAR] formato). | — |
 
 ### 7.26 `ownChecks`
@@ -1056,23 +1058,23 @@ Campos de `ownChecks`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `checkbookId` | ObjectId | Sí | — | `checkbooks` (M14) |
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `checkbookId` | uniqueidentifier | Sí | — | `checkbooks` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `format` | Enum | [VERIFICAR] | — | — |
 | `number` | String | Sí | 0 hasta emitir en eCheq. | — |
 | `state` | Enum | Sí | `available`, `issued`, `pendingAcceptance`, `accepted`, `repudiated`, `debited`, `voided`, `rejected`, `recovered`. | — |
 | `stateAt` | Date (fecha y hora) | Cond. | `FESTADO`. | — |
 | `issueDate` | Date | [VERIFICAR] | — | — |
 | `paymentDate` | Date | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `beneficiary` | Object | [VERIFICAR] | `{ name, cuit, supplierId }`. | — |
 | `flags` | Object | [VERIFICAR] | `bearer`, `crossed`, `notToOrder`. Marcas booleanas `bearer`, `crossed`, `notToOrder`. | — |
-| `paymentExecutionId` | ObjectId | Sí | `ID_PPAGO`. | `paymentExecutions` (M14) |
-| `movementId` | ObjectId | [VERIFICAR] | `COD_RES`. | `treasuryMovements` (M14) |
+| `paymentExecutionId` | uniqueidentifier | Sí | `ID_PPAGO`. | `paymentExecutions` (M14) |
+| `movementId` | uniqueidentifier | [VERIFICAR] | `COD_RES`. | `treasuryMovements` (M14) |
 | `printed` | Object | [VERIFICAR] | `{ at, by, count }`. | — |
 | `echeqId` | String | [VERIFICAR] | Identificador del eCheq en el banco (externo). | — (externo; no es referencia) |
 | `notes` | String | [VERIFICAR] | — | — |
-| `generatedBy` | ObjectId | Cond. | `USU_GEN`. | `memberships` (T02) |
+| `generatedBy` | uniqueidentifier | Cond. | `USU_GEN`. | `memberships` (T02) |
 
 ### 7.27 `cardPlans`
 
@@ -1088,18 +1090,18 @@ Campos de `cardVouchers`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cardPlanId` | ObjectId | Sí | — | `cardPlans` (M07) |
+| `cardPlanId` | uniqueidentifier | Sí | — | `cardPlans` (M07) |
 | `voucherNumber` | String | Sí | `CUP_TARJ`. | — |
 | `authorizationCode` | String | Sí | `AUT_TARJ`. | — |
 | `installments` | Int | [VERIFICAR] | — | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `currency` | String | [VERIFICAR] | — | — |
 | `collectionDate` | Date | [VERIFICAR] | — | — |
 | `origin` | Object | [VERIFICAR] | `{ module, receiptId, memberAccountId, cashSessionId }`; `ID_PLA`, `COD_CJ`, `SUC_CJ`, `NUM_CJ`, `COD_SOC`, `COD_PER`, `COD_SUM`. | — |
 | `treasuryDate` | Date | [VERIFICAR] | — | — |
 | `state` | Enum | Sí | `collected`, `inTreasury`, `presented`, `settled`, `rejected`, `voided`. | — |
-| `presentationId` | ObjectId | [VERIFICAR] | — | `cardPresentations` (M14) |
-| `settlementId` | ObjectId | [VERIFICAR] | — | `cardSettlements` (M14) |
+| `presentationId` | uniqueidentifier | [VERIFICAR] | — | `cardPresentations` (M14) |
+| `settlementId` | uniqueidentifier | [VERIFICAR] | — | `cardSettlements` (M14) |
 | `rejection` | Object | [VERIFICAR] | `{ date, reason, memberDocumentRef }`; `RECHAZADO`, `FEC_RECHAZO`. | — |
 
 ### 7.29 `cardPresentations`
@@ -1110,11 +1112,11 @@ Campos de `cardPresentations`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cardPlanId` | ObjectId | Sí | — | `cardPlans` (M07) |
+| `cardPlanId` | uniqueidentifier | Sí | — | `cardPlans` (M07) |
 | `presentedAt` | Date (fecha y hora) | Cond. | — | — |
-| `voucherIds` | [ObjectId] | [VERIFICAR] | — | `cardVouchers` (M14) |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
-| `movementId` | ObjectId | [VERIFICAR] | — | `treasuryMovements` (M14) |
+| `voucherIds` | [uniqueidentifier] | [VERIFICAR] | — | `cardVouchers` (M14) |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `movementId` | uniqueidentifier | [VERIFICAR] | — | `treasuryMovements` (M14) |
 | `automatic` | Bool | [VERIFICAR] | Débito. | — |
 | `status` | Enum | Sí | `presented`, `voided`. | — |
 | `number` | String | Sí | Número de la presentación; T05 lo declara único y este anexo no lo describía ([VERIFICAR] formato). | — |
@@ -1127,21 +1129,21 @@ Campos de `cardSettlements`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cardPlanId` | ObjectId | Sí | — | `cardPlans` (M07) |
+| `cardPlanId` | uniqueidentifier | Sí | — | `cardPlans` (M07) |
 | `settlementDate` | Date | [VERIFICAR] | `FEC_PAG`. | — |
 | `settlementNumber` | String | Sí | — | — |
-| `voucherIds` | [ObjectId] | [VERIFICAR] | — | `cardVouchers` (M14) |
-| `grossAmount` | Decimal128 | [VERIFICAR] | `IMP_PRE`. | — |
-| `netAmount` | Decimal128 | [VERIFICAR] | `IMP_PAG`. | — |
-| `commission` | Decimal128 | [VERIFICAR] | `COMISIO`. | — |
-| `commissionVat` | Decimal128 | [VERIFICAR] | `IVA`. | — |
-| `commissionDiffVat` | Decimal128 | [VERIFICAR] | — | — |
-| `exemptAmount` | Decimal128 | [VERIFICAR] | — | — |
-| `taxes` | Decimal128 | [VERIFICAR] | — | — |
+| `voucherIds` | [uniqueidentifier] | [VERIFICAR] | — | `cardVouchers` (M14) |
+| `grossAmount` | DECIMAL(18,4) | [VERIFICAR] | `IMP_PRE`. | — |
+| `netAmount` | DECIMAL(18,4) | [VERIFICAR] | `IMP_PAG`. | — |
+| `commission` | DECIMAL(18,4) | [VERIFICAR] | `COMISIO`. | — |
+| `commissionVat` | DECIMAL(18,4) | [VERIFICAR] | `IVA`. | — |
+| `commissionDiffVat` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `exemptAmount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `taxes` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `withholdings` | [Object] | [VERIFICAR] | `{ type (vat, incomeTax, grossIncome, socialSecurity), amount, certificateNumber, receivedWithholdingId }[]`; `RET_IVA`, `RET_GAN`, `RET_IBR`. | — |
-| `treasuryAccountId` | ObjectId | [VERIFICAR] | Antes `bankAccountId`, T05 §7.2. | `treasuryAccounts` (M14) |
-| `expenseDocumentRef` | ObjectId | [VERIFICAR] | M12. | `supplierInvoices` (M12) [VERIFICAR] |
-| `treasuryMovementId` | ObjectId | Sí | Antes `movementId` (nombre de T05). | `treasuryMovements` (M14) |
+| `treasuryAccountId` | uniqueidentifier | [VERIFICAR] | Antes `bankAccountId`, T05 §7.2. | `treasuryAccounts` (M14) |
+| `expenseDocumentRef` | uniqueidentifier | [VERIFICAR] | M12. | `supplierInvoices` (M12) [VERIFICAR] |
+| `treasuryMovementId` | uniqueidentifier | Sí | Antes `movementId` (nombre de T05). | `treasuryMovements` (M14) |
 | `status` | Enum | Sí | `registered`, `credited`, `voided`. | — |
 
 ### 7.31 `receivedWithholdings`
@@ -1153,17 +1155,17 @@ Campos de `receivedWithholdings`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `withholdingType` | Enum | Sí | `grossIncome` 1, `vat` 2, `incomeTax` 3, `socialSecurity` 4. | — |
-| `withholdingSufferedTypeId` | ObjectId | Sí | Antes `regimeId` (nombre de T05). M06. | `withholdingSufferedTypes` (M06) |
+| `withholdingSufferedTypeId` | uniqueidentifier | Sí | Antes `regimeId` (nombre de T05). M06. | `withholdingSufferedTypes` (M06) |
 | `jurisdiction` | String | [VERIFICAR] | — | — |
 | `agent` | Object | [VERIFICAR] | `{ name, cuit, memberAccountId, supplierId }`. | — |
 | `certificateNumber` | String | Sí | `NUM_RETE`. | — |
 | `certificateDate` | Date | [VERIFICAR] | `FEC_RETE`. | — |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
-| `taxBase` | Decimal128 | [VERIFICAR] | — | — |
-| `attachmentRef` | ObjectId | [VERIFICAR] | — | `storedFiles` (T01) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `taxBase` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `attachmentRef` | uniqueidentifier | [VERIFICAR] | — | `storedFiles` (T01) |
 | `origin` | Object | Sí | `{ module, docId, cashSessionId, cardSettlementId }`; `ID_PLA`, `COD_CJ`, `SUC_CJ`, `NUM_CJ`, `COD_SOC`, `COD_PER`, `COD_SUM`. | — |
 | `state` | Enum | Sí | `received`, `inPortfolio`, `presented`, `out`, `voided`. | — |
-| `presentationId` | ObjectId | [VERIFICAR] | — | `withholdingPresentations` (M14) |
+| `presentationId` | uniqueidentifier | [VERIFICAR] | — | `withholdingPresentations` (M14) |
 | `out` | Object | [VERIFICAR] | `{ date, destination, reason }`; `FEC_SALIDA`. | — |
 | `fiscalComputation` | Object | [VERIFICAR] | `{ status, ddjjRef }` informado por M06. | — |
 
@@ -1178,9 +1180,9 @@ Campos de `withholdingPresentations`:
 | `number` | String | Sí | Número de la presentación, único por tenant (T05; PA-TES-19). | — |
 | `kind` | Enum | [VERIFICAR] | `presentation`, `out`. | — |
 | `date` | Date | [VERIFICAR] | — | — |
-| `receivedWithholdingIds` | [ObjectId] | [VERIFICAR] | Antes `withholdingIds` (nombre de T05). | `receivedWithholdings` (M14) |
-| `total` | Decimal128 | [VERIFICAR] | — | — |
-| `movementId` | ObjectId | [VERIFICAR] | — | `treasuryMovements` (M14) |
+| `receivedWithholdingIds` | [uniqueidentifier] | [VERIFICAR] | Antes `withholdingIds` (nombre de T05). | `receivedWithholdings` (M14) |
+| `total` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `movementId` | uniqueidentifier | [VERIFICAR] | — | `treasuryMovements` (M14) |
 | `automatic` | Bool | [VERIFICAR] | — | — |
 | `status` | Enum | Sí | `posted`, `voided`. | — |
 
@@ -1192,16 +1194,16 @@ Campos de `paymentCashSessions`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). Caja de pagos. | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). Caja de pagos. | `treasuryAccounts` (M14) |
 | `date` | Date | Sí | — | — |
-| `branchId` | ObjectId | [VERIFICAR] | — | `branches` (T04) |
-| `userId` | ObjectId | Sí | Antes `responsibleUserId` (nombre de T05). `USUARIO`. | `memberships` (T02) |
+| `branchId` | uniqueidentifier | [VERIFICAR] | — | `branches` (T04) |
+| `userId` | uniqueidentifier | Sí | Antes `responsibleUserId` (nombre de T05). `USUARIO`. | `memberships` (T02) |
 | `openedAt` | Date (fecha y hora) | [VERIFICAR] | `APERTURA`. | — |
 | `closedAt` | Date (fecha y hora) | Cond. | `CIERRE`. | — |
-| `maxCash` | Decimal128 | [VERIFICAR] | `MAXEFEC`. | — |
+| `maxCash` | DECIMAL(18,4) | [VERIFICAR] | `MAXEFEC`. | — |
 | `allowed` | Object | [VERIFICAR] | `{ ownChecks (PAGACHEQ), values (PAGAVALO), cash (PAGAEFEC), transfers (PAGATRANSF) }`. | — |
 | `autoOpened` | Bool | [VERIFICAR] | — | — |
-| `cashPaidToday` | Decimal128 | No | Derivado. | — |
+| `cashPaidToday` | DECIMAL(18,4) | No | Derivado. | — |
 | `count` | Object | [VERIFICAR] | `{ counted, theoretical, difference, shortageMovementId }`. | — |
 | `status` | Enum | Sí | `open`, `closed`, `reopened`. | — |
 
@@ -1209,8 +1211,8 @@ Campos de `paymentCashSessions`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `cashSessionId` | ObjectId (M07) | Sí | Único: una rendición por caja (`CAJAS.ID_CAJ`). | `cashSessions` (M07) |
-| `treasuryHandoverId` | ObjectId → `treasuryHandovers` (M07) | Sí | Entrega de caja de M07 que esta rendición recibe: M07 registra la entrega y M14 la recepción (CTR-DAT-64). | `treasuryHandovers` (M07) |
+| `cashSessionId` | uniqueidentifier (M07) | Sí | Único: una rendición por caja (`CAJAS.ID_CAJ`). | `cashSessions` (M07) |
+| `treasuryHandoverId` | uniqueidentifier → `treasuryHandovers` (M07) | Sí | Entrega de caja de M07 que esta rendición recibe: M07 registra la entrega y M14 la recepción (CTR-DAT-64). | `treasuryHandovers` (M07) |
 | `legalEntityTotals` | `{ legalEntityId, declaredTotal, theoreticalTotal, countedTotal, treasuryAccountId, operationId }[]` | Sí | Apertura de la rendición por entidad jurídica (DEC-064, DEC-087: un cobro de caja puede cubrir varias entidades y M07 emite un recibo por entidad). Con una sola entidad tiene un elemento. Al aceptar se genera una operación por entidad sobre una cuenta de tesorería de esa entidad (RN-TES-086). | — |
 | `cashSessionNumber`, `sessionDate`, `cashierUserId`, `branchId` | — | Sí | `NUM_CAJ`, `FECHA`, `USUARIO`. | `memberships` (T02) / `branches` (T04) |
 | `multiDay` | `{ enabled, sessionIds[] }` | No | P2688. | — |
@@ -1218,9 +1220,9 @@ Campos de `paymentCashSessions`:
 | `theoretical` | igual estructura | Sí | Según operaciones de M07. | — |
 | `counted` | `{ cashByCurrency[] (con denominaciones opcionales), verifiedCheckIds[], verifiedVoucherIds[], verifiedWithholdingIds[] }` | Cond. | Al recibir. | — |
 | `differences` | `{ cash, missingItems[] }` | Sí | `TOT_DIF`. | — |
-| `treasuryAccountId` | ObjectId | Sí | Caja de tesorería receptora. | `treasuryAccounts` (M14) |
-| `operationId` | ObjectId | Cond. | Al aceptar. | `operations` (T11) |
-| `shortageMovementId` | ObjectId | No | — | `treasuryMovements` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Caja de tesorería receptora. | `treasuryAccounts` (M14) |
+| `operationId` | uniqueidentifier | Cond. | Al aceptar. | `operations` (T11) |
+| `shortageMovementId` | uniqueidentifier | No | — | `treasuryMovements` (M14) |
 | `observation` | `{ reason, at, by, resolution }` | No | — | — |
 | `status` | enum `pendingReception`, `inReview`, `observed`, `accepted`, `acceptedWithDifference`, `voided` | Sí | §8. | — |
 | `zeroCash` | bool | Sí | Caja en cero. | — |
@@ -1235,18 +1237,18 @@ Campos de `treasuryCashClosings`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `treasuryAccountId` | ObjectId | Sí | Antes `accountId` (nombre de T05). Caja de tesorería. | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | Sí | Antes `accountId` (nombre de T05). Caja de tesorería. | `treasuryAccounts` (M14) |
 | `date` | Date | Sí | — | — |
 | `openingBalance` | Object | [VERIFICAR] | Por moneda. | — |
-| `totalIn` | Decimal128 | [VERIFICAR] | — | — |
-| `totalOut` | Decimal128 | [VERIFICAR] | — | — |
+| `totalIn` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `totalOut` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `theoretical` | Object | [VERIFICAR] | Saldo teórico por moneda. | — |
 | `counted` | Object | [VERIFICAR] | Por moneda y denominación. | — |
-| `difference` | Decimal128 | [VERIFICAR] | — | — |
-| `shortageMovementId` | ObjectId | [VERIFICAR] | — | `treasuryMovements` (M14) |
+| `difference` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `shortageMovementId` | uniqueidentifier | [VERIFICAR] | — | `treasuryMovements` (M14) |
 | `closedAt` | Date (fecha y hora) | Cond. | — | — |
-| `closedBy` | ObjectId | Cond. | — | `memberships` (T02) |
-| `approvedBy` | ObjectId | Cond. | — | `memberships` (T02) |
+| `closedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | Cond. | — | `memberships` (T02) |
 | `status` | Enum | Sí | `open`, `closed`, `reopened`. | — |
 | `reopen` | Object | [VERIFICAR] | `{ at, by, reason }`. | — |
 
@@ -1258,14 +1260,14 @@ Campos de `treasuryCashClosings`:
 | `sourceRef` | `{ module (cmp, fis, cob, sue), docId, docNumber }` | Sí | OP (`ID_PPAGO`), obligación fiscal, reintegro. Con `module = fis`, `docId` es el `_id` de la obligación de `taxObligations` de M06 que el pago cancela (DEC-095). | Polimórfica según `module`: `paymentOrders` (M12), `taxObligations` (M06), reintegro de M07 o `payrollRuns` (M16) |
 | `taxObligation` | `{ taxObligationId, ownTaxObligationId, taxAgentRegistrationId, legalEntityId, tax, period }` | Cond. | Obligatorio si `kind = agencyObligation` (DEC-095): identifica la obligación de M06 que cancela el pago (`taxObligationId` = `sourceRef.docId`) y copia de ella, al crear la ejecución, `ownTaxObligationId` (obligación propia de la cooperativa como contribuyente) **o** `taxAgentRegistrationId` (obligación como agente), excluyentes como en M06, más entidad jurídica, impuesto y período. Un pago a organismo sin obligación identificada no se puede instrumentar. M14 no recalcula el importe: lo informa M06. | `taxObligations`, `ownTaxObligations`, `taxAgentRegistrations` (M06); `legalEntities` (T04) |
 | `payee` | `{ kind, id, name, cuit, payName (NOM_PAG), toOrder (OPAGO) }` | Sí | — | — |
-| `grossAmount`, `withholdingsAmount`, `netAmount`, `currency` | Decimal128 | Sí | Informados por el origen; TES no los recalcula. | — |
+| `grossAmount`, `withholdingsAmount`, `netAmount`, `currency` | DECIMAL(18,4) | Sí | Informados por el origen; TES no los recalcula. | — |
 | `dueDate`, `scheduledDate` | date | No/No | RF-TES-149. | — |
 | `instruments` | `{ instrument, accountId, amount, currency, exchangeRate, valueDate, issueDate, cbu, ownCheckId, thirdPartyCheckIds[], vepNumber, pendingCashOut, paymentFileLineRef, movementId }[]` | Sí | Σ = `netAmount`. | — |
 | `signatures` | `{ userId, signerId, at, channel (admin, pwa), amountCovered }[]` | No | `PPAGOS_FIRMAS` (`COD_FIRM`, `ID_PAGO`, `COD_USER`, `FECHA`). | — |
 | `requiredSignatures` | int | Sí | Por regla. | — |
 | `delivery` | `{ at, by, receivedByName, receivedByDoc, evidenceRef }` | No | `ENTREGA`. | — |
 | `status` | enum `pending`, `instrumented`, `partiallySigned`, `signed`, `delivered`, `sentToBank`, `executed`, `rejected`, `voided` | Sí | §8. | — |
-| `operationId` | ObjectId | Cond. | — | `operations` (T11) |
+| `operationId` | uniqueidentifier | Cond. | — | `operations` (T11) |
 | `idempotencyKey` | string | Sí | — | — |
 
 Índices: `{tenantId, sourceRef.module, sourceRef.docId}` único parcial (`status != voided`); `{tenantId, status, scheduledDate}`. Origen: `PPAGOS` (`ID_PPAGO`, `FEC_PAG`, `COD_PROV`, `COD_COM`, `SUC_COM`, `NUM_COM`, `COD_VEN`, `PAGO`, `POR_DES`, `IMP_DES`, `SIN_DES`, `RETG`, `RETB`, `FIRMA`, `ENTREGA`, `NOM_PAG` y restantes: **la cabecera de OP y `PPITEMS` migran a M12**; TES migra firma, entrega y medios), `PPAGOS_FIRMAS`, `FIRMASELECTRONICAS` (`COD_FIRM_ELEC`, `COD_USER`, `TIPO`, `ID_TIPO`, `FEC_REG`, `COD_DOC`), `FIRMASELECTRONICAS_DOCUMENTOS` (posiciones de firma en el PDF → plantilla de comprobante).
@@ -1284,7 +1286,7 @@ Campos de `tenantCurrencySettings`:
 | `shortName` | String | [VERIFICAR] | — | — |
 | `symbol` | String | [VERIFICAR] | — | — |
 | `divisible` | Bool | [VERIFICAR] | — | — |
-| `perceptionPercent` | Decimal128 | [VERIFICAR] | `POR_PER`, [VERIFICAR] uso. | — |
+| `perceptionPercent` | DECIMAL(18,4) | [VERIFICAR] | `POR_PER`, [VERIFICAR] uso. | — |
 | `roundingRule` | Enum | [VERIFICAR] | `REDONDEO`. Valores [VERIFICAR]. | — |
 | `allowsChange` | Bool | [VERIFICAR] | `PER_VUELTO`. | — |
 | `allowedInCash` | Bool | [VERIFICAR] | `PERMITIDO`. | — |
@@ -1301,11 +1303,11 @@ Campos de `exchangeRates`:
 |---|---|---|---|---|
 | `currency` | String | Sí | — | — |
 | `quotedAt` | Date (fecha y hora) | Sí | Fecha y hora. | — |
-| `buyRate` | Decimal128 | [VERIFICAR] | — | — |
-| `sellRate` | Decimal128 | [VERIFICAR] | `COT_DOLAR`, `COTIZACION_VENTA`. | — |
+| `buyRate` | DECIMAL(18,4) | [VERIFICAR] | — | — |
+| `sellRate` | DECIMAL(18,4) | [VERIFICAR] | `COT_DOLAR`, `COTIZACION_VENTA`. | — |
 | `source` | Enum | Sí | `arca`, `bna`, `manual`. | — |
 | `sourceRef` | String | [VERIFICAR] | Referencia de la publicación de origen. | — (texto de la fuente de la cotización, p. ej. BCRA; no es referencia) |
-| `approvedBy` | ObjectId | Cond. | Manual. | `memberships` (T02) |
+| `approvedBy` | uniqueidentifier | Cond. | Manual. | `memberships` (T02) |
 
 ### 7.39 `plannedCashItems`
 
@@ -1317,15 +1319,15 @@ Campos de `plannedCashItems`:
 |---|---|---|---|---|
 | `direction` | Enum | [VERIFICAR] | — | — |
 | `counterparty` | Object | [VERIFICAR] | `{ kind, id, name }`; `COD_PROV`. | — |
-| `conceptRef` | ObjectId | [VERIFICAR] | `COD_CON`, `COD_PRO`. | `treasuryConcepts` (M14) |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `conceptRef` | uniqueidentifier | [VERIFICAR] | `COD_CON`, `COD_PRO`. | `treasuryConcepts` (M14) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `currency` | String | [VERIFICAR] | — | — |
 | `periodicity` | Enum | [VERIFICAR] | `once`, `monthly` 1, `bimonthly` 2, `quarterly` 3, `weekly` 4, `biweekly` 5. | — |
 | `startDate` | Date | [VERIFICAR] | `FEC_INI`. | — |
 | `endDate` | Date | [VERIFICAR] | `FEC_FIN`. | — |
-| `treasuryAccountId` | ObjectId | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `dimensions` | Object | [VERIFICAR] | — | — |
-| `scenarioId` | ObjectId | [VERIFICAR] | Null = base. | `cashFlowScenarios` (M14) |
+| `scenarioId` | uniqueidentifier | [VERIFICAR] | Null = base. | `cashFlowScenarios` (M14) |
 | `active` | Bool | [VERIFICAR] | — | — |
 | `sourceRef` | Object | No | Documento de origen `{ module, docId }`; T05 lo declara como referencia y este anexo no lo describía [VERIFICAR]. | Documento del módulo de origen (polimórfica) |
 
@@ -1338,14 +1340,14 @@ Campos de `fundCommitments`:
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
 | `sourceRef` | Object | [VERIFICAR] | `{ module (cmp, tes, manual), docId }`. | Polimórfica según `module`: `purchaseOrders` (M12) o documento de M14; `manual` sin referencia |
-| `commitmentRef` | ObjectId | Sí | Compartida con M15. | `commitments` (M15) |
-| `amount` | Decimal128 | [VERIFICAR] | — | — |
+| `commitmentRef` | uniqueidentifier | Sí | Compartida con M15. | `commitments` (M15) |
+| `amount` | DECIMAL(18,4) | [VERIFICAR] | — | — |
 | `currency` | String | [VERIFICAR] | — | — |
 | `expectedPaymentDate` | Date | [VERIFICAR] | — | — |
-| `treasuryAccountId` | ObjectId | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
+| `treasuryAccountId` | uniqueidentifier | [VERIFICAR] | Antes `accountId` (nombre de T05). | `treasuryAccounts` (M14) |
 | `dimensions` | Object | [VERIFICAR] | `serviceId`, `costCenterId`. | — |
 | `consumed` | Object | [VERIFICAR] | `{ accrued, paid }`. | — |
-| `remaining` | Decimal128 | No | Derivado. | — |
+| `remaining` | DECIMAL(18,4) | No | Derivado. | — |
 | `status` | Enum | Sí | `active`, `partiallyConsumed`, `consumed`, `released`, `cancelled`. | — |
 | `releases` | [Object] | [VERIFICAR] | `{ at, amount, reason }[]`. | — |
 
@@ -1362,7 +1364,7 @@ Campos de `cashFlowScenarios`:
 | `baseDate` | Date | [VERIFICAR] | — | — |
 | `horizonDays` | Int | [VERIFICAR] | — | — |
 | `assumptions` | Object | [VERIFICAR] | `collectibilityCurve[]` por antigüedad, `creditDelayDays`, `postponedPayments[]`, `extraItems[]`. | — |
-| `ownerUserId` | ObjectId | [VERIFICAR] | — | `memberships` (T02) |
+| `ownerUserId` | uniqueidentifier | [VERIFICAR] | — | `memberships` (T02) |
 | `isSimulation` | Bool | [VERIFICAR] | Valor fijo `true`. | — |
 | `status` | Enum | Sí | `draft`, `active`, `archived` (valores de §8.16.10, asumidos en PA-TES-18; antes propuestos `[VERIFICAR]` y, antes de eso, sin valores). | — |
 | `code` | String | Sí | Código del escenario; T05 lo declara único y este anexo no lo describía. | — |
@@ -1371,7 +1373,7 @@ Campos de `cashFlowScenarios`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `scenarioId` | ObjectId | Sí | Null = base. | `cashFlowScenarios` (M14) |
+| `scenarioId` | uniqueidentifier | Sí | Null = base. | `cashFlowScenarios` (M14) |
 | `takenAt` | Date (fecha y hora) | Cond. | — | — |
 | `granularity` | Enum | [VERIFICAR] | — | — |
 | `rows` | [Object] | [VERIFICAR] | `{ date, accountId, currency, openingBalance, inflowsBySource{}, outflowsBySource{}, closingBalance }[]`. | — |
@@ -1385,15 +1387,15 @@ Campos de `payrollPaymentBatches`:
 
 | Campo | Tipo | Oblig. | Descripción | Referencia |
 |---|---|---|---|---|
-| `payrollRunId` | ObjectId | Sí | Antes `payrollRunRef` (nombre de T05). M16. | `payrollRuns` (M16) |
+| `payrollRunId` | uniqueidentifier | Sí | Antes `payrollRunRef` (nombre de T05). M16. | `payrollRuns` (M16) |
 | `period` | String | [VERIFICAR] | — | — |
-| `legalEntityId` | ObjectId | [VERIFICAR] | Antes `companyRef`. Empleador del lote (DEC-064; nombre canónico de T05 §7.2; PA-TES-19). | `legalEntities` (T04) |
-| `originTreasuryAccountId` | ObjectId | Sí | Antes `originAccountId`; nombre canónico de T05 §7.2.1 (PA-DAT-04). | `treasuryAccounts` (M14) |
+| `legalEntityId` | uniqueidentifier | [VERIFICAR] | Antes `companyRef`. Empleador del lote (DEC-064; nombre canónico de T05 §7.2; PA-TES-19). | `legalEntities` (T04) |
+| `originTreasuryAccountId` | uniqueidentifier | Sí | Antes `originAccountId`; nombre canónico de T05 §7.2.1 (PA-DAT-04). | `treasuryAccounts` (M14) |
 | `transferDate` | Date | [VERIFICAR] | — | — |
 | `items` | [Object] | [VERIFICAR] | `{ employeeRef, accountSplits[{ cbu, institutionId, percent, amount }], netAmount, status (pending, sent, accepted, rejected, debited), rejection }[]`; datos de `SU_EMP_CBU` informados por M16. | — |
 | `totals` | Object | [VERIFICAR] | — | — |
-| `paymentFileIds` | [ObjectId] | [VERIFICAR] | — | `paymentFiles` (M14) |
-| `movementIds` | [ObjectId] | [VERIFICAR] | — | `treasuryMovements` (M14) |
+| `paymentFileIds` | [uniqueidentifier] | [VERIFICAR] | — | `paymentFiles` (M14) |
+| `movementIds` | [uniqueidentifier] | [VERIFICAR] | — | `treasuryMovements` (M14) |
 | `status` | Enum | Sí | `received`, `fileGenerated`, `sent`, `partiallyExecuted`, `executed`, `voided`. | — |
 | `confidential` | Bool | [VERIFICAR] | Valor fijo `true`. | — |
 
