@@ -16,7 +16,7 @@ Generado automáticamente el **19-11-2026** por `_trabajo/audit_impacto_stack.py
 
 ### Interpretación
 
-- **C-05 (19-11):** anexos M/T con nota **Barrido C-05** tras `## 7.` + banner; tokens Mongo en tablas §7 = lógico hasta barrido fino.
+- **C-05 (19-11):** nota §7 + **barrido fino** (`barrido_c05_fino_sec7.py`); residuos Mongo abajo = §5–§6, T01/T05 histórico o texto comparativo.
 - Residuos **no esperados** en presentación export (DIR-13) sin nota de reemplazo; entregables: **C-10 cerrado** (`00-C10-CIERRE-STACK.md`).
 
 ## Anexos sin banner normativo
