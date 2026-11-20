@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T01:29:20.822Z",
+  "generatedAt": "2026-11-20T01:36:12.851Z",
   "zips": [
     {
       "name": "01-especificacion.zip",
@@ -8,7 +8,7 @@
     },
     {
       "name": "02-entregables-analisis-diseno.zip",
-      "bytes": 8494552,
+      "bytes": 8494563,
       "package": "entregables"
     },
     {
