@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <script src="/GACAC-docs/auth-guard.js"></script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cuestionario de decisiones · GACAC</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="inner">
+      <h1>Decisiones · copia de trabajo</h1>
+      <div class="toolbar">
+        <button type="button" id="btn-open">Abrir MD</button>
+        <button type="button" id="btn-save-file">Guardar archivo</button>
+        <button type="button" id="btn-export">Exportar MD</button>
+        <label class="file-btn sr-only">
+          Archivo
+          <input type="file" id="file-input" accept=".md,text/markdown">
+        </label>
+      </div>
+    </div>
+    <div class="inner">
+      <span class="progress" id="prog-text">—</span>
+      <div class="filters">
+        <label for="filtro">Ver</label>
+        <select id="filtro">
+          <option value="todas">Todas</option>
+          <option value="pendientes">Sin responder (mías)</option>
+          <option value="respondidas">Ya respondidas (mías)</option>
+        </select>
+        <label for="ir-id">Ir a</label>
+        <select id="ir-id"><option value="">—</option></select>
+      </div>
+    </div>
+    <div class="inner bar-progress" aria-hidden="true"><span id="prog-bar" style="width:0%"></span></div>
+  </header>
+  <main class="wrap" id="app" aria-live="polite">
+    <p class="empty">Cargando…</p>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
