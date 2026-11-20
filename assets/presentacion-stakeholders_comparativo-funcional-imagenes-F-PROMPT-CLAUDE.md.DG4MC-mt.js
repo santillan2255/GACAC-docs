@@ -1,0 +1,64 @@
+import{f as n,o as s,c as e,a2 as p}from"./chunks/framework.BUDOXiIz.js";const m=JSON.parse('{"title":"Prompt Claude — comparativo FUNCIONAL (IMG-F) sin códigos internos","description":"","frontmatter":{},"headers":[],"relativePath":"presentacion-stakeholders/comparativo-funcional-imagenes-F-PROMPT-CLAUDE.md","filePath":"presentacion-stakeholders/comparativo-funcional-imagenes-F-PROMPT-CLAUDE.md","lastUpdated":null}'),o={name:"presentacion-stakeholders/comparativo-funcional-imagenes-F-PROMPT-CLAUDE.md"};function l(i,a,r,c,t,u){return s(),e("div",null,[...a[0]||(a[0]=[p(`<h1 id="prompt-claude-—-comparativo-funcional-img-f-sin-codigos-internos" tabindex="-1">Prompt Claude — comparativo FUNCIONAL (IMG-F) sin códigos internos <a class="header-anchor" href="#prompt-claude-—-comparativo-funcional-img-f-sin-codigos-internos" aria-label="Permalink to &quot;Prompt Claude — comparativo FUNCIONAL (IMG-F) sin códigos internos&quot;">​</a></h1><p><strong>Problema que corrige:</strong> las IMG-V mostraban <code>M16</code>, <code>T04</code>, <code>PC-077</code> → ilegible para gerencia y usuarios.</p><p><strong>Fuente de verdad:</strong> <a href="./comparativo-funcional-megaspec-unificado"><code>comparativo-funcional-megaspec-unificado.md</code></a> (gerencia + operación + Ref. técnica al final).</p><hr><h2 id="_1-bloque-para-pegar-en-claude-adjuntar-la-megaspec" tabindex="-1">1. Bloque para pegar en Claude (adjuntar la megaspec) <a class="header-anchor" href="#_1-bloque-para-pegar-en-claude-adjuntar-la-megaspec" aria-label="Permalink to &quot;1. Bloque para pegar en Claude (adjuntar la megaspec)&quot;">​</a></h2><div class="language-text vp-adaptive-theme line-numbers-mode"><button title="Copy Code" class="copy"></button><span class="lang">text</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Sos diseñador de slides para cooperativas de servicios de Argentina (1920×1080, HTML+SVG).</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>OBJETIVO: comparar ProCoop vs CoopApps en LENGUAJE QUE ENTIENDE UN JEFE DE ÁREA.</span></span>
+<span class="line"><span>Audiencias en un solo deck: gerencia (columna &quot;Por qué importa&quot;), operación (&quot;Hoy&quot; / &quot;Con CoopApps&quot;), técnica solo en pie diminuto opcional.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== PROHIBIDO (texto visible de la tabla) ===</span></span>
+<span class="line"><span>M01, M16, T04, T10, O11, SM-*, DFA, RF-, códigos PC-077 en celdas.</span></span>
+<span class="line"><span>NO usar &quot;clave morse&quot; ni abreviaturas de especificación.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== OBLIGATORIO ===</span></span>
+<span class="line"><span>- Nombres del menú ProCoop tal como los ve el empleado (columna Función).</span></span>
+<span class="line"><span>- &quot;Hoy en ProCoop&quot;: qué hace hoy (1 línea concreta).</span></span>
+<span class="line"><span>- &quot;Con CoopApps&quot;: qué hará el equipo (1-2 líneas, verbo + resultado).</span></span>
+<span class="line"><span>- &quot;Cambio&quot;: Igual | Mejor | Nuevo | Modelo distinto | No aplica al usuario</span></span>
+<span class="line"><span>- &quot;Por qué importa&quot;: 1 línea para consejo/gerencia.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== LAYOUT ===</span></span>
+<span class="line"><span>Título: área de negocio (ej. &quot;Sueldos y liquidaciones — comparación&quot;).</span></span>
+<span class="line"><span>Subtítulo: rango en palabras (ej. &quot;Desde Recibos hasta informes de sueldos&quot;).</span></span>
+<span class="line"><span>Tabla 5 columnas, fuente mínima 15px: Función | Hoy en ProCoop | Con CoopApps | Cambio | Por qué importa</span></span>
+<span class="line"><span>Máximo 8 filas; si hay más, parte A / parte B.</span></span>
+<span class="line"><span>Colores: Hoy #F3F4F6/#6B7280; Con CoopApps #1F2937; acento #2E7D32 en filas &quot;Mejor&quot;.</span></span>
+<span class="line"><span>Pie: &quot;Fuente: relevamiento menú ProCoop DEMO + especificación CoopApps&quot;</span></span>
+<span class="line"><span>Pie técnico (8px, gris, opcional): &quot;Refs. implementación: …&quot; solo si yo lo pido.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== FUENTE DE TEXTOS ===</span></span>
+<span class="line"><span>Los textos de columnas &quot;Hoy&quot;, &quot;Con CoopApps&quot; y &quot;Por qué importa&quot; deben coincidir LITERALMENTE con la megaspec adjunta (§2). No acortar ni sustituir por códigos.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== CATÁLOGO IMG-F (usar tablas de la megaspec adjunta) ===</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F00 Portada — título: &quot;ProCoop y CoopApps: misma cooperativa, comparación función por función&quot;</span></span>
+<span class="line"><span>Subtítulo: 120 funciones relevadas · 17 servicios · tres lecturas (operación, gerencia, técnica en anexo)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F01 Leyenda — copiar §0.1 megaspec (etiquetas Cambio)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F02 Plataforma — copiar §1 megaspec (7 filas)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F03 … IMG-F18 Menú — cada uno = un bloque §2.1 … §2.16 de la megaspec (TODAS las filas del bloque, textos literales)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F19 Áreas de negocio — §3 megaspec</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F20 Diecisiete servicios — §4 (partir en A/B si no entra)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F21 Solo en CoopApps — §5</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>IMG-F22 Cierre checklist — 6 ítems: 119/120 menú; multiservicio; socio con marca; mora normativa; migración por etapas; exportación de datos</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== EJEMPLO DE FILA BIEN (no copies datos de otras filas) ===</span></span>
+<span class="line"><span>Función: Variables</span></span>
+<span class="line"><span>Hoy: En ProCoop: tabla de variables que ajustan el recibo</span></span>
+<span class="line"><span>Con CoopApps: Variables de liquidación con parámetros con nombre y vigencia</span></span>
+<span class="line"><span>Cambio: Igual</span></span>
+<span class="line"><span>Por qué importa: (vacío o &quot;Menos dependencia de claves numéricas&quot;)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== EJEMPLO DE FILA MAL (nunca) ===</span></span>
+<span class="line"><span>Con CoopApps: M16 / T04</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>=== RESPUESTA ===</span></span>
+<span class="line"><span>Si escribo &quot;Generá IMG-F10&quot;:</span></span>
+<span class="line"><span>1) HTML+SVG con las filas de §2.10 de la megaspec adjunta.</span></span>
+<span class="line"><span>2) Chat: 3 bullets gerencia + 3 bullets jefe de área (sin códigos).</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Confirmá y esperá el código IMG-F.</span></span></code></pre><div class="line-numbers-wrapper" aria-hidden="true"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br><span class="line-number">50</span><br><span class="line-number">51</span><br><span class="line-number">52</span><br><span class="line-number">53</span><br><span class="line-number">54</span><br><span class="line-number">55</span><br><span class="line-number">56</span><br><span class="line-number">57</span><br><span class="line-number">58</span><br><span class="line-number">59</span><br><span class="line-number">60</span><br><span class="line-number">61</span><br><span class="line-number">62</span><br><span class="line-number">63</span><br></div></div><hr><h2 id="_2-orden-sugerido-de-generacion-22-imagenes" tabindex="-1">2. Orden sugerido de generación (22 imágenes) <a class="header-anchor" href="#_2-orden-sugerido-de-generacion-22-imagenes" aria-label="Permalink to &quot;2. Orden sugerido de generación (22 imágenes)&quot;">​</a></h2><table tabindex="0"><thead><tr><th>Código</th><th>Lote (tabla lista para la slide)</th><th>Megaspec</th></tr></thead><tbody><tr><td>F00–F02</td><td><a href="./comparativo-funcional-imagenes-F-F00-F02-lote"><code>comparativo-funcional-imagenes-F-F00-F02-lote.md</code></a></td><td>§0–§1</td></tr><tr><td>F03–F22</td><td>Carpeta <a href="./img-f-lotes/README"><code>img-f-lotes/</code></a> — un archivo por código</td><td>§2.1–§2.16, §3–§5</td></tr></tbody></table><p><strong>Flujo por imagen:</strong> megaspec + prompt §1 + pedir <code>Generá IMG-Fxx</code> (opcional: pegar también el <code>.md</code> del lote para título y filas).</p><hr><h2 id="_3-mantenimiento" tabindex="-1">3. Mantenimiento <a class="header-anchor" href="#_3-mantenimiento" aria-label="Permalink to &quot;3. Mantenimiento&quot;">​</a></h2><div class="language-text vp-adaptive-theme line-numbers-mode"><button title="Copy Code" class="copy"></button><span class="lang">text</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>python scripts/generate-megaspec-comparativo.py</span></span>
+<span class="line"><span>python scripts/export_img_f_lotes.py</span></span></code></pre><div class="line-numbers-wrapper" aria-hidden="true"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>Regenera la megaspec y los <strong>20 lotes</strong> F03–F22 en <code>img-f-lotes/</code>.</p><p><strong>Impacto stack (norma vigente):</strong> <a href="./../especificacion/06-impacto-adaptacion-stack-goodapps"><code>06-impacto-adaptacion-stack-goodapps.md</code></a> v1.3 — checklist §12, auditoría <code>13-auditoria-impacto-stack.md</code>. En diapositivas de datos usar <strong>tablas Azure SQL</strong> (1.058), no lenguaje Mongo.</p><hr><h2 id="_4-obsoletos" tabindex="-1">4. Obsoletos <a class="header-anchor" href="#_4-obsoletos" aria-label="Permalink to &quot;4. Obsoletos&quot;">​</a></h2><table tabindex="0"><thead><tr><th>No usar para imágenes</th><th>Usar</th></tr></thead><tbody><tr><td>IMG-V00…V35</td><td>IMG-F00…F22</td></tr><tr><td><code>comparativo-funcional-imagenes-exhaustivas-PROMPT-V10-V25-CLAUDE.md</code></td><td>Este archivo + megaspec</td></tr><tr><td><strong>Deck “lo nuevo” (más apps, más capacidad)</strong></td><td><a href="./lo-nuevo-coopapps-vs-procoop-PROMPT-COMPLETO-CLAUDE"><code>lo-nuevo-coopapps-vs-procoop-PROMPT-COMPLETO-CLAUDE.md</code></a> — <strong>IMG-N</strong> → lotes <a href="./img-n-lotes/README"><code>img-n-lotes/</code></a></td></tr></tbody></table>`,18)])])}const b=n(o,[["render",l]]);export{m as __pageData,b as default};
