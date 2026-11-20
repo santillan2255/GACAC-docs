@@ -3,9 +3,12 @@
 > **No es** `docs/especificacion/02-preguntas-abiertas.md` ni el registro de decisiones oficial.
 > Se genera leyendo los anexos; las respuestas viven **solo en este archivo** (y en tus exportaciones).
 > Regenerar: `python build_md.py` (mantiene tus respuestas ya cargadas en esta copia).
+>
+> **Stack vigente (GoodApps):** `06-impacto-adaptacion-stack-goodapps.md` — Azure SQL, no MongoDB (DEC-111).
+> Las preguntas de anexos pueden citar DEC-001 o Mongo; el cuestionario las muestra con aviso de equivalencia.
 
 
-**Total:** 575 preguntas
+**Total:** 583 preguntas
 
 ---
 
@@ -245,6 +248,18 @@
 - **Estado:** Asumida (DEC-072): opción A.
 - **Residual (5-11-2026), Asumida (DEC-072):** el texto de §7.11 y §7.13 se alinea a §7.26 y a T05 (COL-BIA-12, 15, 16): `indicatorSnapshots` y `kpiAlertRules` llevan `indicatorId` (→ `indicatorDefinitions`) como referencia e `indicatorCode` como copia desnormalizada; `kpiAlerts.kpiAlertRuleId` (antes `ruleId`) también en el índice y en la deduplicación del §9; `apiUsageDaily.date` ya estaba alineado (§7.20).
 - **Sincronización (5-11-2026), Asumida (DEC-072):** T10 se suscribe directamente a los canónicos de EVT-COB-04, EVT-COB-05, EVT-COB-06 y EVT-IAM-05 (`iam.role.changed` / `iam.profile.changed`), porque los alias `cob.ledgerEntry.posted` e `iam.roleAssignment.changed` resuelven a un solo canónico (T11 §12.4.1, CNC-WFL-083 y CNC-WFL-089); las fuentes de `bi_fact_payment`, `bi_fact_allocation` y `bi_fact_invoice` citan los canónicos con "antes".
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-BRD-01 — Marca CoopApps: manual gráfico vs repo
+- **Pregunta:** ¿Sustituir SVG wordmark v1.0 por manual gráfico del informe de naming?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: `08`, `docs/brand/coopapps/`. Tensión: Sustituir SVG wordmark v1.0 por manual gráfico del informe de naming.
+- **Opciones:**
+  - A) B) **No hay manual** — usar repo como fuente única (DEC-120) **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Asumida (DEC-120, 19-11-2026) (índice 02; no modifica la spec oficial).
 
 - **Opción elegida:** —
 - **Ampliación:** —
@@ -5889,6 +5904,92 @@
 **Impacto si no se responde:** se aplica A.
 **Bloquea:** §8.1.6 a §8.1.8.
 **Estado:** Asumida la recomendada (DEC-072); se quitan los `[VERIFICAR]` de esas secciones.
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-STACK-01 — Stack back .NET + Azure SQL
+- **Pregunta:** ¿Cómo cerramos la tensión «Stack back .NET + Azure SQL vs DEC-001 Node+Mongo»?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: 00. Tensión: Stack back .NET + Azure SQL vs DEC-001 Node+Mongo.
+- **Opciones:**
+  - A) Adoptar stack GoodApps en spec; análisis funcional conserva reglas de negocio **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Respondida (DEC-111) (índice 02; no modifica la spec oficial).
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-STACK-02 — 2FA sin SMS (PDF)
+- **Pregunta:** ¿Cómo cerramos la tensión «2FA sin SMS (PDF) vs SMS en spec actual»?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: T02. Tensión: 2FA sin SMS (PDF) vs SMS en spec actual.
+- **Opciones:**
+  - A) No tocar T02 hasta acuerdo con GoodApps **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Pendiente (D-08: diferir) (índice 02; no modifica la spec oficial).
+- **Impacto si no se responde:** se mantiene la recomendación A del índice hasta nueva DEC.
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-STACK-03 — T04 global
+- **Pregunta:** ¿Cómo cerramos la tensión «T04 global vs parámetros solo en módulos dueños (PDF)»?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: T04. Tensión: T04 global vs parámetros solo en módulos dueños (PDF).
+- **Opciones:**
+  - A) Mantener T04 motor + T04b; §14 por módulo **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Respondida (DEC-114) (índice 02; no modifica la spec oficial).
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-STACK-04 — Rol del plan Cursor/olas frente a pipeline GoodApps
+- **Pregunta:** ¿Rol del plan Cursor/olas frente a pipeline GoodApps?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: 03. Tensión: Rol del plan Cursor/olas frente a pipeline GoodApps.
+- **Opciones:**
+  - A) Solo pipeline GoodApps; `03` histórico **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Respondida (DEC-118) (índice 02; no modifica la spec oficial).
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-STACK-05 — OpenAPI en GACAC
+- **Pregunta:** ¿Cómo cerramos la tensión «OpenAPI en GACAC vs «solo referencia» del PDF»?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: entregables. Tensión: OpenAPI en GACAC vs «solo referencia» del PDF.
+- **Opciones:**
+  - A) Mantener normativo en GACAC hasta existir código generador **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Respondida (D-06; ver nota en `06` §10) (índice 02; no modifica la spec oficial).
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-STACK-06 — ER físico Azure SQL 4NF con PK/FK
+- **Pregunta:** ¿ER físico Azure SQL 4NF con PK/FK?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: T05, nuevo `07-*`. Tensión: ER físico Azure SQL 4NF con PK/FK.
+- **Opciones:**
+  - A) Documento aparte complementario a T05 **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Respondida (DEC-117) (índice 02; no modifica la spec oficial).
+
+- **Opción elegida:** —
+- **Ampliación:** —
+- **Respondido:** —
+
+### PA-STACK-07 — ¿Ampliar IA / ayuda más allá de lo ya especificado en la reunión?
+- **Pregunta:** ¿Ampliar IA / ayuda más allá de lo ya especificado en la reunión?
+- **Contexto:** Según `06-impacto-adaptacion-stack-goodapps.md`: Azure SQL + EF Core + .NET 10 + React (DEC-111…119). DEC-001 (Node/Mongo) quedó reemplazada por DEC-111 (D-02 en §10). DIR-13: la tensión del índice 02 resume el debate; el cierre oficial vive en `01` y en el doc `06`. Anexo / ámbito en índice 02: T03, M09, export. Tensión: ¿Ampliar IA / ayuda más allá de lo ya especificado en la reunión?.
+- **Opciones:**
+  - A) Mantener alcance actual (P6, M09, ScreenHelp); solo mejorar empaquetado en export **(Recomendada)** — posición del índice `02-preguntas-abiertas` y doc `06` §10.
+  - B) Otra posición (describir en ampliación; requiere PA/DEC nueva si cambia comportamiento — DIR-11).
+- **Estado:** Pendiente (si piden más IA) (índice 02; no modifica la spec oficial).
+- **Impacto si no se responde:** se mantiene la recomendación A del índice hasta nueva DEC.
 
 - **Opción elegida:** —
 - **Ampliación:** —

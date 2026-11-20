@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cuestionario de decisiones · GACAC</title>
-  <link rel="stylesheet" href="estilos.css?v=6">
+  <link rel="stylesheet" href="estilos.css?v=20">
 </head>
 <body>
   <header class="bar">
@@ -35,8 +35,12 @@
           <option value="pendientes">Sin responder (mías)</option>
           <option value="respondidas">Ya respondidas (mías)</option>
         </select>
-        <label for="ir-id">Ir a</label>
-        <select id="ir-id"><option value="">—</option></select>
+        <label for="buscar-pa">Buscar</label>
+        <div class="buscar-wrap">
+          <input type="search" id="buscar-pa" list="buscar-list" placeholder="código PA o palabra del título" autocomplete="off">
+          <button type="button" id="btn-buscar" class="btn-buscar">Ir</button>
+        </div>
+        <datalist id="buscar-list"></datalist>
       </div>
     </div>
     <div class="inner bar-progress" aria-hidden="true"><span id="prog-bar" style="width:0%"></span></div>
@@ -45,6 +49,6 @@
     <p class="empty">Cargando…</p>
   </main>
   <div id="toast" class="toast" role="status"></div>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>

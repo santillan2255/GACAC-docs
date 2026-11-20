@@ -42,6 +42,18 @@
     ["PA-WFL", "Workflow y documentos (T11)"],
   ];
 
+  var OLAS_PLAIN = {
+    O11: "la etapa de reportes avanzados e indicadores (ola 11 del plan)",
+    O10: "la etapa de servicios sociales y flota (ola 10 del plan)",
+    O9: "la etapa de comunicaciones ampliadas (ola 9 del plan)",
+    O8: "la etapa contable y de compras (ola 8 del plan)",
+    O7: "la etapa de facturación y cobranza consolidada (ola 7 del plan)",
+    O5: "la primera etapa operativa en producción (ola 5 del plan)",
+    O3: "la etapa de instalación y catálogo (ola 3 del plan)",
+    O1: "la etapa de arranque del proyecto (ola 1 del plan)",
+    O0: "la etapa previa a producción (ola 0 del plan)",
+  };
+
   var GLOSSARIO_RE = [
     { re: /\bDEC-\d+\b/g, term: "DEC-…", desc: "Decisión formal del proyecto (archivo 01-registro-decisiones)." },
     { re: /\bBASE §[\d.]+\b/g, term: "BASE §…", desc: "Apartado del documento base funcional (relevamiento ProCoop)." },
@@ -51,8 +63,26 @@
     { re: /\bProCoop\b/g, term: "ProCoop", desc: "Sistema legado que la cooperativa usa hoy." },
     { re: /\btenant\b/gi, term: "tenant", desc: "Cada cooperativa como cliente aislado en la plataforma." },
     { re: /\bSCD2\b/g, term: "SCD2", desc: "Forma de guardar historial de datos que cambian en el tiempo." },
-    { re: /replica set/gi, term: "réplica", desc: "Copias de la base para lectura sin frenar el uso diario." },
-    { re: /MongoDB/g, term: "MongoDB", desc: "Tipo de base de datos (decisiones de stack en DEC-111+)." },
+    {
+      re: /replica set/gi,
+      term: "réplica",
+      desc: "Copia de lectura de la base; en implementación vigente (DEC-111) suele ser réplica o base analítica en Azure SQL.",
+    },
+    {
+      re: /MongoDB|Mongo\b/i,
+      term: "Motor de datos",
+      desc: "En lectura del cuestionario: equivalente Azure SQL (DEC-111). El anexo puede decir Mongo.",
+    },
+    {
+      re: /\bDEC-001\b/g,
+      term: "DEC-001",
+      desc: "Stack anterior (Node/Mongo); reemplazado por DEC-111 (.NET + Azure SQL).",
+    },
+    {
+      re: /\bDEC-111\b/g,
+      term: "DEC-111",
+      desc: "Decisión de stack vigente: .NET, Azure SQL, React.",
+    },
   ];
 
   var state = {
@@ -72,7 +102,8 @@
     progBar: document.getElementById("prog-bar"),
     filtro: document.getElementById("filtro"),
     filtroArea: document.getElementById("filtro-area"),
-    irId: document.getElementById("ir-id"),
+    buscar: document.getElementById("buscar-pa"),
+    buscarList: document.getElementById("buscar-list"),
   };
 
   function toast(msg) {
@@ -92,12 +123,75 @@
   }
 
   function field(block, name) {
-    var re = new RegExp(
-      "\\- \\*\\*" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ":\\*\\*\\s*(.+)",
-      "i"
-    );
-    var m = block.match(re);
-    return m ? m[1].trim() : "";
+    var escName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    var patterns = [
+      new RegExp("^\\-\\s+\\*\\*" + escName + ":\\*\\*\\s*(.+)$", "im"),
+      new RegExp("^\\-\\s+\\*\\*" + escName + "\\*\\*:\\s*(.+)$", "im"),
+      new RegExp("^\\*\\*" + escName + ":\\*\\*\\s*(.+)$", "im"),
+      new RegExp("^\\*\\*" + escName + "\\*\\*:\\s*(.+)$", "im"),
+    ];
+    var p;
+    for (p = 0; p < patterns.length; p++) {
+      var m = block.match(patterns[p]);
+      if (m) return m[1].trim();
+    }
+    return "";
+  }
+
+  function splitBoldLetterOptions(s) {
+    var text = String(s || "").trim();
+    if (!text) return [];
+    var re = /\*\*([A-Z])(?:\s*\([^)]*\))?:\*\*\s*/g;
+    var marks = [];
+    var match;
+    while ((match = re.exec(text)) !== null) {
+      marks.push({ letter: match[1], start: match.index, head: match[0].length });
+    }
+    if (!marks.length) return [];
+    var opts = [];
+    var i;
+    for (i = 0; i < marks.length; i++) {
+      var bodyStart = marks[i].start + marks[i].head;
+      var bodyEnd = i + 1 < marks.length ? marks[i + 1].start : text.length;
+      var body = text.slice(bodyStart, bodyEnd).trim();
+      body = body.replace(/^\*\*([A-Z]):\*\*\s*/i, "").trim();
+      opts.push({
+        letter: marks[i].letter,
+        text: body,
+        rec: /Recomendada/i.test(text.slice(marks[i].start, bodyEnd)),
+        raw: marks[i].letter + ") " + body,
+      });
+    }
+    return opts;
+  }
+
+  function splitInlineOptions(s) {
+    var text = String(s || "").trim();
+    if (!text) return [];
+    if (/\*\*[A-Z]\s*(\([^)]*\))?:\*\*/.test(text)) {
+      return splitBoldLetterOptions(text);
+    }
+    var re = /\b([A-Z])\)\s*/g;
+    var marks = [];
+    var match;
+    while ((match = re.exec(text)) !== null) {
+      marks.push({ letter: match[1], start: match.index, head: match[0].length });
+    }
+    if (!marks.length) return [];
+    var opts = [];
+    var i;
+    for (i = 0; i < marks.length; i++) {
+      var bodyStart = marks[i].start + marks[i].head;
+      var bodyEnd = i + 1 < marks.length ? marks[i + 1].start : text.length;
+      var body = text.slice(bodyStart, bodyEnd).trim();
+      opts.push({
+        letter: marks[i].letter,
+        text: body,
+        rec: /\(\s*Recomendada\s*\)/i.test(body) || /\*\*\(\s*Recomendada\s*\)\*\*/i.test(body),
+        raw: marks[i].letter + ") " + body,
+      });
+    }
+    return opts;
   }
 
   function moduloKey(id) {
@@ -165,7 +259,76 @@
         it.estadoIndice = row.estadoIndice;
       }
       it.anexoPrincipal = anexoPrincipal(it);
+      it.specOpcion = inferSpecOpcion(it);
     }
+  }
+
+  function inferSpecOpcion(it) {
+    var impacto = (it.impacto || "").trim();
+    var estado = (it.estado || "").trim();
+    var indice = (it.estadoIndice || "").trim();
+    var blob = [estado, indice, impacto].join("\n");
+    var i;
+    var patsCerrada = [
+      /(?:Respondida|Asumida)[^:]{0,80}:\s*opción\s*([A-E])\b/i,
+      /(?:Respondida|Asumida)[^:]{0,80}:\s*([A-E])\b/i,
+      /opción\s+([A-E])\s*[.;](?!\s*no)/i,
+    ];
+    for (i = 0; i < patsCerrada.length; i++) {
+      var mc = blob.match(patsCerrada[i]);
+      if (mc) {
+        return {
+          letter: mc[1].toUpperCase(),
+          modo: /Respondida/i.test(blob) ? "cerrada" : "asumida",
+          fuente: /Respondida|Asumida/i.test(estado) ? "estado" : "indice",
+        };
+      }
+    }
+    if (/Asumida|Respondida/i.test(indice) && impacto) {
+      var patsImp = [
+        /(?:se\s+asume|se\s+aplica|se\s+usa)\s+([A-E])\b/i,
+        /(?:se\s+asume|se\s+aplica|se\s+usa)[^.]{0,100}?\b([A-E])\s+como\b/i,
+        /\b([A-E])\s+como\s+default\b/i,
+        /\bdefault[^.]{0,60}?\b([A-E])\b/i,
+        /^\s*([A-E])\s*[\(;]/m,
+        /\b([A-E])\s*\(PRM-/i,
+      ];
+      for (i = 0; i < patsImp.length; i++) {
+        var mi = impacto.match(patsImp[i]);
+        if (mi) {
+          return {
+            letter: mi[1].toUpperCase(),
+            modo: /Asumida/i.test(indice) ? "asumida" : "default",
+            fuente: "impacto",
+          };
+        }
+      }
+    }
+    if (impacto) {
+      var patsDef = [
+        /(?:se\s+asume|se\s+aplica|se\s+usa)\s+([A-E])\b/i,
+        /(?:se\s+asume|se\s+aplica|se\s+usa)[^.]{0,100}?\b([A-E])\s+como\b/i,
+        /\b([A-E])\s+como\s+default\b/i,
+      ];
+      for (i = 0; i < patsDef.length; i++) {
+        var md = impacto.match(patsDef[i]);
+        if (md) {
+          return { letter: md[1].toUpperCase(), modo: "default", fuente: "impacto" };
+        }
+      }
+    }
+    return null;
+  }
+
+  function specOpcionBadge(op, spec) {
+    if (!spec || !op.letter || op.letter.toUpperCase() !== spec.letter) return "";
+    if (spec.modo === "cerrada") {
+      return '<span class="badge spec-cerrada">Cerrada en spec</span> ';
+    }
+    if (spec.modo === "asumida") {
+      return '<span class="badge spec-asumida">Asumida en spec</span> ';
+    }
+    return '<span class="badge spec-default">Default en spec</span> ';
   }
 
   function textoGlosario(it) {
@@ -194,15 +357,382 @@
     return out;
   }
 
-  function formatOpcion(raw) {
-    var dash = raw.indexOf(" — ");
-    if (dash === -1) return esc(raw);
-    return (
-      esc(raw.slice(0, dash)) +
-      '<span class="op-plain"><strong>En simple:</strong> ' +
-      esc(raw.slice(dash + 3)) +
-      "</span>"
+  /** Lectura de contexto: menciona stack vigente sin mezclar motores en la misma frase. */
+  function applyStackLensReadable(text) {
+    if (!text) return "";
+    var t = String(text);
+    t = t.replace(
+      /DEC-001\/DEC-004 fijan MongoDB y despliegue agnóstico/gi,
+      "DEC-111 fija Azure SQL en GoodApps (el anexo aún redacta Mongo como legado)"
     );
+    t = t.replace(
+      /\bDEC-001\b/g,
+      "el stack anterior del anexo (reemplazado por DEC-111)"
+    );
+    t = t.replace(/\bDEC-111\b/g, "DEC-111 (Azure SQL y .NET, vigente)");
+    t = t.replace(/\bMongoDB\b/gi, "Azure SQL");
+    t = t.replace(/\bMongo\b/gi, "Azure SQL");
+    t = t.replace(/replica set/gi, "réplica de lectura en Azure SQL");
+    t = t.replace(/\ben Mongo\b/gi, "en Azure SQL");
+    t = t.replace(/BullMQ/g, "colas del backend .NET");
+    return t;
+  }
+
+  /** Opciones y decisiones: solo redacción afirmativa del stack vigente (DIR-13). */
+  function applyStackLensForOptions(text) {
+    if (!text) return "";
+    var t = String(text);
+    t = t.replace(
+      /Cluster\s+MongoDB\s+separado\s+dedicado\s+a\s+analítica/gi,
+      "Base Azure SQL separada dedicada solo a analítica"
+    );
+    t = t.replace(
+      /miembro oculto del replica set con etiqueta\s*[`']?analytics[`']?/gi,
+      "réplica de solo lectura en Azure SQL reservada para analítica"
+    );
+    t = t.replace(
+      /Base lógica\s*(?:<\s*db\s*>|la base de datos)_analytics/gi,
+      "Base analítica _analytics en el mismo Azure SQL"
+    );
+    t = t.replace(/secundarios operativos/gi, "réplicas operativas de Azure SQL");
+    t = t.replace(/replica set/gi, "réplica de lectura en Azure SQL");
+    t = t.replace(/\bMongoDB\b/gi, "Azure SQL");
+    t = t.replace(/\bMongo\b/gi, "Azure SQL");
+    t = t.replace(/PITR estándar de Mongo gestionado/gi, "restauración punto-en-tiempo de Azure SQL");
+    t = t.replace(/envelope encryption propio en Mongo/gi, "cifrado en Azure SQL");
+    t = t.replace(/\bNode\+Mongo\b/gi, ".NET y Azure SQL");
+    t = t.replace(/\bDEC-001\b/g, "DEC-111");
+    t = t.replace(/BullMQ/g, "colas del backend .NET");
+    return t;
+  }
+
+  function humanizeCore(text) {
+    if (!text) return "";
+    var t = String(text);
+    var i;
+    var keys = Object.keys(OLAS_PLAIN).sort(function (a, b) {
+      return b.length - a.length;
+    });
+    for (i = 0; i < keys.length; i++) {
+      t = t.replace(
+        new RegExp("\\b" + keys[i] + "\\b", "g"),
+        OLAS_PLAIN[keys[i]]
+      );
+    }
+    t = t.replace(/\bO(\d{1,2})\b/g, "la ola $1 del plan de entregas");
+    t = t.replace(/`bi_\*`/gi, "las tablas de datos para reportes e indicadores (BI)");
+    t = t.replace(/`([^`]+)`/g, function (_, c) {
+      if (/^bi_/i.test(c)) return "datos analíticos (" + c + ")";
+      if (c.indexOf("_") !== -1 && c.indexOf("*") !== -1) {
+        return c.replace(/_/g, " ").replace(/\*/g, "");
+      }
+      return c;
+    });
+    t = t.replace(/<\s*db\s*>/gi, "la base de datos");
+    t = t.replace(/<[a-z0-9_]+>/gi, function (m) {
+      return m.replace(/[<>]/g, "");
+    });
+    t = t.replace(/\/api\/[^\s,?]+/gi, "un servicio de API");
+    t = t.replace(
+      /\bRF-[A-Z]+-\d+(?:\s+a\s+RF-[A-Z]+-\d+)?/gi,
+      "requisitos del módulo"
+    );
+    t = t.replace(/\bJOB-[A-Z]+-\d+(?:\s+a\s+\d+)?/gi, "procesos automáticos");
+    t = t.replace(/\bDEC-\d+/g, function (m) {
+      if (m === "DEC-001" || m === "DEC-111") return m;
+      return "una decisión ya registrada";
+    });
+    t = t.replace(/BASE §[\d.]+/gi, "el relevamiento funcional");
+    t = t.replace(/\bCTR-[A-Z]+-\d+/gi, "un criterio técnico");
+    t = t.replace(/\bPRM-[A-Z]+-\d+/gi, "un parámetro");
+    t = t.replace(/\bAPI-[A-Z]+-\d+/gi, "un servicio de interfaz");
+    t = t.replace(/\s+/g, " ").trim();
+    return t;
+  }
+
+  function humanizeForReader(text) {
+    return humanizeCore(applyStackLensReadable(text));
+  }
+
+  function businessSummaryAnalyticsOption(body) {
+    var b = String(body || "");
+    if (
+      /replica|_analytics|`analytics`|etiqueta.*analytics/i.test(b) &&
+      /(Recomendada)|aislamiento de carga|prioridad 0|Base lógica/i.test(b)
+    ) {
+      return (
+        "Mismo Azure SQL de la plataforma: base analítica en réplica de solo lectura " +
+        "(recomendada — aísla la carga sin montar otro motor)."
+      );
+    }
+    if (/Cluster MongoDB|Base Azure SQL separada dedicada/i.test(b)) {
+      return "Entorno Azure SQL aparte, solo para BI: máximo aislamiento, mayor costo y operación.";
+    }
+    if (/Sin almacén|todo BI sobre/i.test(b)) {
+      return "Sin capa analítica dedicada: BI sobre réplicas operativas (más simple, riesgo en hora pico).";
+    }
+    return "";
+  }
+
+  var ANEXO_LABELS = {
+    M01: "personas",
+    M05: "facturación",
+    M07: "cobranza",
+    M09: "atención",
+    M15: "contabilidad",
+    M17: "institucional",
+    M19: "portal del socio",
+    T02: "identidad y permisos",
+    T05: "modelo de datos",
+    T10: "reportes y BI",
+    T11: "workflow",
+  };
+
+  function camelToWords(s) {
+    return String(s)
+      .replace(/_/g, " ")
+      .replace(/([a-zà-ú])([A-Z])/g, "$1 $2")
+      .trim();
+  }
+
+  function friendlyCapability(code) {
+    var parts = String(code).split(".");
+    var modMap = {
+      bia: "reportes",
+      iam: "accesos",
+      cob: "cobranza",
+      fac: "facturación",
+      pla: "plataforma",
+      cfg: "configuración",
+    };
+    var actMap = {
+      ver: "ver",
+      crear: "crear",
+      editar: "editar",
+      consumir: "usar",
+      eliminar: "eliminar",
+    };
+    if (parts.length < 2) return camelToWords(code);
+    var mod = modMap[parts[0]] || parts[0];
+    if (parts.length === 2) {
+      return mod + " · " + (actMap[parts[1]] || parts[1]);
+    }
+    var recurso = parts[1].replace(/_/g, " ");
+    var act = actMap[parts[2]] || parts[2];
+    return "permiso de " + act + " " + recurso + " (" + mod + ")";
+  }
+
+  function shortenToSentence(s, max) {
+    if (!s || s.length <= max) return s;
+    var cut = s.slice(0, max);
+    var sp = cut.lastIndexOf(" ");
+    if (sp > max * 0.6) cut = cut.slice(0, sp);
+    return cut + "…";
+  }
+
+  function stripOpcionMeta(raw) {
+    return String(raw || "")
+      .replace(/^\s*[A-Z]\)\s*/, "")
+      .replace(/\s*\*\*\(Recomendada\)\*\*/gi, "")
+      .replace(/\s*\(Recomendada\)/gi, "")
+      .trim();
+  }
+
+  function humanizeOptionDeep(text) {
+    if (!text) return "";
+    var t = applyStackLensForOptions(String(text));
+    t = t.replace(/§(\d+(?:\.\d+)*)/g, "apartado $1 del anexo");
+    t = t.replace(/`([^`]+)`/g, function (_, c) {
+      if (/^[a-z0-9]+(\.[a-z0-9_.]+)+$/i.test(c) && c.indexOf(" ") === -1) {
+        if (c.indexOf(":") !== -1) return c.replace(":", ": ").replace(/_/g, " ");
+        return friendlyCapability(c);
+      }
+      if (/^[a-z]+[A-Z]/.test(c) || c.indexOf("_") !== -1) return "campo " + camelToWords(c);
+      return c;
+    });
+    t = t.replace(/\b(M\d{2}|T\d{2}[a-z]?)\b/g, function (m) {
+      var lab = ANEXO_LABELS[m];
+      return lab ? lab + " (" + m + ")" : m;
+    });
+    t = t.replace(/\b(scopes?)\s+`([^`]+)`/gi, "permisos $2");
+    t = t.replace(/→/g, " enlaza con ");
+    t = t.replace(
+      /\bRF-[A-Z]+-\d+(?:\s+a\s+RF-[A-Z]+-\d+)?/gi,
+      "requisitos del módulo"
+    );
+    t = t.replace(/\bCOL-[A-Z]+-\d+/gi, "tabla del modelo");
+    t = t.replace(/\bpublic:\s*true/gi, "marcar como API pública (con controles)");
+    t = humanizeCore(t);
+    return t.replace(/\s+/g, " ").trim();
+  }
+
+  function humanizeClauseShort(clause) {
+    var c = clause.trim();
+    if (!c) return "";
+    if (/^Agregar §8/i.test(c) || /transición y estado inicial/i.test(c)) {
+      return "Documentar estados y transiciones que faltaban en tablas.";
+    }
+    if (/declarar destinos/i.test(c)) {
+      return "Definir a qué tablas apuntan escenarios, plantillas y códigos de catálogo.";
+    }
+    if (/renombrar/i.test(c)) {
+      return "Unificar nombres de campos con el modelo de datos común.";
+    }
+    if (/agregar §7/i.test(c) || /tablas derivadas/i.test(c)) {
+      return "Completar las tablas de campos que el anexo no tenía detalladas.";
+    }
+    if (/bia\.|capabilit|scopes?/i.test(c)) {
+      return "Usar permisos del producto (ver reportes, exportar, APIs) en lugar de reglas sueltas.";
+    }
+    if (/mapeo.*T02|§4\.4/i.test(c)) {
+      return "Alinear permisos ERP con la matriz de identidad.";
+    }
+    if (/^No en la primera/i.test(c)) {
+      return "Postergar para una versión posterior, sin cerrar la puerta.";
+    }
+    if (/^Sí en /i.test(c)) {
+      return "Habilitar en la ola indicada, con controles.";
+    }
+    if (/^Nunca\.?$/i.test(c)) {
+      return "No implementar esta variante.";
+    }
+    if (/^Dejar /i.test(c)) {
+      return "Mantener solo texto narrativo, sin cerrar tablas ni contratos.";
+    }
+    return shortenToSentence(humanizeOptionDeep(c), 140);
+  }
+
+  function optionLeadOneLiner(body) {
+    if (
+      /§8|transición|estado inicial/i.test(body) &&
+      (/§7|tabla|campo|colecci/i.test(body) || /renombrar/i.test(body))
+    ) {
+      return (
+        "Cerrar el hueco del anexo: estados en tablas, campos documentados, " +
+        "enlaces entre datos y permisos alineados al resto del proyecto."
+      );
+    }
+    if (/solo en texto|como reglas/i.test(body) && !/Agregar §/i.test(body)) {
+      return "Dejar la decisión solo descrita en prosa, sin formalizar tablas ni permisos.";
+    }
+    return shortenToSentence(humanizeOptionDeep(body), 200);
+  }
+
+  function optionDisplayParts(raw) {
+    var body = stripOpcionMeta(raw);
+    var dash = body.indexOf(" — ");
+    var accion = dash === -1 ? body : body.slice(0, dash).trim();
+    var beneficio = dash === -1 ? "" : body.slice(dash + 3).trim();
+    var clauses = accion.split(/\s*;\s*/).filter(Boolean);
+    var lead;
+    var bullets = [];
+    if (beneficio) {
+      var bizDash = businessSummaryAnalyticsOption(accion);
+      var benH = humanizeOptionDeep(beneficio);
+      if (bizDash) {
+        lead = bizDash;
+      } else {
+        var accionH = shortenToSentence(humanizeOptionDeep(accion), 180);
+        lead = accionH ? accionH + " — " + benH : benH;
+      }
+    } else if (businessSummaryAnalyticsOption(accion)) {
+      lead = businessSummaryAnalyticsOption(accion);
+    } else if (clauses.length > 1) {
+      lead = optionLeadOneLiner(accion);
+      var i;
+      for (i = 0; i < clauses.length && i < 7; i++) {
+        var b = humanizeClauseShort(clauses[i]);
+        if (b) bullets.push(b);
+      }
+    } else {
+      lead = optionLeadOneLiner(accion);
+    }
+    return { lead: lead, bullets: bullets, tecnico: body, accion: accion, beneficio: beneficio };
+  }
+
+  function mainQuestionText(it) {
+    var raw = (it.pregunta || "").trim();
+    var h = humanizeForReader(raw);
+    if (!h && it.title) {
+      h = "¿Cuál es la decisión sobre «" + it.title + "»?";
+    }
+    if (h && h.indexOf("¿") !== 0) h = "¿" + h;
+    if (h && h.indexOf("?") === -1) h = h + "?";
+    return h;
+  }
+
+  function hasTechnicalMarkers(text) {
+    if (!text) return false;
+    return /`|\/api\/|\bO\d{1,2}\b|\bRF-|\bJOB-|\bDEC-|\bBASE §/.test(text);
+  }
+
+  function buildPreguntaHtml(it) {
+    var main = mainQuestionText(it);
+    var parts = [];
+    parts.push('<p class="pregunta">' + esc(main) + "</p>");
+    if (it.modulo) {
+      parts.push(
+        '<p class="pregunta-ambito"><strong>Ámbito:</strong> ' +
+          esc(it.modulo) +
+          (it.anexo ? " · anexo " + esc(it.anexo) : "") +
+          "</p>"
+      );
+    }
+    if (it.pregunta && hasTechnicalMarkers(it.pregunta)) {
+      parts.push(
+        '<details class="tecnica-inline"><summary>Redacción técnica original (códigos de la spec)</summary><p class="pregunta-tecnica">' +
+          esc(it.pregunta) +
+          "</p></details>"
+      );
+    }
+    return parts.join("");
+  }
+
+  function formatOpcion(raw) {
+    var parts = optionDisplayParts(raw);
+    var letter = "";
+    var lm = String(raw).match(/^\s*([A-Z])\)/);
+    if (lm) letter = lm[1] + ")";
+    var html = '<span class="op-wrap">';
+    html +=
+      '<span class="op-main-line"><span class="op-letter">' +
+      esc(letter) +
+      "</span> <span class=\"op-lead\">" +
+      esc(parts.lead) +
+      "</span></span>";
+    if (parts.bullets.length) {
+      html += '<ul class="op-bullets">';
+      var b;
+      for (b = 0; b < parts.bullets.length; b++) {
+        html += "<li>" + esc(parts.bullets[b]) + "</li>";
+      }
+      html += "</ul>";
+    }
+    var showTech =
+      (parts.beneficio && parts.accion) ||
+      parts.tecnico.length > 80 ||
+      /`|§|RF-|Mongo|replica|M\d|T\d/i.test(parts.tecnico);
+    if (showTech) {
+      var techBody;
+      var techSum = "Detalle spec";
+      if (parts.beneficio && parts.accion) {
+        techBody =
+          '<p class="op-accion-resumen">' +
+          esc(shortenToSentence(humanizeOptionDeep(parts.accion), 400)) +
+          "</p>";
+      } else {
+        techSum = "Texto técnico original";
+        techBody = "<p>" + esc(parts.tecnico) + "</p>";
+      }
+      html +=
+        '<details class="op-tecnica op-tecnica--tail"><summary>' +
+        esc(techSum) +
+        "</summary>" +
+        techBody +
+        "</details>";
+    }
+    html += "</span>";
+    return html;
   }
 
   function buildContextHtml(it) {
@@ -226,13 +756,25 @@
     if (it.recomendadaIndice) {
       parts.push(
         "<li><strong>Recomendación vigente en el índice 02:</strong> " +
-          esc(it.recomendadaIndice) +
+          esc(humanizeForReader(it.recomendadaIndice)) +
           "</li>"
       );
     }
+    if (it.specOpcion) {
+      var sp = it.specOpcion;
+      var specTxt =
+        sp.modo === "cerrada"
+          ? "Opción " + sp.letter + " (decisión cerrada en el anexo / índice 02)"
+          : sp.modo === "asumida"
+            ? "Opción " + sp.letter + " (asumida en la especificación)"
+            : "Opción " + sp.letter + " (default si no respondés en esta copia)";
+      parts.push("<li><strong>Qué hace la spec hoy:</strong> " + esc(specTxt) + "</li>");
+    }
     if (it.impacto) {
       parts.push(
-        "<li><strong>Si no respondés en esta copia:</strong> " + esc(it.impacto) + "</li>"
+        "<li><strong>Si no respondés en esta copia:</strong> " +
+          esc(humanizeForReader(it.impacto)) +
+          "</li>"
       );
     }
     parts.push("</ul></section>");
@@ -241,15 +783,19 @@
     if (it.contexto) {
       parts.push(
         '<details class="context-block"><summary>Antecedentes (técnicos)</summary><p class="contexto">' +
+          esc(humanizeForReader(it.contexto)) +
+          '</p><p class="hint-ctx">Versión con códigos en la spec, solo si la necesitás: ' +
           esc(it.contexto) +
-          '</p><p class="hint-ctx">Las siglas y códigos del párrafo anterior están explicados en el glosario de abajo.</p></details>'
+          ".</p></details>"
       );
     }
     if (it.bloquea) {
       parts.push(
         '<details class="context-block"><summary>Qué partes del proyecto dependen de esto</summary><p class="contexto">' +
+          esc(humanizeForReader(it.bloquea)) +
+          '</p><p class="hint-ctx">Referencia técnica: ' +
           esc(it.bloquea) +
-          '</p><p class="hint-ctx">Son referencias internas (requisitos, olas, jobs); si no las conocés, alcanza con elegir la opción que prefieras o pedir ampliación.</p></details>'
+          ".</p></details>"
       );
     }
     var est = it.estado || it.estadoIndice;
@@ -281,17 +827,45 @@
     return parts.join("");
   }
 
+  function opcionesLineRest(line) {
+    var m = line.match(/^\-\s+\*\*Opciones(?::\*\*|\*\*:)\s*(.*)$/i);
+    return m ? m[1].trim() : null;
+  }
+
   function parseOpciones(block) {
     var lines = block.split("\n");
     var inOpt = false;
     var opts = [];
     for (var i = 0; i < lines.length; i++) {
-      var line = lines[i];
-      if (/^\-\s+\*\*Opciones:\*\*/i.test(line)) {
+      var line = lines[i].replace(/\r$/, "");
+      var rest = opcionesLineRest(line);
+      if (rest !== null) {
+        if (rest && /\b[A-Z]\)/.test(rest)) {
+          return splitInlineOptions(rest);
+        }
+        inOpt = true;
+        continue;
+      }
+      var bareOpt = line.match(/^\*\*Opciones(?::\*\*|\*\*:)\s*(.*)$/i);
+      if (bareOpt) {
+        if (bareOpt[1] && /\b[A-Z]\)/.test(bareOpt[1])) {
+          return splitInlineOptions(bareOpt[1]);
+        }
         inOpt = true;
         continue;
       }
       if (inOpt) {
+        var dashOpt = line.match(/^-\s+([A-Z])\)\s*(.*)$/);
+        if (dashOpt) {
+          var dText = dashOpt[2].trim();
+          opts.push({
+            letter: dashOpt[1],
+            text: dText,
+            rec: /\(Recomendada\)/i.test(dText),
+            raw: dashOpt[1] + ") " + dText,
+          });
+          continue;
+        }
         if (/^\s{2}-\s+/.test(line)) {
           var text = line.replace(/^\s{2}-\s+/, "").trim();
           var letter = "";
@@ -306,7 +880,10 @@
             rec: /\(Recomendada\)/i.test(text),
             raw: line.replace(/^\s{2}-\s+/, "").trim(),
           });
-        } else if (/^\-\s+\*\*/.test(line) && !/^\s{2}/.test(line)) {
+        } else if (
+          (/^\*\*/.test(line) || (/^\-\s+\*\*/.test(line) && !/^-\s+[A-Z]\)/.test(line))) &&
+          !/^\s{2}/.test(line)
+        ) {
           inOpt = false;
         }
       }
@@ -539,7 +1116,15 @@
           it.elegida === val ||
           it.elegida === op.raw ||
           (op.letter && it.elegida.indexOf(op.letter + ")") === 0);
-        var cls = "opcion" + (checked ? " sel" : "") + (op.rec ? " rec" : "");
+        var isSpec =
+          it.specOpcion &&
+          op.letter &&
+          op.letter.toUpperCase() === it.specOpcion.letter;
+        var cls =
+          "opcion" +
+          (checked ? " sel" : "") +
+          (op.rec ? " rec" : "") +
+          (isSpec ? " spec-op" : "");
         optsHtml +=
           '<li><label class="' +
           cls +
@@ -549,6 +1134,7 @@
           (checked ? "checked" : "") +
           "><span>" +
           (op.rec ? '<span class="badge rec">Recomendada</span> ' : "") +
+          specOpcionBadge(op, it.specOpcion) +
           formatOpcion(op.raw) +
           "</span></label></li>";
       }
@@ -571,14 +1157,18 @@
       " / " +
       list.length +
       (areaNote ? " · " + areaNote : "");
-    var estadoBadge = /Respondida/i.test(it.estado)
-      ? '<span class="badge ok">Ya decidida en spec</span>'
-      : /Asumida|Pendiente/i.test(it.estado)
-        ? '<span class="badge warn">Spec: ' + esc(it.estado.slice(0, 48)) + "…</span>"
-        : "";
+    var estLine = (it.estado || it.estadoIndice || "").trim();
+    var estadoBadge = "";
+    if (/Respondida/i.test(estLine)) {
+      estadoBadge = '<span class="badge ok">Cerrada en spec</span>';
+    } else if (/Pendiente/i.test(estLine)) {
+      estadoBadge =
+        '<span class="badge warn">Pendiente en índice 02</span>';
+    }
 
     el.app.innerHTML =
-      '<article class="card">' +
+      '<article class="card card--layout-dock">' +
+      '<div class="card__body">' +
       '<div class="meta"><span class="badge">' +
       esc(it.id) +
       "</span>" +
@@ -586,12 +1176,11 @@
       '<span class="progress">' +
       esc(posLabel) +
       "</span></div>" +
-      "<h2>" +
+      '<p class="tema-etq">Tema</p>' +
+      "<h2 class=\"tema-tit\">" +
       esc(it.title) +
       "</h2>" +
-      '<p class="pregunta">' +
-      esc(it.pregunta || "(Sin enunciado en el MD)") +
-      "</p>" +
+      buildPreguntaHtml(it) +
       '<h3 class="opciones-tit">Tu respuesta</h3>' +
       optsHtml +
       '<div class="amp-block">' +
@@ -603,13 +1192,17 @@
       esc(it.ampliacion === "—" ? "" : it.ampliacion) +
       "</textarea></div>" +
       buildContextHtml(it) +
-      '<div class="nav nav--sticky">' +
+      "</div>" +
+      '<aside class="nav nav-panel" aria-label="Navegación de la pregunta">' +
+      '<p class="nav-panel-pos">' +
+      esc(posLabel) +
+      "</p>" +
       '<button type="button" id="btn-prev"' +
       (nav.pos <= 0 ? " disabled" : "") +
       ">Anterior</button>" +
       '<button type="button" class="primary" id="btn-save">Guardar y seguir</button>' +
       '<button type="button" id="btn-skip">Saltar</button>' +
-      "</div></article>";
+      "</aside></article>";
 
     document.getElementById("btn-prev").onclick = function () {
       if (nav.pos > 0) {
@@ -745,29 +1338,60 @@
     fillAreaSelect();
     renderQuestion();
     if (el.filtro) el.filtro.value = state.filter;
-    fillIdJump();
+    fillSearchHints();
   }
 
-  function fillIdJump() {
-    if (!el.irId) return;
-    var cur = el.irId.value;
+  function parseSearchQuery(raw) {
+    if (!raw) return "";
+    var m = String(raw).match(/^(PA-[A-Z0-9]+(?:-[A-Z0-9]+)*)/i);
+    if (m) return m[1].toUpperCase();
+    return String(raw).trim().toLowerCase();
+  }
+
+  function jumpToSearch(raw) {
+    var q = parseSearchQuery(raw);
+    var ql = q.toLowerCase();
+    if (!ql) {
+      toast("Escribí un código (PA-…) o una palabra del título");
+      return;
+    }
     var list = filteredIndices();
-    el.irId.innerHTML = "";
     var k;
     for (k = 0; k < list.length; k++) {
-      var i = list[k];
-      var opt = document.createElement("option");
-      opt.value = String(i);
-      opt.textContent =
-        state.items[i].id + (answered(state.items[i]) ? " ✓" : "");
-      if (String(i) === cur) opt.selected = true;
-      el.irId.appendChild(opt);
+      var it = state.items[list[k]];
+      if (
+        it.id.toUpperCase() === q ||
+        it.id.toLowerCase().indexOf(ql) === 0 ||
+        it.title.toLowerCase().indexOf(ql) !== -1 ||
+        (it.tituloIndice &&
+          it.tituloIndice.toLowerCase().indexOf(ql) !== -1)
+      ) {
+        state.index = list[k];
+        renderQuestion();
+        if (el.buscar) el.buscar.value = it.id + " — " + it.title;
+        toast("Ir a " + it.id);
+        return;
+      }
     }
-    if (!list.length) {
-      var empty = document.createElement("option");
-      empty.value = "";
-      empty.textContent = "—";
-      el.irId.appendChild(empty);
+    toast("Nada coincide con el filtro actual");
+  }
+
+  function fillSearchHints() {
+    if (!el.buscarList) return;
+    el.buscarList.innerHTML = "";
+    var list = filteredIndices();
+    var k;
+    var max = 60;
+    for (k = 0; k < list.length && k < max; k++) {
+      var it = state.items[list[k]];
+      var opt = document.createElement("option");
+      opt.value = it.id + " — " + it.title;
+      el.buscarList.appendChild(opt);
+    }
+    if (el.buscar && state.items[state.index]) {
+      var cur = state.items[state.index];
+      el.buscar.placeholder =
+        "Ej. " + cur.id + " o «" + cur.title.slice(0, 24) + "…»";
     }
   }
 
@@ -875,10 +1499,18 @@
         render();
       };
     }
-    if (el.irId) {
-      el.irId.onchange = function () {
-        state.index = parseInt(el.irId.value, 10) || 0;
-        renderQuestion();
+    var btnBuscar = document.getElementById("btn-buscar");
+    if (btnBuscar) {
+      btnBuscar.onclick = function () {
+        jumpToSearch(el.buscar && el.buscar.value);
+      };
+    }
+    if (el.buscar) {
+      el.buscar.onkeydown = function (ev) {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          jumpToSearch(el.buscar.value);
+        }
       };
     }
   }

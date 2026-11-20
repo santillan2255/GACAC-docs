@@ -241,7 +241,7 @@
         lista.map(function (c) {
           var ti = q.titularDeCuenta(c.cuentaId);
           return '<tr><td><input type="checkbox" id="sel-' + c.id + '" data-chg="selFc" data-id="' + c.id + '"' + (GA.ui.sel[c.id] ? ' checked' : '') + ' aria-label="Seleccionar comprobante ' + c.numero + '"></td><td>' + c.tipo + '</td><td>' + c.letra + '</td>' +
-            '<td><a class="mono" href="#" data-act="verFc" data-id="' + c.id + '">' + c.numero + '</a></td><td class="mono">' + c.fecha + '</td><td class="mono">' + c.cuentaId + '</td><td><a href="#/admin/per/titulares/' + ti.id + '">' + esc(q.nombreCuenta(c.cuentaId)) + '</a></td>' +
+            '<td><a class="mono" href="#/admin/fac/comprobantes/' + encodeURIComponent(c.id) + '">' + c.numero + '</a></td><td class="mono">' + c.fecha + '</td><td class="mono">' + c.cuentaId + '</td><td><a href="#/admin/per/titulares/' + ti.id + '">' + esc(q.nombreCuenta(c.cuentaId)) + '</a></td>' +
             '<td class="num mono">' + GA.num(c.total) + '</td><td class="mono">' + c.vto1 + '</td><td>' + GA.badge('fiscal', c.fiscal) + '</td><td>' + GA.badge('comercial', q.saldoComprobante(c) ? 'impaga' : 'pagada') + '</td></tr>';
         }).join('') + '</tbody></table></div>'
         : GA.vacio('No hay comprobantes con estos filtros', '', '<button type="button" class="btn" data-act="limpiarFc">Limpiar filtros</button>');
@@ -279,17 +279,87 @@
   };
   GA.acc.confirmarMasiva = function (el) { GA.cerrarModal(); GA.toast(el.getAttribute('data-a') + ': resultado por ítem OK (simulado).', 'info'); };
   GA.acc.verFc = function (el) { abrirFc(el.getAttribute('data-id')); };
+  function htmlDetalleComprobante(c) {
+    if (!c) return '<p>Comprobante no encontrado.</p>';
+    var ti = q.titularDeCuenta(c.cuentaId);
+    var saldo = q.saldoComprobante(c);
+    return '<p class="cab-pag__datos">' + GA.badge('fiscal', c.fiscal) + ' ' + GA.badge('comercial', saldo ? 'impaga' : 'pagada') + '</p>' +
+      '<dl class="dl dl--2"><dt>Titular</dt><dd><a href="#/admin/per/titulares/' + ti.id + '">' + esc(q.nombreCuenta(c.cuentaId)) + '</a></dd><dt>Cuenta</dt><dd class="mono">' + c.cuentaId + '</dd><dt>Período</dt><dd class="mono">' + c.periodo + '</dd><dt>Fecha de emisión</dt><dd class="mono">' + c.fecha + '</dd><dt>Vencimientos</dt><dd class="mono">' + c.vto1 + ' · ' + c.vto2 + '</dd><dt>Lote</dt><dd><a class="mono" href="#/admin/fac/lotes/' + c.loteId + '">' + c.loteId + '</a></dd>' +
+      (c.contratoId ? '<dt>Contrato</dt><dd><a class="mono" href="#/admin/cat/contracts/' + c.contratoId + '">' + c.contratoId + '</a></dd>' : '') +
+      '<dt>CAE</dt><dd class="mono">75000000000000 (simulado)</dd></dl>' +
+      '<h2>Importes</h2><div class="tabla-cont"><table class="tabla"><caption class="sr-only">Renglones del comprobante</caption><thead><tr><th scope="col">Concepto</th><th scope="col" class="num">Importe (ARS)</th></tr></thead><tbody>' +
+      c.renglones.map(function (r) { return '<tr><td>' + esc(r.concepto) + (r.explica ? '<p class="hint">' + esc(r.explica) + '</p>' : '') + '</td><td class="num mono">' + GA.num(r.importe) + '</td></tr>'; }).join('') +
+      '<tr><th scope="row">Total</th><td class="num mono">' + GA.num(c.total) + '</td></tr><tr><th scope="row">Pagado</th><td class="num mono">' + GA.num(c.pagado) + '</td></tr><tr><th scope="row">Saldo</th><td class="num mono">' + GA.num(saldo) + '</td></tr></tbody></table></div>' +
+      '<div class="acciones"><button type="button" class="btn" data-act="noDisponible">Descargar PDF</button><button type="button" class="btn" data-act="noDisponible">Reenviar por email</button>' +
+      (saldo ? '<a class="btn btn--pri" href="#/admin/cob/caja/cobro?cuenta=' + c.cuentaId + '">Cobrar en caja</a>' : '') + '</div>' +
+      '<p class="hint">Detalle del comprobante (PAN-FAC-10). Las acciones masivas siguen en el listado.</p>';
+  }
   function abrirFc(id) {
     var c = q.comprobante(id);
     if (!c) return;
     GA.modal({
-      titulo: 'Factura ' + c.letra + ' ' + c.numero, tam: 'lg',
-      cuerpo: '<p>' + GA.badge('fiscal', c.fiscal) + ' ' + GA.badge('comercial', q.saldoComprobante(c) ? 'impaga' : 'pagada') + '</p><dl class="dl dl--2"><dt>Titular</dt><dd>' + esc(q.nombreCuenta(c.cuentaId)) + '</dd><dt>Cuenta</dt><dd class="mono">' + c.cuentaId + '</dd><dt>Período</dt><dd class="mono">' + c.periodo + '</dd><dt>Fecha</dt><dd class="mono">' + c.fecha + '</dd><dt>Vencimientos</dt><dd class="mono">' + c.vto1 + ' · ' + c.vto2 + '</dd><dt>Lote</dt><dd class="mono">' + c.loteId + '</dd></dl>' +
-        '<div class="tabla-cont"><table class="tabla"><thead><tr><th scope="col">Concepto</th><th scope="col" class="num">Importe (ARS)</th></tr></thead><tbody>' + c.renglones.map(function (r) { return '<tr><td>' + esc(r.concepto) + '</td><td class="num mono">' + GA.num(r.importe) + '</td></tr>'; }).join('') +
-        '<tr><th scope="row">Total</th><td class="num mono">' + GA.num(c.total) + '</td></tr><tr><th scope="row">Pagado</th><td class="num mono">' + GA.num(c.pagado) + '</td></tr><tr><th scope="row">Saldo</th><td class="num mono">' + GA.num(q.saldoComprobante(c)) + '</td></tr></tbody></table></div><p class="hint">Detalle del comprobante (PAN-FAC-10). CAE y código de barras simulados.</p>',
-      pie: '<a class="btn" href="#/admin/per/titulares/' + q.titularDeCuenta(c.cuentaId).id + '" data-act="cerrarModal">Ver titular</a><button type="button" class="btn btn--pri" data-act="cerrarModal">Cerrar</button>'
+      titulo: c.tipo + ' ' + c.letra + ' ' + c.numero, tam: 'lg',
+      cuerpo: htmlDetalleComprobante(c),
+      pie: '<a class="btn" href="#/admin/fac/comprobantes/' + encodeURIComponent(c.id) + '" data-act="cerrarModal">Abrir pantalla completa</a><button type="button" class="btn btn--pri" data-act="cerrarModal">Cerrar</button>'
     });
   }
+
+  GA.ruta('/admin/fac/comprobantes/:id', {
+    app: 'admin', nav: 'comprobantes',
+    render: function (p) {
+      var c = q.comprobante(decodeURIComponent(p.id));
+      var meta = M('—', 'PAN-FAC-10', '/admin/fac/comprobantes/:invoiceId', 'fac.comprobantes.ver', 'O4', 'Detalle del comprobante', 'Consultar un comprobante emitido con renglones, estados fiscal y comercial y acciones.', 'T-FAC, T-ATE (consulta), T-GER');
+      if (!c) {
+        return { meta: meta, html: GA.cabecera({ migas: [['Comprobantes', '/admin/fac/comprobantes']], titulo: 'Comprobante no encontrado' }) + '<div class="pag">' + GA.vacio('No existe este comprobante', '', '<a class="btn" href="#/admin/fac/comprobantes">Volver al listado</a>') + '</div>' };
+      }
+      meta.titulo = c.tipo + ' ' + c.letra + ' ' + c.numero;
+      return {
+        meta: meta,
+        html: GA.cabecera({
+          migas: ['Facturación', ['Comprobantes', '/admin/fac/comprobantes'], c.numero],
+          titulo: meta.titulo,
+          extra: '<p class="cab-pag__datos">Cuenta <span class="mono">' + c.cuentaId + '</span> · Período <span class="mono">' + c.periodo + '</span></p>',
+          acciones: '<a class="btn" href="#/admin/fac/comprobantes">Volver al listado</a>'
+        }) + '<div class="pag panel">' + htmlDetalleComprobante(c) + '</div>'
+      };
+    }
+  });
+
+  GA.ruta('/admin/cob/cuentas/:id', {
+    app: 'admin', nav: 'cc',
+    render: function (p) {
+      var cuenta = q.cuenta(p.id);
+      var meta = M('—', 'PAN-COB-01', '/admin/cob/cuentas/:currentAccountId', 'cob.cuentas.ver', 'O5', 'Cuenta corriente', 'Ver saldo, movimientos y acciones de cobranza de una cuenta.', 'T-CAJ, T-FAC, T-ATE');
+      if (!cuenta) {
+        return { meta: meta, html: GA.cabecera({ migas: ['Cobranza', 'Cuenta corriente'], titulo: 'Cuenta no encontrada' }) + '<div class="pag">' + GA.vacio('No existe la cuenta ' + p.id, '', '<a class="btn" href="#/admin/per/titulares">Buscar titular</a>') + '</div>' };
+      }
+      var ti = q.titular(cuenta.titularId);
+      var mov = GA.movimientos([cuenta.id]);
+      var saldo = q.saldoCuenta(cuenta.id);
+      var impagos = q.impagosDe(cuenta.id).length;
+      meta.titulo = 'Cuenta corriente · Cta. ' + cuenta.id;
+      return {
+        meta: meta,
+        html: GA.cabecera({
+          migas: ['Cobranza', 'Cuenta corriente', 'Cta. ' + cuenta.id],
+          titulo: 'Cuenta corriente',
+          subtitulo: q.nombreCuenta(cuenta.id) + ' · ' + esc(cuenta.domicilio),
+          extra: '<p class="cab-pag__datos">Saldo <strong class="mono">' + GA.ars(saldo) + '</strong> · ' + (impagos ? GA.badgeTono('warn', impagos + ' factura' + (impagos > 1 ? 's' : '') + ' impaga' + (impagos > 1 ? 's' : '')) : GA.badgeTono('ok', 'Al día')) + '</p>',
+          acciones: '<a class="btn btn--pri" href="#/admin/cob/caja/cobro?cuenta=' + cuenta.id + '">Cobrar en caja</a><a class="btn" href="#/admin/per/titulares/' + ti.id + '">Ficha del titular</a><a class="btn" href="#/admin/per/cuentas/' + cuenta.id + '">Ficha de la cuenta</a>'
+        }) + '<div class="pag">' +
+          (mov.length ? '<div class="tabla-cont"><table class="tabla"><caption class="sr-only">Movimientos</caption><thead><tr><th scope="col">Fecha</th><th scope="col">Movimiento</th><th scope="col" class="num">Debe</th><th scope="col" class="num">Haber</th><th scope="col" class="num">Saldo</th></tr></thead><tbody>' +
+            mov.map(function (m) {
+              var link = '';
+              if (m.desc.indexOf('FC') === 0) {
+                var fc = GA.e.comprobantes.filter(function (x) { return m.desc.indexOf(x.numero) >= 0; })[0];
+                if (fc) link = ' <a href="#/admin/fac/comprobantes/' + encodeURIComponent(fc.id) + '" class="btn-link">Ver comprobante</a>';
+              }
+              return '<tr><td class="mono">' + m.fecha + '</td><td>' + esc(m.desc) + link + '</td><td class="num mono">' + (m.debe ? GA.num(m.debe) : '') + '</td><td class="num mono">' + (m.haber ? GA.num(m.haber) : '') + '</td><td class="num mono">' + GA.num(m.saldo) + '</td></tr>';
+            }).join('') + '</tbody></table></div>' : GA.vacio('Sin movimientos', 'Todavía no hay comprobantes ni pagos en esta cuenta.')) +
+          '<p class="hint">Vista operativa de Cobranza. La pestaña Cuenta corriente en la ficha 360 del titular es de solo lectura para otros roles.</p></div>'
+      };
+    }
+  });
 
   /* ================= COBRANZA ================= */
 

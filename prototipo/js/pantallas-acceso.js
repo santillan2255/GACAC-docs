@@ -16,6 +16,11 @@
     ['—', 'Lotes de facturación', 'PAN-FAC-05', '/admin/fac/lotes', '/admin/fac/lotes'],
     ['W-06', 'Revisión previa del lote (aprobación y emisión)', 'PAN-FAC-07', '/admin/fac/lotes/:id', '/admin/fac/lotes/LOT-2026-11-INT'],
     ['W-05', 'Listado de comprobantes', 'PAN-FAC-09', '/admin/fac/comprobantes', '/admin/fac/comprobantes'],
+    ['—', 'Detalle del comprobante', 'PAN-FAC-10', '/admin/fac/comprobantes/:invoiceId', '/admin/fac/comprobantes/FCB-0001-00000001'],
+    ['—', 'Personas', 'PAN-PER-03', '/admin/per/personas', '/admin/per/personas'],
+    ['—', 'Ficha de la cuenta', 'PAN-PER-05', '/admin/per/cuentas/:accountId', '/admin/per/cuentas/0001'],
+    ['—', 'Ficha del contrato', 'PAN-CAT-14', '/admin/cat/contracts/:contractId', '/admin/cat/contracts/INT-0001'],
+    ['—', 'Cuenta corriente', 'PAN-COB-01', '/admin/cob/cuentas/:currentAccountId', '/admin/cob/cuentas/0001'],
     ['—', 'Apertura de caja', 'PAN-COB-09', '/admin/cob/caja/apertura', '/admin/cob/caja/apertura'],
     ['W-07', 'Cobro en ventanilla', 'PAN-COB-10', '/admin/cob/caja/cobro', '/admin/cob/caja/cobro'],
     ['—', 'Recibos', 'PAN-COB-14', '/admin/cob/recibos', '/admin/cob/recibos'],
@@ -25,6 +30,10 @@
     ['W-09', 'Ficha de orden de trabajo', 'PAN-TEC-05', '/admin/tec/work-orders/:id', '/admin/tec/work-orders/0000002'],
     ['W-11', 'Inicio con saldo (socio)', 'PAN-POR-25', '/app/inicio', '/app/inicio'],
     ['—', 'Mis cuentas y servicios', 'PAN-POR-26', '/app/cuentas', '/app/cuentas'],
+    ['—', 'Detalle de cuenta (socio)', 'PAN-POR-28', '/app/cuentas/:accountId', '/app/cuentas/0001'],
+    ['—', 'Movimientos de cuenta (socio)', 'PAN-POR-43', '/app/cuentas/:accountId/movimientos', '/app/cuentas/0001/movimientos'],
+    ['—', 'Mi perfil', 'PAN-POR-59', '/app/perfil', '/app/perfil'],
+    ['—', 'Solicitud de contratación', 'PAN-POR-32', '/app/contratar/solicitar', '/app/contratar/solicitar?plan=FIB100'],
     ['—', 'Mis facturas', 'PAN-POR-38', '/app/facturas', '/app/facturas'],
     ['W-12', 'Detalle de factura', 'PAN-POR-39', '/app/facturas/:invoiceId', '/app/facturas'],
     ['W-13', 'Pagar', 'PAN-POR-40', '/app/pagar', '/app/pagar'],
@@ -56,7 +65,7 @@
       }).join('');
       return {
         claseMain: 'mapa',
-        html: '<div class="mapa__cont"><header class="mapa__cab"><p class="mapa__sobre">GoodApps Cooperativas · Artefacto 4.3</p><h1 id="h1" tabindex="-1">Prototipo navegable del piloto (Internet, olas O0 a O5)</h1>' +
+        html: '<div class="mapa__cont"><header class="mapa__cab"><p class="mapa__sobre">GoodApps Cooperativas · Artefacto 4.3</p><h1 id="h1" tabindex="-1">Prototipo navegable del piloto (Internet, olas O0 a O5, ampliado)</h1>' +
           '<p>Prototipo estático, sin servidor, construido sobre los 17 wireframes de <code>05-wireframes-pantallas-piloto.md</code>, las rutas canónicas de T03 §10.9 y el portal del socio de M19. Todos los datos son <strong>ficticios</strong>; los cambios se guardan solo en esta pestaña del navegador.</p>' +
           '<p class="mapa__sesion">' + (s ? 'Sesión activa: <strong>' + esc(s.usuario) + '</strong> en el espacio <strong>' + esc(s.espacio === 'admin' ? 'Administración' : s.espacio === 'campo' ? 'Campo' : 'Mi cooperativa (socio)') + '</strong>.' : 'No hay sesión iniciada.') + '</p>' +
           '<div class="acciones"><a class="btn btn--pri" href="#/login">Ir al login</a><button type="button" class="btn" data-act="entrarComo" data-espacio="admin">Entrar como personal</button><button type="button" class="btn" data-act="entrarComo" data-espacio="socio">Entrar como socio</button><button type="button" class="btn" data-act="entrarComo" data-espacio="campo">Entrar como técnico</button>' +

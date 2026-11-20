@@ -143,10 +143,10 @@
   /* ---------- AdminShell (W-02) ---------- */
   var MENU_ADMIN = [
     ['Inicio', [['tablero', 'Tablero', '/admin/inicio']]],
-    ['Socios y cuentas', [['titulares', 'Titulares', '/admin/per/titulares']]],
+    ['Socios y cuentas', [['titulares', 'Titulares', '/admin/per/titulares'], ['personas', 'Personas', '/admin/per/personas']]],
     ['Servicios', [['servicios', 'Catálogo de servicios', '/admin/cat/services']]],
     ['Facturación', [['lotes', 'Lotes de facturación', '/admin/fac/lotes'], ['comprobantes', 'Comprobantes emitidos', '/admin/fac/comprobantes']]],
-    ['Cobranza', [['apertura', 'Apertura y cierre de caja', '/admin/cob/caja/apertura'], ['cobro', 'Cobranza en caja', '/admin/cob/caja/cobro'], ['recibos', 'Recibos', '/admin/cob/recibos']]],
+    ['Cobranza', [['apertura', 'Apertura y cierre de caja', '/admin/cob/caja/apertura'], ['cobro', 'Cobranza en caja', '/admin/cob/caja/cobro'], ['recibos', 'Recibos', '/admin/cob/recibos'], ['cc', 'Cuenta corriente (ej. 0001)', '/admin/cob/cuentas/0001']]],
     ['Atención', [['bandeja', 'Bandeja de atención', '/admin/crm/bandeja']]],
     ['Técnica', [['ots', 'Órdenes de trabajo', '/admin/tec/work-orders']]]
   ];
@@ -321,7 +321,7 @@
   GA.acc.menuPwa = function () {
     GA.modal({
       titulo: 'Menú', tam: 'sm', pwa: true,
-      cuerpo: '<ul class="lista-nav"><li><a href="#/app/inicio" data-act="cerrarModal">Inicio</a></li><li><a href="#/app/cuentas" data-act="cerrarModal">Mis cuentas y servicios</a></li><li><a href="#/app/facturas" data-act="cerrarModal">Mis facturas</a></li><li><a href="#/app/pagos" data-act="cerrarModal">Historial de pagos</a></li><li><a href="#/app/gestiones" data-act="cerrarModal">Mis gestiones</a></li><li><a href="#/app/cuentas/vincular" data-act="cerrarModal">Vincular cuenta</a></li></ul>' +
+      cuerpo: '<ul class="lista-nav"><li><a href="#/app/inicio" data-act="cerrarModal">Inicio</a></li><li><a href="#/app/cuentas" data-act="cerrarModal">Mis cuentas y servicios</a></li><li><a href="#/app/facturas" data-act="cerrarModal">Mis facturas</a></li><li><a href="#/app/pagos" data-act="cerrarModal">Historial de pagos</a></li><li><a href="#/app/gestiones" data-act="cerrarModal">Mis gestiones</a></li><li><a href="#/app/contratar" data-act="cerrarModal">Contratar servicio</a></li><li><a href="#/app/cuentas/vincular" data-act="cerrarModal">Vincular cuenta</a></li><li><a href="#/app/perfil" data-act="cerrarModal">Mi perfil</a></li></ul>' +
         '<p><button type="button" class="btn btn--block" data-act="cambiarEspacio">Cambiar de espacio</button></p><p><button type="button" class="btn btn--block" data-act="salir">Cerrar sesión</button></p>'
     });
   };

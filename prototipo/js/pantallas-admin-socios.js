@@ -210,7 +210,7 @@
     return '<div class="contrato"><div class="contrato__cab"><strong class="mono">' + k.id + '</strong> · Internet · ' + esc(pl.nombre) + ' ' + GA.badge('contrato', k.estado) + '</div>' +
       '<p>Domicilio del servicio: ' + esc(k.domicilio) + '</p><p>Categoría: ' + esc(k.categoria) + ' · Equipo: ' + esc(k.equipo) + '</p>' +
       '<p>' + (k.casoId ? 'Caso: <a href="#/admin/crm/casos/' + k.casoId + '">' + k.casoId + '</a>' : 'Sin caso') + (k.otId ? ' · OT: <a href="#/admin/tec/work-orders/' + k.otId + '">' + k.otId + '</a>' : '') + '</p>' +
-      '<div class="acciones"><button type="button" class="btn btn--sm" data-act="verContrato" data-id="' + k.id + '">Ver contrato</button><button type="button" class="btn btn--sm" data-act="noDisponible">Acciones ▾</button></div></div>';
+      '<div class="acciones"><a class="btn btn--sm" href="#/admin/cat/contracts/' + k.id + '">Ver contrato</a><button type="button" class="btn btn--sm" data-act="noDisponible">Acciones ▾</button></div></div>';
   }
 
   function tabCuentas(ti, per, cuentas) {
@@ -247,7 +247,7 @@
     var fcs = GA.e.comprobantes.filter(function (c) { return ids.indexOf(c.cuentaId) >= 0; });
     if (!fcs.length) return GA.vacio('Sin facturas', 'Las facturas aparecen cuando se emite un lote que incluye estas cuentas.', '<a class="btn" href="#/admin/fac/lotes">Ir a lotes de facturación</a>');
     return '<div class="tabla-cont"><table class="tabla"><caption class="sr-only">Facturas del titular</caption><thead><tr><th scope="col">Comprobante</th><th scope="col">Período</th><th scope="col">Cuenta</th><th scope="col" class="num">Total</th><th scope="col">Estado</th></tr></thead><tbody>' +
-      fcs.map(function (c) { return '<tr><td><a class="mono" href="#/admin/fac/comprobantes?id=' + c.id + '">' + c.tipo + ' ' + c.letra + ' ' + c.numero + '</a></td><td class="mono">' + c.periodo + '</td><td class="mono">' + c.cuentaId + '</td><td class="num mono">' + GA.num(c.total) + '</td><td>' + GA.badge('comercial', q.saldoComprobante(c) ? 'impaga' : 'pagada') + '</td></tr>'; }).join('') + '</tbody></table></div>';
+      fcs.map(function (c) { return '<tr><td><a class="mono" href="#/admin/fac/comprobantes/' + encodeURIComponent(c.id) + '">' + c.tipo + ' ' + c.letra + ' ' + c.numero + '</a></td><td class="mono">' + c.periodo + '</td><td class="mono">' + c.cuentaId + '</td><td class="num mono">' + GA.num(c.total) + '</td><td>' + GA.badge('comercial', q.saldoComprobante(c) ? 'impaga' : 'pagada') + '</td></tr>'; }).join('') + '</tbody></table></div>';
   }
 
   function tabReclamos(ti, per, cuentas) {
@@ -263,17 +263,123 @@
     return h.length ? '<ol class="timeline">' + h.map(function (x) { return '<li><span class="timeline__f">' + esc(x.fecha) + '</span>' + esc(x.texto) + '</li>'; }).join('') + '</ol>' : '<p>Sin historia.</p>';
   }
 
+  function htmlFichaContrato(k) {
+    var pl = q.plan(k.planId);
+    var cuenta = q.cuenta(k.cuentaId);
+    var ti = cuenta ? q.titular(cuenta.titularId) : null;
+    return '<p>' + GA.badge('contrato', k.estado) + '</p><dl class="dl dl--2"><dt>Servicio y plan</dt><dd>Internet · ' + esc(pl.nombre) + ' (' + esc(pl.velocidad) + ')</dd><dt>Abono</dt><dd class="mono">' + GA.ars(pl.abono) + ' por mes</dd>' +
+      '<dt>Cuenta</dt><dd><a class="mono" href="#/admin/per/cuentas/' + k.cuentaId + '">' + k.cuentaId + '</a></dd>' +
+      (ti ? '<dt>Titular</dt><dd><a href="#/admin/per/titulares/' + ti.id + '">' + esc(q.nombreCuenta(k.cuentaId)) + '</a></dd>' : '') +
+      '<dt>Domicilio del servicio</dt><dd>' + esc(k.domicilio) + '</dd><dt>Categoría</dt><dd>' + esc(k.categoria) + '</dd><dt>Equipo</dt><dd>' + esc(k.equipo) + '</dd><dt>Origen</dt><dd>' + esc(k.origen) + '</dd><dt>Fecha de solicitud o alta</dt><dd class="mono">' + esc(k.alta) + '</dd>' +
+      (k.casoId ? '<dt>Caso</dt><dd><a class="mono" href="#/admin/crm/casos/' + k.casoId + '">' + k.casoId + '</a></dd>' : '') +
+      (k.otId ? '<dt>OT</dt><dd><a class="mono" href="#/admin/tec/work-orders/' + k.otId + '">' + k.otId + '</a></dd>' : '') +
+      '</dl><p class="hint">El estado solo cambia por transiciones válidas (RF-CAT-061).</p>';
+  }
   GA.acc.verContrato = function (el) {
     var k = q.contrato(el.getAttribute('data-id'));
-    var pl = q.plan(k.planId);
+    if (!k) return;
     GA.modal({
       titulo: 'Contrato ' + k.id, tam: 'md',
-      cuerpo: '<p>' + GA.badge('contrato', k.estado) + '</p><dl class="dl"><dt>Servicio y plan</dt><dd>Internet · ' + esc(pl.nombre) + ' (' + esc(pl.velocidad) + ')</dd><dt>Abono</dt><dd class="mono">' + GA.ars(pl.abono) + ' por mes</dd>' +
-        '<dt>Cuenta</dt><dd class="mono">' + k.cuentaId + '</dd><dt>Domicilio del servicio</dt><dd>' + esc(k.domicilio) + '</dd><dt>Categoría</dt><dd>' + esc(k.categoria) + '</dd><dt>Origen</dt><dd>' + esc(k.origen) + '</dd><dt>Fecha de solicitud o alta</dt><dd>' + esc(k.alta) + '</dd></dl>' +
-        '<p class="hint">Ficha del contrato PAN-CAT-14. El estado solo cambia por transiciones (RF-CAT-061).</p>',
-      pie: '<button type="button" class="btn btn--pri" data-act="cerrarModal">Cerrar</button>'
+      cuerpo: htmlFichaContrato(k),
+      pie: '<a class="btn" href="#/admin/cat/contracts/' + k.id + '" data-act="cerrarModal">Abrir pantalla completa</a><button type="button" class="btn btn--pri" data-act="cerrarModal">Cerrar</button>'
     });
   };
+
+  GA.ruta('/admin/per/personas', {
+    app: 'admin', nav: 'personas',
+    render: function (p, query) {
+      var f = GA.ui.per || { q: '' };
+      var t = f.q.trim().toLowerCase();
+      var filas = GA.e.personas.filter(function (per) {
+        if (!t) return true;
+        return (GA.q.nombre(per) + ' ' + (per.dni || '') + ' ' + per.cuit + ' ' + per.id).toLowerCase().indexOf(t) >= 0;
+      });
+      var tabla = filas.length ? '<div class="tabla-cont"><table class="tabla"><caption class="sr-only">Personas</caption><thead><tr><th scope="col">ID</th><th scope="col">Nombre</th><th scope="col">Documento</th><th scope="col">CUIT</th><th scope="col">Contacto</th><th scope="col">Verificación</th></tr></thead><tbody>' +
+        filas.map(function (per) {
+          return '<tr><td class="mono">' + per.id + '</td><td><a href="#/admin/per/personas/' + per.id + '">' + esc(GA.q.nombre(per)) + '</a></td><td class="mono">' + esc(per.dni || '—') + '</td><td class="mono">' + esc(per.cuit) + '</td><td>' + esc(per.email || '—') + '</td><td>' + GA.badgeTono(per.verificado ? 'ok' : 'warn', per.verificado ? 'Verificado' : 'Pendiente') + '</td></tr>';
+        }).join('') + '</tbody></table></div>' : GA.vacio('No encontramos personas', 'Probá por nombre, DNI o CUIT.');
+      return {
+        meta: M('—', 'PAN-PER-03', '/admin/per/personas', 'per.personas.ver', 'O2', 'Personas', 'Buscar y abrir personas físicas o jurídicas antes de dar de alta titulares.', 'T-ATE, T-ADM'),
+        html: GA.cabecera({ migas: ['Socios y cuentas', 'Personas'], titulo: 'Personas', acciones: '<button type="button" class="btn btn--pri" data-act="altaPersona">Nueva persona</button>' }) +
+          '<div class="pag"><form class="filtros" data-form="buscarPer" role="search"><div class="campo campo--crece"><label for="per-q">Nombre, DNI, CUIT o ID</label><input id="per-q" name="per-q" type="search" value="' + esc(f.q) + '"></div><button type="submit" class="btn">Buscar</button></form>' + tabla + '</div>',
+        despues: function () { if (query.id && !GA.ui.perAbierto) { GA.ui.perAbierto = true; GA.ir('/admin/per/personas/' + query.id); } }
+      };
+    }
+  });
+  GA.form.buscarPer = function (f) { GA.ui.per = { q: f.querySelector('#per-q').value }; GA.render(true); };
+
+  GA.ruta('/admin/per/personas/:id', {
+    app: 'admin', nav: 'personas',
+    render: function (p) {
+      var per = GA.e.personas.filter(function (x) { return x.id === p.id; })[0];
+      var meta = M('—', 'PAN-PER-03', '/admin/per/personas/:personId', 'per.personas.ver', 'O2', 'Persona', 'Consultar datos de identidad y contacto de una persona.', 'T-ATE, T-ADM');
+      if (!per) {
+        return { meta: meta, html: GA.cabecera({ migas: [['Personas', '/admin/per/personas']], titulo: 'Persona no encontrada' }) + '<div class="pag">' + GA.vacio('No existe ' + p.id, '', '<a class="btn" href="#/admin/per/personas">Volver</a>') + '</div>' };
+      }
+      var titulares = GA.e.titulares.filter(function (ti) { return ti.personaId === per.id; });
+      meta.titulo = GA.q.nombre(per);
+      return {
+        meta: meta,
+        html: GA.cabecera({
+          migas: ['Socios y cuentas', ['Personas', '/admin/per/personas'], GA.q.nombre(per)],
+          titulo: GA.q.nombre(per),
+          extra: '<p class="cab-pag__datos">CUIT <span class="mono">' + esc(per.cuit) + '</span> · ' + esc(per.condIva) + ' · ' + GA.badgeTono(per.verificado ? 'ok' : 'warn', per.verificado ? 'Documentación verificada' : 'Documentación pendiente') + '</p>',
+          acciones: '<button type="button" class="btn btn--pri" data-act="noDisponible">Editar persona</button>'
+        }) + '<div class="pag"><dl class="dl dl--2"><dt>ID</dt><dd class="mono">' + per.id + '</dd><dt>Email</dt><dd>' + esc(per.email || '—') + '</dd><dt>Teléfono</dt><dd>' + esc(per.telefono || '—') + '</dd><dt>Domicilio</dt><dd>' + esc(per.domicilio + ', ' + per.localidad) + '</dd></dl>' +
+          '<h2>Titulares vinculados</h2>' + (titulares.length ? '<ul class="lista">' + titulares.map(function (ti) {
+            return '<li><a class="mono" href="#/admin/per/titulares/' + ti.id + '">Titular ' + ti.id + '</a> ' + GA.badge('titular', ti.estado) + ' · Asociado: ' + (ti.asociado ? 'Sí' : 'No') + '</li>';
+          }).join('') + '</ul>' : '<p>No es titular en esta cooperativa.</p>') + '</div>'
+      };
+    }
+  });
+
+  GA.ruta('/admin/per/cuentas/:id', {
+    app: 'admin', nav: 'titulares',
+    render: function (p) {
+      var cuenta = q.cuenta(p.id);
+      var meta = M('—', 'PAN-PER-05', '/admin/per/cuentas/:accountId', 'per.cuentas.ver', 'O2', 'Cuenta', 'Consultar datos de la cuenta, alertas y accesos a contratos.', 'T-ATE, T-SAT, T-FAC');
+      if (!cuenta) {
+        return { meta: meta, html: GA.cabecera({ migas: [['Titulares', '/admin/per/titulares']], titulo: 'Cuenta no encontrada' }) + '<div class="pag">' + GA.vacio('No existe la cuenta ' + p.id, '', '<a class="btn" href="#/admin/per/titulares">Volver a titulares</a>') + '</div>' };
+      }
+      var ti = q.titular(cuenta.titularId);
+      var per = q.persona(ti.personaId);
+      var ks = q.contratosDe(cuenta.id);
+      var saldo = q.saldoCuenta(cuenta.id);
+      meta.titulo = 'Cuenta ' + cuenta.id;
+      return {
+        meta: meta,
+        html: GA.cabecera({
+          migas: ['Socios y cuentas', ['Titulares', '/admin/per/titulares'], ['Titular ' + ti.id, '/admin/per/titulares/' + ti.id], 'Cuenta ' + cuenta.id],
+          titulo: 'Cuenta ' + cuenta.id,
+          subtitulo: esc(cuenta.domicilio),
+          extra: '<p class="cab-pag__datos">Titular: <a href="#/admin/per/titulares/' + ti.id + '">' + esc(GA.q.nombre(per)) + '</a> · Saldo <strong class="mono">' + GA.ars(saldo) + '</strong></p>',
+          acciones: '<a class="btn btn--pri" href="#/admin/cat/contracts/new?cuenta=' + cuenta.id + '">Nuevo contrato</a><a class="btn" href="#/admin/cob/cuentas/' + cuenta.id + '">Cuenta corriente</a>'
+        }) + '<div class="pag"><dl class="dl dl--2"><dt>Principal</dt><dd>' + (cuenta.principal ? 'Sí' : 'No') + '</dd><dt>Entrega de facturas</dt><dd>' + esc(cuenta.entrega) + '</dd><dt>Grupo de facturación</dt><dd>' + esc(cuenta.grupo) + '</dd></dl>' +
+          '<h2>Contratos</h2>' + (ks.length ? ks.map(tarjetaContrato).join('') : GA.vacio('Sin contratos', 'Podés dar de alta un contrato desde esta cuenta.', '<a class="btn btn--pri" href="#/admin/cat/contracts/new?cuenta=' + cuenta.id + '">Nuevo contrato</a>')) + '</div>'
+      };
+    }
+  });
+
+  GA.ruta('/admin/cat/contracts/:id', {
+    app: 'admin', nav: 'titulares',
+    render: function (p) {
+      var k = q.contrato(p.id);
+      var meta = M('—', 'PAN-CAT-14', '/admin/cat/contracts/:contractId', 'cat.contratos.ver', 'O2–O4', 'Contrato de servicio', 'Consultar el estado del contrato y sus vínculos con caso y OT.', 'T-ATE, T-SAT, T-ADM');
+      if (!k) {
+        return { meta: meta, html: GA.cabecera({ migas: ['Servicios', 'Contratos'], titulo: 'Contrato no encontrado' }) + '<div class="pag">' + GA.vacio('No existe ' + p.id, '', '<a class="btn" href="#/admin/per/titulares">Buscar titular</a>') + '</div>' };
+      }
+      meta.titulo = 'Contrato ' + k.id;
+      return {
+        meta: meta,
+        html: GA.cabecera({
+          migas: ['Servicios', 'Contratos', k.id],
+          titulo: 'Contrato ' + k.id,
+          extra: '<p class="cab-pag__datos">' + GA.badge('contrato', k.estado) + '</p>',
+          acciones: '<button type="button" class="btn" data-act="noDisponible">Acciones del contrato</button>'
+        }) + '<div class="pag panel">' + htmlFichaContrato(k) + '</div>'
+      };
+    }
+  });
 
   GA.acc.nuevaCuenta = function (el) {
     var tid = el.getAttribute('data-tit');

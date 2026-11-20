@@ -59,9 +59,53 @@
         html: h1('Mis cuentas y servicios') + vinculadas().map(function (id) {
           var c = q.cuenta(id);
           var ks = q.contratosDe(id);
-          return '<section class="card"><h2 class="card__t">Cuenta ' + id + '</h2><p>' + esc(c.domicilio) + '</p><p>Rol de acceso: titular · Saldo <span class="mono">' + GA.ars(q.saldoCuenta(id)) + '</span></p>' +
+          return '<section class="card">' + fila('/app/cuentas/' + id, '<h2 class="card__t">Cuenta ' + id + '</h2><p>' + esc(c.domicilio) + '</p><p>Rol: titular · Saldo <span class="mono">' + GA.ars(q.saldoCuenta(id)) + '</span></p>', 'Ver cuenta ' + id) +
             (ks.length ? ks.map(function (k) { return '<p>Internet · ' + esc(q.plan(k.planId).nombre) + ' ' + GA.badge('contrato', k.estado) + '</p>'; }).join('') : '<p>Sin servicios contratados.</p>') + '</section>';
         }).join('') + '<a class="btn btn--block" href="#/app/cuentas/vincular">Vincular otra cuenta</a>'
+      };
+    }
+  });
+
+  /* ---------- Detalle de cuenta (PAN-POR-28) y movimientos (PAN-POR-43) ---------- */
+  function cuentaSocioHtml(id) {
+    var c = q.cuenta(id);
+    if (!c || vinculadas().indexOf(id) < 0) return null;
+    var ks = q.contratosDe(id);
+    var saldo = q.saldoCuenta(id);
+    return '<p>' + esc(c.domicilio) + '</p>' +
+      '<dl class="dl"><dt>Titular</dt><dd>' + esc(q.nombreCuenta(id)) + '</dd><dt>Entrega de facturas</dt><dd>' + esc(c.entrega) + '</dd><dt>Saldo</dt><dd class="mono">' + GA.ars(saldo) + '</dd></dl>' +
+      '<h2 class="pwa-h2">Servicios</h2>' + (ks.length ? ks.map(function (k) {
+        return '<div class="card"><p><strong>Internet · ' + esc(q.plan(k.planId).nombre) + '</strong> ' + GA.badge('contrato', k.estado) + '</p><p class="hint">Contrato ' + k.id + ' · ' + esc(k.domicilio) + '</p></div>';
+      }).join('') : '<p>Sin contratos activos en esta cuenta.</p>') +
+      '<div class="acciones"><a class="btn btn--pri" href="#/app/cuentas/' + id + '/movimientos">Ver movimientos</a><a class="btn" href="#/app/pagar?cuenta=' + id + '">Pagar</a></div>' +
+      '<p class="hint">Representaciones y adhesiones: disponibles en olas siguientes (RF-POR-043).</p>';
+  }
+
+  GA.ruta('/app/cuentas/:id/movimientos', {
+    app: 'socio', nav: 'servicios',
+    render: function (p) {
+      var id = p.id;
+      var meta = M('—', 'PAN-POR-43', '/app/cuentas/:accountId/movimientos', 'por.facturas.ver', 'O5', 'Movimientos de cuenta', 'Consultar débitos, créditos y saldo de la cuenta.', 'C-SOC, C-REP');
+      if (!cuentaSocioHtml(id)) {
+        return { meta: meta, volver: '/app/cuentas', html: h1('Movimientos') + GA.vacio('Cuenta no disponible', 'Solo podés ver las cuentas que tenés vinculadas.', '<a class="btn" href="#/app/cuentas">Mis cuentas</a>') };
+      }
+      var mov = GA.movimientos([id]);
+      var cuerpo = mov.length ? '<div class="tabla-cont"><table class="tabla"><caption class="sr-only">Movimientos</caption><thead><tr><th scope="col">Fecha</th><th scope="col">Concepto</th><th scope="col" class="num">Saldo</th></tr></thead><tbody>' +
+        mov.map(function (m) { return '<tr><td class="mono">' + m.fecha + '</td><td>' + esc(m.desc) + '</td><td class="num mono">' + GA.num(m.saldo) + '</td></tr>'; }).join('') + '</tbody></table></div>' : GA.vacio('Sin movimientos', 'Cuando haya facturas o pagos, aparecen acá.');
+      return { meta: meta, volver: '/app/cuentas/' + id, fab: { texto: 'Pagar', href: '/app/pagar' }, html: h1('Movimientos · Cuenta ' + id) + cuerpo + '<button type="button" class="btn btn--block" data-act="noDisponible">Descargar resumen (PDF)</button>' };
+    }
+  });
+
+  GA.ruta('/app/perfil', {
+    app: 'socio', nav: 'inicio',
+    render: function () {
+      var per = q.persona(GA.e.sesion.personaId);
+      return {
+        meta: M('—', 'PAN-POR-59', '/app/perfil', 'por.perfil.editar', 'O0–O2', 'Mi perfil', 'Ver y editar datos de contacto del usuario de la app.', 'C-SOC, C-REP'),
+        volver: '/app/inicio',
+        html: h1('Mi perfil') + '<dl class="dl"><dt>Nombre</dt><dd>' + esc(GA.q.nombre(per)) + '</dd><dt>Documento</dt><dd class="mono">' + esc(per.dni) + '</dd><dt>CUIT</dt><dd class="mono">' + esc(per.cuit) + '</dd><dt>Email</dt><dd>' + esc(per.email) + '</dd><dt>Teléfono</dt><dd>' + esc(per.telefono) + '</dd><dt>Domicilio postal</dt><dd>' + esc(per.domicilio + ', ' + per.localidad) + '</dd></dl>' +
+          '<button type="button" class="btn btn--block" data-act="noDisponible">Editar contacto (con verificación)</button>' +
+          '<p class="hint">Cambios de domicilio o datos fiscales generan un trámite en la cooperativa.</p>'
       };
     }
   });
@@ -102,6 +146,19 @@
       };
     }
   });
+
+  GA.ruta('/app/cuentas/:id', {
+    app: 'socio', nav: 'servicios',
+    render: function (p) {
+      var meta = M('—', 'PAN-POR-28', '/app/cuentas/:accountId', 'por.servicios.ver', 'O2', 'Detalle de cuenta', 'Ver domicilio, servicios, saldo y accesos de una cuenta vinculada.', 'C-SOC, C-REP');
+      var det = cuentaSocioHtml(p.id);
+      if (!det) {
+        return { meta: meta, volver: '/app/cuentas', html: h1('Cuenta') + GA.vacio('Cuenta no disponible', '', '<a class="btn" href="#/app/cuentas">Volver</a>') };
+      }
+      return { meta: meta, volver: '/app/cuentas', fab: { texto: 'Pagar', href: '/app/pagar' }, html: h1('Cuenta ' + p.id) + det };
+    }
+  });
+
   GA.acc.vincMetodo = function (el) { GA.ui.vinc.metodo = el.getAttribute('data-valor'); GA.ui.vinc.errores = []; GA.render(true); };
   GA.acc.dondeCuenta = function () {
     GA.modal({ titulo: '¿Dónde está el número de cuenta?', tam: 'sm', pwa: true, cuerpo: '<div class="factura-ilus" role="img" aria-label="Factura ilustrativa: el número de cuenta está arriba a la derecha, debajo del nombre del titular."><span>Factura</span><span class="factura-ilus__marca">Cuenta 0000</span></div><p>Está arriba a la derecha de tu factura, debajo de tu nombre.</p>', pie: '<button type="button" class="btn btn--pri" data-act="cerrarModal">Entendido</button>' });
@@ -428,11 +485,49 @@
       return {
         meta: M('—', 'PAN-POR-31', '/app/contratar', 'por.servicios.contratar', 'O2', 'Contratar', 'Catálogo de servicios con planes para contratar desde la app.', 'C-SOC, C-VIS'),
         volver: '/app/inicio',
-        html: h1('Contratar un servicio') + GA.e.planes.map(function (p) { return '<div class="card"><h2 class="card__t">Internet · ' + esc(p.nombre) + '</h2><p>' + esc(p.velocidad) + ' · <span class="mono">' + GA.ars(p.abono) + '</span> por mes</p></div>'; }).join('') +
-          '<p class="banda banda--info">' + GA.ico('info') + 'La solicitud desde la app (PAN-POR-32) no se incluye en el prototipo. El alta del contrato se muestra en el admin (W-04).</p>'
+        html: h1('Contratar un servicio') + GA.e.planes.map(function (p) {
+          return '<div class="card"><h2 class="card__t">Internet · ' + esc(p.nombre) + '</h2><p>' + esc(p.velocidad) + ' · Abono <span class="mono">' + GA.ars(p.abono) + '</span> · Instalación <span class="mono">' + GA.ars(p.instalacion) + '</span></p><a class="btn btn--pri btn--block" href="#/app/contratar/solicitar?plan=' + p.id + '">Solicitar este plan</a></div>';
+        }).join('') +
+          '<p class="hint">La cooperativa confirma requisitos y agenda la instalación. El seguimiento lo ves en Mis gestiones.</p>'
       };
     }
   });
+  GA.ruta('/app/contratar/solicitar', {
+    app: 'socio', nav: 'servicios',
+    render: function (p, query) {
+      var planId = query.plan || 'FIB100';
+      var pl = q.plan(planId) || GA.e.planes[0];
+      var cuentas = vinculadas();
+      var meta = M('—', 'PAN-POR-32', '/app/contratar/solicitar', 'por.servicios.contratar', 'O2', 'Solicitar contratación', 'Iniciar una solicitud de alta de Internet desde la app del socio.', 'C-SOC');
+      var opts = cuentas.map(function (id) { return [id, 'Cuenta ' + id + ' · ' + q.cuenta(id).domicilio]; });
+      return {
+        meta: meta,
+        volver: '/app/contratar',
+        html: h1('Solicitar Internet') + '<p>Plan: <strong>' + esc(pl.nombre) + '</strong> (' + esc(pl.velocidad) + ')</p>' +
+          (opts.length ? '<form data-form="solicitudContrato" novalidate>' +
+            GA.campo({ id: 'sol-cuenta', label: 'Cuenta donde contratar', type: 'select', value: opts[0][0], req: true, opciones: opts, attrs: 'autofocus' }) +
+            GA.campo({ id: 'sol-dom', label: 'Domicilio del servicio', type: 'textarea', rows: 2, value: q.cuenta(opts[0][0]).domicilio, req: true, hint: 'Si es otro domicilio, podés editarlo acá.' }) +
+            '<label class="check"><input type="checkbox" name="sol-acepta" required> Leí y acepto las condiciones del servicio</label>' +
+            '<button type="submit" class="btn btn--pri btn--block">Enviar solicitud</button></form>'
+            : GA.vacio('Necesitás vincular una cuenta', 'Antes de contratar, vinculá la cuenta donde querés el servicio.', '<a class="btn btn--pri" href="#/app/cuentas/vincular">Vincular cuenta</a>'))
+      };
+    }
+  });
+  GA.form.solicitudContrato = function (f) {
+    if (!f.querySelector('[name="sol-acepta"]').checked) { GA.toast('Tenés que aceptar las condiciones.', 'bad'); return; }
+    var cuentaId = f.querySelector('#sol-cuenta').value;
+    var dom = f.querySelector('#sol-dom').value.trim();
+    if (!dom) { GA.toast('Ingresá el domicilio del servicio.', 'bad'); return; }
+    var planId = (GA.parseHash().query.plan) || 'FIB100';
+    var pl = q.plan(planId) || GA.e.planes[0];
+    var kid = 'INT-' + GA.sig('contrato', 4);
+    var casoId = '2026-' + GA.sig('caso', 6);
+    GA.e.contratos.push({ id: kid, cuentaId: cuentaId, planId: planId, categoria: 'Residencial', estado: 'requested', domicilio: dom, casoId: casoId, otId: null, equipo: 'ONT (a asignar)', origen: 'App del socio', alta: GA.HOY });
+    GA.e.casos.push({ id: casoId, clase: 'solicitud', prioridad: 'normal', asunto: 'Alta de Internet · ' + pl.nombre + ' (desde la app)', cuentaId: cuentaId, contratoId: kid, estado: 'recibido', canal: 'app', vence: '12-11-2026 17:00', responsable: 'Sin asignar', otId: null, area: 'Comercial', linea: [{ fecha: GA.ahora(), autor: 'Socio Ejemplo', texto: 'Solicitud enviada desde la app del socio.', tipo: 'mensaje' }, { fecha: GA.ahora(), autor: 'Sistema', texto: 'Contrato ' + kid + ' en estado Solicitado.', tipo: 'sistema' }] });
+    GA.e.historia.unshift({ fecha: GA.ahora(), titularId: q.cuenta(cuentaId).titularId, texto: 'Solicitud de contrato ' + kid + ' desde la app' });
+    GA.toast('Solicitud enviada. N.º de gestión ' + casoId + '.');
+    GA.ir('/app/gestiones/' + casoId);
+  };
   GA.ruta('/app/comunidad', {
     app: 'socio', nav: 'comunidad',
     render: function () {

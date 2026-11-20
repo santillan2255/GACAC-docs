@@ -14,7 +14,7 @@
   --ok: #276749;
   --ok-soft: rgba(39, 103, 73, 0.12);
   --r: 10px;
-  --max: 720px;
+  --max: min(860px, 96vw);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
@@ -34,7 +34,8 @@ body {
 .wrap {
   max-width: var(--max);
   margin: 0 auto;
-  padding: 16px 20px 48px;
+  padding: 12px 16px 40px;
+  width: 100%;
 }
 
 header.bar {
@@ -145,8 +146,8 @@ button:disabled {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  padding: 20px 22px;
-  margin-top: 16px;
+  padding: 16px 18px;
+  margin-top: 12px;
 }
 
 .card .meta {
@@ -181,9 +182,43 @@ button:disabled {
   color: var(--brand);
 }
 
-.card h2 {
+.badge.spec-default {
+  background: rgba(49, 130, 206, 0.14);
+  color: #2b6cb0;
+}
+
+.badge.spec-asumida {
+  background: rgba(128, 90, 213, 0.14);
+  color: #553c9a;
+}
+
+.badge.spec-cerrada {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.opciones label.spec-op:not(.sel) {
+  border-color: rgba(49, 130, 206, 0.45);
+  background: rgba(49, 130, 206, 0.05);
+}
+
+.opciones label.spec-op.sel {
+  border-color: #3182ce;
+  background: rgba(49, 130, 206, 0.1);
+}
+
+.tema-etq {
+  margin: 0 0 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
+.card h2.tema-tit {
   font-size: 1rem;
-  margin: 0 0 6px;
+  margin: 0 0 10px;
   font-weight: 600;
   color: var(--ink-2);
 }
@@ -192,8 +227,36 @@ button:disabled {
   font-size: 1.2rem;
   font-weight: 700;
   line-height: 1.35;
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   color: var(--ink);
+}
+
+.pregunta-ambito {
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.tecnica-inline {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--r);
+  padding: 0 10px 6px;
+}
+
+.tecnica-inline summary {
+  cursor: pointer;
+  padding: 8px 0;
+  color: var(--ink-3);
+}
+
+.pregunta-tecnica {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  color: var(--ink-3);
+  font-family: Consolas, "IBM Plex Mono", monospace;
 }
 
 .card .contexto {
@@ -291,6 +354,108 @@ button:disabled {
   line-height: 1.45;
 }
 
+.opciones label > span.op-wrap,
+.opciones label > span:first-of-type:not(.badge) {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+.op-wrap {
+  display: block;
+  width: 100%;
+}
+
+.opciones label > span > .badge.rec {
+  display: inline;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.op-main-line {
+  display: inline;
+  line-height: 1.45;
+}
+
+.op-letter {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.op-lead {
+  display: inline;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.op-bullets {
+  margin: 8px 0 4px;
+  padding-left: 1.15rem;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.4;
+}
+
+.op-bullets li {
+  margin-bottom: 4px;
+}
+
+.op-tecnica {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--ink-3);
+}
+
+.op-tecnica--tail {
+  display: inline;
+  margin-left: 0;
+}
+
+.op-main-line + .op-tecnica--tail {
+  margin-left: 0.35rem;
+}
+
+.op-bullets + .op-tecnica--tail {
+  display: block;
+  margin-top: 6px;
+}
+
+.op-tecnica--tail[open] {
+  display: block;
+  margin-top: 6px;
+}
+
+.op-tecnica summary {
+  cursor: pointer;
+  color: var(--ink-2);
+  font-weight: 500;
+  display: inline;
+  list-style: none;
+}
+
+.op-tecnica summary::-webkit-details-marker {
+  display: none;
+}
+
+.op-tecnica summary::before {
+  content: "▸ ";
+  font-size: 0.75rem;
+}
+
+.op-tecnica[open] summary::before {
+  content: "▾ ";
+}
+
+.op-tecnica p {
+  margin: 8px 0 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.op-accion-resumen {
+  color: var(--ink-2);
+}
+
 .opciones-tit {
   font-size: 1.1rem;
   margin: 16px 0 12px;
@@ -365,39 +530,40 @@ button:disabled {
   min-height: 96px;
 }
 
-.nav--sticky {
-  margin-top: 24px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
+.card--layout-dock {
+  display: block;
 }
 
-@media (min-width: 900px) {
-  :root {
-    --max: min(1120px, 94vw);
-  }
+.card__body {
+  min-width: 0;
+}
 
-  .wrap {
-    padding: 20px 28px 40px;
+.nav-panel-pos {
+  display: none;
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+@media (min-width: 641px) {
+  :root {
+    --max: min(1240px, 98vw);
   }
 
   header.bar {
-    padding: 12px 28px;
+    padding: 10px 16px;
   }
 
-  .card .pregunta {
-    font-size: 1.5rem;
-    line-height: 1.3;
-    margin-bottom: 12px;
-  }
-
-  .card h2 {
-    font-size: 1.05rem;
+  .wrap {
+    padding: 12px 16px 28px;
   }
 
   .opciones {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
     align-items: stretch;
   }
 
@@ -409,6 +575,95 @@ button:disabled {
   .opciones > li > label {
     flex: 1;
     height: 100%;
+    padding: 10px 12px;
+  }
+
+  .opciones > li:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .card--layout-dock {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 156px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .nav-panel {
+    position: sticky;
+    top: 92px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin-top: 0;
+    padding: 14px 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    z-index: 8;
+  }
+
+  .nav-panel-pos {
+    display: block;
+  }
+
+  .nav-panel button {
+    width: 100%;
+    min-height: 44px;
+    font-size: 0.92rem;
+    padding: 10px 8px;
+  }
+
+  .nav-panel .primary {
+    min-height: 48px;
+    font-weight: 600;
+  }
+
+  .wrap {
+    padding-bottom: 32px;
+  }
+}
+
+@media (min-width: 900px) {
+  :root {
+    --max: min(1380px, 98vw);
+  }
+
+  .wrap {
+    padding: 14px 20px 24px;
+  }
+
+  header.bar {
+    padding: 10px 20px;
+  }
+
+  .inner--filters .filters {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+
+  .card {
+    padding: 18px 22px;
+  }
+
+  .card .pregunta {
+    font-size: 1.32rem;
+    line-height: 1.28;
+    margin-bottom: 8px;
+  }
+
+  .card h2.tema-tit {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+
+  .opciones-tit {
+    margin: 12px 0 8px;
+  }
+
+  .opciones {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .opciones > li:last-child {
@@ -419,12 +674,16 @@ button:disabled {
   #amp {
     max-width: 100%;
   }
+}
 
-  .nav--sticky {
-    position: static;
-    box-shadow: none;
-    padding-left: 0;
-    padding-right: 0;
+@media (min-width: 1200px) {
+  :root {
+    --max: min(1520px, 99vw);
+  }
+
+  .card--layout-dock {
+    grid-template-columns: minmax(0, 1fr) 148px;
+    gap: 18px;
   }
 }
 
@@ -487,6 +746,14 @@ button:disabled {
     max-width: none;
   }
 
+  .buscar-wrap {
+    width: 100%;
+  }
+
+  .btn-buscar {
+    min-height: 44px;
+  }
+
   .card {
     padding: 16px 14px;
   }
@@ -502,7 +769,7 @@ button:disabled {
     margin-top: 2px;
   }
 
-  .nav--sticky {
+  .nav-panel {
     position: fixed;
     left: 0;
     right: 0;
@@ -514,9 +781,12 @@ button:disabled {
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
     z-index: 9;
     gap: 8px;
+    border-radius: 0;
+    flex-direction: row;
+    flex-wrap: nowrap;
   }
 
-  .nav--sticky button {
+  .nav-panel button {
     flex: 1;
     min-height: 48px;
     font-size: 0.95rem;
@@ -531,10 +801,15 @@ button:disabled {
 .opciones {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px;
-  display: flex;
-  flex-direction: column;
+  margin: 0 0 10px;
   gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .opciones {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .opciones label {
@@ -607,6 +882,30 @@ select {
 
 #filtro-area {
   max-width: min(320px, 100%);
+}
+
+.buscar-wrap {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+#buscar-pa {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 16px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+
+.btn-buscar {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  min-height: 40px;
 }
 
 .empty {

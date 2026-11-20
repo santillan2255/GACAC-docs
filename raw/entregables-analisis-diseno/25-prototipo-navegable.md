@@ -17,7 +17,7 @@
 
 1. Abrí la carpeta `25-prototipo-navegable/`.
 2. Hacé doble clic en `index.html`. Se abre en el navegador predeterminado (Chrome, Edge o Firefox actuales). No hace falta instalar nada ni tener conexión a Internet.
-3. La primera pantalla es el **Mapa del prototipo**: tiene los siete recorridos guiados, la tabla de pantallas y accesos directos para entrar como personal, como socio o como técnico.
+3. La primera pantalla es el **Mapa del prototipo**: tiene los siete recorridos guiados, la tabla de pantallas (incluye una ampliación posterior al alcance mínimo del piloto) y accesos directos para entrar como personal, como socio o como técnico.
 
 Otras indicaciones:
 
@@ -49,9 +49,9 @@ Todas las pantallas tienen una barra superior amarilla que no forma parte del pr
     ├── ui.js                       Componentes: insignias de estado, campos, modal, toasts, pestañas, íconos SVG
     ├── app.js                      Router por hash, guardas de sesión, AdminShell, AppShell, barra del prototipo, recorridos
     ├── pantallas-acceso.js         Mapa del prototipo, login, 2FA, elección de espacio, sin acceso, no encontrada
-    ├── pantallas-admin-socios.js   Tablero, titulares, alta de persona/titular/cuenta, ficha 360, contrato, servicios
-    ├── pantallas-admin-operacion.js Lotes, comprobantes, caja, recibos, bandeja, expediente, órdenes de trabajo
-    ├── pantallas-socio.js          Portal del socio (PWA): inicio, cuentas, facturas, pago, gestiones
+    ├── pantallas-admin-socios.js   Tablero, titulares, personas, ficha de cuenta/contrato, alta, ficha 360, servicios
+    ├── pantallas-admin-operacion.js Lotes, comprobantes (listado y detalle), cuenta corriente, caja, recibos, CRM, OT
+    ├── pantallas-socio.js          Portal (PWA): inicio, cuentas, detalle/movimientos, contratar/solicitud, facturas, pago, perfil, gestiones
     └── pantallas-campo.js          App de campo (PWA): Mi día, ejecución de OT, cola sin conexión, stock
 ```
 
@@ -79,13 +79,18 @@ Los scripts se cargan como `<script>` clásicos y en orden (no son módulos ES),
 | W-02 | Búsqueda de titulares y cuentas | PAN-PER-01 | `/admin/per/titulares` |
 | — | Alta de persona, titular y cuenta (modal) | PAN-PER-04 · PAN-PER-05 | modal lg desde `/admin/per/titulares` (`?alta=1`) |
 | W-03 | Ficha 360 del titular | PAN-PER-02 | `/admin/per/titulares/:holderId` |
+| — | Personas (listado y detalle) | PAN-PER-03 | `/admin/per/personas`, `/admin/per/personas/:personId` |
+| — | Ficha de la cuenta | PAN-PER-05 | `/admin/per/cuentas/:accountId` |
 | W-04 | Alta de contrato de servicio (asistente de 6 pasos) | PAN-CAT-15 | `/admin/cat/contracts/new` |
+| — | Ficha del contrato de servicio | PAN-CAT-14 | `/admin/cat/contracts/:contractId` |
 | — | Catálogo de servicios | PAN-CAT-03 | `/admin/cat/services` |
 | W-10 | Configuración del servicio Internet | PAN-CAT-04 | `/admin/cat/services/:id` |
 | — | Lotes de facturación | PAN-FAC-05 | `/admin/fac/lotes` |
 | W-06 | Revisión previa del lote (aprobación y emisión) | PAN-FAC-07 | `/admin/fac/lotes/:id` |
 | W-05 | Listado de comprobantes | PAN-FAC-09 | `/admin/fac/comprobantes` |
+| — | Detalle del comprobante | PAN-FAC-10 | `/admin/fac/comprobantes/:invoiceId` |
 | — | Apertura y cierre de caja | PAN-COB-09 | `/admin/cob/caja/apertura` |
+| — | Cuenta corriente (vista Cobranza) | PAN-COB-01 | `/admin/cob/cuentas/:currentAccountId` |
 | W-07 | Cobro en ventanilla | PAN-COB-10 | `/admin/cob/caja/cobro` |
 | — | Recibos | PAN-COB-14 | `/admin/cob/recibos` |
 | W-08 | Bandeja de reclamos y casos | PAN-CRM-02 | `/admin/crm/bandeja` |
@@ -96,7 +101,7 @@ Los scripts se cargan como `<script>` clásicos y en orden (no son módulos ES),
 El AdminShell incluye:
 
 - **Barra superior:** marca, contexto de cooperativa y sucursal, buscador global (Ctrl+K), mapa del sitio, accesos fijados, alertas, ayuda de la pantalla (`?`) y menú de usuario.
-- **Menú lateral:** agrupado por clústeres, con la opción actual marcada.
+- **Menú lateral:** agrupado por clústeres, con la opción actual marcada. Incluye **Personas** (PAN-PER-03) y un acceso ejemplo a **Cuenta corriente** de la cuenta 0001 (PAN-COB-01).
 - **Cabecera de página:** migas de pan y título.
 
 En tabletas el menú lateral se pliega. Por debajo de 768 px se muestra el aviso de que el admin está pensado para escritorio.
@@ -109,6 +114,8 @@ Si se elige **Cooperativa Ejemplo Dos**, el tablero aparece vacío. Así se ilus
 |---|---|---|---|
 | W-11 | Inicio con saldo | PAN-POR-25 | `/app/inicio` |
 | — | Mis cuentas y servicios | PAN-POR-26 | `/app/cuentas` |
+| — | Detalle de cuenta | PAN-POR-28 | `/app/cuentas/:accountId` |
+| — | Movimientos de cuenta | PAN-POR-43 | `/app/cuentas/:accountId/movimientos` |
 | W-15 | Vincular cuenta con código | PAN-POR-27 | `/app/cuentas/vincular` |
 | — | Mis facturas | PAN-POR-38 | `/app/facturas` |
 | W-12 | Detalle de factura ("¿Por qué pago esto?") | PAN-POR-39 | `/app/facturas/:invoiceId` |
@@ -118,12 +125,14 @@ Si se elige **Cooperativa Ejemplo Dos**, el tablero aparece vacío. Así se ilus
 | — | Mis gestiones | PAN-POR-50 | `/app/gestiones` |
 | W-14 | Nueva gestión o reclamo (modal) | PAN-POR-51 | `/app/gestiones/nueva` |
 | — | Seguimiento de la gestión | PAN-POR-33 | `/app/gestiones/:caseId` |
-| — | Contratar un servicio (solo informativa) | — | `/app/contratar` |
+| — | Contratar (catálogo de planes) | PAN-POR-31 | `/app/contratar` |
+| — | Solicitar contratación desde la app | PAN-POR-32 | `/app/contratar/solicitar` |
+| — | Mi perfil | PAN-POR-59 | `/app/perfil` |
 | — | Comunidad (fuera del piloto; estado vacío) | M17/T09 | `/app/comunidad` |
 
 El AppShell del socio tiene:
 
-- **Barra superior:** menú, marca de la cooperativa, notificaciones y perfil.
+- **Barra superior:** menú (incluye Contratar, Mi perfil y accesos rápidos), marca de la cooperativa, notificaciones y avatar de usuario.
 - **Barra inferior:** Inicio, Servicios, botón flotante (+), Gestiones y Comunidad.
 
 En escritorio la app se muestra dentro de un marco de teléfono de 430 px. En el celular ocupa toda la pantalla.
@@ -160,7 +169,7 @@ Una barra inferior muestra el paso actual con los botones Anterior, Siguiente pa
 | 2 | Alta de persona, titular y cuenta | En Titulares, tocar "Nuevo titular". Completar persona, titular y cuenta. Al guardar se abre la ficha 360 del nuevo titular. | PAN-PER-01, PAN-PER-04/05, W-03 |
 | 3 | Alta de contrato de Internet | En la ficha 360, la cuenta 0002 no tiene contratos: tocar "Nuevo contrato". Recorrer los 6 pasos y crear. El contrato queda **Solicitado** y vinculado a un caso de solicitud, que aparece en la bandeja. | W-03, W-04, W-08 |
 | 4 | Facturación: revisión previa y emisión | Abrir LOT-2026-11-INT (Prefacturado). Revisar la muestra, aprobar (con segregación de funciones) y emitir. El avance del proceso es simulado. Los comprobantes de 11-2026 aparecen en el listado. | PAN-FAC-05, W-06, W-05 |
-| 5 | Cobro en caja y recibo | Abrir la caja 01 con un fondo inicial. Buscar la cuenta 0001, entregar ARS 40.000 en efectivo (vuelto ARS 5.000) y confirmar con F10. Ver el recibo. La cuenta corriente de la ficha 360 muestra el pago. | PAN-COB-09, W-07, PAN-COB-14, W-03 |
+| 5 | Cobro en caja y recibo | Abrir la caja 01 con un fondo inicial. Buscar la cuenta 0001, entregar ARS 40.000 en efectivo (vuelto ARS 5.000) y confirmar con F10. Ver el recibo. La cuenta corriente de la ficha 360 o la pantalla PAN-COB-01 muestra el pago. | PAN-COB-09, W-07, PAN-COB-14, PAN-COB-01, W-03 |
 | 6 | Portal del socio: facturas, pago, vinculación y gestiones | En Inicio, abrir "Tu última factura" y ver "¿Por qué pago esto?". Pagar con SIRO; el pago queda pendiente hasta simular la notificación de aprobación (también se puede simular el rechazo). Vincular la cuenta 0002 con el DNI 00000000. Crear una gestión o reclamo con el botón (+) y seguirla. | W-11, W-12, W-13, PAN-POR-41, W-15, W-14, PAN-POR-33 |
 | 7 | Reclamo y orden de trabajo (admin y campo) | En la bandeja, abrir el reclamo vencido 2026-000040. Tomarlo y crear una OT de reclamo técnico, luego despacharla. Pasar a la app de campo: Mi día, abrir la OT, completar los 8 pasos (checklist, serie, fotos, prueba, conformidad) y marcarla ejecutada. Volver al admin, confirmar y cerrar la OT: el caso queda resuelto. | W-08, PAN-CRM-03, W-09, W-16, W-17 |
 
@@ -232,8 +241,9 @@ Los CUIT se generan con un dígito verificador válido. El alta de persona valid
 El prototipo cubre:
 
 - Los 17 wireframes (W-01 a W-17).
-- Las pantallas auxiliares que los recorridos necesitan: PAN-PER-04/05, PAN-CAT-03, PAN-FAC-05, PAN-COB-09, PAN-COB-14, PAN-TEC-04, PAN-TEC-53 y las listas del portal.
-- Los siete recorridos pedidos.
+- Las pantallas auxiliares que los recorridos necesitan: PAN-PER-04, PAN-CAT-03, PAN-FAC-05, PAN-COB-09, PAN-COB-14, PAN-TEC-04, PAN-TEC-53 y las listas del portal.
+- **Ampliación (posteriores a la versión mínima del artefacto 4.3):** pantallas de detalle y navegación cruzada admin ↔ socio: PAN-PER-03, PAN-PER-05 (ficha de cuenta), PAN-CAT-14, PAN-FAC-10, PAN-COB-01, PAN-POR-28, PAN-POR-43, PAN-POR-32 (solicitud desde la app), PAN-POR-59. Siguen el piloto Internet O0–O5; no abren olas O6+ ni el catálogo completo de ~1.000 PAN.
+- Los siete recorridos pedidos (sin recorrido guiado propio para la ampliación; se accede desde el mapa o desde enlaces dentro de las pantallas).
 
 Las reglas visibles en los wireframes están simuladas en el navegador:
 
@@ -272,6 +282,8 @@ Las reglas visibles en los wireframes están simuladas en el navegador:
 - **Detalle parcial:**
   - No todas las pestañas o secciones de las pantallas tienen el detalle completo. Las que no lo tienen muestran un estado vacío explicativo.
   - En la vinculación de cuenta solo se implementa el primer método, número de cuenta y documento.
+  - PAN-POR-32 crea contrato Solicitado y caso en bandeja, pero no reproduce el asistente completo del admin (W-04) ni la factibilidad técnica paso a paso.
+  - El detalle de comprobante en admin sigue disponible como modal rápido desde el listado; la ruta PAN-FAC-10 es la vista de página completa.
 - **No implementado:**
   - Confirmación de "cambios sin guardar" al salir de un formulario.
   - Búsqueda difusa ni paginación real.
@@ -299,7 +311,7 @@ Inconsistencias o vacíos detectados en la especificación durante la construcci
    - SM-PWS-001: `por.inicio.ver` frente a `por.portal.ver`.
    - SM-PWS-017: `por.gestiones.ver` frente a `por.gestiones.crear` (ya registrado como AD-13).
 7. **W-07: número de comprobante abreviado.** Se usa "FC B 0001-01". El prototipo muestra el número completo (punto de venta de 4 dígitos y número de 8).
-8. **Pantallas sin wireframe.** El alta de persona, titular y cuenta (PAN-PER-04/05) y la apertura de caja (PAN-COB-09) no tienen wireframe propio en el documento 05, aunque los recorridos pedidos las necesitan. Se diseñaron siguiendo los patrones de T03.
+8. **Pantallas sin wireframe.** El alta de persona, titular y cuenta (PAN-PER-04; modal) y la apertura de caja (PAN-COB-09) no tienen wireframe propio en el documento 05, aunque los recorridos pedidos las necesitan. Se diseñaron siguiendo los patrones de T03. La ficha de cuenta (PAN-PER-05) tiene ruta propia `/admin/per/cuentas/:accountId` distinta del modal de alta; en la ampliación se implementó como página.
 9. **Selector de cooperativa del admin sin ruta.** No hay ruta canónica para el selector de cooperativa y espacio del personal (pendiente AD-01). El prototipo lo resuelve con `#/login/espacio`.
 10. **W-04: modal o página.** El asistente se especifica como modal pero tiene ruta propia (`/admin/cat/contracts/new`). El prototipo lo implementa como página para respetar la ruta.
 11. **Números de cuenta de ejemplo en el portal.** Los textos de ejemplo del portal usan "Cta 0007" y otros números que no coinciden con las cuentas de los wireframes del admin. El prototipo usa el mismo conjunto de cuentas (0001 a 0005) en todos los espacios.

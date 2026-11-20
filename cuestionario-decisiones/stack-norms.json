@@ -1,0 +1,19 @@
+{
+  "doc06": "docs/especificacion/06-impacto-adaptacion-stack-goodapps.md",
+  "summary": "Implementación GoodApps: Azure SQL relacional, EF Core, .NET 10, React 19. Multitenant con TenantId (DEC-110). DEC-111 reemplaza DEC-001 (Node/Mongo).",
+  "legacyPattern": "MongoDB|Mongo\\b|DEC-001|replica set|BullMQ|Node\\+Mongo|en Mongo|PITR.*Mongo",
+  "decisions": {
+    "DEC-111": "Stack .NET + Azure SQL + React (vigente)",
+    "DEC-001": "Stack anterior citado en anexos; histórico — reemplazado por DEC-111",
+    "DEC-117": "Modelo físico en 07-modelo-relacional-azure-sql.md"
+  },
+  "paStackIds": [
+    "PA-STACK-01",
+    "PA-STACK-02",
+    "PA-STACK-03",
+    "PA-STACK-04",
+    "PA-STACK-05",
+    "PA-STACK-06",
+    "PA-STACK-07"
+  ]
+}
