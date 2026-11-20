@@ -352,6 +352,10 @@ select {
   border: 1px solid var(--line);
 }
 
+#filtro-area {
+  max-width: min(320px, 100%);
+}
+
 .empty {
   text-align: center;
   padding: 48px 20px;

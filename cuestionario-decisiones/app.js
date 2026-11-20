@@ -2,6 +2,7 @@
   "use strict";
 
   var STORAGE_KEY = "gacac-cuestionario-md-v1";
+  var STORAGE_AREA = "gacac-cuestionario-area-v1";
   var DEFAULT_MD = "copia-respuestas-stakeholder.md";
   var INDICE_URL = "indice-02.json";
 
@@ -59,6 +60,7 @@
     items: [],
     index: 0,
     filter: "todas",
+    areaFilter: "todos",
     fileHandle: null,
     indice: {},
   };
@@ -69,6 +71,7 @@
     progText: document.getElementById("prog-text"),
     progBar: document.getElementById("prog-bar"),
     filtro: document.getElementById("filtro"),
+    filtroArea: document.getElementById("filtro-area"),
     irId: document.getElementById("ir-id"),
   };
 
@@ -97,13 +100,55 @@
     return m ? m[1].trim() : "";
   }
 
-  function moduloLabel(id) {
+  function moduloKey(id) {
     var i;
     for (i = 0; i < MODULOS.length; i++) {
-      if (id.indexOf(MODULOS[i][0]) === 0) return MODULOS[i][1];
+      if (id.indexOf(MODULOS[i][0]) === 0) return MODULOS[i][0];
     }
     var m = id.match(/^PA-([A-Z]+)/);
-    return m ? "Área " + m[1] + " (anexo en la especificación)" : "";
+    return m ? "PA-" + m[1] : "PA-OTROS";
+  }
+
+  function moduloLabel(id) {
+    var key = moduloKey(id);
+    var i;
+    for (i = 0; i < MODULOS.length; i++) {
+      if (MODULOS[i][0] === key) return MODULOS[i][1];
+    }
+    return key === "PA-OTROS"
+      ? "Otras decisiones"
+      : "Área " + key.replace(/^PA-/, "") + " (anexo en la especificación)";
+  }
+
+  function labelForModKey(key) {
+    var i;
+    for (i = 0; i < MODULOS.length; i++) {
+      if (MODULOS[i][0] === key) return MODULOS[i][1];
+    }
+    return key;
+  }
+
+  function anexoPrincipal(it) {
+    if (!it.anexo) return "";
+    var a = String(it.anexo).trim();
+    var m = a.match(/^(M\d+|T\d+[a-z]?)/i);
+    return m ? m[1].toUpperCase() : a.split(/\s+/)[0];
+  }
+
+  function itemMatchesArea(it) {
+    if (state.areaFilter === "todos") return true;
+    if (state.areaFilter.indexOf("mod:") === 0) {
+      return it.moduloKey === state.areaFilter.slice(4);
+    }
+    if (state.areaFilter.indexOf("anexo:") === 0) {
+      var ax = state.areaFilter.slice(6);
+      var p = it.anexoPrincipal || anexoPrincipal(it);
+      if (p === ax) return true;
+      if (it.anexo && String(it.anexo).toUpperCase().indexOf(ax) === 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   function enrichItems() {
@@ -111,6 +156,7 @@
     for (i = 0; i < state.items.length; i++) {
       var it = state.items[i];
       var row = state.indice[it.id];
+      it.moduloKey = moduloKey(it.id);
       it.modulo = moduloLabel(it.id);
       if (row) {
         it.anexo = row.anexo;
@@ -118,6 +164,7 @@
         it.recomendadaIndice = row.recomendada;
         it.estadoIndice = row.estadoIndice;
       }
+      it.anexoPrincipal = anexoPrincipal(it);
     }
   }
 
@@ -296,11 +343,84 @@
     var idx = [];
     for (var i = 0; i < state.items.length; i++) {
       var it = state.items[i];
+      if (!itemMatchesArea(it)) continue;
       if (state.filter === "pendientes" && answered(it)) continue;
       if (state.filter === "respondidas" && !answered(it)) continue;
       idx.push(i);
     }
     return idx;
+  }
+
+  function areaFilterLabel() {
+    if (state.areaFilter === "todos") return "";
+    if (state.areaFilter.indexOf("mod:") === 0) {
+      return labelForModKey(state.areaFilter.slice(4));
+    }
+    if (state.areaFilter.indexOf("anexo:") === 0) {
+      return "Anexo " + state.areaFilter.slice(6);
+    }
+    return "";
+  }
+
+  function fillAreaSelect() {
+    if (!el.filtroArea || !state.items.length) return;
+    var prev = state.areaFilter;
+    var modCounts = {};
+    var anexoCounts = {};
+    var i;
+    for (i = 0; i < state.items.length; i++) {
+      var it = state.items[i];
+      modCounts[it.moduloKey] = (modCounts[it.moduloKey] || 0) + 1;
+      var ax = it.anexoPrincipal || anexoPrincipal(it);
+      if (ax) anexoCounts[ax] = (anexoCounts[ax] || 0) + 1;
+    }
+    el.filtroArea.innerHTML = "";
+    var optAll = document.createElement("option");
+    optAll.value = "todos";
+    optAll.textContent = "Todas las áreas (" + state.items.length + ")";
+    el.filtroArea.appendChild(optAll);
+
+    var ogMod = document.createElement("optgroup");
+    ogMod.label = "Por módulo / tema (código PA)";
+    var modKeys = Object.keys(modCounts).sort(function (a, b) {
+      return labelForModKey(a).localeCompare(labelForModKey(b), "es");
+    });
+    for (i = 0; i < modKeys.length; i++) {
+      var mk = modKeys[i];
+      var o = document.createElement("option");
+      o.value = "mod:" + mk;
+      o.textContent =
+        labelForModKey(mk) + " (" + modCounts[mk] + ")";
+      ogMod.appendChild(o);
+    }
+    el.filtroArea.appendChild(ogMod);
+
+    var ogAx = document.createElement("optgroup");
+    ogAx.label = "Por anexo (índice 02)";
+    var axKeys = Object.keys(anexoCounts).sort(function (a, b) {
+      var ga = /^M/.test(a) ? 0 : 1;
+      var gb = /^M/.test(b) ? 0 : 1;
+      if (ga !== gb) return ga - gb;
+      return a.localeCompare(b, "es", { numeric: true });
+    });
+    for (i = 0; i < axKeys.length; i++) {
+      var ak = axKeys[i];
+      var oa = document.createElement("option");
+      oa.value = "anexo:" + ak;
+      oa.textContent = ak + " (" + anexoCounts[ak] + " preguntas)";
+      ogAx.appendChild(oa);
+    }
+    el.filtroArea.appendChild(ogAx);
+
+    var ok = false;
+    for (i = 0; i < el.filtroArea.options.length; i++) {
+      if (el.filtroArea.options[i].value === prev) {
+        ok = true;
+        break;
+      }
+    }
+    state.areaFilter = ok ? prev : "todos";
+    el.filtroArea.value = state.areaFilter;
   }
 
   function currentLogicalIndex() {
@@ -363,8 +483,29 @@
   function updateProgress() {
     var done = state.items.filter(answered).length;
     var total = state.items.length;
+    var list = filteredIndices();
+    var doneFilt = 0;
+    var j;
+    for (j = 0; j < list.length; j++) {
+      if (answered(state.items[list[j]])) doneFilt++;
+    }
     var pct = total ? Math.round((done / total) * 100) : 0;
-    el.progText.textContent = done + " / " + total + " respondidas";
+    var area = areaFilterLabel();
+    if (state.areaFilter !== "todos" && list.length) {
+      el.progText.textContent =
+        doneFilt +
+        " / " +
+        list.length +
+        " en " +
+        area +
+        " · " +
+        done +
+        " / " +
+        total +
+        " global";
+    } else {
+      el.progText.textContent = done + " / " + total + " respondidas";
+    }
     el.progBar.style.width = pct + "%";
   }
 
@@ -373,7 +514,7 @@
     var list = nav.list;
     if (!list.length) {
       el.app.innerHTML =
-        '<div class="empty"><p>No hay preguntas con este filtro.</p></div>';
+        '<div class="empty"><p>No hay preguntas con este filtro. Probá otra <strong>Área</strong> o cambiá <strong>Ver</strong>.</p></div>';
       updateProgress();
       return;
     }
@@ -418,7 +559,13 @@
         '<p class="estado-spec">Esta entrada no tiene opciones A/B/C en el MD; usá ampliación.</p>';
     }
 
-    var posLabel = nav.pos + 1 + " / " + list.length;
+    var areaNote = areaFilterLabel();
+    var posLabel =
+      nav.pos +
+      1 +
+      " / " +
+      list.length +
+      (areaNote ? " · " + areaNote : "");
     var estadoBadge = /Respondida/i.test(it.estado)
       ? '<span class="badge ok">Ya decidida en spec</span>'
       : /Asumida|Pendiente/i.test(it.estado)
@@ -516,6 +663,7 @@
   }
 
   function render() {
+    fillAreaSelect();
     renderQuestion();
     if (el.filtro) el.filtro.value = state.filter;
     fillIdJump();
@@ -524,14 +672,23 @@
   function fillIdJump() {
     if (!el.irId) return;
     var cur = el.irId.value;
+    var list = filteredIndices();
     el.irId.innerHTML = "";
-    for (var i = 0; i < state.items.length; i++) {
+    var k;
+    for (k = 0; k < list.length; k++) {
+      var i = list[k];
       var opt = document.createElement("option");
       opt.value = String(i);
       opt.textContent =
         state.items[i].id + (answered(state.items[i]) ? " ✓" : "");
       if (String(i) === cur) opt.selected = true;
       el.irId.appendChild(opt);
+    }
+    if (!list.length) {
+      var empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "—";
+      el.irId.appendChild(empty);
     }
   }
 
@@ -628,6 +785,17 @@
         render();
       };
     }
+    if (el.filtroArea) {
+      el.filtroArea.onchange = function () {
+        state.areaFilter = el.filtroArea.value;
+        try {
+          localStorage.setItem(STORAGE_AREA, state.areaFilter);
+        } catch (e) {}
+        var list = filteredIndices();
+        state.index = list.length ? list[0] : 0;
+        render();
+      };
+    }
     if (el.irId) {
       el.irId.onchange = function () {
         state.index = parseInt(el.irId.value, 10) || 0;
@@ -650,6 +818,10 @@
     initEvents();
     loadIndice().then(function (idx) {
       state.indice = idx || {};
+      try {
+        var sa = localStorage.getItem(STORAGE_AREA);
+        if (sa) state.areaFilter = sa;
+      } catch (e) {}
       var stored = loadStored();
       if (stored && stored.indexOf("### PA-") !== -1) {
         setMd(stored, false);
