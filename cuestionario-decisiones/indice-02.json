@@ -1,0 +1,3608 @@
+{
+  "PA-CFG-P2-01": {
+    "anexo": "T04b parte 2",
+    "titulo": "Alcance de los 114 parámetros de facturación que ProCoop no lee en su código",
+    "recomendada": "Catalogarlos e implementar el comportamiento solo si la migración muestra valores distintos del default",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P2-02": {
+    "anexo": "T04b parte 2",
+    "titulo": "Opciones \"permitir/impedir\" de facturación convertidas en permisos",
+    "recomendada": "Permisos por rol, con auditoría de cada uso",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P2-03": {
+    "anexo": "T04b parte 2",
+    "titulo": "Protección de los PDF de la impresión masiva (#2402)",
+    "recomendada": "Sin contraseña común; distribución por enlace firmado con vencimiento",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P2-04": {
+    "anexo": "T04b parte 2",
+    "titulo": "Libro IVA ventas parcial (#2605)",
+    "recomendada": "Libro legal siempre completo; la separación es solo un filtro de reportes",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P2-05": {
+    "anexo": "T04b parte 2",
+    "titulo": "Parámetros con nombre de una cooperativa o tercero (CAU/AL, A.M.A., TORN, FECESCOR, \"personalizadas\")",
+    "recomendada": "Generalizarlos en convenios de terceros y fórmulas, sin siglas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P2-06": {
+    "anexo": "T04b parte 2",
+    "titulo": "Falta de respuesta de ARCA en la venta de mostrador (#727, #726, #2427)",
+    "recomendada": "Esperar el CAE con tiempo máximo; si se vence, contingencia o comprobante pendiente no entregable como fiscal",
+    "estadoIndice": "Respondida (DEC-018)"
+  },
+  "PA-CFG-P3-01": {
+    "anexo": "T04b parte 3",
+    "titulo": "Plazo de prescripción de deuda por defecto",
+    "recomendada": "24 meses, editable por tenant y servicio",
+    "estadoIndice": "Respondida (DEC-052: 24 meses periódicas / 60 meses resto)"
+  },
+  "PA-CFG-P3-02": {
+    "anexo": "T04b parte 3",
+    "titulo": "Período de control de convenios",
+    "recomendada": "Ventana móvil de 12 meses en lugar de fechas fijas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P3-03": {
+    "anexo": "T04b parte 3",
+    "titulo": "Pago online después del vencimiento",
+    "recomendada": "Política única del tenant con excepción opcional por ente",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P3-04": {
+    "anexo": "T04b parte 3",
+    "titulo": "Reconexión automática al cobrar",
+    "recomendada": "Generar la orden de trabajo cuando no quede deuda vencida al último vencimiento; reconexión directa en servicios que no necesitan técnico",
+    "estadoIndice": "Respondida (DEC-014)"
+  },
+  "PA-CFG-P3-05": {
+    "anexo": "T04b parte 3",
+    "titulo": "Prioridad de las pasarelas secundarias",
+    "recomendada": "Pagos360, Mercado Pago, SIRO y Red Link en O5; el resto Extensión en O11",
+    "estadoIndice": "Respondida (DEC-015)"
+  },
+  "PA-CFG-P3-06": {
+    "anexo": "T04b parte 3",
+    "titulo": "Beneficio de recargo para jubilados",
+    "recomendada": "Beneficio de un segmento de personas con su propia regla de recargo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P1-01": {
+    "anexo": "T04b parte 1",
+    "titulo": "Numeración de titulares (asociados/clientes)",
+    "recomendada": "Secuencia única por tenant con atributo de tipo; número manual solo en migración",
+    "estadoIndice": "Respondida (DEC-017)"
+  },
+  "PA-CFG-P1-02": {
+    "anexo": "T04b parte 1",
+    "titulo": "Quién edita los datos legales del tenant",
+    "recomendada": "El tenant edita razón social y domicilio con auditoría; el CUIT solo la plataforma",
+    "estadoIndice": "Asumida (DEC-072); respondida en parte por DEC-064 (datos legales en `legalEntities` de T04; CUIT no editable, PA-CFG-14)"
+  },
+  "PA-CFG-P1-03": {
+    "anexo": "T04b parte 1",
+    "titulo": "Claves de mapas e IA",
+    "recomendada": "Provistas por la plataforma, con opción de clave propia del tenant",
+    "estadoIndice": "Respondida (DEC-020)"
+  },
+  "PA-CFG-P1-04": {
+    "anexo": "T04b parte 1",
+    "titulo": "Intereses por mora en pagos online",
+    "recomendada": "Diferir el interés a la próxima factura, configurable por canal",
+    "estadoIndice": "Respondida (DEC-051)"
+  },
+  "PA-CFG-P1-05": {
+    "anexo": "T04b parte 1",
+    "titulo": "Reconexión automática al pagar (ver también PA-CFG-P3-04)",
+    "recomendada": "Automática solo en servicios remotos o sin técnica, al confirmarse el pago, por deuda del servicio",
+    "estadoIndice": "Respondida (DEC-014)"
+  },
+  "PA-CFG-P1-06": {
+    "anexo": "T04b parte 1",
+    "titulo": "Meses de comprobantes visibles en el portal",
+    "recomendada": "24 meses; los anteriores a pedido",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P1-07": {
+    "anexo": "T04b parte 1",
+    "titulo": "Reguladores de otras provincias (OCEBA, RASE, EPRE, ATER)",
+    "recomendada": "O7 como mapeo regulatorio genérico",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P1-08": {
+    "anexo": "T04b parte 1",
+    "titulo": "Exención de recargo por cuenta",
+    "recomendada": "Permitida con motivo, vigencia y autorización",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P4-01": {
+    "anexo": "T04b parte 4",
+    "titulo": "Módem GSM local para SMS",
+    "recomendada": "Solo proveedores por API",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P4-02": {
+    "anexo": "T04b parte 4",
+    "titulo": "Nombre del socio en la pantalla del turnero",
+    "recomendada": "Número o código por defecto; nombre como opción del tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P4-03": {
+    "anexo": "T04b parte 4",
+    "titulo": "Fechas de cierre por módulo",
+    "recomendada": "Bloqueo de período por módulo + bloqueo contable general que prevalece",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P4-04": {
+    "anexo": "T04b parte 4",
+    "titulo": "Métodos de valorización de stock",
+    "recomendada": "FIFO o PPP para la valuación contable; los cinco métodos solo en informes",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P4-05": {
+    "anexo": "T04b parte 4",
+    "titulo": "Topes previsionales de sueldos",
+    "recomendada": "Tabla legal de plataforma con vigencia + override auditado del tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-P4-06": {
+    "anexo": "T04b parte 4",
+    "titulo": "Parches operativos de ProCoop (SIRADIG, corrección de txt)",
+    "recomendada": "Migrar como opciones desactivadas por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CAT-01": {
+    "anexo": "M02",
+    "titulo": "Momento de creación del contrato de servicio",
+    "recomendada": "Al admitir la solicitud en CRM, en estado Solicitado",
+    "estadoIndice": "Respondida (DEC-011)"
+  },
+  "PA-CAT-02": {
+    "anexo": "M02",
+    "titulo": "Quién habilita y quién publica servicios",
+    "recomendada": "Plataforma habilita según licencia; admin del tenant publica con aprobación de otro usuario en producción",
+    "estadoIndice": "Respondida (DEC-021)"
+  },
+  "PA-CAT-03": {
+    "anexo": "M02",
+    "titulo": "Apagar una oferta con contratos vigentes",
+    "recomendada": "Cerrar oferta solo frena altas; cerrar la operación exige plan de salida",
+    "estadoIndice": "Respondida (DEC-022)"
+  },
+  "PA-CAT-04": {
+    "anexo": "M02",
+    "titulo": "Altas automáticas de servicios opcionales",
+    "recomendada": "Directas solo obligatorios con fundamento normativo; opcionales se proponen con consentimiento",
+    "estadoIndice": "Respondida (DEC-023)"
+  },
+  "PA-CAT-05": {
+    "anexo": "M02",
+    "titulo": "Jerarquía servicio-producto-plan",
+    "recomendada": "Servicio → producto (subservicio = producto adicional) → plan versionado → conceptos",
+    "estadoIndice": "Respondida (DEC-012)"
+  },
+  "PA-CAT-06": {
+    "anexo": "M02",
+    "titulo": "Alcance de Banco de sangre",
+    "recomendada": "Solo administrativo por convenio, sin datos clínicos",
+    "estadoIndice": "Respondida (DEC-024)"
+  },
+  "PA-CAT-07": {
+    "anexo": "M02",
+    "titulo": "Consentimiento en copias de servicios entre tenants",
+    "recomendada": "Autorización explícita del tenant origen",
+    "estadoIndice": "Respondida (DEC-025)"
+  },
+  "PA-CAT-08": {
+    "anexo": "M02",
+    "titulo": "Plantillas de servicios de plataforma",
+    "recomendada": "Sí, sin precios ni condiciones reguladas",
+    "estadoIndice": "Respondida (DEC-026)"
+  },
+  "PA-CAT-09": {
+    "anexo": "M02",
+    "titulo": "Significado de \"Provisorio\" / \"Cobrar provisorio\"",
+    "recomendada": "Suministro transitorio con vencimiento obligatorio, facturable en esa condición",
+    "estadoIndice": "Respondida (DEC-027)"
+  },
+  "PA-CAT-10": {
+    "anexo": "M02",
+    "titulo": "Modalidad de equipos",
+    "recomendada": "Configurable por plan; comodato por defecto en Internet y TV",
+    "estadoIndice": "Respondida (DEC-013)"
+  },
+  "PA-CAT-11": {
+    "anexo": "M02",
+    "titulo": "Dos contratos iguales en la misma cuenta",
+    "recomendada": "Permitido en no medidos; en medidos uno por punto de suministro",
+    "estadoIndice": "Respondida (DEC-028)"
+  },
+  "PA-CAT-12": {
+    "anexo": "M02",
+    "titulo": "Deuda existente en el domicilio del servicio",
+    "recomendada": "Advertencia con autorización opcional; nunca bloqueo ni traslado de deuda",
+    "estadoIndice": "Respondida (DEC-029)"
+  },
+  "PA-CAT-13": {
+    "anexo": "M02",
+    "titulo": "Modalidades de gas",
+    "recomendada": "Red natural, propano por red y envasado como variantes habilitables",
+    "estadoIndice": "Respondida (DEC-030)"
+  },
+  "PA-CAT-14": {
+    "anexo": "M02",
+    "titulo": "Suspensión voluntaria del servicio",
+    "recomendada": "Configurable, deshabilitada por defecto",
+    "estadoIndice": "Respondida (DEC-031)"
+  },
+  "PA-CAT-15": {
+    "anexo": "M02",
+    "titulo": "Cuándo rige un cambio de plan",
+    "recomendada": "Próximo período; inmediato con prorrateo si el tenant lo habilita",
+    "estadoIndice": "Respondida (DEC-032)"
+  },
+  "PA-CAT-16": {
+    "anexo": "M02",
+    "titulo": "Qué confirma la activación del servicio",
+    "recomendada": "Confirmación técnica de instalación y provisión; la revisión del supervisor es posterior",
+    "estadoIndice": "Respondida (DEC-033)"
+  },
+  "PA-VEN-01": {
+    "anexo": "M11",
+    "titulo": "Cuotas no vinculadas en la factura del servicio",
+    "recomendada": "No: solo conceptos vinculados y validados; el resto en documento propio presentado junto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-02": {
+    "anexo": "M11",
+    "titulo": "Modelo fiscal de la venta en cuotas",
+    "recomendada": "Configurable por plan/concepto; default factura total al vender, cuotas como cronograma de cobro",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-03": {
+    "anexo": "M11",
+    "titulo": "Comisiones de vendedores",
+    "recomendada": "No en O8; solo informe por vendedor; evaluar en O11",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-04": {
+    "anexo": "M11",
+    "titulo": "Comprobantes en POS",
+    "recomendada": "Factura electrónica + ticket no fiscal/representación impresa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-05": {
+    "anexo": "M11",
+    "titulo": "Identificación en la aceptación online de presupuestos",
+    "recomendada": "Usuario autenticado con relación sobre la cuenta, o enlace firmado + OTP",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-06": {
+    "anexo": "M11",
+    "titulo": "Momento del egreso de stock en ventas",
+    "recomendada": "Reserva al confirmar y egreso en la entrega; en POS al emitir",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-07": {
+    "anexo": "M11",
+    "titulo": "Rendición de viajes y fletes",
+    "recomendada": "Extensión en O8, activable por tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-08": {
+    "anexo": "M11",
+    "titulo": "Facturación de la instalación del piloto",
+    "recomendada": "En la primera factura del ciclo tras la OT confirmada",
+    "estadoIndice": "Respondida (DEC-016)"
+  },
+  "PA-VEN-09": {
+    "anexo": "M11",
+    "titulo": "Presupuesto obligatorio para conexiones del piloto",
+    "recomendada": "No; solo para obras/instalaciones especiales",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-10": {
+    "anexo": "M11",
+    "titulo": "Vendedor obligatorio",
+    "recomendada": "Opcional con default por terminal/canal; obligatorio si el tenant lo activa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-11": {
+    "anexo": "M11",
+    "titulo": "Validación de deuda y riesgo en ventas",
+    "recomendada": "Advertencia con override auditado; bloqueo configurable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-01": {
+    "anexo": "M17",
+    "titulo": "Momento de la suscripción de capital",
+    "recomendada": "En la aprobación del ingreso, con plan de integración en cuotas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-02": {
+    "anexo": "M17",
+    "titulo": "Cuotas sociales en la factura del servicio",
+    "recomendada": "Renglón identificado en la factura, con auxiliar separado y leyenda",
+    "estadoIndice": "Respondida (DEC-061)"
+  },
+  "PA-INS-03": {
+    "anexo": "M17",
+    "titulo": "Ola del capital social",
+    "recomendada": "O5 mínimo (rubros, regla, facturado/pagado, estado de cuenta); resto O10",
+    "estadoIndice": "Respondida (DEC-019)"
+  },
+  "PA-INS-04": {
+    "anexo": "M17",
+    "titulo": "Política de reembolso de capital",
+    "recomendada": "Límite 5 % del capital integrado del último balance, orden por solicitud, compensación de deuda, sin interés",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-05": {
+    "anexo": "M17",
+    "titulo": "Votación electrónica y asamblea a distancia",
+    "recomendada": "Registro presencial/híbrido; votación electrónica como extensión si el estatuto la admite",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-06": {
+    "anexo": "M17",
+    "titulo": "Asambleas de distrito y delegados",
+    "recomendada": "Modelo disponible y desactivado por defecto, con alerta por umbral",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-07": {
+    "anexo": "M17",
+    "titulo": "Elegibilidad del padrón",
+    "recomendada": "Solo deuda de capital vencida sobre umbral + fecha límite de alta; deuda de servicios solo si el estatuto lo prevé",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-08": {
+    "anexo": "M17",
+    "titulo": "Firma de actas y libros",
+    "recomendada": "Firma ológrafa escaneada con hash; adaptador de firma digital cuando se admita",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-09": {
+    "anexo": "M17",
+    "titulo": "Formato del libro digital e informes INAES",
+    "recomendada": "Adaptador de exportación versionado; CSV/XLSX según plantilla de la cooperativa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-10": {
+    "anexo": "M17",
+    "titulo": "Canal de pago de honorarios",
+    "recomendada": "Orden de pago en M14 con retención de M06",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-11": {
+    "anexo": "M17",
+    "titulo": "Forma del retorno de excedentes",
+    "recomendada": "Capitalización por defecto, con opción de crédito en cuenta por distribución",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-01": {
+    "anexo": "M03",
+    "titulo": "Regularización de consumos estimados",
+    "recomendada": "Configurable por servicio; por defecto compensación en unidades",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-02": {
+    "anexo": "M03",
+    "titulo": "Método de estimación",
+    "recomendada": "Promedio de 6 períodos → mismo mes año anterior → promedio de categoría → declarado/mínimo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-03": {
+    "anexo": "M03",
+    "titulo": "Curvas de carga",
+    "recomendada": "Modelo preparado; importación como Extensión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-04": {
+    "anexo": "M03",
+    "titulo": "Modalidad de prepago",
+    "recomendada": "Token y crédito en línea vía conector; primero el proveedor de la piloto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-05": {
+    "anexo": "M03",
+    "titulo": "Facturación in situ",
+    "recomendada": "Extensión posterior a O7",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-06": {
+    "anexo": "M03",
+    "titulo": "Autolectura del socio",
+    "recomendada": "Complementa la visita; lectura de campo cada N períodos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-07": {
+    "anexo": "M03",
+    "titulo": "Tope de estimaciones consecutivas",
+    "recomendada": "2, configurable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-08": {
+    "anexo": "M03",
+    "titulo": "Compensación de generación distribuida",
+    "recomendada": "Configurable por régimen; por defecto monetaria (Ley 27.424)",
+    "estadoIndice": "Respondida (DEC-060)"
+  },
+  "PA-MED-09": {
+    "anexo": "M03",
+    "titulo": "Conservación de fotos de lectura",
+    "recomendada": "24 meses en línea, luego archivo frío sin borrar",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-10": {
+    "anexo": "M03",
+    "titulo": "Cambio de clase por consumo",
+    "recomendada": "Propuesta con aprobación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-11": {
+    "anexo": "M03",
+    "titulo": "Colectoras USB",
+    "recomendada": "Sin USB directo; intercambio por archivo y agente local a pedido",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-12": {
+    "anexo": "M03",
+    "titulo": "Conectores de telemedición y formatos",
+    "recomendada": "Contrato genérico + importación por archivo + 1–2 conectores de la piloto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-13": {
+    "anexo": "M03",
+    "titulo": "Historia de medición a migrar",
+    "recomendada": "Lecturas y consumos completos; fotos de los últimos 24 meses",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-01": {
+    "anexo": "M16",
+    "titulo": "Modo de entrega de sueldos",
+    "recomendada": "Importar de liquidador externo en O8; liquidación propia en O9 con 2 períodos en paralelo",
+    "estadoIndice": "Respondida (DEC-058)"
+  },
+  "PA-SUE-02": {
+    "anexo": "M16",
+    "titulo": "F.931 y SICOSS",
+    "recomendada": "Calcular aportes/contribuciones y generar LSD/SICOSS; la presentación la hace la cooperativa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-03": {
+    "anexo": "M16",
+    "titulo": "Lenguaje de fórmulas de liquidación",
+    "recomendada": "Lenguaje propio seguro + traductor de fórmulas existentes",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-04": {
+    "anexo": "M16",
+    "titulo": "Firma del recibo de sueldo",
+    "recomendada": "Firma electrónica del empleado y digital del empleador",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-05": {
+    "anexo": "M16",
+    "titulo": "Pago de haberes",
+    "recomendada": "Empleado como beneficiario propio, no como proveedor",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-06": {
+    "anexo": "M16",
+    "titulo": "Descontar deudas del socio-empleado",
+    "recomendada": "Solo con autorización y límite; desactivado por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-07": {
+    "anexo": "M16",
+    "titulo": "Asignaciones familiares (SUAF)",
+    "recomendada": "Solo informativo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-08": {
+    "anexo": "M16",
+    "titulo": "Módulos de RRHH",
+    "recomendada": "Disciplina, accidentes y juicios en O9; evaluaciones como extensión desactivada",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-09": {
+    "anexo": "M16",
+    "titulo": "Pago al banco",
+    "recomendada": "Archivo o API en O9; agente en O10",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-10": {
+    "anexo": "M16",
+    "titulo": "Plazos de conservación de legajos",
+    "recomendada": "10 años general; 5 años datos de salud",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-11": {
+    "anexo": "M16",
+    "titulo": "Pluriempleo",
+    "recomendada": "Sí",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-12": {
+    "anexo": "M16",
+    "titulo": "Cambio de categoría por antigüedad",
+    "recomendada": "Propuesta automática en borrador",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-13": {
+    "anexo": "M16",
+    "titulo": "Regímenes de cese",
+    "recomendada": "Como plantilla",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-14": {
+    "anexo": "M16",
+    "titulo": "Liquidación complementaria",
+    "recomendada": "Con su propio devengamiento",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-15": {
+    "anexo": "M16",
+    "titulo": "Cooperativas de trabajo",
+    "recomendada": "Fuera de M16; van a M17",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-01": {
+    "anexo": "M14",
+    "titulo": "Firma de pagos",
+    "recomendada": "M12 aprueba la OP; Tesorería firma con N firmantes según monto y cuenta",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-02": {
+    "anexo": "M14",
+    "titulo": "Alcance de Interbanking",
+    "recomendada": "API de información + archivos de pago; transferencias por API como adaptador futuro",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-03": {
+    "anexo": "M14",
+    "titulo": "eCheq",
+    "recomendada": "Ciclo completo con carga manual o importación; API cuando esté disponible",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-04": {
+    "anexo": "M14",
+    "titulo": "Formatos de extracto bancario",
+    "recomendada": "Perfil genérico CSV/XLSX + los dos bancos principales del piloto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-05": {
+    "anexo": "M14",
+    "titulo": "Autoconfirmación de conciliaciones",
+    "recomendada": "El sistema propone; autoconfirma solo reglas 1:1 exactas si el tenant lo habilita",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-06": {
+    "anexo": "M14",
+    "titulo": "Aceptación de rendiciones de caja",
+    "recomendada": "Doble control: M07 cierra y arquea, Tesorería acepta u observa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-07": {
+    "anexo": "M14",
+    "titulo": "Pago de haberes desde Tesorería (ver PA-SUE-05)",
+    "recomendada": "Lote directo, sin facturas ni OP ficticias",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-08": {
+    "anexo": "M14",
+    "titulo": "Compromisos de fondos",
+    "recomendada": "M15 registro presupuestario, Tesorería compromiso de fondos, con referencia común",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-09": {
+    "anexo": "M14",
+    "titulo": "Cotizaciones de moneda",
+    "recomendada": "ARCA diaria + carga manual aprobada como respaldo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-10": {
+    "anexo": "M14",
+    "titulo": "Moneda extranjera",
+    "recomendada": "Se admite; diferencia de cambio informada a M15",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-11": {
+    "anexo": "M14",
+    "titulo": "Presentación automática de retenciones",
+    "recomendada": "Configurable, desactivada por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-12": {
+    "anexo": "M14",
+    "titulo": "Pagos en efectivo desde la caja de cobranza",
+    "recomendada": "No por defecto; habilitable con tope",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-13": {
+    "anexo": "M14",
+    "titulo": "Cupón de tarjeta rechazado",
+    "recomendada": "Nota de débito formal al socio (M07/M05)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-14": {
+    "anexo": "M14",
+    "titulo": "Proyección de cobros",
+    "recomendada": "Curva de cobrabilidad configurable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-15": {
+    "anexo": "M14",
+    "titulo": "Cheque de socio rechazado",
+    "recomendada": "Nota de débito automática con gastos configurables y revisión previa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-16": {
+    "anexo": "M14",
+    "titulo": "Alcance de Tesorería en O5",
+    "recomendada": "Cuentas, rendición, depósito, extractos y conciliación en O5; valores, cupones, retenciones e Interbanking en O8",
+    "estadoIndice": "Respondida (DEC-059)"
+  },
+  "PA-FAC-01": {
+    "anexo": "M05",
+    "titulo": "Modalidad de factura por defecto para tenants nuevos",
+    "recomendada": "Separada; agrupada multiservicio solo si se activa por grupo",
+    "estadoIndice": "Respondida (DEC-034)"
+  },
+  "PA-FAC-02": {
+    "anexo": "M05",
+    "titulo": "Periodicidad distinta dentro de un grupo",
+    "recomendada": "El servicio vencido va en el próximo comprobante del grupo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-03": {
+    "anexo": "M05",
+    "titulo": "Distribuir y publicar solo comprobantes autorizados",
+    "recomendada": "Solo autorizados",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-04": {
+    "anexo": "M05",
+    "titulo": "Momento de asignar el número fiscal",
+    "recomendada": "Al emitir, en orden del lote; si ARCA rechaza se reenvía el mismo número",
+    "estadoIndice": "Respondida (DEC-035)"
+  },
+  "PA-FAC-05": {
+    "anexo": "M05",
+    "titulo": "Factura con total negativo",
+    "recomendada": "Política por servicio; por defecto NC; generación distribuida como crédito a futuro",
+    "estadoIndice": "Respondida (DEC-036)"
+  },
+  "PA-FAC-06": {
+    "anexo": "M05",
+    "titulo": "Factura en cero por consumo",
+    "recomendada": "No emitir, registrar \"sin cargo\", configurable por servicio",
+    "estadoIndice": "Respondida (DEC-037)"
+  },
+  "PA-FAC-07": {
+    "anexo": "M05",
+    "titulo": "Varios suministros del mismo servicio",
+    "recomendada": "Una factura por contrato; agrupar solo mediante grupo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-08": {
+    "anexo": "M05",
+    "titulo": "Formatos de código de barras a precargar",
+    "recomendada": "Los de la piloto + genéricos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-09": {
+    "anexo": "M05",
+    "titulo": "Conservar prefijos 40/41/42/43",
+    "recomendada": "Sí",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-10": {
+    "anexo": "M05",
+    "titulo": "Modificación masiva de comprobantes autorizados",
+    "recomendada": "Solo datos no fiscales",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-11": {
+    "anexo": "M05",
+    "titulo": "Muestra de control obligatoria del lote",
+    "recomendada": "Sí, a partir de un umbral de casos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-12": {
+    "anexo": "M05",
+    "titulo": "Importe que no entra en el código de barras",
+    "recomendada": "Pasar automáticamente a formato alternativo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-13": {
+    "anexo": "M05",
+    "titulo": "Franqueo",
+    "recomendada": "Habilitable por tenant; no se cobra a adheridos a factura digital",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-14": {
+    "anexo": "M05",
+    "titulo": "Facturación in situ (ver PA-MED-05)",
+    "recomendada": "O7 con rango de numeración reservado por dispositivo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-15": {
+    "anexo": "M05",
+    "titulo": "Propagar bloqueos al cierre",
+    "recomendada": "Configurable, desactivado por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-16": {
+    "anexo": "M05",
+    "titulo": "Signo del interés en retroactivos",
+    "recomendada": "Signo explícito según la diferencia",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-17": {
+    "anexo": "M05",
+    "titulo": "Comprobantes de administración pública",
+    "recomendada": "Relevar con la piloto; mientras tanto relación administrativa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-18": {
+    "anexo": "M05",
+    "titulo": "Plazos por defecto de las excepciones del lote",
+    "recomendada": "48 h datos fiscales; 24 h lecturas y configuración",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-19": {
+    "anexo": "M05",
+    "titulo": "Contingencia ante caída de ARCA (ver PA-CFG-P2-06)",
+    "recomendada": "Emitir y encolar, pausar solo la autorización; CAEA si está habilitado",
+    "estadoIndice": "Respondida (DEC-038)"
+  },
+  "PA-FAC-20": {
+    "anexo": "M05",
+    "titulo": "Canal de entrega de clientes migrados",
+    "recomendada": "Conservar el de ProCoop; sin dato, papel",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-01": {
+    "anexo": "M01",
+    "titulo": "Verificación del vínculo usuario–persona",
+    "recomendada": "Código de factura + documento, código al contacto o validación presencial, con intentos limitados",
+    "estadoIndice": "Respondida (DEC-043)"
+  },
+  "PA-PER-02": {
+    "anexo": "M01",
+    "titulo": "Documento duplicado",
+    "recomendada": "Único, con excepción aprobada",
+    "estadoIndice": "Respondida (DEC-044)"
+  },
+  "PA-PER-03": {
+    "anexo": "M01",
+    "titulo": "Deuda en el domicilio/catastro (ver PA-CAT-12)",
+    "recomendada": "Advertir sin revelar detalle; bloqueo solo por política validada",
+    "estadoIndice": "Respondida (DEC-029)"
+  },
+  "PA-PER-04": {
+    "anexo": "M01",
+    "titulo": "CUIL calculado",
+    "recomendada": "Proponerlo como \"no verificado\"",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-05": {
+    "anexo": "M01",
+    "titulo": "Verificación en padrón ARCA",
+    "recomendada": "Al alta y al cambio; revalidar cada 30 días",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-06": {
+    "anexo": "M01",
+    "titulo": "Deuda en el cambio de titularidad",
+    "recomendada": "Queda en el saliente; el nuevo solo la asume por convenio (M08)",
+    "estadoIndice": "Respondida (DEC-045)"
+  },
+  "PA-PER-07": {
+    "anexo": "M01",
+    "titulo": "Transferencia de contrato",
+    "recomendada": "Clonar siempre; el origen queda \"no vigente\"",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-08": {
+    "anexo": "M01",
+    "titulo": "Fallecimiento del titular",
+    "recomendada": "Registrar, baja de adhesiones, revocar relaciones y crear tareas, sin cortar servicios",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-09": {
+    "anexo": "M01",
+    "titulo": "Cuenta principal",
+    "recomendada": "Exactamente una; titular sin cuentas solo como \"solicitante\"",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-10": {
+    "anexo": "M01",
+    "titulo": "Fusión de personas duplicadas",
+    "recomendada": "Doble control y reversión durante 30 días",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-11": {
+    "anexo": "M01",
+    "titulo": "Datos mínimos de registro",
+    "recomendada": "Nombre, una identificación y un contacto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-12": {
+    "anexo": "M01",
+    "titulo": "Autorizaciones desde el portal",
+    "recomendada": "Consultar y pagar, solo a mayores de 18",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-13": {
+    "anexo": "M01",
+    "titulo": "Proveedor geográfico",
+    "recomendada": "Georef para normalizar/geocodificar; Google Maps para mapa y autocompletado",
+    "estadoIndice": "Respondida (DEC-046)"
+  },
+  "PA-PER-14": {
+    "anexo": "M01",
+    "titulo": "Conservación de datos personales",
+    "recomendada": "Plazos por categoría y anonimización, validados por asesoría legal",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-15": {
+    "anexo": "M01",
+    "titulo": "Numeración titular/asociado (ver PA-CFG-P1-01)",
+    "recomendada": "Número de titular único; número de asociado en M17",
+    "estadoIndice": "Respondida (DEC-017)"
+  },
+  "PA-PER-16": {
+    "anexo": "M01",
+    "titulo": "Bloqueo de cobro en caja",
+    "recomendada": "Exige autorización de supervisor",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-01": {
+    "anexo": "M10",
+    "titulo": "Cierre de OT en dos pasos (ejecutada/confirmada)",
+    "recomendada": "Configurable por operación; dos pasos por defecto en altas, desconexiones, reconexiones y cambios de medidor",
+    "estadoIndice": "Respondida (DEC-039)"
+  },
+  "PA-TEC-02": {
+    "anexo": "M10",
+    "titulo": "Hito de activación (ver PA-CAT-16)",
+    "recomendada": "Instalación probada + aprovisionamiento confirmado",
+    "estadoIndice": "Respondida (DEC-033)"
+  },
+  "PA-TEC-03": {
+    "anexo": "M10",
+    "titulo": "Facturación de materiales",
+    "recomendada": "No por defecto; solo por regla o presupuesto aceptado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-04": {
+    "anexo": "M10",
+    "titulo": "Factibilidad obligatoria",
+    "recomendada": "Configurable; obligatoria por defecto en Internet y servicios con red",
+    "estadoIndice": "Respondida (DEC-040)"
+  },
+  "PA-TEC-05": {
+    "anexo": "M10",
+    "titulo": "Vigencia de la factibilidad",
+    "recomendada": "Parámetro por servicio, 90 días por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-06": {
+    "anexo": "M10",
+    "titulo": "Costo de la visita fallida",
+    "recomendada": "Sin costo por defecto, regla configurable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-07": {
+    "anexo": "M10",
+    "titulo": "Firma de conformidad",
+    "recomendada": "Firma en pantalla + identificación del receptor + hash del documento",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-08": {
+    "anexo": "M10",
+    "titulo": "Umbral de insatisfacción de la encuesta",
+    "recomendada": "Puntaje ≤ 2 abre seguimiento en M09",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-09": {
+    "anexo": "M10",
+    "titulo": "Modo de aprovisionamiento",
+    "recomendada": "Automático asíncrono con respaldo manual",
+    "estadoIndice": "Respondida (DEC-041)"
+  },
+  "PA-TEC-10": {
+    "anexo": "M10",
+    "titulo": "Sistemas de red del piloto (O3)",
+    "recomendada": "MikroTik, Radius y SmartOLT",
+    "estadoIndice": "Respondida (DEC-042)"
+  },
+  "PA-TEC-11": {
+    "anexo": "M10",
+    "titulo": "Alcance del análisis de red",
+    "recomendada": "Topología e impacto, sin cálculo eléctrico",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-12": {
+    "anexo": "M10",
+    "titulo": "Mapa base (ver PA-PER-13)",
+    "recomendada": "Google Maps con proveedor abstraído",
+    "estadoIndice": "Respondida (DEC-046)"
+  },
+  "PA-TEC-13": {
+    "anexo": "M10",
+    "titulo": "Formatos de CDR prioritarios",
+    "recomendada": "Los de las cooperativas que migran primero; lectores como plugins",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-14": {
+    "anexo": "M10",
+    "titulo": "Telefonía móvil (Claro/Personal)",
+    "recomendada": "Importador configurable en O10",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-15": {
+    "anexo": "M10",
+    "titulo": "Recupero por fraude",
+    "recomendada": "Flujo configurable, aprobado por rol distinto del inspector, método versionado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-16": {
+    "anexo": "M10",
+    "titulo": "Prorrateo de contribución por mejoras",
+    "recomendada": "Metros de frente, configurable por obra",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-17": {
+    "anexo": "M10",
+    "titulo": "Responsable de conflictos offline",
+    "recomendada": "Supervisor de zona, con escalamiento",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-18": {
+    "anexo": "M10",
+    "titulo": "Retención de evidencias de campo",
+    "recomendada": "10 años conformidades e inspecciones; 2 años resto; configurable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-01": {
+    "anexo": "M09",
+    "titulo": "Catálogo inicial de tipos, motivos y estados de casos",
+    "recomendada": "Catálogo base precargado y editable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-02": {
+    "anexo": "M09",
+    "titulo": "Derivación automática de casos",
+    "recomendada": "Supervisión obligatoria; reglas solo proponen; auto-derivación habilitable, apagada por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-03": {
+    "anexo": "M09",
+    "titulo": "Cálculo del SLA",
+    "recomendada": "Horas hábiles del tenant; corridas para crítica; pausa esperando al socio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-04": {
+    "anexo": "M09",
+    "titulo": "Cierre de casos resueltos",
+    "recomendada": "Automático a los 7 días si el socio no responde",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-05": {
+    "anexo": "M09",
+    "titulo": "Reapertura de casos",
+    "recomendada": "Mismo caso dentro de 30 días; después uno nuevo vinculado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-06": {
+    "anexo": "M09",
+    "titulo": "Proveedor de WhatsApp",
+    "recomendada": "Meta Cloud API por defecto, adaptador para Trii",
+    "estadoIndice": "Respondida (DEC-055)"
+  },
+  "PA-CRM-07": {
+    "anexo": "M09",
+    "titulo": "Verificación de identidad en el bot",
+    "recomendada": "Teléfono verificado vinculado + OTP de respaldo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-08": {
+    "anexo": "M09",
+    "titulo": "Horario de atención",
+    "recomendada": "Bot 24×7; humanos en horario; fuera de horario caso con plazo y urgencias a guardia",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-09": {
+    "anexo": "M09",
+    "titulo": "Funciones de IA en atención",
+    "recomendada": "Clasificar/resumir/sugerir en O6, adjuntos en O10; apagada hasta aceptación del tenant",
+    "estadoIndice": "Respondida (DEC-056)"
+  },
+  "PA-CRM-10": {
+    "anexo": "M09",
+    "titulo": "Visibilidad de notas internas",
+    "recomendada": "Empleados con acceso al caso; nota restringida opcional con permiso propio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-11": {
+    "anexo": "M09",
+    "titulo": "Adjuntos permitidos",
+    "recomendada": "jpg, png, heic, webp, pdf; 10 MB, 10 por mensaje, antivirus",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-12": {
+    "anexo": "M09",
+    "titulo": "Horas y proyectos",
+    "recomendada": "Registro de horas genérico y bolsa TIC como Extensión en O10",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-13": {
+    "anexo": "M09",
+    "titulo": "Turno online",
+    "recomendada": "Fila virtual y reserva horaria configurables por área",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-14": {
+    "anexo": "M09",
+    "titulo": "Hardware del turnero",
+    "recomendada": "Pantallas y tótem web sin agente; agente local solo impresora térmica y serie",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-15": {
+    "anexo": "M09",
+    "titulo": "Baja pública (botón de baja)",
+    "recomendada": "Habilitada en Internet, TV y telefonía; configurable para otros; código en 24 h",
+    "estadoIndice": "Respondida (DEC-057)"
+  },
+  "PA-CRM-16": {
+    "anexo": "M09",
+    "titulo": "Oportunidades y campañas comerciales",
+    "recomendada": "Fuera del alcance inicial; campañas en T09",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-17": {
+    "anexo": "M09",
+    "titulo": "Numeración de mesa de entradas",
+    "recomendada": "Anual ME-AAAA-NNNNN con entradas, salidas y pases con acuse",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-18": {
+    "anexo": "M09",
+    "titulo": "Cobro de visita improcedente (ver PA-TEC-06)",
+    "recomendada": "Solo con regla aprobada y aviso previo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-01": {
+    "anexo": "M06",
+    "titulo": "Uso del CAEA",
+    "recomendada": "Solo contingencia; habilitable por punto de venta para masiva si la norma lo permite",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-02": {
+    "anexo": "M06",
+    "titulo": "CESP para LQSP",
+    "recomendada": "Sí, en O7, separado del CAEA",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-03": {
+    "anexo": "M06",
+    "titulo": "Obtención del certificado ARCA",
+    "recomendada": "Generar clave y CSR en la plataforma + admitir PFX existente",
+    "estadoIndice": "Respondida (DEC-053)"
+  },
+  "PA-FIS-04": {
+    "anexo": "M06",
+    "titulo": "Agrupación en rango B/C",
+    "recomendada": "Opcional, apagada por defecto, con tope normativo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-05": {
+    "anexo": "M06",
+    "titulo": "Pagos parciales con conceptos de terceros",
+    "recomendada": "Prorrata",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-06": {
+    "anexo": "M06",
+    "titulo": "Ola del Libro IVA",
+    "recomendada": "Criterio facturado en O4; resto en O8",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-07": {
+    "anexo": "M06",
+    "titulo": "RG 3571 y RG 5746/2025",
+    "recomendada": "En O7",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-08": {
+    "anexo": "M06",
+    "titulo": "Modo pasarela fiscal",
+    "recomendada": "En O11",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-09": {
+    "anexo": "M06",
+    "titulo": "Jurisdicciones de IIBB",
+    "recomendada": "Córdoba en O4; resto como configuración en O8",
+    "estadoIndice": "Respondida (DEC-054)"
+  },
+  "PA-FIS-10": {
+    "anexo": "M06",
+    "titulo": "Servicio de padrón ARCA (ver PA-PER-05)",
+    "recomendada": "A13 + constancia de inscripción",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-11": {
+    "anexo": "M06",
+    "titulo": "Espera de CAE en mostrador/cobranza (ver PA-CFG-P2-06)",
+    "recomendada": "15 s y aviso posterior",
+    "estadoIndice": "Respondida (DEC-018)"
+  },
+  "PA-FIS-12": {
+    "anexo": "M06",
+    "titulo": "Adopción de tablas normativas",
+    "recomendada": "Explícita, aprobada por el responsable fiscal",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-13": {
+    "anexo": "M06",
+    "titulo": "ENACOM",
+    "recomendada": "Configuración en base y solo informes vigentes",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-14": {
+    "anexo": "M06",
+    "titulo": "Informes ERSeP y ENARGAS",
+    "recomendada": "Todos, configurables, priorizando los del piloto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-15": {
+    "anexo": "M06",
+    "titulo": "SICORE de sueldos",
+    "recomendada": "M16 calcula y M06 genera un SICORE único",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-16": {
+    "anexo": "M06",
+    "titulo": "FECESCOR",
+    "recomendada": "En O8",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-17": {
+    "anexo": "M06",
+    "titulo": "Revalidación de padrón",
+    "recomendada": "Propone cambios y requiere aprobación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-18": {
+    "anexo": "M06",
+    "titulo": "Mantenimiento de padrones de IIBB (ex PA-CFG-05)",
+    "recomendada": "Mixto: públicos los ingesta la plataforma; con credenciales del agente, cada tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-01": {
+    "anexo": "M07",
+    "titulo": "Regla de imputación por defecto",
+    "recomendada": "Por antigüedad, recargos primero, respetando la elección del socio o cajero",
+    "estadoIndice": "Respondida (DEC-048)"
+  },
+  "PA-COB-02": {
+    "anexo": "M07",
+    "titulo": "Cuentas unificadas múltiples por titular",
+    "recomendada": "Una por grupo de facturación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-03": {
+    "anexo": "M07",
+    "titulo": "Créditos entre servicios",
+    "recomendada": "Automático solo dentro del mismo servicio; entre servicios con elección o autorización",
+    "estadoIndice": "Respondida (DEC-049)"
+  },
+  "PA-COB-04": {
+    "anexo": "M07",
+    "titulo": "Excedentes de pago",
+    "recomendada": "Saldo a favor en la misma cuenta, aplicable a próximas facturas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-05": {
+    "anexo": "M07",
+    "titulo": "Diferencia entre pagado y esperado",
+    "recomendada": "Aceptar, imputar y mandar la diferencia a revisión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-06": {
+    "anexo": "M07",
+    "titulo": "Significado del mínimo de pago",
+    "recomendada": "Umbral para evaluar la mora; no cancela deuda ni evita intereses",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-07": {
+    "anexo": "M07",
+    "titulo": "Pago parcial",
+    "recomendada": "En caja con permiso; en entes según la configuración del ente",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-08": {
+    "anexo": "M07",
+    "titulo": "Arqueo de caja",
+    "recomendada": "Declaración por cada medio de pago",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-09": {
+    "anexo": "M07",
+    "titulo": "Identificador publicado y transición",
+    "recomendada": "Identificador nuevo autocontenido + resolución por clave anterior hasta vencer facturas ProCoop",
+    "estadoIndice": "Respondida (DEC-050)"
+  },
+  "PA-COB-10": {
+    "anexo": "M07",
+    "titulo": "Registración bancaria de rendiciones",
+    "recomendada": "Por fecha de acreditación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-11": {
+    "anexo": "M07",
+    "titulo": "Cargos en contracargos",
+    "recomendada": "Configurables, desactivados por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-12": {
+    "anexo": "M07",
+    "titulo": "Devoluciones por API",
+    "recomendada": "Expediente en COB; ejecuta el proveedor si puede, si no M14",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-13": {
+    "anexo": "M07",
+    "titulo": "Pasarelas prioritarias en O5 (ver PA-CFG-P3-05)",
+    "recomendada": "SIRO, Red Link, Pagos360 y Mercado Pago",
+    "estadoIndice": "Respondida (DEC-015)"
+  },
+  "PA-COB-14": {
+    "anexo": "M07",
+    "titulo": "Cobranza offline de cobradores",
+    "recomendada": "Efectivo y transferencia informada, con límite por cobrador",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-15": {
+    "anexo": "M07",
+    "titulo": "Adelantar venta prepaga para la piloto",
+    "recomendada": "COB deja el cobro genérico en O5 y M03 adelanta solo el subconjunto prepago",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-16": {
+    "anexo": "M07",
+    "titulo": "Código de barras SIRO para importes ≥ ARS 100.000",
+    "recomendada": "Acordar formato extendido con el banco; mientras tanto código electrónico y QR",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-17": {
+    "anexo": "M07",
+    "titulo": "Traslado de comisión de pasarela al socio",
+    "recomendada": "No trasladar por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-18": {
+    "anexo": "M07",
+    "titulo": "Frecuencia del resumen de cuenta",
+    "recomendada": "Mensual por grupo de facturación al cierre del ciclo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-01": {
+    "anexo": "M08",
+    "titulo": "Interés simple o compuesto",
+    "recomendada": "Simple diario, sin interés sobre interés",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-02": {
+    "anexo": "M08",
+    "titulo": "Mínimo de recargo (#609)",
+    "recomendada": "Dos modos; por defecto bajo el mínimo se cobra 0",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-03": {
+    "anexo": "M08",
+    "titulo": "Recargo en cascada e IVA del importe fijo",
+    "recomendada": "Simple por defecto; cascada opcional; IVA según el concepto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-04": {
+    "anexo": "M08",
+    "titulo": "Documento y momento del interés (ver PA-CFG-P1-04)",
+    "recomendada": "Nota de débito asociada, sin diferir por defecto, configurable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-05": {
+    "anexo": "M08",
+    "titulo": "Instancias de mora del piloto Internet",
+    "recomendada": "Candidato → Aviso → Intimación con preaviso → Suspensión → Baja por mora",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-06": {
+    "anexo": "M08",
+    "titulo": "Preaviso de corte y constancia",
+    "recomendada": "Preaviso mínimo con evidencia digital, validado legalmente por servicio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-07": {
+    "anexo": "M08",
+    "titulo": "Protecciones contra el corte",
+    "recomendada": "Bloqueo total para electrodependientes; revisión con aprobación para público, salud y educación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-08": {
+    "anexo": "M08",
+    "titulo": "Afectación cruzada entre servicios de una cuenta unificada",
+    "recomendada": "Deshabilitada",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-09": {
+    "anexo": "M08",
+    "titulo": "Pago mínimo (ver PA-COB-06)",
+    "recomendada": "Solo evita la suspensión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-10": {
+    "anexo": "M08",
+    "titulo": "Ventanas de corte",
+    "recomendada": "Días hábiles, sin viernes, vísperas ni feriados, horario restringido",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-11": {
+    "anexo": "M08",
+    "titulo": "Deuda a pagar para reconectar (ver PA-CFG-P1-05/P3-04)",
+    "recomendada": "La vencida del servicio afectado, con pago confirmado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-12": {
+    "anexo": "M08",
+    "titulo": "Cargos por notificación, gastos y reconexión",
+    "recomendada": "Deshabilitados/gratuitos, habilitables con respaldo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-13": {
+    "anexo": "M08",
+    "titulo": "Caducidad del convenio",
+    "recomendada": "3 cuotas impagas o 60 días; saldo de capital exigible; la deuda original no revive",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-14": {
+    "anexo": "M08",
+    "titulo": "Variantes del proceso masivo de intereses",
+    "recomendada": "Unificarlas en una corrida parametrizada",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-15": {
+    "anexo": "M08",
+    "titulo": "Tasa y CFT de financiación",
+    "recomendada": "Cargar TNA, derivar tasa por período, mostrar CFT y TEA",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-16": {
+    "anexo": "M08",
+    "titulo": "Firma del convenio",
+    "recomendada": "Aceptación con OTP y firma presencial en tableta; firma digital como extensión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-17": {
+    "anexo": "M08",
+    "titulo": "Incobrables",
+    "recomendada": "Previsión por antigüedad y castigo con doble aprobación, sin borrar deuda",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-18": {
+    "anexo": "M08",
+    "titulo": "Gastos y honorarios judiciales",
+    "recomendada": "Se trasladan al deudor solo con título",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-19": {
+    "anexo": "M08",
+    "titulo": "Garantías",
+    "recomendada": "Habilitables por servicio y categoría, deshabilitadas por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-20": {
+    "anexo": "M08",
+    "titulo": "Plazos de prescripción (ver PA-CFG-P3-01)",
+    "recomendada": "Configurables por tipo de obligación; sugerido 2 años para periódicas",
+    "estadoIndice": "Respondida (DEC-052; antes Asumida (DEC-072))"
+  },
+  "PA-STK-01": {
+    "anexo": "M13",
+    "titulo": "Método de costeo (ver PA-CFG-P4-04)",
+    "recomendada": "PPP móvil por artículo; serializados por costo de su serie",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-02": {
+    "anexo": "M13",
+    "titulo": "Validación del consumo de campo",
+    "recomendada": "Afecta stock al sincronizar; supervisor revisa por excepción",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-03": {
+    "anexo": "M13",
+    "titulo": "Modo de entrega de equipos",
+    "recomendada": "Configurable por servicio; por defecto stock rodante con reserva por modelo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-04": {
+    "anexo": "M13",
+    "titulo": "Diferencias de rendición de materiales",
+    "recomendada": "Ajuste aprobado imputable/no imputable, sin cargo automático al empleado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-05": {
+    "anexo": "M13",
+    "titulo": "Equipo en comodato no devuelto",
+    "recomendada": "30 días y propuesta de cargo al costo de reposición, con aprobación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-06": {
+    "anexo": "M13",
+    "titulo": "Unidades de gasto",
+    "recomendada": "Destino interno de consumo asociado a centro de costo M15",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-07": {
+    "anexo": "M13",
+    "titulo": "Inventario físico",
+    "recomendada": "Corte con foto de saldos, sin bloquear movimientos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-08": {
+    "anexo": "M13",
+    "titulo": "Equipos del socio o de terceros",
+    "recomendada": "Se registran identificadores, sin existencia ni valorización",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-09": {
+    "anexo": "M13",
+    "titulo": "Contabilidad del comodato",
+    "recomendada": "Activo \"equipos en comodato\" sin amortizar, opción como bien de uso",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-01": {
+    "anexo": "M19",
+    "titulo": "Identidad global o por tenant",
+    "recomendada": "Identidad común con pertenencias privadas (ya adoptado por AGR-006; candidata a cerrar sin preguntar)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-02": {
+    "anexo": "M19",
+    "titulo": "Consulta de facturas sin login",
+    "recomendada": "Opcional, con cuenta + verificador; solo impagas y enmascaradas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-03": {
+    "anexo": "M19",
+    "titulo": "Credenciales de CoopOnline",
+    "recomendada": "Migrar usuarios, vínculos y adhesiones; activar con OTP; no importar contraseñas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-04": {
+    "anexo": "M19",
+    "titulo": "Vinculación con CiDi",
+    "recomendada": "Solo si el tenant la habilita y el DNI coincide con el titular, con aviso",
+    "estadoIndice": "Respondida (DEC-067; antes Asumida (DEC-072))"
+  },
+  "PA-POR-05": {
+    "anexo": "M19",
+    "titulo": "Activación inmediata o solicitud",
+    "recomendada": "Siempre solicitud; inmediata solo adhesiones, recarga prepaga y cambios de plan configurados",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-06": {
+    "anexo": "M19",
+    "titulo": "Tótem de autogestión",
+    "recomendada": "Modo tótem de la PWA con agente local, en O10",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-07": {
+    "anexo": "M19",
+    "titulo": "Portal en escritorio",
+    "recomendada": "Marco de teléfono en celular y vista ancha en PC",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-08": {
+    "anexo": "M19",
+    "titulo": "Pagador eventual",
+    "recomendada": "Paga por código sin ver el detalle",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-09": {
+    "anexo": "M19",
+    "titulo": "Pago parcial o a cuenta (ver PA-COB-07)",
+    "recomendada": "Solo si lo habilita la política de M07",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-10": {
+    "anexo": "M19",
+    "titulo": "Portal del empleado",
+    "recomendada": "Misma identidad, espacio separado y reautenticación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-11": {
+    "anexo": "M19",
+    "titulo": "Firma de recibos de sueldo (ver PA-SUE-04)",
+    "recomendada": "Conformidad electrónica con OTP y hash",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-12": {
+    "anexo": "M19",
+    "titulo": "Dominio de la landing",
+    "recomendada": "Subdominio + dominio propio opcional con TLS automático",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-13": {
+    "anexo": "M19",
+    "titulo": "Editor de landing",
+    "recomendada": "Bloques predefinidos con circuito de publicación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-14": {
+    "anexo": "M19",
+    "titulo": "Autolectura desde el portal (ver PA-MED-06)",
+    "recomendada": "Habilitable por servicio; M03 valida",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-15": {
+    "anexo": "M19",
+    "titulo": "Socio moroso o suspendido en el portal",
+    "recomendada": "Nunca bloquear consulta, pago, reclamo ni baja",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-16": {
+    "anexo": "M19",
+    "titulo": "DDJJ de artefactos y vehículos eléctricos",
+    "recomendada": "En alcance mediante el motor de formularios",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-17": {
+    "anexo": "M19",
+    "titulo": "Comentarios del muro por defecto (DEC-008)",
+    "recomendada": "Deshabilitados por defecto, habilitables por tenant y publicación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-18": {
+    "anexo": "M19",
+    "titulo": "Resúmenes de terceros (FECESCOR) (ver PA-FIS-16)",
+    "recomendada": "Extensión en O8, deshabilitada por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-19": {
+    "anexo": "M19",
+    "titulo": "App en tiendas",
+    "recomendada": "PWA sin tiendas al inicio; TWA o Capacitor después",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-01": {
+    "anexo": "M04",
+    "titulo": "Semántica de evaluación de reglas tarifarias",
+    "recomendada": "Foto previa + referencias explícitas; cascada opcional por regla",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-02": {
+    "anexo": "M04",
+    "titulo": "Factor por días en tarifa por bloque",
+    "recomendada": "Ambos modos; migrados escalan cantidad, nuevos escalan límites",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-03": {
+    "anexo": "M04",
+    "titulo": "Errores de ProCoop durante el paralelo",
+    "recomendada": "Corregirlos y clasificar la diferencia como \"corrección conocida\"",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-04": {
+    "anexo": "M04",
+    "titulo": "Fecha de referencia tarifaria",
+    "recomendada": "Período de prestación; en medidos fecha de lectura con prorrateo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-05": {
+    "anexo": "M04",
+    "titulo": "Ciclo parcial de promoción",
+    "recomendada": "Configurable; por defecto no consume",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-06": {
+    "anexo": "M04",
+    "titulo": "Cuenta corriente de redondeo",
+    "recomendada": "Se mantiene como movimiento en M07",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-07": {
+    "anexo": "M04",
+    "titulo": "Redondeo si la fecha coincide con el 1er vencimiento",
+    "recomendada": "Configurable; por defecto replica ProCoop",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-08": {
+    "anexo": "M04",
+    "titulo": "Firmas para publicar un cuadro tarifario",
+    "recomendada": "Dos obligatorias y una tercera opcional",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-09": {
+    "anexo": "M04",
+    "titulo": "Simulación obligatoria de cambios tarifarios",
+    "recomendada": "Completa si el cambio supera N contratos; muestra estadística si no",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-10": {
+    "anexo": "M04",
+    "titulo": "Subsidios y tarifa social",
+    "recomendada": "Régimen, inscripción y regla por componente con origen del beneficio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-11": {
+    "anexo": "M04",
+    "titulo": "Reemplazo de `FORMULA_CARGO_*`",
+    "recomendada": "Funciones declarativas por tenant + funciones nativas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-12": {
+    "anexo": "M04",
+    "titulo": "Cambio retroactivo sobre emitidos",
+    "recomendada": "Simular y emitir NC/ND solo con doble firma",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-13": {
+    "anexo": "M04",
+    "titulo": "Demanda contratada",
+    "recomendada": "Actualización automática registrada, configurable a aprobación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-14": {
+    "anexo": "M04",
+    "titulo": "Energía inyectada (ver PA-MED-08)",
+    "recomendada": "Balance neto MER-001 + modo de compatibilidad",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-15": {
+    "anexo": "M04",
+    "titulo": "Precisión de cálculo",
+    "recomendada": "Precio 6 decimales, cantidad 4, importe 2, IVA por alícuota",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-16": {
+    "anexo": "M04",
+    "titulo": "Cotización de moneda (ver PA-TES-09)",
+    "recomendada": "Vendedora del día hábil anterior a la emisión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-17": {
+    "anexo": "M04",
+    "titulo": "Factura mínima",
+    "recomendada": "Componente estándar opcional por categoría",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-18": {
+    "anexo": "M04",
+    "titulo": "Errores de fórmula en el lote",
+    "recomendada": "Excluir la cuenta y detener el lote si superan un umbral",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-01": {
+    "anexo": "T04",
+    "titulo": "Revisión obligatoria de cambios de configuración",
+    "recomendada": "Otro usuario aprueba cambios comerciales, fiscales, de seguridad y sensibles",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-02": {
+    "anexo": "T04",
+    "titulo": "Fuente del catálogo de calles (ver PA-PER-13)",
+    "recomendada": "Georef/BAHRA en plataforma + calles locales; Google solo geocodificar y mostrar",
+    "estadoIndice": "Respondida (DEC-046; antes Asumida (DEC-072))"
+  },
+  "PA-CFG-03": {
+    "anexo": "T04",
+    "titulo": "Persistencia de datos de Google",
+    "recomendada": "Punto confirmado y `place_id`; respuestas crudas 30 días; validar con legales",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-04": {
+    "anexo": "T04",
+    "titulo": "Clave y cuota de Google (ver PA-CFG-P1-03)",
+    "recomendada": "Clave de plataforma con cuota por tenant + opción de clave propia",
+    "estadoIndice": "Respondida (DEC-020; antes Asumida (DEC-072))"
+  },
+  "PA-CFG-05": {
+    "anexo": "T04",
+    "titulo": "Padrones de IIBB",
+    "recomendada": "Públicos los carga la plataforma; con credenciales, cada tenant",
+    "estadoIndice": "Reemplazada por PA-FIS-18 (trasladada a M06 con los padrones, CTR-DAT-13)"
+  },
+  "PA-CFG-06": {
+    "anexo": "T04",
+    "titulo": "Puesto/terminal como ámbito de configuración",
+    "recomendada": "No es ámbito; atributos del dispositivo en M07/M09",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-07": {
+    "anexo": "T04",
+    "titulo": "622 parámetros sin uso directo (ver PA-CFG-P2-01)",
+    "recomendada": "Clasificarlos con la piloto; mientras tanto \"A validar\"",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-08": {
+    "anexo": "T04",
+    "titulo": "Retroactividad de configuración",
+    "recomendada": "Hasta 31 días, con aprobación, sin reescribir documentos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-09": {
+    "anexo": "T04",
+    "titulo": "Personalización de formularios",
+    "recomendada": "Ocultar, obligatorio, default, etiqueta, orden y valores permitidos, sin lógica",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-10": {
+    "anexo": "T04",
+    "titulo": "Adopción de tablas de plataforma (ver PA-FIS-12)",
+    "recomendada": "Referencia siempre; las que afectan cálculos con aviso y aceptación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-11": {
+    "anexo": "T04",
+    "titulo": "Datos semilla en productivo",
+    "recomendada": "Solo demo/sandbox; en productivo copia o plantillas sin importes",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-12": {
+    "anexo": "T04",
+    "titulo": "Límite de campos extra",
+    "recomendada": "50 por entidad, incluidos en la licencia",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-13": {
+    "anexo": "T04",
+    "titulo": "Calles creadas por el tenant",
+    "recomendada": "Locales \"pendiente de validación\" con propuesta opcional a plataforma",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-01": {
+    "anexo": "M12",
+    "titulo": "Padrón de proveedores en O3",
+    "recomendada": "Sí, padrón mínimo (razón social, CUIT, condición IVA) y registro simple de ingreso, sin OC obligatoria",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-02": {
+    "anexo": "M12",
+    "titulo": "Nota de pedido",
+    "recomendada": "Unificar: la nota de pedido es una liberación contra OC abierta",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-03": {
+    "anexo": "M12",
+    "titulo": "Recepción implícita en la factura (P583)",
+    "recomendada": "Sí, con capability: la factura genera una recepción separada que se publica a M13",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-04": {
+    "anexo": "M12",
+    "titulo": "Tolerancias del control de 3 vías",
+    "recomendada": "Cantidad 0 %, precio ±2 % con tope ARS 1.000, configurable por tenant y categoría",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-05": {
+    "anexo": "M12",
+    "titulo": "Portal de proveedores",
+    "recomendada": "Invitación individual con rol `supplier` en Landing-autogestión (T02)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-06": {
+    "anexo": "M12",
+    "titulo": "Ajuste manual de retenciones (P2836)",
+    "recomendada": "Sí, con capability, motivo y aprobación, conservando el valor calculado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-07": {
+    "anexo": "M12",
+    "titulo": "Compras sin OC",
+    "recomendada": "Solo categorías definidas (servicios públicos, impuestos y tasas, caja chica, montos menores a umbral), con aprobación posterior",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-08": {
+    "anexo": "M12",
+    "titulo": "Habilitación parcial de lo conciliado",
+    "recomendada": "Habilitar solo el importe conciliado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-09": {
+    "anexo": "M12",
+    "titulo": "Compromisos y control presupuestario (AGR-028)",
+    "recomendada": "Eventos de compromiso en O8 (comprometido/devengado/pagado); control presupuestario bloqueante como Extensión de M15",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-10": {
+    "anexo": "M12",
+    "titulo": "Mis Comprobantes",
+    "recomendada": "Solo borradores con revisión humana",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-11": {
+    "anexo": "M12",
+    "titulo": "Lectura de facturas con IA",
+    "recomendada": "Opt-in por tenant con acuerdo de tratamiento de datos, en O11, siempre con confirmación humana",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-12": {
+    "anexo": "M12",
+    "titulo": "Adelantos y pagos de sueldos",
+    "recomendada": "Mover a M16; M12 solo ejecuta OP cuando M16 envía un lote aprobado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-13": {
+    "anexo": "M12",
+    "titulo": "Concursos y licitaciones",
+    "recomendada": "O8, nivel Estándar, con sobre cerrado y acta",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-14": {
+    "anexo": "M12",
+    "titulo": "Compras compartidas entre servicios",
+    "recomendada": "Obligatoria cuando la línea abastece más de un servicio, por porcentaje o cantidad, sumando 100 %",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-15": {
+    "anexo": "M12",
+    "titulo": "Habilitación de pago (P2201/P2457)",
+    "recomendada": "Automática por conciliación sin excepciones; manual con capability y bandas T11",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-01": {
+    "anexo": "M15",
+    "titulo": "Modo y granularidad de contabilización",
+    "recomendada": "Tiempo real por operación en ERP administrativo (compras, tesorería, stock, sueldos, capital) y resumen diario por servicio y concepto en facturación y cobranza masiva...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-02": {
+    "anexo": "M15",
+    "titulo": "Evento sin cuenta configurada",
+    "recomendada": "No se bloquea el origen; el evento queda pendiente y bloquea el cierre del período",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-03": {
+    "anexo": "M15",
+    "titulo": "Contabilidad durante el paralelo con ProCoop",
+    "recomendada": "La contabilidad oficial sigue en ProCoop hasta el by-pass; CoopApps contabiliza todo en un plan marcado no oficial y concilia contra ProCoop; se oficializa en el by-pass",
+    "estadoIndice": "Respondida (DEC-069)"
+  },
+  "PA-CON-04": {
+    "anexo": "M15",
+    "titulo": "Anulación y eliminación de asientos",
+    "recomendada": "Borradores eliminables; contabilizados de período abierto no transcripto → anulación lógica; resto → contraasiento",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-05": {
+    "anexo": "M15",
+    "titulo": "Más de un plan oficial",
+    "recomendada": "Un plan operativo por ejercicio; los demás analíticos por equivalencias",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-06": {
+    "anexo": "M15",
+    "titulo": "Marco normativo de estados contables",
+    "recomendada": "Normas contables profesionales FACPCE aplicables a cooperativas (RT 24 y vigentes [VERIFICAR]) y requisitos INAES, en plantilla versionada validada por el contador",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-07": {
+    "anexo": "M15",
+    "titulo": "Ajuste por inflación",
+    "recomendada": "Ajuste integral al cierre del ejercicio en CoopApps, con opción mensual",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-08": {
+    "anexo": "M15",
+    "titulo": "Libros rubricados",
+    "recomendada": "Hojas rubricadas en papel y libros digitales cuando el organismo de la jurisdicción lo admita",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-09": {
+    "anexo": "M15",
+    "titulo": "Control presupuestario",
+    "recomendada": "Advertir y exigir autorización para exceder",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-10": {
+    "anexo": "M15",
+    "titulo": "Momento del asiento de cobros en caja",
+    "recomendada": "Al confirmar el pago; el cierre de período exige cajas cerradas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-11": {
+    "anexo": "M15",
+    "titulo": "Provisiones automáticas",
+    "recomendada": "SAC, vacaciones e incobrables automáticos y configurables",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-12": {
+    "anexo": "M15",
+    "titulo": "Alcance del presupuesto",
+    "recomendada": "Presupuesto económico por cuenta, centro y servicio con compromisos de compras en O8; financiero (flujo de fondos) en una etapa posterior",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-13": {
+    "anexo": "M15",
+    "titulo": "Cuentas de orden en el cierre",
+    "recomendada": "Se incluyen en el cierre patrimonial y se reabren en la apertura",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-14": {
+    "anexo": "M15",
+    "titulo": "Ingresos devengados no facturados",
+    "recomendada": "Provisión al cierre configurable (desactivada por defecto) con reversión automática",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-15": {
+    "anexo": "M15",
+    "titulo": "Plan y reglas modelo de plataforma",
+    "recomendada": "Sí, plantilla de plataforma validada por un contador, copiada al tenant y luego propia",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-16": {
+    "anexo": "M15",
+    "titulo": "Servicio obligatorio en cuentas de control",
+    "recomendada": "Obligatorio en créditos por servicios, ingresos y costos directos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-01": {
+    "anexo": "M18",
+    "titulo": "Alcance de internaciones y salud",
+    "recomendada": "Registro administrativo de autorizaciones por convenio (prestador, fechas, número, costo), sin datos clínicos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-02": {
+    "anexo": "M18",
+    "titulo": "Ambulancias: emergencias o traslados programados",
+    "recomendada": "Traslados programados y registro administrativo de viajes; emergencias derivadas al prestador habilitado (`derived`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-03": {
+    "anexo": "M18",
+    "titulo": "Datos del banco de sangre",
+    "recomendada": "Solo datos administrativos (persona, contacto, referencia del prestador); sin grupo sanguíneo, diagnóstico ni aptitud",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-04": {
+    "anexo": "M18",
+    "titulo": "Edad de corte de adherentes",
+    "recomendada": "Configurable por plan y vínculo, con 21 por defecto y extensión por estudio o discapacidad",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-05": {
+    "anexo": "M18",
+    "titulo": "Modalidad jurídica del cementerio",
+    "recomendada": "Configurable por establecimiento; los derechos referencian el reglamento vigente",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-06": {
+    "anexo": "M18",
+    "titulo": "Cesión, devolución y extinción de derechos de sepultura",
+    "recomendada": "Trámites con workflow T11 y aprobación jurídica; nunca automáticos por mora",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-07": {
+    "anexo": "M18",
+    "titulo": "Proveedor GPS/AVL",
+    "recomendada": "Adaptador genérico T06 (webhook o pull) con Discar como primer adaptador si el piloto lo usa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-08": {
+    "anexo": "M18",
+    "titulo": "Fondo fiduciario de vivienda",
+    "recomendada": "Regla de mora configurable por plan, desactivada por defecto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-09": {
+    "anexo": "M18",
+    "titulo": "Actualización del precio de la vivienda",
+    "recomendada": "Precio vigente por tipología con actualización masiva manual o por índice (por ejemplo, costo de la construcción) con aprobación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-10": {
+    "anexo": "M18",
+    "titulo": "Subsidio por fallecimiento",
+    "recomendada": "Configurable por plan; por defecto fondo propio por reglamento aprobado con pago por M14",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-11": {
+    "anexo": "M18",
+    "titulo": "Carencias de sepelio",
+    "recomendada": "Carencia configurable por plan, contada desde el alta de cada adherente, con excepción autorizada",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-12": {
+    "anexo": "M18",
+    "titulo": "Rendiciones de viaje",
+    "recomendada": "Rendición genérica de M18 vinculable a venta, viaje u OT",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-13": {
+    "anexo": "M18",
+    "titulo": "Comprobante exclusivo de vivienda",
+    "recomendada": "Replicar comprobante exclusivo configurable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-14": {
+    "anexo": "M18",
+    "titulo": "Ola de adherentes",
+    "recomendada": "Registro de adherentes y `billing-inputs` en O4; el resto de M18 en O10",
+    "estadoIndice": "Respondida (DEC-071)"
+  },
+  "PA-SOC-15": {
+    "anexo": "M18",
+    "titulo": "Uso real de planes de vivienda y ambulancias",
+    "recomendada": "Especificar completo y habilitar por tenant; priorizar dentro de O10 según uso real",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-01": {
+    "anexo": "T01",
+    "titulo": "Región de alojamiento de datos",
+    "recomendada": "AWS sa-east-1 (San Pablo) con cláusulas contractuales de transferencia según AAIP  — menor latencia regional, cumplimiento contractual",
+    "estadoIndice": "Respondida (DEC-062)"
+  },
+  "PA-PLA-02": {
+    "anexo": "T01",
+    "titulo": "Objetivos de RPO y RTO",
+    "recomendada": "RPO ≤ 15 min; RTO por tenant ≤ 4 h; plataforma completa ≤ 8 h  — alcanzable con PITR y backups lógicos por tenant",
+    "estadoIndice": "Respondida (DEC-063)"
+  },
+  "PA-PLA-03": {
+    "anexo": "T01",
+    "titulo": "SLO de disponibilidad, latencia y SLA de soporte",
+    "recomendada": "99,5 % mensual; p95 interactivo ≤ 800 ms; soporte lun–vie 8–18 con P1 24×7 y plazos de `PRM-PLA-035`  — valores iniciales razonables para un equipo chico",
+    "estadoIndice": "Respondida (DEC-063)"
+  },
+  "PA-PLA-04": {
+    "anexo": "T01",
+    "titulo": "Portal del socio durante la suspensión del tenant",
+    "recomendada": "Consulta y pagos activos; nuevas solicitudes bloqueadas  — protege al socio y la cobranza",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-05": {
+    "anexo": "T01",
+    "titulo": "Aprobación del acceso de soporte",
+    "recomendada": "`observe` sin datos personales: aprobación de plataforma y aviso al tenant; con datos personales, `operate` o `config`: aprobación del administrador del tenant; break-...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-06": {
+    "anexo": "T01",
+    "titulo": "Forma del ambiente de prueba de cada cooperativa",
+    "recomendada": "Ambiente `sandbox` separado con un tenant gemelo por cooperativa  — aislamiento total de credenciales y envíos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-07": {
+    "anexo": "T01",
+    "titulo": "Datos del sandbox",
+    "recomendada": "Ficticios por defecto y copia anonimizada solo con aprobación del administrador y de seguridad",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-08": {
+    "anexo": "T01",
+    "titulo": "Facturación del servicio SaaS a las cooperativas",
+    "recomendada": "Con el propio módulo FAC bajo el tenant PLATFORM desde O5; en O1, prefactura exportable  — dogfooding y una sola lógica fiscal",
+    "estadoIndice": "Respondida (DEC-065)"
+  },
+  "PA-PLA-09": {
+    "anexo": "T01",
+    "titulo": "Modelo comercial",
+    "recomendada": "Packs por tamaño más complementos, con cupo por contratos activos  — predecible y alineado al valor",
+    "estadoIndice": "Respondida (DEC-065)"
+  },
+  "PA-PLA-10": {
+    "anexo": "T01",
+    "titulo": "Comportamiento al superar el cupo duro",
+    "recomendada": "Solo nuevas altas de la dimensión excedida (p. ej. nuevos contratos); el resto sigue",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-11": {
+    "anexo": "T01",
+    "titulo": "Dominios de la cooperativa",
+    "recomendada": "Subdominio de la plataforma y dominio propio opcional verificado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-12": {
+    "anexo": "T01",
+    "titulo": "Política de salida de una cooperativa",
+    "recomendada": "90 días de solo lectura con exportación completa, luego retención de `PRM-PLA-005` días antes de purgar; la custodia fiscal queda en manos de la cooperativa con la exp...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-13": {
+    "anexo": "T01",
+    "titulo": "Versiones por cooperativa",
+    "recomendada": "Misma versión para todos; cambios visibles por feature flags y anillos, sin diferir",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-14": {
+    "anexo": "T01",
+    "titulo": "Varias personas jurídicas en un mismo tenant",
+    "recomendada": "Sí, mediante `legalEntities` del tenant gestionadas en T04 (emisión, contabilidad y sueldos por entidad)",
+    "estadoIndice": "Respondida (DEC-064)"
+  },
+  "PA-IAM-01": {
+    "anexo": "T02",
+    "titulo": "Ingreso del socio sin contraseña",
+    "recomendada": "OTP de 6 dígitos por correo/SMS como alternativa habilitable por tenant; sin enlace mágico  — simple, compatible con la PWA; cuenta como un factor",
+    "estadoIndice": "Respondida (DEC-066)"
+  },
+  "PA-IAM-02": {
+    "anexo": "T02",
+    "titulo": "CiDi Córdoba",
+    "recomendada": "Proveedor federado habilitable por tenant para socios en O1 (mecanismo) con activación cuando se publique el portal (O2), nivel mínimo 2 para vincular  — cubre coopera...",
+    "estadoIndice": "Respondida (DEC-067)"
+  },
+  "PA-IAM-03": {
+    "anexo": "T02",
+    "titulo": "MFA para socios",
+    "recomendada": "Opcional, con step-up obligatorio para acciones sensibles (baja, cambio de titularidad, alta de representante, medio de pago, cambio de correo/teléfono)  — equilibrio ...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-04": {
+    "anexo": "T02",
+    "titulo": "Separación de funciones estática",
+    "recomendada": "SoD dinámica siempre bloqueante; estática en modo advertencia con excepción aprobada, control compensatorio y reporte al síndico  — viable en cooperativas chicas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-05": {
+    "anexo": "T02",
+    "titulo": "Operación fuera de la franja horaria",
+    "recomendada": "Se permite iniciar sesión pero se bloquean las pantallas fuera de franja; cada operación puntual puede autorizarla un supervisor  — conserva el control y resuelve urge...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-06": {
+    "anexo": "T02",
+    "titulo": "Acceso de la plataforma a datos operativos",
+    "recomendada": "Ninguno por defecto; solo con acceso temporal aprobado por el T-ADM, salvo emergencia por P-SUP con aviso inmediato y revisión posterior  — máxima confianza del tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-07": {
+    "anexo": "T02",
+    "titulo": "Cobertura de la auditoría de lecturas",
+    "recomendada": "Datos sensibles, informes, exportaciones, descargas masivas y búsquedas amplias",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-08": {
+    "anexo": "T02",
+    "titulo": "Empleado y socio en la misma cooperativa",
+    "recomendada": "Misma identidad, dos contextos (staff/portal) con cambio explícito; sus acciones sensibles sobre registros propios desde staff requieren otro usuario",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-09": {
+    "anexo": "T02",
+    "titulo": "Roles predefinidos o configurables",
+    "recomendada": "Plantillas de plataforma versionadas (no editables) que el tenant instancia, clona y ajusta, más roles propios",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-10": {
+    "anexo": "T02",
+    "titulo": "Identificador de login del staff",
+    "recomendada": "Ambos: alias único por tenant o correo  — continuidad con ProCoop",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-11": {
+    "anexo": "T02",
+    "titulo": "Passkeys (WebAuthn)",
+    "recomendada": "Sí en O1, opcionales para todos y recomendadas para plataforma y T-ADM",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-12": {
+    "anexo": "T02",
+    "titulo": "Prueba para vincular cuentas en el portal",
+    "recomendada": "DNI/CUIT del titular + número de cuenta/suministro + un dato de un comprobante de los últimos 6 meses (número o importe), o código enviado al contacto registrado en M01",
+    "estadoIndice": "Respondida (DEC-043; antes Asumida (DEC-072))"
+  },
+  "PA-IAM-13": {
+    "anexo": "T02",
+    "titulo": "SMS como segundo factor",
+    "recomendada": "Permitido para roles operativos y socios; prohibido para plataforma, T-ADM y T-USR",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-14": {
+    "anexo": "T02",
+    "titulo": "Suspensión de usuarios inactivos",
+    "recomendada": "Sí, a los 90 días sin ingreso, con aviso 7 días antes; reactivación por T-ADM/T-USR",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-15": {
+    "anexo": "T02",
+    "titulo": "Alta automática por SSO",
+    "recomendada": "No; requiere invitación previa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-16": {
+    "anexo": "T02",
+    "titulo": "Recertificación periódica",
+    "recomendada": "Semestral para asignaciones con capabilities sensibles; suspensión si no se confirma",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-17": {
+    "anexo": "T02",
+    "titulo": "Alcance del consejero y del síndico",
+    "recomendada": "Síndico: lectura de todos los módulos y auditoría, sin datos de salud ni legajos individuales salvo pedido justificado (acceso temporal aprobado por T-ADM); consejero:...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-01": {
+    "anexo": "T07",
+    "titulo": "Profundidad del histórico y plazo de archivo",
+    "recomendada": "Ejercicio en curso + 24 meses tipados; el resto en `legacyRecords` consultable; snapshot conservado 10 años  — carga acotada, cumplimiento fiscal",
+    "estadoIndice": "Respondida (DEC-070)"
+  },
+  "PA-MIG-02": {
+    "anexo": "T07",
+    "titulo": "Duración y criterio de aprobación de la corrida paralela",
+    "recomendada": "2 ciclos consecutivos por servicio con 0 diferencias sin explicar  — evidencia suficiente con costo acotado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-03": {
+    "anexo": "T07",
+    "titulo": "Modo de sincronización durante la convivencia",
+    "recomendada": "Delta unidireccional ProCoop→CoopApps mientras ProCoop es maestro; luego exportaciones CoopApps→ProCoop para módulos que siguen en ProCoop  — un solo maestro por dominio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-04": {
+    "anexo": "T07",
+    "titulo": "Módulos que permanecen en ProCoop tras el corte comercial",
+    "recomendada": "E2: corte comercial primero (socios, servicios, facturación, cobranza, mora); contabilidad, compras, stock, tesorería y sueldos siguen en ProCoop hasta E3 corte admini...",
+    "estadoIndice": "Respondida (DEC-068)"
+  },
+  "PA-MIG-05": {
+    "anexo": "T07",
+    "titulo": "Forma del saldo de apertura de deuda",
+    "recomendada": "Documento por documento (facturas/obligaciones pendientes)  — intereses, imputación y NC exactas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-06": {
+    "anexo": "T07",
+    "titulo": "Intereses devengados al corte",
+    "recomendada": "Recalcular con las tablas de tasas migradas y conciliar contra ProCoop; diferencias explicadas  — un único motor de intereses",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-07": {
+    "anexo": "T07",
+    "titulo": "Contraseñas y activación de usuarios",
+    "recomendada": "No migrar contraseñas; enviar invitación de activación por mail/SMS  — seguro",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-08": {
+    "anexo": "T07",
+    "titulo": "Numeración de comprobantes después del corte",
+    "recomendada": "Mismos puntos de venta; continuar con el último número consultado a ARCA al corte  — sin trámites, continuidad",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-09": {
+    "anexo": "T07",
+    "titulo": "Profundidad contable",
+    "recomendada": "Saldos de apertura + asientos del ejercicio en curso  — continuidad del ejercicio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-10": {
+    "anexo": "T07",
+    "titulo": "Deduplicación de personas",
+    "recomendada": "Asistida: el sistema propone candidatos y una persona aprueba  — calidad con control",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-11": {
+    "anexo": "T07",
+    "titulo": "CUIT/DNI inválidos",
+    "recomendada": "Cargar marcadas como \"documento a revisar\" y bloquear factura A hasta corregir  — no frena la migración",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-12": {
+    "anexo": "T07",
+    "titulo": "Normalización de domicilios y geocodificación",
+    "recomendada": "Normalizar contra el maestro de calles y sugerir geocodificación para aprobación  — mejora sin bloquear",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-13": {
+    "anexo": "T07",
+    "titulo": "Modelo GIS duplicado (`NIV_*` vs `REDES_*`)",
+    "recomendada": "Prevalece `REDES_*`; `NIV_*` se consolida como atributos  — modelo más completo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-14": {
+    "anexo": "T07",
+    "titulo": "Uso de `TICKETS` (mesa de ayuda)",
+    "recomendada": "Migrar abiertos + 12 meses de cerrados como atención; descartar horas bonificadas  — continuidad de atención",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-15": {
+    "anexo": "T07",
+    "titulo": "Método de anonimización para ambientes de prueba",
+    "recomendada": "Seudonimización determinística irreversible, conservando importes, fechas y relaciones  — ensayos conciliables",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-16": {
+    "anexo": "T07",
+    "titulo": "Vigencia de alias de códigos ProCoop",
+    "recomendada": "Último vencimiento emitido por ProCoop + 180 días  — cubre segundos vencimientos y atrasos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-17": {
+    "anexo": "T07",
+    "titulo": "Orden de cooperativas y piloto de migración",
+    "recomendada": "Herramienta validada con datos sintéticos de Internet; primera migración real de la cooperativa piloto (DEC-081) tras O7 si opera servicios medidos, o desde O6 si es solo Internet",
+    "estadoIndice": "Asumida (DEC-072); con DEC-088 (piloto LAG, servicios medidos) aplica \"tras O7\""
+  },
+  "PA-MIG-18": {
+    "anexo": "T07",
+    "titulo": "Contabilidad durante el paralelo",
+    "recomendada": "Libros oficiales en ProCoop; CoopApps simula asientos y exporta para comparar  — un solo libro oficial",
+    "estadoIndice": "Respondida (DEC-069)"
+  },
+  "PA-MIG-19": {
+    "anexo": "T07",
+    "titulo": "Datos de salud",
+    "recomendada": "Cifrado a nivel de campo y acceso restringido por capacidad  — cumplimiento",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-01": {
+    "anexo": "T08",
+    "titulo": "Compromiso de disponibilidad (SLA) con las cooperativas",
+    "recomendada": "99,5 % durante el piloto y 99,9 % en operación general, con guardia 24×7 para SEV1/SEV2  — equilibrio costo/riesgo; cubre facturación y cobranza",
+    "estadoIndice": "Respondida (DEC-063)"
+  },
+  "PA-NFR-02": {
+    "anexo": "T08",
+    "titulo": "RPO y RTO",
+    "recomendada": "RPO ≤ 5 min y RTO ≤ 4 h en plataforma; restauración selectiva de tenant ≤ 8 h; DR regional RPO ≤ 1 h / RTO ≤ 24 h  — PITR estándar de Mongo gestionado",
+    "estadoIndice": "Respondida (DEC-063)"
+  },
+  "PA-NFR-03": {
+    "anexo": "T08",
+    "titulo": "Perfil de capacidad de referencia",
+    "recomendada": "Tenant estándar 25.000 y grande 150.000 suministros; 100 tenants de diseño y 300 sin rediseño  — cubre cooperativas medianas y grandes",
+    "estadoIndice": "Respondida (DEC-075)"
+  },
+  "PA-NFR-04": {
+    "anexo": "T08",
+    "titulo": "Meta de facturación masiva",
+    "recomendada": "Cálculo y documentos de 50.000 suministros ≤ 60 min; CAE ≤ 2 h si ARCA responde normal; PDF ≤ 60 min; distribución ≤ 4 h  — permite emitir y distribuir en una jornada",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-05": {
+    "anexo": "T08",
+    "titulo": "Región de alojamiento y transferencias internacionales",
+    "recomendada": "Región de nube de Sudamérica (por ejemplo São Paulo) con cláusulas contractuales modelo aprobadas por la AAIP, informadas en avisos y registro de subencargados  — serv...",
+    "estadoIndice": "Respondida (DEC-062)"
+  },
+  "PA-NFR-06": {
+    "anexo": "T08",
+    "titulo": "Plazos de conservación por categoría",
+    "recomendada": "Aprobar la tabla 10.3 como default, parametrizable por tenant dentro de mínimos legales, con validación del asesor antes de la primera ejecución real  — permite constr...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-07": {
+    "anexo": "T08",
+    "titulo": "Rol de la plataforma ante la Ley 25.326 y contrato de encargo",
+    "recomendada": "GoodApps prestador de servicios de tratamiento (art. 25) con contrato tipo, lista de subencargados y destrucción al fin del encargo  — coherente con SaaS y con BASE §59",
+    "estadoIndice": "Respondida (DEC-076)"
+  },
+  "PA-NFR-08": {
+    "anexo": "T08",
+    "titulo": "Plazos de notificación de incidentes a la cooperativa",
+    "recomendada": "Aviso inicial ≤ 24 h desde la confirmación, informe preliminar ≤ 72 h y final ≤ 15 días  — permite a la cooperativa actuar como responsable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-09": {
+    "anexo": "T08",
+    "titulo": "Uso de IA con datos personales",
+    "recomendada": "Solo proveedores con acuerdo de tratamiento y sin entrenamiento con datos, redacción de identificadores antes de enviar, habilitación por tenant y exclusión total de s...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-10": {
+    "anexo": "T08",
+    "titulo": "Enlaces a comprobantes en correo o WhatsApp",
+    "recomendada": "Enlace de un solo documento, revocable, que vence a los 7 días y luego exige iniciar sesión  — práctico y sin exponer el bucket",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-11": {
+    "anexo": "T08",
+    "titulo": "Desafío antiautomatización (CAPTCHA)",
+    "recomendada": "Desafío de terceros respetuoso de la privacidad y accesible (tipo Turnstile), activado por riesgo  — baja fricción",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-12": {
+    "anexo": "T08",
+    "titulo": "Ventana de mantenimiento y congelamiento",
+    "recomendada": "Domingo 02:00–06:00 ART, ≤ 4 h/mes, aviso ≥ 72 h; congelamiento en días de lote y primeros vencimientos de cada tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-13": {
+    "anexo": "T08",
+    "titulo": "Soporte mínimo de dispositivos",
+    "recomendada": "Android 9+ e iOS 16.4+, últimas 2 versiones de navegadores  — cubre la gran mayoría del parque y permite push en iOS",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-14": {
+    "anexo": "T08",
+    "titulo": "Protección de datos en el dispositivo offline",
+    "recomendada": "Minimización, vencimiento a 7 días, borrado al cerrar o revocar sesión y cifrado con WebCrypto de evidencias sensibles",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-15": {
+    "anexo": "T08",
+    "titulo": "Página de estado e información de incidentes",
+    "recomendada": "Página de estado pública de la plataforma + aviso en el admin + correo a administradores",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-16": {
+    "anexo": "T08",
+    "titulo": "Alcance de la auditoría de lecturas",
+    "recomendada": "Obligatoria para salud, datos bancarios completos, informes ARCO, exportaciones con datos personales, soporte y bóveda; opcional configurable para el resto  — costo ac...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-17": {
+    "anexo": "T08",
+    "titulo": "Pruebas de penetración externas",
+    "recomendada": "Antes del go-live del piloto, anual y ante cambios mayores de autenticación, pagos o tenancy",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-18": {
+    "anexo": "T08",
+    "titulo": "Plazo de soporte de versiones de la API externa",
+    "recomendada": "12 meses desde la publicación de la nueva versión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-19": {
+    "anexo": "T08",
+    "titulo": "Datos reales en ensayos",
+    "recomendada": "Pruebas de carga solo con datos sintéticos; ensayos de migración con copia real únicamente en un ambiente aislado de migración, autorizado por la cooperativa, con acce...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-20": {
+    "anexo": "T08",
+    "titulo": "Comunicaciones promocionales y Registro \"No Llame\"",
+    "recomendada": "Separar transaccional de promocional; promocional con consentimiento u oposición respetada y consulta del registro para llamadas y mensajes",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-21": {
+    "anexo": "T08",
+    "titulo": "Redondeo por defecto",
+    "recomendada": "Mitad hacia arriba a 2 decimales por línea, IVA por alícuota sobre la suma de netos del comprobante y residuos por mayor resto  — práctica comercial habitual",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-01": {
+    "anexo": "T06",
+    "titulo": "Modelo de contratación de proveedores",
+    "recomendada": "Credenciales propias del tenant para fiscal, bancos y pasarelas; conexiones de plataforma compartidas para email, SMS, mapas e IA, reemplazables por las del tenant  — ...",
+    "estadoIndice": "Respondida (DEC-020)"
+  },
+  "PA-INT-02": {
+    "anexo": "T06",
+    "titulo": "Bóveda de secretos y KMS",
+    "recomendada": "Envelope encryption propio en Mongo con clave maestra en un KMS gestionado del proveedor de nube, detrás de una interfaz agnóstica  — portable y auditable",
+    "estadoIndice": "Respondida (DEC-074)"
+  },
+  "PA-INT-03": {
+    "anexo": "T06",
+    "titulo": "Custodia del certificado ARCA",
+    "recomendada": "Clave y CSR generados en el servidor; la clave nunca sale de la bóveda  — sin manipulación de archivos sensibles",
+    "estadoIndice": "Respondida (DEC-053)"
+  },
+  "PA-INT-04": {
+    "anexo": "T06",
+    "titulo": "CAE o CAEA en facturación masiva",
+    "recomendada": "CAE en lotes como modo normal y CAEA solo como contingencia, si el tenant lo habilita  — validación inmediata",
+    "estadoIndice": "Respondida (DEC-018/038)"
+  },
+  "PA-INT-05": {
+    "anexo": "T06",
+    "titulo": "Proveedor de WhatsApp",
+    "recomendada": "Meta Cloud API directo, con adaptador BSP opcional por tenant  — menor costo y sin intermediarios",
+    "estadoIndice": "Respondida (DEC-055)"
+  },
+  "PA-INT-06": {
+    "anexo": "T06",
+    "titulo": "Proveedor de SMS",
+    "recomendada": "Un agregador local argentino como conexión de plataforma, con interfaz que permita agregar otro (ej. Twilio) por tenant  — costo y entregabilidad locales",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-07": {
+    "anexo": "T06",
+    "titulo": "Proveedor y dominio de email",
+    "recomendada": "Proveedor transaccional de plataforma con dominio verificado por tenant (SPF/DKIM/DMARC) y SMTP propio opcional",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-08": {
+    "anexo": "T06",
+    "titulo": "Proveedor de IA y datos personales",
+    "recomendada": "Abstracción multi-proveedor, redacción de datos personales no necesarios, sin entrenamiento con datos del cliente, activación opt-in por tenant",
+    "estadoIndice": "Respondida (DEC-056)"
+  },
+  "PA-INT-09": {
+    "anexo": "T06",
+    "titulo": "Agente local",
+    "recomendada": "Agente propio CoopApps (O10), saliente por WebSocket, multiplataforma  — reemplaza Agente/Integra con seguridad",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-10": {
+    "anexo": "T06",
+    "titulo": "Reconsulta de webhooks",
+    "recomendada": "Siempre, sin opción de desactivarlo en pagos  — cierra el fraude por aviso falso (RN-INT-009)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-11": {
+    "anexo": "T06",
+    "titulo": "SIRO por archivo o por API",
+    "recomendada": "Ambos: archivos para publicación/rendición y API para botón/QR y consulta  — refleja el uso real",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-12": {
+    "anexo": "T06",
+    "titulo": "Layouts de archivos",
+    "recomendada": "Layouts declarativos versionados + hooks de código acotados para lo no declarable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-13": {
+    "anexo": "T06",
+    "titulo": "Pasarelas en O5",
+    "recomendada": "SIRO como Núcleo; Pagos360 y Mercado Pago como Estándar; el resto bajo demanda de un tenant",
+    "estadoIndice": "Respondida (DEC-015)"
+  },
+  "PA-INT-14": {
+    "anexo": "T06",
+    "titulo": "Primer adaptador de telemedición",
+    "recomendada": "El que use la cooperativa piloto de servicios medidos; el resto bajo demanda",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-15": {
+    "anexo": "T06",
+    "titulo": "Retención de la bitácora",
+    "recomendada": "Cuerpos saneados 13 meses; metadatos 10 años (plazo de conservación contable)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-16": {
+    "anexo": "T06",
+    "titulo": "Ambientes de prueba de proveedores",
+    "recomendada": "GoodApps mantiene cuentas de homologación de plataforma para desarrollo; cada tenant usa las suyas para su prueba previa a producción",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-17": {
+    "anexo": "T06",
+    "titulo": "Links viejos de CoopOnline",
+    "recomendada": "Redirecciones durante 12 meses desde el corte  — no rompe links en facturas impresas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-18": {
+    "anexo": "T06",
+    "titulo": "Interbanking",
+    "recomendada": "Aplicación registrada por cada cooperativa con sus credenciales",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-19": {
+    "anexo": "T06",
+    "titulo": "Clave de Google Maps",
+    "recomendada": "Clave de plataforma restringida, con cuota por tenant y opción de clave propia",
+    "estadoIndice": "Respondida (DEC-020/046)"
+  },
+  "PA-INT-20": {
+    "anexo": "T06",
+    "titulo": "CiDi",
+    "recomendada": "Sí, como Extensión en O10, si la provincia habilita la integración",
+    "estadoIndice": "Respondida (DEC-067)"
+  },
+  "PA-INT-21": {
+    "anexo": "T06",
+    "titulo": "Devoluciones por API",
+    "recomendada": "Sí, donde el proveedor lo permita, con aprobación de M07 y doble control",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-22": {
+    "anexo": "T06",
+    "titulo": "Proveedor de firma",
+    "recomendada": "Interfaz de firma propia; proveedor concreto a decidir antes de O3 (firma de instalación), evaluando Encustody y alternativas",
+    "estadoIndice": "Respondida (DEC-078)"
+  },
+  "PA-INT-23": {
+    "anexo": "T06",
+    "titulo": "IVR",
+    "recomendada": "Sí, como Extensión en O10 sobre la API interna",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-24": {
+    "anexo": "T06",
+    "titulo": "Jurisdicciones fuera de Córdoba",
+    "recomendada": "Motor configurable en O4/O7 con Córdoba; otras jurisdicciones como configuración cuando haya un tenant de esa provincia",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-25": {
+    "anexo": "T06",
+    "titulo": "Controladores fiscales",
+    "recomendada": "No por defecto (la cooperativa emite electrónica); solo si un tenant lo exige, en O10",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-01": {
+    "anexo": "T10",
+    "titulo": "Ubicación del almacén analítico",
+    "recomendada": "Base lógica `<db>_analytics` leída desde un miembro oculto del replica set con etiqueta `analytics` (prioridad 0)  — aislamiento de carga suficiente, sin nueva tecnología",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-02": {
+    "anexo": "T10",
+    "titulo": "Formato del token de la API externa",
+    "recomendada": "JWT firmado de 15 minutos con lista de revocación por cliente en Redis  — validación rápida, revocación ≤ 60 s",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-03": {
+    "anexo": "T10",
+    "titulo": "Escrituras de terceros vía API",
+    "recomendada": "Solo solicitudes (persona, cuenta/servicio, reclamo) que el módulo dueño procesa con su circuito, idempotentes  — cubre bots y municipios sin saltear controles",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-04": {
+    "anexo": "T10",
+    "titulo": "Destinatarios externos de reportes programados",
+    "recomendada": "Sí, solo para reportes `sensitivity=none`, a dominios en lista permitida, como adjunto o enlace de un solo uso con vencimiento  — cubre auditores y entes sin exponer d...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-05": {
+    "anexo": "T10",
+    "titulo": "Benchmark anónimo entre cooperativas",
+    "recomendada": "Sí, con adhesión voluntaria, solo ratios, segmentos con ≥ 5 participantes y sin dominancia > 40 %, en O11  — valor diferencial con riesgo controlado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-06": {
+    "anexo": "T10",
+    "titulo": "Alcance de la IA analítica",
+    "recomendada": "Preguntas de catálogo + libres traducidas a consulta semántica verificada, habilitable por tenant con tope de costo  — útil y auditable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-07": {
+    "anexo": "T10",
+    "titulo": "Conector para Power BI y herramientas de BI",
+    "recomendada": "API key de solo lectura + feeds `/datasets/:code/rows` (JSON/CSV paginado)  — funciona con conectores web estándar",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-08": {
+    "anexo": "T10",
+    "titulo": "Límites de consumo de la API por defecto",
+    "recomendada": "600 solicitudes/min con ráfaga 100 y 100.000 unidades/día por cliente; 1.200/min por tenant; ajustables por plan  — suficiente para BI incremental",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-09": {
+    "anexo": "T10",
+    "titulo": "Retención de archivos exportados",
+    "recomendada": "7 días  — equilibrio entre comodidad y exposición",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-10": {
+    "anexo": "T10",
+    "titulo": "Publicación de datos abiertos",
+    "recomendada": "Opcional por tenant, solo agregados aprobados con n ≥ 10 por celda, en O11",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-11": {
+    "anexo": "T10",
+    "titulo": "Fórmula de variación porcentual con base cero",
+    "recomendada": "\"Nuevo\" (valor nulo) por defecto, con modo ProCoop por reporte cuando el dueño lo pida  — evita porcentajes engañosos sin romper paralelos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-12": {
+    "anexo": "T10",
+    "titulo": "Auditoría de consultas a reportes",
+    "recomendada": "Exportaciones, descargas, desenmascarado y visualización de reportes con datos personales",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-13": {
+    "anexo": "T10",
+    "titulo": "Aprobación de reportes personalizados",
+    "recomendada": "Sí, aprobador distinto del autor, configurable a \"no\" solo por el administrador del tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-14": {
+    "anexo": "T10",
+    "titulo": "Datos personales y de sueldos en la API",
+    "recomendada": "`pii:read` con finalidad registrada, aprobación por persona distinta del creador y vigencia ≤ 1 año; `payroll:read` solo agregados por centro y período",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-15": {
+    "anexo": "T10",
+    "titulo": "Webhooks salientes",
+    "recomendada": "Sí, en O11, firmados HMAC-SHA256 con payload delgado y reintentos hasta 72 h",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-16": {
+    "anexo": "T10",
+    "titulo": "Acceso delegado por usuario",
+    "recomendada": "No en la primera versión de la API; tokens diseñados con `sub` opcional para habilitarlo después sin romper compatibilidad",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-01": {
+    "anexo": "T09",
+    "titulo": "Comentarios de socios habilitados por defecto",
+    "recomendada": "Deshabilitados por defecto; el tenant los habilita y cada publicación decide  — arranque seguro; la cooperativa abre cuando tiene moderadores",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-02": {
+    "anexo": "T09",
+    "titulo": "Modo de moderación por defecto",
+    "recomendada": "`ai_assisted`: publica si el riesgo es bajo, el resto a revisión humana  — equilibrio entre fluidez y control; sin IA se comporta como `pre`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-03": {
+    "anexo": "T09",
+    "titulo": "Uso de IA externa en comunidad",
+    "recomendada": "Apagada hasta aceptación expresa del tenant, con datos mínimos y sin entrenamiento  — coherente con DEC-056; mientras tanto reglas + humano",
+    "estadoIndice": "Respondida (DEC-056)"
+  },
+  "PA-COM-04": {
+    "anexo": "T09",
+    "titulo": "Quién contrata y paga la mensajería",
+    "recomendada": "Ambos modelos: conector propio del tenant o proveedor de plataforma con reventa y consumo medido  — flexibilidad para cooperativas grandes y chicas",
+    "estadoIndice": "Respondida (DEC-077)"
+  },
+  "PA-COM-05": {
+    "anexo": "T09",
+    "titulo": "Evidencia mínima de intimaciones y constancias reguladas",
+    "recomendada": "Lo define M08 por instancia y servicio; default `delivered` en canales digitales y acuse físico en carta  — trazable y flexible",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-06": {
+    "anexo": "T09",
+    "titulo": "Horario de no molestar",
+    "recomendada": "21:00 a 08:30 todos los días y feriados, para `community`, `marketing` y `operational` no urgentes; exentas `security`, `service_outage` urgentes y `regulatory` con plazo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-07": {
+    "anexo": "T09",
+    "titulo": "Consentimiento para comunicaciones comerciales y comunitarias",
+    "recomendada": "Opt-in explícito para `marketing`/`community` por SMS, WhatsApp y email; in-app y push `community` activados; transaccionales con al menos un canal activo; `security`/...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-08": {
+    "anexo": "T09",
+    "titulo": "Elector en votaciones rápidas y consultas",
+    "recomendada": "Un voto por asociado activo (persona asociada del padrón de M17) por defecto, configurable por encuesta",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-09": {
+    "anexo": "T09",
+    "titulo": "Validación de canjes por comercios adheridos",
+    "recomendada": "Link tokenizado por comercio (sin usuario) más opción de usuarios validadores internos  — simple para el comercio, auditable",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-10": {
+    "anexo": "T09",
+    "titulo": "Publicaciones y encuestas de supervisores a su equipo",
+    "recomendada": "Habilitable por tenant, apagado por defecto, audiencia limitada a su equipo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-11": {
+    "anexo": "T09",
+    "titulo": "Plazos de retención de comunicaciones y evidencia",
+    "recomendada": "Comunicaciones generales 2 años; comunicaciones con evidencia exigida y constancias de baja 5 años; evidencia de moderación 2 años; anonimización al vencer; si una reg...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-12": {
+    "anexo": "T09",
+    "titulo": "Sanciones de comunidad",
+    "recomendada": "Escalera sugerida por el sistema (advertencia, silencio 7 días, suspensión 30 días, bloqueo), aplicada por una persona; bloqueo permanente solo por el responsable de c...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-13": {
+    "anexo": "T09",
+    "titulo": "Proveedor SMS de referencia",
+    "recomendada": "Un agregador local con API REST y reportes de entrega como referencia, y Amazon SNS como alternativa configurable  — mejor entregabilidad local y continuidad con V2 3018",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-14": {
+    "anexo": "T09",
+    "titulo": "Envío manual “abrir chat” de WhatsApp",
+    "recomendada": "Permitido desde la ficha, registrando la acción como `manual_external` sin constancia, configurable por tenant  — continuidad operativa con trazabilidad mínima",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-15": {
+    "anexo": "T09",
+    "titulo": "Mensajes impresos en factura",
+    "recomendada": "T09 gestiona mensajes segmentados con aprobación y M05 los resuelve por comprobante; espacio fijo por área según el diseño de factura del tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-16": {
+    "anexo": "T09",
+    "titulo": "Publicación automática de cortes no programados",
+    "recomendada": "Borrador automático con plantilla rápida y publicación por un operador (un clic); publicación automática habilitable por tenant y servicio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-01": {
+    "anexo": "T03",
+    "titulo": "Tema de la PWA y de la landing para socios",
+    "recomendada": "Landing clara por defecto; PWA socio según política del tenant (`dark` por defecto, con opción del usuario)  — coherencia de producto y legibilidad en lo público",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-02": {
+    "anexo": "T03",
+    "titulo": "Dominio propio de la cooperativa",
+    "recomendada": "Subdominio en O1; dominio propio en O2 como opción con verificación DNS y certificado automático  — no frena el arranque",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-03": {
+    "anexo": "T03",
+    "titulo": "Apps instalables y tiendas",
+    "recomendada": "Tres manifests instalables desde la web; sin tiendas en esta versión  — sin costos de tiendas, actualización inmediata",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-04": {
+    "anexo": "T03",
+    "titulo": "Plantillas, importación y control de publicación del diccionario",
+    "recomendada": "Plantillas e importación habilitadas; doble control opcional por tenant (apagado por defecto)  — agilidad con reversión inmediata",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-05": {
+    "anexo": "T03",
+    "titulo": "Variantes por canal",
+    "recomendada": "Sí, opcional, con el valor general como fallback  — cubre SMS cortos y lenguaje cercano en PWA",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-06": {
+    "anexo": "T03",
+    "titulo": "Multi-idioma",
+    "recomendada": "Solo `es-AR`, modelo preparado  — sin costo hoy",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-07": {
+    "anexo": "T03",
+    "titulo": "Congelamiento de textos en documentos",
+    "recomendada": "Congelar la versión del diccionario en el documento (la reimpresión es idéntica)  — integridad documental",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-08": {
+    "anexo": "T03",
+    "titulo": "Tipografías personalizables por tenant",
+    "recomendada": "No: tipografías del producto, autoalojadas  — rendimiento, accesibilidad y licencias controladas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-09": {
+    "anexo": "T03",
+    "titulo": "Proveedor de mapas",
+    "recomendada": "Google por defecto con clave del tenant en bóveda; OSM como alternativa sin costo  — continuidad con ProCoop y opción gratuita",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-10": {
+    "anexo": "T03",
+    "titulo": "Logos por sucursal",
+    "recomendada": "Sí, opcional (PRM-UXD-024 apagado por defecto), con herencia del tenant  — cubre casos sin complejidad para el resto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-11": {
+    "anexo": "T03",
+    "titulo": "PWA en escritorio",
+    "recomendada": "Phone shell por defecto; vista amplia opcional por tenant (PRM-UXD-004) en O2  — un solo diseño garantizado y flexibilidad",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-12": {
+    "anexo": "T03",
+    "titulo": "Mostrar módulos \"No contratado\"",
+    "recomendada": "Solo el administrador, con badge y enlace a licencia; configurable (PRM-UXD-026)  — descubrimiento sin molestar a operadores",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-13": {
+    "anexo": "T03",
+    "titulo": "Admin en pantallas chicas",
+    "recomendada": "Objetivo 1024 px; 768–1023 px soportado con menú colapsado; < 768 px aviso de usar la PWA  — esfuerzo acotado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-14": {
+    "anexo": "T03",
+    "titulo": "Mensaje de error de login",
+    "recomendada": "Mensaje genérico siempre, con ayuda de formato y enlace a recuperar  — seguridad sin perder guía",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-15": {
+    "anexo": "T03",
+    "titulo": "Bloqueo de escritorio para roles de campo",
+    "recomendada": "Sí, configurable por rol (PRM-UXD-005), vacío por defecto  — control para quien lo necesite",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-16": {
+    "anexo": "T03",
+    "titulo": "Asistente IA en la PWA",
+    "recomendada": "Detrás de flag `pwa.asistente`, apagado por defecto, habilitable en O11  — sin costo ni riesgo hasta validar",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-17": {
+    "anexo": "T03",
+    "titulo": "Tipografía de los documentos PDF",
+    "recomendada": "Sí, solo para documentos, desde una lista cerrada de 3 tipografías autoalojadas con licencia libre (por defecto la del producto)  — conserva lo que ProCoop permite sin...",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-01": {
+    "anexo": "T11",
+    "titulo": "Tratamiento de eventos consumidos sin productor",
+    "recomendada": "Alias con vencimiento al cierre de O2 y, para las brechas, el productor agrega el evento en su anexo : convive sin romper y corrige la fuente",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-02": {
+    "anexo": "T11",
+    "titulo": "Aprobaciones diferidas: frontera con T02",
+    "recomendada": "Un paso sin monto: T02. Multipaso, por monto, comité o delegación: T11. La bandeja muestra ambas",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-03": {
+    "anexo": "T11",
+    "titulo": "Plazos de retención documental",
+    "recomendada": "Cargar como \"a validar\" la propuesta de un asesor legal de la cooperativa piloto y no purgar hasta que se confirme",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-04": {
+    "anexo": "T11",
+    "titulo": "Alcance del diseñador de workflows para el tenant",
+    "recomendada": "Adoptar y ajustar plantillas en los puntos de extensión, y crear trámites nuevos solo de tipo \"solicitud genérica\" que terminan en una tarea o un caso",
+    "estadoIndice": "Respondida (DEC-079)"
+  },
+  "PA-WFL-05": {
+    "anexo": "T11",
+    "titulo": "Motor de render PDF",
+    "recomendada": "HTML + CSS con un navegador sin interfaz en workers dedicados, y validación PDF/A posterior : plantillas editables por el tenant y buen diseño",
+    "estadoIndice": "Respondida (DEC-080)"
+  },
+  "PA-WFL-06": {
+    "anexo": "T11",
+    "titulo": "Proveedor y nivel de firma por documento",
+    "recomendada": "Electrónica (OTP) por defecto en todo, y digital con un proveedor licenciado por T06 solo para los recibos de sueldo del empleador y las actas, en O8 y O9",
+    "estadoIndice": "Respondida (DEC-078)"
+  },
+  "PA-WFL-07": {
+    "anexo": "T11",
+    "titulo": "Calendario, agenda y mesa de entradas entre M09 y T11",
+    "recomendada": "M09 es dueño de los datos y T11 aporta la proyección de agenda, la numeración, el expediente, la carátula y el acuse",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-08": {
+    "anexo": "T11",
+    "titulo": "Delegaciones: duración y alcance",
+    "recomendada": "Hasta 90 días, con límite de importe ≤ al del delegante y sin delegar votos de comité ni consejo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-09": {
+    "anexo": "T11",
+    "titulo": "Qué pasa cuando vence un paso de aprobación",
+    "recomendada": "Escalar al supervisor del aprobador y avisar al solicitante; nunca aprobar automáticamente",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-10": {
+    "anexo": "T11",
+    "titulo": "Días hábiles o corridos en los SLA",
+    "recomendada": "Hábiles con el calendario de T04 por defecto, y corridos cuando la norma lo exige, marcado en la política",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-11": {
+    "anexo": "T11",
+    "titulo": "Documentos visibles para el socio",
+    "recomendada": "Comprobantes emitidos, contratos y convenios firmados, constancias de trámite y documentos que el propio socio subió; nunca notas internas ni documentos de verificación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-12": {
+    "anexo": "T11",
+    "titulo": "Convergencia del SLA de M09 con el motor de T11",
+    "recomendada": "Un solo motor en T11 desde O2; M09 sigue publicando EVT-CRM-06/07, que deriva de EVT-WFL-020/021",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-13": {
+    "anexo": "T11",
+    "titulo": "Huecos en la numeración",
+    "recomendada": "Sin huecos en comprobantes, recibos, actas, mesa de entradas y expedientes formales; con huecos en el resto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-14": {
+    "anexo": "T11",
+    "titulo": "Eventos públicos para terceros",
+    "recomendada": "Un subconjunto curado sin datos personales (factura emitida, pago confirmado, estado de trámite, interrupción de servicio), en O11",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-15": {
+    "anexo": "T11",
+    "titulo": "Fuentes de la bandeja unificada",
+    "recomendada": "Desde O1: tareas, aprobaciones, autorizaciones de T02 y excepciones de corridas. Desde O2: casos de M09 y OT de M10. Más adelante, el resto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-16": {
+    "anexo": "T11",
+    "titulo": "Feed iCal de la agenda",
+    "recomendada": "Deshabilitado por defecto; habilitable por tenant, sin datos de socios en el título",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-17": {
+    "anexo": "T11",
+    "titulo": "Correo interno PROMAIL",
+    "recomendada": "Se reemplaza por comentarios y menciones; el historial se migra solo si el tenant lo pide (últimos 12 meses)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-18": {
+    "anexo": "T11",
+    "titulo": "Quién reprograma los jobs",
+    "recomendada": "Sí, solo la hora y los días de los jobs `tenantSchedulable`, dentro de la ventana de plataforma",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-19": {
+    "anexo": "T11",
+    "titulo": "Dueño único de los jobs duplicados",
+    "recomendada": "Sí, y cada anexo afectado elimina o convierte su job en el siguiente ciclo de revisión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-20": {
+    "anexo": "T11",
+    "titulo": "Comparación contra fuentes oficiales",
+    "recomendada": "Padrón de ARCA desde O2 y otras fuentes (identidad provincial o nacional) a demanda del tenant; una diferencia marca el paso para revisión, no bloquea",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-21": {
+    "anexo": "T11",
+    "titulo": "Importe de referencia para los tramos de aprobación",
+    "recomendada": "Bruto, que es lo que sale de caja, con opción de neto por tipo de operación",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-19": {
+    "anexo": "M04",
+    "titulo": "Propiedad de los factores de gas y de los cargos por evento",
+    "recomendada": "Factores de gas en M04; disparador y filtros de cargos por evento en M02, y precio, fundamento y bonificaciones en M04",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CAT-17": {
+    "anexo": "M02",
+    "titulo": "Gas envasado (HUE-GAS-02)",
+    "recomendada": "Variante \"envasado\" como venta con stock (M13) y entrega (M10), sin medidor ni corrección, habilitable por tenant",
+    "estadoIndice": "Respondida (DEC-082)"
+  },
+  "PA-CAT-18": {
+    "anexo": "M02",
+    "titulo": "Conceptos de terceros sin servicio propio (HUECO-TAS-01)",
+    "recomendada": "Siempre cuelgan de un contrato propio del socio, con perfil de servicio \"convenio de terceros\" de tipo accesorio",
+    "estadoIndice": "Respondida (DEC-083)"
+  },
+  "PA-CAT-19": {
+    "anexo": "M02",
+    "titulo": "Correo electrónico y pack SMS (HUECO-OTR-03)",
+    "recomendada": "Servicios de M02 con aprovisionamiento por T06 y cupo/consumo, habilitables por tenant",
+    "estadoIndice": "Respondida (DEC-084)"
+  },
+  "PA-TEC-19": {
+    "anexo": "M10",
+    "titulo": "Portabilidad numérica (HUE-TEL-05)",
+    "recomendada": "\"No aplica\" por defecto (cooperativa sin numeración propia); operación técnica de portabilidad entrante/saliente habilitable por tenant",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-20": {
+    "anexo": "M10",
+    "titulo": "Calidad del agua (HUE-AG-01)",
+    "recomendada": "Controles de calidad en M10 (muestreo, análisis, laboratorio con documento en T11) e informe al regulador vía M06/T10, habilitable por concesión",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-17": {
+    "anexo": "M15",
+    "titulo": "Tratamiento contable de la venta del derecho de sepultura (HUECO-CEM-04)",
+    "recomendada": "Ingreso del período al otorgar el derecho y mantenimiento como ingreso periódico; IVA según la clase de M06; validar con el contador de la cooperativa piloto",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-DAT-01": {
+    "anexo": "T05",
+    "titulo": "Cuenta corriente y cobro con varias entidades jurídicas",
+    "recomendada": "Una cuenta corriente por titular y por entidad; un cobro de caja puede cubrir varias entidades y se emite un recibo por entidad",
+    "estadoIndice": "Asumida (DEC-072, DEC-087)"
+  },
+  "PA-TES-17": {
+    "anexo": "M14",
+    "titulo": "Diferencia de arqueo en una rendición con varias entidades jurídicas",
+    "recomendada": "A la entidad que indique el receptor (default: la de mayor importe rendido), con asiento entre entidades si corresponde",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-DAT-02": {
+    "anexo": "T05",
+    "titulo": "Detalle histórico de más de 36 meses",
+    "recomendada": "Archivado con consulta diferida; facturas, recibos y asientos con sus PDF siempre en línea",
+    "estadoIndice": "Asumida (DEC-072, DEC-087)"
+  },
+  "PA-PER-17": {
+    "anexo": "M01",
+    "titulo": "Destino de `accounts.accountingGroupId` y `personIdentifierIndex.exceptionId`",
+    "recomendada": "`accountingGroupId` → grupos contables (reemplazado por `collectionAccountingGroups` de M07, PA-COB-20); `exceptionId` → excepción de unicidad aprobada (reemplazado por `approvalRequests` de T11, PA-PER-18)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-18": {
+    "anexo": "M01",
+    "titulo": "Destino de `exceptionId` y estados de `premises`",
+    "recomendada": "`exceptionId` → `approvalRequests` de T11, sin colección propia en M01; estados de `premises` `active`, `merged`, `archived` según §7 y §8.14",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CAT-20": {
+    "anexo": "M02",
+    "titulo": "Dueño de los CU compartidos CU-MER-01, CU-PRO-01, CU-CIC-01, CU-ESP-CEM y CU-ESP-SAN",
+    "recomendada": "CU-MER-01 → M03 y el CU de M02 pasa a CU-CAT-13; CU-PRO-01 → M02; CU-CIC-01 → M08 (PA-MOR-21; antes M09); CU-ESP-CEM y CU-ESP-SAN → M18; los demás anexos citan su parte",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CAT-21": {
+    "anexo": "M02",
+    "titulo": "Destino de referencias de `billableConcepts`, `serviceContracts` y `serviceConcessions`, y estados propuestos del §8",
+    "recomendada": "`fiscalClassId` → `fiscalClasses` de M06; `thirdPartyId` y `authorityIds` → terceros y autoridades de M01; `activityId` según PA-CAT-22; se aceptan los estados propuestos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CAT-22": {
+    "anexo": "M02",
+    "titulo": "Destino de `externalClientId`, `bundleSubscriptionId` y `activityId`",
+    "recomendada": "`externalClientId` → `persons` (M01); `bundleSubscriptionId` → colección nueva `bundleSubscriptions` (M02 §7.29); `activityId` → `normativeTables` de M06 (`code = arcaActivities`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-14": {
+    "anexo": "M03",
+    "titulo": "Estados de `meteringSystems`",
+    "recomendada": "`active` e `inactive` (inicial `active`); la salud técnica sigue aparte en `health.status`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-20": {
+    "anexo": "M04",
+    "titulo": "Destino de `taxRateIds`, `adjustmentRequestIds` y `m02ChangeIds`, y estados propuestos del §8",
+    "recomendada": "Alícuotas de M06; pedidos de ajuste de M05 (`invoiceAnnulmentRequests`, PA-FAC-22); versiones de contrato de M02; se aceptan los estados, incluido `failed` en `calculationRuns.status`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-21": {
+    "anexo": "M05",
+    "titulo": "Destino de `invoices.sellerId` y estados propuestos del §8",
+    "recomendada": "Vendedor como usuario del tenant (`memberships` de T02) según el canal de venta de M11; se aceptan los estados propuestos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-22": {
+    "anexo": "M05",
+    "titulo": "Destino de `adjustmentRequestIds` de M04",
+    "recomendada": "`invoiceAnnulmentRequests` (COL-FAC-17) con `mode` `partialCredit` o `debitAdjustment`; sin colección nueva",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-19": {
+    "anexo": "M06",
+    "titulo": "Capability de exportación de reportes fiscales",
+    "recomendada": "`fis.reportes.exportar`, única para todos los reportes, además de la `fis.<recurso>.ver` del dominio",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-20": {
+    "anexo": "M06",
+    "titulo": "Destino de `normativeAdoptions.simulationId` y `gatewayDocuments.externalSystemId`",
+    "recomendada": "Simulaciones de M04 y `apiClients` de T02",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-21": {
+    "anexo": "M06",
+    "titulo": "Colección `fiscalClasses`, catálogo de actividades y estados de `provincialValidationCodes`",
+    "recomendada": "M06 declara `fiscalClasses` (§7.38); `activityId` → `normativeTables` (`arcaActivities`); estados `active` y `expired`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-19": {
+    "anexo": "M07",
+    "titulo": "Estados de colecciones sin máquina de estados",
+    "recomendada": "Una máquina por colección en el anexo dueño: M07 §8.17, M08 §8.14 (`agreementInstallments`), M09 §8.13 (`crmCalendarEvents`), M10 (`technicalProcedures`, PA-TEC-22) y M13 (`fixedAssetValueChanges`, `mrpRuns`, PA-STK-10)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-20": {
+    "anexo": "M07",
+    "titulo": "Colección `collectionAccountingGroups`",
+    "recomendada": "M07 la declara (`code`, `name`, `status` `active`/`inactive`) en O5, sin cuentas; las cuentas van en `entityAccountAssignments` de M15 (`entityType = collectionAccountingGroup`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-21": {
+    "anexo": "M08",
+    "titulo": "Anexo dueño de CU-CIC-01 (suspensión temporal y reactivación)",
+    "recomendada": "M08 es dueño; M02, M09 y M19 citan su parte (para este CU reemplaza la opción de PA-CAT-20, que decía M09)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-19": {
+    "anexo": "M09",
+    "titulo": "Anexo dueño de CU-SOL-01 (alta de Internet y baja de TV)",
+    "recomendada": "M09 es dueño; M02 cita su parte de contrato",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-21": {
+    "anexo": "M10",
+    "titulo": "Vocabulario de capabilities de M10",
+    "recomendada": "Renombrar al español con la canónica de T02 (`tec.ordenes.*`, `tec.servicioTecnico.*`, `tec.redes.*`, `tec.agenda.*`…) y conservar el nombre anterior como alias \"antes `x`\"",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-22": {
+    "anexo": "M10",
+    "titulo": "Estados de `technicalProcedures`",
+    "recomendada": "Máquina propia `open`, `inReview`, `observed`, `approved`, `rejected`, `cancelled` (§8.15), dirigida por la resolución de cada etapa",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-10": {
+    "anexo": "M13",
+    "titulo": "Estados de `fixedAssetValueChanges` y `mrpRuns`",
+    "recomendada": "`fixedAssetValueChanges` `draft` → `posted` → `voided`; `mrpRuns` `calculated` → `confirmed` / `discarded`, o `failed` (§8.13)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-18": {
+    "anexo": "M14",
+    "titulo": "Estados de `cashFlowScenarios`",
+    "recomendada": "`draft` → `active` → `archived` (§8.16.10); un escenario archivado se copia para reutilizarlo",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-18": {
+    "anexo": "M15",
+    "titulo": "Colección del modelo de centro de costo (`costCenterModelId`)",
+    "recomendada": "M15 declara la colección `costCenterModels` (§7.19.1), con reparto fijo o delegado en un modelo de distribución",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-16": {
+    "anexo": "M16",
+    "titulo": "Dueño de las pantallas del empleado",
+    "recomendada": "M16 es dueño del contenido, las reglas y las API (PAN-SUE-41 a 46, API-SUE-78 a 81); M19 es dueño de la ruta publicada en la PWA y las incrusta",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-17": {
+    "anexo": "M16",
+    "titulo": "Estados de `payslipNotifications`, `performanceReviews` y `objectives`",
+    "recomendada": "Se confirman los valores y transiciones de §8.12.8 a §8.12.10",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-12": {
+    "anexo": "M17",
+    "titulo": "Nombre del campo que apunta al padrón de asociados",
+    "recomendada": "`associateMembershipId` (antes `membershipId`) en M17, T05 y los consumidores de `ins.membership.*`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-16": {
+    "anexo": "M18",
+    "titulo": "Referencia al artículo de stock en vivienda",
+    "recomendada": "`inventoryItemId` de M13 (antes `productId`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-17": {
+    "anexo": "M18",
+    "titulo": "API-SOC-006: endpoint HTTP o servicio interno",
+    "recomendada": "Endpoint HTTP `GET /api/admin/soc/contracts/:id/billing-inputs` que consume M04, con `soc.adherentes.ver`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-18": {
+    "anexo": "M18",
+    "titulo": "Estados de `providerAgreements`, `donationCampaigns` y `housingPlans`",
+    "recomendada": "Se confirman §8.1.6 y §8.1.7 y se agrega §8.1.8 (`draft`, `active`, `closed`) para planes de vivienda",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-20": {
+    "anexo": "M19",
+    "titulo": "Tabbar del socio y pantalla Comunidad",
+    "recomendada": "Inicio · Cuentas y servicios · (+) · Gestiones · Comunidad, con Perfil desde el avatar y FAB = Pagar (maestra §9.2 y T03); nueva PAN-POR-105 `/app/comunidad` (RF-POR-180)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-21": {
+    "anexo": "M19",
+    "titulo": "Versiones de formularios del portal",
+    "recomendada": "`formVersions` de T11: `portalForms` guarda `formVersionId`; presentaciones y borradores guardan la versión usada",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-14": {
+    "anexo": "T04",
+    "titulo": "Cambio de CUIT o de entidad emisora con documentos emitidos",
+    "recomendada": "El CUIT no se edita (un CUIT nuevo es una entidad nueva); el cambio de emisora de un servicio tiene fecha efectiva y los saldos anteriores quedan en la entidad original (RN-CFG-052)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-DAT-03": {
+    "anexo": "T05",
+    "titulo": "Errores de unicidad y de campos en el catálogo de T09",
+    "recomendada": "Corregir T05 según las fichas de T09 (COL-COM-15, 16, 22, 37, 45 y 56)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-26": {
+    "anexo": "T06",
+    "titulo": "Estados de `aiUsageLogs`",
+    "recomendada": "`ok`, `error` y `blocked`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-20": {
+    "anexo": "T07",
+    "titulo": "Dónde se guarda el acta de aceptación de la migración",
+    "recomendada": "`documents` de T11 con tipo documental `acta`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-22": {
+    "anexo": "T08",
+    "titulo": "Factor de simultaneidad del pico de plataforma",
+    "recomendada": "0,6 en todas las filas de simultaneidad de §7.1, con prueba de carga antes de O4",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-23": {
+    "anexo": "T08",
+    "titulo": "Copias anuales de 10 años",
+    "recomendada": "Sin copias anuales: datos en línea los 10 años y detalle de más de 36 meses en archivo en frío (DEC-087)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-17": {
+    "anexo": "T09",
+    "titulo": "Estados de los avisos de plataforma (`platformNotices`)",
+    "recomendada": "`draft` → `published` → `expired`, con `withdrawn` desde `draft` o `published`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-18": {
+    "anexo": "T09",
+    "titulo": "Tipo de comunicación en plantillas de campaña y de texto libre",
+    "recomendada": "Obligatorio, con el tipo genérico \"Campaña\" (`com.campaign.generic`) precargado por plataforma",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-22": {
+    "anexo": "T11",
+    "titulo": "Destino de `responsibleAreaId`",
+    "recomendada": "`crmAreas` de M09",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PER-19": {
+    "anexo": "M01",
+    "titulo": "Residuales del 05-11-2026: estados, referencias y nombres",
+    "recomendada": "Estado inicial `received`; `streetRequestId` → `streetProposals` (T04); subsecciones absorbidas como referencia del circuito con dueño del estado (T08, T02); `subjectPersonId`/`target` sin cambios",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CAT-23": {
+    "anexo": "M02",
+    "titulo": "Residuales del 05-11-2026: estados y referencias",
+    "recomendada": "Estado de alta de cada máquina (§8.5); `contractDeclaredAppliances` `active` → `removed`; `contractSpecialConditions` `draft` → `approved` → `expired` / `cancelled`; destinos `serviceProducts`, `documents` (T11), `feasibilityRequests` (M10) y `approvalRequests` (T11)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MED-15": {
+    "anexo": "M03",
+    "titulo": "Residuales del 05-11-2026: estados y referencias",
+    "recomendada": "Estado de alta y transiciones en §8.13; lecturista → `memberships` (T02); `deviceId` → `fieldDevices` (M10); expedientes → `documents` (T11); fotos → `storedFiles` (T01); `routeIds` → `readingRoutes`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TAR-21": {
+    "anexo": "M04",
+    "titulo": "Residuales del 05-11-2026: estados, referencias y nombres",
+    "recomendada": "`subsidyEnrollments` inicial `active`; `calculationRuns` inicial `queued`; `rightId` → `burialRights` (M18); usar `fis.service.calculateTaxes`; API-TAR-061 con `public: true`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FAC-23": {
+    "anexo": "M05",
+    "titulo": "Residuales del 05-11-2026: estados, referencias y API reemplazada",
+    "recomendada": "Estados de alta y transiciones en §8.13; `ownerRole` → `roles` y `assigneeId` → `memberships` (T02); `serviceBlockId` obligatorio; API-FAC-023 reemplazada por API-MOR-25",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-22": {
+    "anexo": "M06",
+    "titulo": "Residuales del 05-11-2026: estados, servicios internos y referencias",
+    "recomendada": "Estado de alta en §8.12; `provincialValidationCodes` `active` → `expired`; máquina de `regulatoryReportRuns`; consumidores de `calculateTaxes`, `resolveDocumentClass` y `checkRegistryCoverage`; destinos en M12 y M06",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COB-21": {
+    "anexo": "M07",
+    "titulo": "Residuales del 05-11-2026: referencias, nombres canónicos y estados",
+    "recomendada": "Destinos de §7.37 según T05 §7.2.1; nombres canónicos con alias \"antes\"; `collectors` y `gatewayConnectors` con `active`, `suspended`, `inactive` (§8.19)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MOR-22": {
+    "anexo": "M08",
+    "titulo": "Residuales del 05-11-2026: referencias, nombres canónicos, estados y alias",
+    "recomendada": "Destinos de §7.38; máquinas de §8.15; evento `int.network.provisioningResult` (alias con guiones); comando `tec.workOrder.request`; `billableItemId` (antes `pendingChargeId`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CRM-20": {
+    "anexo": "M09",
+    "titulo": "Residuales del 05-11-2026: referencias, nombres de T05 y estados",
+    "recomendada": "Destinos de §7.45; `aiUsageLogId` incorporado; máquinas de §8.14; `crmCaseId` y `associateMembershipId` (antes `memberId`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TEC-23": {
+    "anexo": "M10",
+    "titulo": "Residuales del 05-11-2026: referencias, estados, rutas de API, comando de OT y alias",
+    "recomendada": "Destinos de §7.23; máquinas de §8.16; comando `tec.workOrder.request`; evento `int.cdr.batchReceived` (alias con guiones)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-VEN-12": {
+    "anexo": "M11",
+    "titulo": "Residuales del 05-11-2026: referencias, estados y API reemplazadas",
+    "recomendada": "Destinos de §7.15; máquinas de §8.6; API-VEN-006 → API-FAC-105 y API-VEN-007 → API-FAC-044",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CMP-16": {
+    "anexo": "M12",
+    "titulo": "Residuales del 05-11-2026: estados, referencias y nombres de campo",
+    "recomendada": "§8.8 con estados de `supplierAdvances`, `supplyBalances`, `signalRightsContracts` y `signalRightsSettlements`; facturas y recepciones de compra → `supplierInvoices` y `supplierReceipts`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-STK-11": {
+    "anexo": "M13",
+    "titulo": "Residuales del 05-11-2026: estados, referencias, nombres de campo y evento bajo mínimo",
+    "recomendada": "§8.14 (`stockState`, `revaluations`, `serviceReceptions`); `projectId` → `works` (M10); `requisitionId(s)` → `supplyRequests` y `purchaseReceiptId` → `supplierReceipts` (M12); evento `stk.item.belowMinimum`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-TES-19": {
+    "anexo": "M14",
+    "titulo": "Residuales del 05-11-2026: estados, referencias, nombres de campo, CU duplicado y capability de API",
+    "recomendada": "Estado inicial explícito; §8.16.11 y §8.16.12; nombres de T05 con \"antes\"; CU-TES-17 (antes CU-13); API-TES-87 exige `tes.posicion.ver`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CON-19": {
+    "anexo": "M15",
+    "titulo": "Residuales del 05-11-2026: estados, referencias, nombres de campo y eventos de M17",
+    "recomendada": "Estado inicial de cada máquina; nombres de T05 con \"antes\"; `seriesId` → `economicIndexSeries` (T04); eventos de M17 con el nombre nuevo (alias el viejo)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SUE-18": {
+    "anexo": "M16",
+    "titulo": "Residuales del 05-11-2026: estados, referencias y nombres de campo",
+    "recomendada": "§8.12.11 a §8.12.13; `shifts` `active`/`inactive`; `extraTasks` `draft`, `confirmed`, `voided`; nombres de T05 con alias",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INS-13": {
+    "anexo": "M17",
+    "titulo": "Residuales del 05-11-2026: estados, referencias, nombres de campo y tipos de evento",
+    "recomendada": "Estado inicial explícito; §8.1 sobre `associateMemberships.status`; destinos (`accountRubrics`, `creditBalances`, `withholdingsApplied`, `dataTableViews`, `documentTemplates`); nombres de T05 (`*AssociateMembershipId`, `storedFileId`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-SOC-19": {
+    "anexo": "M18",
+    "titulo": "Residuales del 05-11-2026: estados, referencias, nombres de campo y evento GPS",
+    "recomendada": "§8.2 completo; vínculos → `enumerationItems` (T04); tarifa → `tariffCategoryRates` (M04); plantillas → `documentTemplates` (T11); evento `int.fleet.positionsReceived`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-POR-22": {
+    "anexo": "M19",
+    "titulo": "Residuales del 05-11-2026: estados, referencias, rótulo corto y nombre de PAN-POR-105",
+    "recomendada": "`portalForms` inicial `borrador` y `kioskDevices` inicial `activo`; `cashboxId` → `cashRegisters` (M07); PAN-POR-105 \"Comunidad\"; rótulo corto \"Cuentas\" en la tabbar; consumir `ins.capitalMovement.recorded`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-PLA-15": {
+    "anexo": "T01",
+    "titulo": "Cierre de residuales del anexo (estados, referencias, API, colas y CU)",
+    "recomendada": "§8.13; destinos y nombres canónicos de T05; `public: true` y capabilities implícitas o técnicas de T02 (PA-IAM-18); excepción de JOB-PLA-01 en la tabla de colas; CU propio renumerado a CU-PLA-15 (antes CU-ARQ-01)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-18": {
+    "anexo": "T02",
+    "titulo": "Cierre de residuales del anexo (capabilities, estados, referencias y CU)",
+    "recomendada": "`public: true` en rutas sin sesión; capabilities implícitas (`iam.sesion.autenticada`, `pla.archivos.*`, `pla.misProcesos.ver`…) y técnicas (`pla.salud.sondear`, `mig.clavesHeredadas.resolver`); mapeo de scopes `erp`; §8.11; CU propio renumerado a CU-IAM-11 (antes CU-SEG-01)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-18": {
+    "anexo": "T03",
+    "titulo": "Cierre de residuales del anexo (mapa del sitio, tabbar, estados, API y CU)",
+    "recomendada": "Capability y ruta del anexo dueño (AL-01); rótulo corto \"Cuentas\"; tabla 8.8; CU propio renumerado a CU-UXD-07 (antes CU-ACC-01); PAN-UXD-15, 16 y 17 asignadas a RF-UXD-064, 063 y 055 (O0, PRO-O0-15), sin RF nuevos",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-CFG-15": {
+    "anexo": "T04",
+    "titulo": "Cierre de residuales del anexo (pantalla sin ruta, servicios, API, estados y tablas de campos)",
+    "recomendada": "PAN-CFG-31 cita las rutas anfitrionas de M19; servicio `economicIndexes.valueAt({ seriesId, at })`; API-CFG-58 reemplazada por servicio interno; §8.11 y tablas de campos de §7.18",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-DAT-04": {
+    "anexo": "T05",
+    "titulo": "Destinos de referencia pendientes y alineación del catálogo con los anexos dueños",
+    "recomendada": "Destino único por colección o módulo; el catálogo se alinea al anexo dueño cuando usa un nombre canónico y conserva el de §7.2 cuando no (el anexo renombra)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-INT-27": {
+    "anexo": "T06",
+    "titulo": "Cierre de residuales del anexo (tipos de evento, estados, referencias y API)",
+    "recomendada": "Tipos de evento en camelCase con alias en T11 §12.4; §8.13; `externalTransactionNumber` (antes `externalTransactionId`); tablas de campos de §7.18; `int.agentes.ejecutar`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-MIG-21": {
+    "anexo": "T07",
+    "titulo": "Cierre de residuales del anexo (estados, referencias, tablas de campos y API)",
+    "recomendada": "§8.8; destinos (`billingRuns`, `documents`, `legacySnapshots`, `migrationMappingSets`); `mappingSetId` y `ruleCode` con \"antes\"; §7.14; `mig.clavesHeredadas.resolver` y `mig.miHistorial.ver`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-NFR-24": {
+    "anexo": "T08",
+    "titulo": "Cierre de residuales del anexo (estados, referencias, tablas de campos y API)",
+    "recomendada": "Transiciones en §15.2 y valores en §15.1; destinos `processingActivities` y `privacyNotices`; §15.1.1; `public: true` y `pla.salud.sondear`; CU-ARQ-01 citado como de T11",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-COM-19": {
+    "anexo": "T09",
+    "titulo": "Cierre de residuales: carga rápida de reclamos por SMS, destinos de referencia y estados",
+    "recomendada": "Carga rápida habilitada por un canal `crmChannels` de M09 con `kind = sms`; `fieldAssignmentId` → `workOrders` (M10); `categoryIds[]` → `postCategories`; `targetTenants` → `tenants` (T01); estados completos en §8",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-BIA-17": {
+    "anexo": "T10",
+    "titulo": "Cierre de residuales del anexo (estados, referencias, tablas de campos y API)",
+    "recomendada": "§8.12; `scenarioId` → `simulationScenarios` (M15) y `templateOriginId` → `customReports`; `catalogQuestionCode` y `date` con \"antes\"; §7.26; `bia.reportes.ver`, `bia.exportaciones.crear`, `bia.apis.consumir`",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-23": {
+    "anexo": "T11",
+    "titulo": "Cierre de residuales: nombres de eventos, alias con un solo canónico y máquinas de estado",
+    "recomendada": "Eventos en camelCase en §12.3 con el nombre viejo como alias en §12.4, un solo canónico por alias y todas las máquinas de §8 en tabla",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-IAM-19": {
+    "anexo": "T02",
+    "titulo": "Sincronización posterior a la ronda de residuales: capabilities reemplazadas, servicios internos y comando de OT",
+    "recomendada": "`fac.bloqueosCausas.configurar` reemplazada y alias total de `mor.causas.configurar`; filas `fis.service.*` como servicios internos de M06 §11.1; `tec.workOrder.create` queda solo como alias de capability",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-UXD-19": {
+    "anexo": "T03",
+    "titulo": "Sincronización posterior a la ronda de residuales: mapa del portal y rótulo corto",
+    "recomendada": "Correspondencia de PAN-POR-19, 52, 55 y 91 con los ítems del mapa (misma app y recurso como principal); rótulo corto \"Cuentas\" también en CTR-UXD-12",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-DAT-05": {
+    "anexo": "T05",
+    "titulo": "Sincronización posterior a la ronda de residuales: catálogo de colecciones",
+    "recomendada": "Prevalece el anexo dueño: el catálogo toma los nombres del §7 del dueño y registra destinos y valores nuevos en §7.2.1 y §8.1 (`indicatorId` + `indicatorCode`, `kpiAlertRuleId`, `migrationIssues.ruleId` + `ruleCode`, `apiUsageDaily.date`)",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-WFL-24": {
+    "anexo": "T11",
+    "titulo": "Sincronización posterior a la ronda de residuales: alias de M13 y comando de OT en EVT-CRM-13",
+    "recomendada": "Fila de alias en §12.4, nombre anterior citado en EVT-STK-12, comando en el campo `command` de EVT-CRM-13 (no es tipo de evento) y §12.10 actualizado",
+    "estadoIndice": "Asumida (DEC-072)"
+  },
+  "PA-FIS-23": {
+    "anexo": "M06, M05",
+    "titulo": "Conceptos accesorios admitidos dentro de la liquidación de servicios públicos en la factura agrupada (DEC-093)",
+    "recomendada": "Solo tasas, contribuciones y cargos regulados que acompañan al servicio público y que el contador declare como accesorios; internet, telefonía, TV, sepelio y servicios sociales siempre en factura común",
+    "estadoIndice": "Pendiente (contador)"
+  },
+  "PA-FIS-24": {
+    "anexo": "M06",
+    "titulo": "Norma que obliga a usar la LQSP, vía de autorización (CESP, CAE o CAEA) y efecto de las RG 5003 y 5866/2026 (DEC-094)",
+    "recomendada": "Mantener CESP separado del CAEA (PA-FIS-02) hasta que el contador confirme; la RG 3571/2013 se sigue tratando como régimen de información",
+    "estadoIndice": "Pendiente (contador)"
+  },
+  "PA-FIS-25": {
+    "anexo": "M06, M17",
+    "titulo": "Obligaciones y exenciones propias de la cooperativa: exención de Ingresos Brutos de Córdoba para cooperativas eléctricas, Contribución Especial sobre el Capital Cooperativo y reforma de Ganancias 2026 (DEC-095)",
+    "recomendada": "No precargar ninguna; el contador confirma cada una con su fundamento y vigencia y el tenant la da de alta en el registro de M06",
+    "estadoIndice": "Pendiente (contador)"
+  },
+  "PA-FIS-26": {
+    "anexo": "M06",
+    "titulo": "Alícuota de IVA del 27 % a responsables inscriptos según el uso del suministro (DEC-102)",
+    "recomendada": "Condición por uso desactivada por defecto; se activa por tenant y servicio solo con la confirmación del contador",
+    "estadoIndice": "Pendiente (contador)"
+  },
+  "PA-STACK-01": {
+    "anexo": "00",
+    "titulo": "Stack back .NET + Azure SQL vs DEC-001 Node+Mongo",
+    "recomendada": "Adoptar stack GoodApps en spec; análisis funcional conserva reglas de negocio",
+    "estadoIndice": "Respondida (DEC-111)"
+  },
+  "PA-STACK-02": {
+    "anexo": "T02",
+    "titulo": "2FA sin SMS (PDF) vs SMS en spec actual",
+    "recomendada": "No tocar T02 hasta acuerdo con GoodApps",
+    "estadoIndice": "Pendiente (D-08: diferir)"
+  },
+  "PA-STACK-03": {
+    "anexo": "T04",
+    "titulo": "T04 global vs parámetros solo en módulos dueños (PDF)",
+    "recomendada": "Mantener T04 motor + T04b; §14 por módulo",
+    "estadoIndice": "Respondida (DEC-114)"
+  },
+  "PA-STACK-04": {
+    "anexo": "03",
+    "titulo": "Rol del plan Cursor/olas frente a pipeline GoodApps",
+    "recomendada": "Solo pipeline GoodApps; `03` histórico",
+    "estadoIndice": "Respondida (DEC-118)"
+  },
+  "PA-STACK-05": {
+    "anexo": "entregables",
+    "titulo": "OpenAPI en GACAC vs «solo referencia» del PDF",
+    "recomendada": "Mantener normativo en GACAC hasta existir código generador",
+    "estadoIndice": "Respondida (D-06; ver nota en `06` §10)"
+  },
+  "PA-STACK-06": {
+    "anexo": "T05, nuevo `07-*`",
+    "titulo": "ER físico Azure SQL 4NF con PK/FK",
+    "recomendada": "Documento aparte complementario a T05",
+    "estadoIndice": "Respondida (DEC-117)"
+  },
+  "PA-STACK-07": {
+    "anexo": "T03, M09, export",
+    "titulo": "¿Ampliar IA / ayuda más allá de lo ya especificado en la reunión?",
+    "recomendada": "Mantener alcance actual (P6, M09, ScreenHelp); solo mejorar empaquetado en export",
+    "estadoIndice": "Pendiente (si piden más IA)"
+  },
+  "PA-BRD-01": {
+    "anexo": "`08`, `docs/brand/coopapps/`",
+    "titulo": "Sustituir SVG wordmark v1.0 por manual gráfico del informe de naming",
+    "recomendada": "B) **No hay manual** — usar repo como fuente única (DEC-120)",
+    "estadoIndice": "Asumida (DEC-120, 19-11-2026)"
+  }
+}

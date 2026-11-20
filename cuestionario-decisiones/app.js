@@ -3,6 +3,56 @@
 
   var STORAGE_KEY = "gacac-cuestionario-md-v1";
   var DEFAULT_MD = "copia-respuestas-stakeholder.md";
+  var INDICE_URL = "indice-02.json";
+
+  var MODULOS = [
+    ["PA-CFG-P", "Parámetros ProCoop (catálogo T04b)"],
+    ["PA-STACK", "Negociación stack GoodApps"],
+    ["PA-BRD", "Marca y naming"],
+    ["PA-BIA", "Reportes, BI y APIs (T10)"],
+    ["PA-CAT", "Catálogo y contratos (M02)"],
+    ["PA-CFG", "Configuración central (T04)"],
+    ["PA-CMP", "Compras y proveedores (M12)"],
+    ["PA-COB", "Cuenta corriente y cobranza (M07)"],
+    ["PA-COM", "Comunicaciones (T09)"],
+    ["PA-CON", "Contabilidad (M15)"],
+    ["PA-CRM", "Atención y CRM (M09)"],
+    ["PA-DAT", "Modelo de datos (T05)"],
+    ["PA-FAC", "Facturación (M05)"],
+    ["PA-FIS", "Fiscal e impuestos (M06)"],
+    ["PA-IAM", "Identidad, roles, acceso (T02)"],
+    ["PA-INS", "Institucional / socios (M17)"],
+    ["PA-INT", "Integraciones (T06)"],
+    ["PA-MED", "Medición y consumos (M03)"],
+    ["PA-MIG", "Migración ProCoop (T07)"],
+    ["PA-MOR", "Mora y recupero (M08)"],
+    ["PA-NFR", "Requisitos no funcionales (T08)"],
+    ["PA-PER", "Personas y titulares (M01)"],
+    ["PA-PLA", "Plataforma SaaS (T01)"],
+    ["PA-POR", "Portal del socio (M19)"],
+    ["PA-SOC", "Servicios sociales y flota (M18)"],
+    ["PA-STK", "Stock y activos (M13)"],
+    ["PA-SUE", "Personal y sueldos (M16)"],
+    ["PA-TAR", "Tarifas y motor de cálculo (M04)"],
+    ["PA-TEC", "Técnica y campo (M10)"],
+    ["PA-TES", "Tesorería y bancos (M14)"],
+    ["PA-UXD", "Experiencia y marca (T03)"],
+    ["PA-VEN", "Ventas y presupuestos (M11)"],
+    ["PA-WFL", "Workflow y documentos (T11)"],
+  ];
+
+  var GLOSSARIO_RE = [
+    { re: /\bDEC-\d+\b/g, term: "DEC-…", desc: "Decisión formal del proyecto (archivo 01-registro-decisiones)." },
+    { re: /\bBASE §[\d.]+\b/g, term: "BASE §…", desc: "Apartado del documento base funcional (relevamiento ProCoop)." },
+    { re: /\bO\d{1,2}\b/g, term: "Ola O…", desc: "Entrega del plan por olas (O5 temprana, O11 avanzada, etc.)." },
+    { re: /\bRF-[A-Z]+-\d+/g, term: "RF-…", desc: "Requisito funcional identificado en un anexo." },
+    { re: /\bJOB-[A-Z]+-\d+/g, term: "JOB-…", desc: "Proceso automático / tarea programada del sistema." },
+    { re: /\bProCoop\b/g, term: "ProCoop", desc: "Sistema legado que la cooperativa usa hoy." },
+    { re: /\btenant\b/gi, term: "tenant", desc: "Cada cooperativa como cliente aislado en la plataforma." },
+    { re: /\bSCD2\b/g, term: "SCD2", desc: "Forma de guardar historial de datos que cambian en el tiempo." },
+    { re: /replica set/gi, term: "réplica", desc: "Copias de la base para lectura sin frenar el uso diario." },
+    { re: /MongoDB/g, term: "MongoDB", desc: "Tipo de base de datos (decisiones de stack en DEC-111+)." },
+  ];
 
   var state = {
     md: "",
@@ -10,6 +60,7 @@
     index: 0,
     filter: "todas",
     fileHandle: null,
+    indice: {},
   };
 
   var el = {
@@ -39,11 +90,143 @@
 
   function field(block, name) {
     var re = new RegExp(
-      "\\- \\*\\*" + name + ":\\*\\*\\s*(.+)",
+      "\\- \\*\\*" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ":\\*\\*\\s*(.+)",
       "i"
     );
     var m = block.match(re);
     return m ? m[1].trim() : "";
+  }
+
+  function moduloLabel(id) {
+    var i;
+    for (i = 0; i < MODULOS.length; i++) {
+      if (id.indexOf(MODULOS[i][0]) === 0) return MODULOS[i][1];
+    }
+    var m = id.match(/^PA-([A-Z]+)/);
+    return m ? "Área " + m[1] + " (anexo en la especificación)" : "";
+  }
+
+  function enrichItems() {
+    var i;
+    for (i = 0; i < state.items.length; i++) {
+      var it = state.items[i];
+      var row = state.indice[it.id];
+      it.modulo = moduloLabel(it.id);
+      if (row) {
+        it.anexo = row.anexo;
+        it.tituloIndice = row.titulo;
+        it.recomendadaIndice = row.recomendada;
+        it.estadoIndice = row.estadoIndice;
+      }
+    }
+  }
+
+  function textoGlosario(it) {
+    return [
+      it.pregunta,
+      it.contexto,
+      it.impacto,
+      it.bloquea,
+      it.estado,
+      it.recomendadaIndice || "",
+    ].join(" ");
+  }
+
+  function glosarioList(text) {
+    var vistos = {};
+    var out = [];
+    var g;
+    for (g = 0; g < GLOSSARIO_RE.length; g++) {
+      var item = GLOSSARIO_RE[g];
+      item.re.lastIndex = 0;
+      if (item.re.test(text) && !vistos[item.term]) {
+        vistos[item.term] = true;
+        out.push(item);
+      }
+    }
+    return out;
+  }
+
+  function formatOpcion(raw) {
+    var dash = raw.indexOf(" — ");
+    if (dash === -1) return esc(raw);
+    return (
+      esc(raw.slice(0, dash)) +
+      '<span class="op-plain"><strong>En simple:</strong> ' +
+      esc(raw.slice(dash + 3)) +
+      "</span>"
+    );
+  }
+
+  function buildContextHtml(it) {
+    var parts = [];
+    var sub =
+      it.tituloIndice && it.tituloIndice !== it.title
+        ? '<p class="subtitulo">' + esc(it.tituloIndice) + "</p>"
+        : "";
+
+    parts.push('<section class="lectura-simple" aria-labelledby="ctx-tit">');
+    parts.push('<h3 id="ctx-tit">Para orientarte</h3><ul>');
+    if (it.modulo) parts.push("<li><strong>Área:</strong> " + esc(it.modulo) + "</li>");
+    if (it.anexo) parts.push("<li><strong>Anexo / fuente:</strong> " + esc(it.anexo) + "</li>");
+    parts.push(
+      "<li><strong>De qué se trata:</strong> " + esc(it.title) + "</li>"
+    );
+    if (it.recomendadaIndice) {
+      parts.push(
+        "<li><strong>Recomendación vigente en el índice 02:</strong> " +
+          esc(it.recomendadaIndice) +
+          "</li>"
+      );
+    }
+    if (it.impacto) {
+      parts.push(
+        "<li><strong>Si no respondés en esta copia:</strong> " + esc(it.impacto) + "</li>"
+      );
+    }
+    parts.push("</ul></section>");
+    parts.push(sub);
+
+    if (it.contexto) {
+      parts.push(
+        '<details class="context-block" open><summary>Antecedentes (técnicos)</summary><p class="contexto">' +
+          esc(it.contexto) +
+          '</p><p class="hint-ctx">Las siglas y códigos del párrafo anterior están explicados en el glosario de abajo.</p></details>'
+      );
+    }
+    if (it.bloquea) {
+      parts.push(
+        '<details class="context-block" open><summary>Qué partes del proyecto dependen de esto</summary><p class="contexto">' +
+          esc(it.bloquea) +
+          '</p><p class="hint-ctx">Son referencias internas (requisitos, olas, jobs); si no las conocés, alcanza con elegir la opción que prefieras o pedir ampliación.</p></details>'
+      );
+    }
+    var est = it.estado || it.estadoIndice;
+    if (est) {
+      parts.push(
+        '<details class="context-block"><summary>Qué dice la especificación oficial hoy</summary><p class="estado-spec">' +
+          esc(est) +
+          "</p></details>"
+      );
+    }
+    var gloss = glosarioList(textoGlosario(it));
+    if (gloss.length) {
+      parts.push(
+        '<details class="context-block"><summary>Glosario de esta pregunta</summary><dl class="glosario">'
+      );
+      var j;
+      for (j = 0; j < gloss.length; j++) {
+        parts.push(
+          "<dt>" +
+            esc(gloss[j].term) +
+            "</dt><dd>" +
+            esc(gloss[j].desc) +
+            "</dd>"
+        );
+      }
+      parts.push("</dl></details>");
+    }
+    return parts.join("");
   }
 
   function parseOpciones(block) {
@@ -91,6 +274,8 @@
         title: title,
         pregunta: field(body, "Pregunta"),
         contexto: field(body, "Contexto"),
+        impacto: field(body, "Impacto si no se responde"),
+        bloquea: field(body, "Bloquea"),
         estado: field(body, "Estado"),
         opciones: parseOpciones(body),
         elegida: field(body, "Opción elegida"),
@@ -168,6 +353,7 @@
   function setMd(text, fromFile) {
     state.md = text;
     state.items = parseItems(text);
+    enrichItems();
     if (state.index >= state.items.length) state.index = 0;
     persistMd();
     render();
@@ -217,7 +403,7 @@
           (checked ? "checked" : "") +
           "><span>" +
           (op.rec ? '<span class="badge rec">Recomendada</span> ' : "") +
-          esc(op.raw) +
+          formatOpcion(op.raw) +
           "</span></label></li>";
       }
       optsHtml +=
@@ -254,14 +440,8 @@
       '<p class="pregunta">' +
       esc(it.pregunta || "(Sin enunciado en el MD)") +
       "</p>" +
-      (it.contexto
-        ? '<div class="contexto">' + esc(it.contexto) + "</div>"
-        : "") +
-      (it.estado
-        ? '<p class="estado-spec"><strong>Estado en spec:</strong> ' +
-          esc(it.estado) +
-          "</p>"
-        : "") +
+      buildContextHtml(it) +
+      '<h3 class="opciones-tit">Tu respuesta</h3>' +
       optsHtml +
       '<label class="field" for="amp">Ampliación o respuesta propia</label>' +
       '<textarea id="amp" placeholder="Opcional: matiz, condición, o respuesta completa si elegiste Otra">' +
@@ -456,27 +636,40 @@
     }
   }
 
-  function boot() {
-    initEvents();
-    var stored = loadStored();
-    if (stored && stored.indexOf("### PA-") !== -1) {
-      setMd(stored, false);
-      toast("Sesión recuperada del navegador");
-      return;
-    }
-    fetch(DEFAULT_MD)
+  function loadIndice() {
+    return fetch(INDICE_URL)
       .then(function (r) {
-        if (!r.ok) throw new Error("no fetch");
-        return r.text();
-      })
-      .then(function (t) {
-        setMd(t, false);
+        return r.ok ? r.json() : {};
       })
       .catch(function () {
-        el.app.innerHTML =
-          '<div class="empty"><p>Abrí <strong>copia-respuestas-stakeholder.md</strong> (la copia de trabajo, no el MD de especificación) con el botón superior, o serví esta carpeta con <code>python -m http.server</code>.</p></div>';
-        updateProgress();
+        return {};
       });
+  }
+
+  function boot() {
+    initEvents();
+    loadIndice().then(function (idx) {
+      state.indice = idx || {};
+      var stored = loadStored();
+      if (stored && stored.indexOf("### PA-") !== -1) {
+        setMd(stored, false);
+        toast("Sesión recuperada del navegador");
+        return;
+      }
+      fetch(DEFAULT_MD)
+        .then(function (r) {
+          if (!r.ok) throw new Error("no fetch");
+          return r.text();
+        })
+        .then(function (t) {
+          setMd(t, false);
+        })
+        .catch(function () {
+          el.app.innerHTML =
+            '<div class="empty"><p>Abrí <strong>copia-respuestas-stakeholder.md</strong> (la copia de trabajo, no el MD de especificación) con el botón superior, o serví esta carpeta con <code>python -m http.server</code>.</p></div>';
+          updateProgress();
+        });
+    });
   }
 
   boot();
