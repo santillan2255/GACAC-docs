@@ -212,6 +212,10 @@
         ? '<p class="subtitulo">' + esc(it.tituloIndice) + "</p>"
         : "";
 
+    parts.push(
+      '<details class="context-wrap"><summary class="context-wrap-sum">Contexto y ayuda (tocar para abrir)</summary><div class="context-wrap-body">'
+    );
+
     parts.push('<section class="lectura-simple" aria-labelledby="ctx-tit">');
     parts.push('<h3 id="ctx-tit">Para orientarte</h3><ul>');
     if (it.modulo) parts.push("<li><strong>Área:</strong> " + esc(it.modulo) + "</li>");
@@ -236,14 +240,14 @@
 
     if (it.contexto) {
       parts.push(
-        '<details class="context-block" open><summary>Antecedentes (técnicos)</summary><p class="contexto">' +
+        '<details class="context-block"><summary>Antecedentes (técnicos)</summary><p class="contexto">' +
           esc(it.contexto) +
           '</p><p class="hint-ctx">Las siglas y códigos del párrafo anterior están explicados en el glosario de abajo.</p></details>'
       );
     }
     if (it.bloquea) {
       parts.push(
-        '<details class="context-block" open><summary>Qué partes del proyecto dependen de esto</summary><p class="contexto">' +
+        '<details class="context-block"><summary>Qué partes del proyecto dependen de esto</summary><p class="contexto">' +
           esc(it.bloquea) +
           '</p><p class="hint-ctx">Son referencias internas (requisitos, olas, jobs); si no las conocés, alcanza con elegir la opción que prefieras o pedir ampliación.</p></details>'
       );
@@ -273,6 +277,7 @@
       }
       parts.push("</dl></details>");
     }
+    parts.push("</div></details>");
     return parts.join("");
   }
 
@@ -587,14 +592,18 @@
       '<p class="pregunta">' +
       esc(it.pregunta || "(Sin enunciado en el MD)") +
       "</p>" +
-      buildContextHtml(it) +
       '<h3 class="opciones-tit">Tu respuesta</h3>' +
       optsHtml +
+      '<div class="amp-block">' +
+      '<div class="amp-head">' +
       '<label class="field" for="amp">Ampliación o respuesta propia</label>' +
-      '<textarea id="amp" placeholder="Opcional: matiz, condición, o respuesta completa si elegiste Otra">' +
+      '<button type="button" id="btn-dictado" class="btn-dictado" title="Dictar con el micrófono">Dictar voz</button>' +
+      "</div>" +
+      '<textarea id="amp" rows="4" placeholder="Opcional: matiz, condición, o respuesta completa si elegiste Otra. Podés dictar con el botón.">' +
       esc(it.ampliacion === "—" ? "" : it.ampliacion) +
-      "</textarea>" +
-      '<div class="nav">' +
+      "</textarea></div>" +
+      buildContextHtml(it) +
+      '<div class="nav nav--sticky">' +
       '<button type="button" id="btn-prev"' +
       (nav.pos <= 0 ? " disabled" : "") +
       ">Anterior</button>" +
@@ -621,7 +630,77 @@
       radios[r].onchange = syncRadioStyles;
     }
     syncRadioStyles();
+    bindDictation("btn-dictado", "amp");
     updateProgress();
+  }
+
+  function speechSupported() {
+    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  }
+
+  function bindDictation(btnId, textareaId) {
+    var btn = document.getElementById(btnId);
+    var ta = document.getElementById(textareaId);
+    if (!btn || !ta) return;
+    if (!speechSupported()) {
+      btn.disabled = true;
+      btn.title = "Dictado no disponible (probá Chrome o Safari en el celular)";
+      return;
+    }
+    var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var rec = null;
+    var listening = false;
+    btn.onclick = function () {
+      if (listening && rec) {
+        rec.stop();
+        return;
+      }
+      rec = new Rec();
+      rec.lang = "es-AR";
+      rec.continuous = true;
+      rec.interimResults = false;
+      listening = true;
+      btn.classList.add("listening");
+      btn.textContent = "Detener";
+      btn.setAttribute("aria-pressed", "true");
+      rec.onresult = function (ev) {
+        var chunk = "";
+        var i;
+        for (i = ev.resultIndex; i < ev.results.length; i++) {
+          if (ev.results[i].isFinal) {
+            chunk += ev.results[i][0].transcript;
+          }
+        }
+        if (chunk) {
+          var sep =
+            ta.value.length && !/\s$/.test(ta.value) ? " " : "";
+          ta.value += sep + chunk.trim();
+        }
+      };
+      rec.onerror = function (e) {
+        listening = false;
+        btn.classList.remove("listening");
+        btn.textContent = "Dictar voz";
+        btn.setAttribute("aria-pressed", "false");
+        if (e.error === "not-allowed") {
+          toast("Permiso de micrófono denegado");
+        } else {
+          toast("No se pudo dictar (" + (e.error || "error") + ")");
+        }
+      };
+      rec.onend = function () {
+        listening = false;
+        btn.classList.remove("listening");
+        btn.textContent = "Dictar voz";
+        btn.setAttribute("aria-pressed", "false");
+      };
+      try {
+        rec.start();
+        toast("Escuchando…");
+      } catch (err) {
+        toast("No se pudo iniciar el micrófono");
+      }
+    };
   }
 
   function syncRadioStyles() {
