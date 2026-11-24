@@ -1038,6 +1038,74 @@
     return md.slice(0, m.index) + block + md.slice(m.index + m[1].length);
   }
 
+  function countMdAnswers() {
+    var n = 0;
+    var i;
+    for (i = 0; i < state.items.length; i++) {
+      if (answered(state.items[i])) n++;
+    }
+    return n;
+  }
+
+  function readCurrentForm() {
+    var elegida = "—";
+    var checked =
+      el.app && el.app.querySelector('input[name="op"]:checked');
+    if (checked) elegida = checked.value;
+    var ampEl = document.getElementById("amp");
+    var amp = (ampEl && ampEl.value.trim()) || "—";
+    if (!checked && amp !== "—") elegida = "OTRA";
+    return { elegida: elegida, ampliacion: amp };
+  }
+
+  function persistItemToMd(it, elegida, ampliacion, opts) {
+    opts = opts || {};
+    if (!it) return false;
+    if (elegida === "—" && ampliacion === "—") return false;
+    var fecha =
+      it.respondido && it.respondido !== "—"
+        ? it.respondido
+        : new Date().toISOString().slice(0, 16).replace("T", " ");
+    state.md = patchBlock(state.md, it.id, elegida, ampliacion, fecha);
+    it.elegida = elegida;
+    it.ampliacion = ampliacion;
+    it.respondido = fecha;
+    persistMd();
+    if (opts.writeFile !== false) writeFileHandleIfAny();
+    if (!opts.silent) toast("Guardado · " + it.id);
+    return true;
+  }
+
+  function persistCurrentForm(opts) {
+    var it = state.items[state.index];
+    if (!it) return false;
+    var form = readCurrentForm();
+    if (form.elegida === "—" && form.ampliacion === "—") return false;
+    return persistItemToMd(it, form.elegida, form.ampliacion, opts);
+  }
+
+  /** Vuelca todas las respuestas en memoria al MD (antes de exportar). */
+  function flushAllKnownAnswersToMd() {
+    persistCurrentForm({ silent: true, writeFile: false });
+    var i;
+    for (i = 0; i < state.items.length; i++) {
+      var it = state.items[i];
+      if (!answered(it) && (!it.ampliacion || it.ampliacion === "—")) continue;
+      var fecha =
+        it.respondido && it.respondido !== "—"
+          ? it.respondido
+          : new Date().toISOString().slice(0, 16).replace("T", " ");
+      state.md = patchBlock(
+        state.md,
+        it.id,
+        it.elegida,
+        it.ampliacion || "—",
+        fecha
+      );
+    }
+    persistMd();
+  }
+
   function persistMd() {
     try {
       localStorage.setItem(STORAGE_KEY, state.md);
@@ -1182,6 +1250,7 @@
       "</h2>" +
       buildPreguntaHtml(it) +
       '<h3 class="opciones-tit">Tu respuesta</h3>' +
+      '<p class="autosave-hint">Se guarda solo al elegir opción o al salir del cuadro de ampliación. «Exportar» incluye todas las respuestas guardadas.</p>' +
       optsHtml +
       '<div class="amp-block">' +
       '<div class="amp-head">' +
@@ -1211,6 +1280,7 @@
       }
     };
     document.getElementById("btn-skip").onclick = function () {
+      persistCurrentForm({ silent: true, writeFile: true });
       if (nav.pos < list.length - 1) {
         state.index = list[nav.pos + 1];
         renderQuestion();
@@ -1220,9 +1290,20 @@
 
     var radios = el.app.querySelectorAll('input[name="op"]');
     for (var r = 0; r < radios.length; r++) {
-      radios[r].onchange = syncRadioStyles;
+      radios[r].onchange = function () {
+        syncRadioStyles();
+        persistCurrentForm({ silent: true, writeFile: true });
+        updateProgress();
+      };
     }
     syncRadioStyles();
+    var ampEl = document.getElementById("amp");
+    if (ampEl) {
+      ampEl.onblur = function () {
+        persistCurrentForm({ silent: true, writeFile: true });
+        updateProgress();
+      };
+    }
     bindDictation("btn-dictado", "amp");
     updateProgress();
   }
@@ -1307,24 +1388,12 @@
   function saveCurrent() {
     var it = state.items[state.index];
     if (!it) return;
-    var elegida = "—";
-    var checked = el.app.querySelector('input[name="op"]:checked');
-    if (checked) elegida = checked.value;
-    var ampEl = document.getElementById("amp");
-    var amp = (ampEl && ampEl.value.trim()) || "—";
-    if (!checked && amp !== "—") elegida = "OTRA";
-    if (elegida === "—" && amp === "—") {
+    var form = readCurrentForm();
+    if (form.elegida === "—" && form.ampliacion === "—") {
       toast("Elegí una opción o escribí en ampliación");
       return;
     }
-    var fecha = new Date().toISOString().slice(0, 16).replace("T", " ");
-    state.md = patchBlock(state.md, it.id, elegida, amp, fecha);
-    it.elegida = elegida;
-    it.ampliacion = amp;
-    it.respondido = fecha;
-    persistMd();
-    writeFileHandleIfAny();
-    toast("Guardado en el MD · " + it.id);
+    persistItemToMd(it, form.elegida, form.ampliacion, { silent: false });
 
     var nav = currentLogicalIndex();
     var list = nav.list;
@@ -1396,6 +1465,13 @@
   }
 
   function exportMd() {
+    flushAllKnownAnswersToMd();
+    var n = countMdAnswers();
+    var total = state.items.length;
+    if (n === 0) {
+      toast("El archivo saldría vacío: marcá al menos una opción antes");
+      return;
+    }
     var blob = new Blob([state.md], { type: "text/markdown;charset=utf-8" });
     var a = document.createElement("a");
     var d = new Date().toISOString().slice(0, 10);
@@ -1403,7 +1479,12 @@
     a.download = "copia-respuestas-stakeholder-" + d + ".md";
     a.click();
     URL.revokeObjectURL(a.href);
-    toast("MD exportado");
+    toast("Exportado: " + n + " / " + total + " respuestas en el .md");
+    if (n < total * 0.5) {
+      setTimeout(function () {
+        toast("Quedaron menos de la mitad: ¿faltó marcar opciones en algunas?");
+      }, 2400);
+    }
   }
 
   async function writeFileHandleIfAny() {
@@ -1439,6 +1520,7 @@
   }
 
   async function saveWithPicker() {
+    flushAllKnownAnswersToMd();
     if (state.fileHandle) {
       await writeFileHandleIfAny();
       toast("Guardado en el archivo abierto");
@@ -1467,6 +1549,9 @@
   }
 
   function initEvents() {
+    window.addEventListener("beforeunload", function () {
+      flushAllKnownAnswersToMd();
+    });
     document.getElementById("btn-open").onclick = openWithPicker;
     document.getElementById("btn-export").onclick = exportMd;
     document.getElementById("btn-save-file").onclick = saveWithPicker;
