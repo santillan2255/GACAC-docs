@@ -1250,7 +1250,6 @@
       "</h2>" +
       buildPreguntaHtml(it) +
       '<h3 class="opciones-tit">Tu respuesta</h3>' +
-      '<p class="autosave-hint">Se guarda solo al elegir opción o al salir del cuadro de ampliación. «Exportar» incluye todas las respuestas guardadas.</p>' +
       optsHtml +
       '<div class="amp-block">' +
       '<div class="amp-head">' +
@@ -1621,7 +1620,7 @@
       var stored = loadStored();
       if (stored && stored.indexOf("### PA-") !== -1) {
         setMd(stored, false);
-        toast("Sesión recuperada del navegador");
+        toast("Seguís donde quedaste");
         return;
       }
       fetch(DEFAULT_MD)
@@ -1634,7 +1633,7 @@
         })
         .catch(function () {
           el.app.innerHTML =
-            '<div class="empty"><p>Abrí <strong>copia-respuestas-stakeholder.md</strong> (la copia de trabajo, no el MD de especificación) con el botón superior, o serví esta carpeta con <code>python -m http.server</code>.</p></div>';
+            '<div class="empty"><p>Recargá esta página en el <strong>mismo navegador</strong> donde venías trabajando. Si cambiaste de computadora, pedinos tu último export y usá <strong>Más → Importar archivo…</strong></p></div>';
           updateProgress();
         });
     });

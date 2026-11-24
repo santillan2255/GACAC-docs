@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T22:58:18.637Z",
+  "generatedAt": "2026-11-24T23:11:47.030Z",
   "zips": [
     {
       "name": "01-especificacion.zip",
@@ -18,7 +18,7 @@
     },
     {
       "name": "04-presentacion-stakeholders.zip",
-      "bytes": 855981,
+      "bytes": 856414,
       "package": "stakeholders"
     },
     {

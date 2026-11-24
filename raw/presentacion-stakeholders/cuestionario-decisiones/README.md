@@ -28,9 +28,9 @@ El archivo viejo `preguntas-respuestas.md` (si lo tenías) solo se usa una vez p
    ```
 2. Abrir la web:
    - `python -m http.server 8787` en esta carpeta → `http://localhost:8787/`
-   - o **Abrir MD** → elegir `copia-respuestas-stakeholder.md`
-3. **Guardar y seguir** → actualiza esa copia en memoria + `localStorage`.
-4. **Guardar archivo** o **Exportar MD** y enviámelo el archivo exportado.
+   - En prod: mismo enlace + mismo navegador retoma solo (`localStorage`).
+3. Marcar opción → autoguardado en el navegador; **Guardar y seguir** avanza a la siguiente.
+4. **Exportar** y enviar el `.md` (cada tanto y al cerrar). *Importar archivo* solo si cambian de PC con un export devuelto.
 
 Integrar al repo oficial (`02`, `01-registro-decisiones`) es un paso manual aparte, cuando vos quieras.
 
@@ -40,4 +40,4 @@ Tras un push a `main` (carpeta `docs/…` o `portal/`), el portal publica en:
 
 **https://santillan2255.github.io/GACAC-docs/cuestionario-decisiones/**
 
-(Entrá con la misma clave que el resto del portal; usa **Abrir MD** o **Guardar archivo** para persistir en tu copia del `.md`.)
+(Entrá con la misma clave que el resto del portal; retomar = mismo enlace y navegador; **Exportar** para enviar copia al equipo.)

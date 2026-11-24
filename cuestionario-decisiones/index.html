@@ -7,16 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <title>Cuestionario de decisiones · GACAC</title>
-  <link rel="stylesheet" href="estilos.css?v=22">
+  <link rel="stylesheet" href="estilos.css?v=24">
 </head>
 <body>
   <header class="bar">
     <div class="inner inner--head">
       <h1>Decisiones · copia de trabajo</h1>
       <div class="toolbar">
-        <button type="button" id="btn-open" class="btn-tool">Abrir MD</button>
-        <button type="button" id="btn-save-file" class="btn-tool">Guardar</button>
-        <button type="button" id="btn-export" class="btn-tool">Exportar</button>
+        <button type="button" id="btn-export" class="btn-tool primary">Exportar</button>
+        <details class="toolbar-more">
+          <summary class="btn-more">Más</summary>
+          <div class="toolbar-more-body">
+            <button type="button" id="btn-open" class="btn-tool">Importar archivo…</button>
+            <button type="button" id="btn-save-file" class="btn-tool">Guardar en disco</button>
+          </div>
+        </details>
         <label class="file-btn sr-only">
           Archivo
           <input type="file" id="file-input" accept=".md,text/markdown">
@@ -45,11 +50,17 @@
       </div>
     </div>
     <div class="inner bar-progress" aria-hidden="true"><span id="prog-bar" style="width:0%"></span></div>
+    <div class="inner inner--guia">
+      <details class="uso-guia">
+        <summary>Instrucciones</summary>
+        <p class="uso-guia-body">Entrá siempre al mismo link, en Chrome o Edge, en la misma PC. En cada pregunta <strong>marcás la respuesta</strong> (A, B, C…) y se guarda sola. Mañana volvés al link y seguís; no abras ningún archivo. De vez en cuando <strong>Exportar</strong> y mandanos ese archivo por mail. No uses incógnito ni borres datos del sitio.</p>
+      </details>
+    </div>
   </header>
   <main class="wrap" id="app" aria-live="polite">
     <p class="empty">Cargando…</p>
   </main>
   <div id="toast" class="toast" role="status"></div>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>

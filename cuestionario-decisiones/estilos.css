@@ -471,6 +471,62 @@ button:disabled {
   line-height: 1.4;
 }
 
+.inner--guia {
+  width: 100%;
+  padding-top: 0;
+}
+
+.uso-guia {
+  width: 100%;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 0 12px 10px;
+  background: var(--canvas);
+}
+
+.uso-guia summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 10px 0;
+  color: var(--ink);
+  list-style: none;
+}
+
+.uso-guia-body p {
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+
+.uso-guia-note {
+  font-size: 0.85rem;
+  color: var(--ink-3);
+}
+
+.toolbar-more {
+  position: relative;
+}
+
+.toolbar-more .btn-more {
+  cursor: pointer;
+  font: inherit;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--panel);
+  color: var(--ink-2);
+  list-style: none;
+}
+
+.toolbar-more-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 0 4px;
+}
+
 .context-wrap {
   margin-top: 20px;
   border: 1px dashed var(--line);
