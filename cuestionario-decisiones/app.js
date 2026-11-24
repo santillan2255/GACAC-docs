@@ -1017,8 +1017,9 @@
 
   function patchBlock(md, id, elegida, ampliacion, fecha) {
     var re = new RegExp(
-      "(### " + id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[\\s\\S]*?)(?=\\n### PA-|\\n## |$)",
-      "m"
+      "(### " +
+        id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
+        "[\\s\\S]*?)(?=\\r?\\n### PA-|\\r?\\n## |$)"
     );
     var m = md.match(re);
     if (!m) return md;
